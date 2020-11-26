@@ -46,8 +46,6 @@ func TestLex(t *testing.T) {
 	run("number0", "1234567890", NUMBER, float64(1234567890))
 	run("number1", "1", NUMBER, float64(1))
 	run("number2", "3.14", NUMBER, float64(3.14))
-	run("numberErr1", ".14", LEXERR)
-	run("numberErr2", "3.14.15", NUMBER, float64(3.14), LEXERR)
 	run("stringEmpty", `""`, STRING, "")
 	run("string0", `"abcd*&fooo"`, STRING, "abcd*&fooo")
 	run("stringEscape", `"\"\\\""`, STRING, `"\"`)

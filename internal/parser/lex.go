@@ -83,24 +83,10 @@ func (l *lex) scan(lval *yySymType) int {
 				return '>'
 			}
 			return GE
-		case '{':
-			r = l.read()
-			if r != '{' {
-				l.unread()
-				return '{'
-			}
-			return BLOCK_OPEN
-		case '}':
-			r = l.read()
-			if r != '}' {
-				l.unread()
-				return '}'
-			}
-			return BLOCK_CLOSE
 		case '"':
 			l.unread()
 			return l.scanQuotedString(lval)
-		case '+', '-', '*', '/', ';', '(', ')', ',', '[', ']', ':':
+		case '+', '-', '*', '/', ';', '(', ')', ',', '[', ']', ':', '.', '{', '}':
 			return int(r)
 		default:
 			if isNumber(r) {
