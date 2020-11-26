@@ -14,6 +14,8 @@ func TestParser1(t *testing.T) {
 	if 1 then
 		y: "some stuff",
 		z: "moar",
+		["if"] : "then",
+		[some_var.x] : "then",
 	end
 	if a + 123 != "that-makes-no-sense" then
 		y: {

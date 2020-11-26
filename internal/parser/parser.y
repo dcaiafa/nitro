@@ -124,6 +124,7 @@ object_fields: object_fields object_field   { $$ = nil }
              | object_field                 { $$ = nil }
 
 object_field: ID ':' expr opt_comma { $$ = nil }
+            | '[' expr ']' ':' expr opt_comma { $$ = nil }
             | object_if             { $$ = nil }
 
 object_if: kIF expr kTHEN
