@@ -155,6 +155,7 @@ object_else: kELSE
 array_literal: '[' array_elements_opt ']' {}
 
 array_elements_opt: array_elements array_last_elem_opt {}
+                  | array_last_elem_opt {}
                   | {}
 
 array_elements: array_elements array_element {}

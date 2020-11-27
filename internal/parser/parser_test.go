@@ -6,7 +6,16 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestParser1(t *testing.T) {
+func TestParserLvalue(t *testing.T) {
+	_, err := Parse(`
+	a.b.c = 123
+	(a - 123).b = 999
+	("hi").blah = 1
+`)
+	require.NoError(t, err)
+}
+
+func TestObject(t *testing.T) {
 	_, err := Parse(`
 	{
 		foo: "bar"
@@ -37,29 +46,38 @@ func TestParser1(t *testing.T) {
 
 		w: "one last thing"
 	}
-`)
-	require.NoError(t, err)
-}
 
-func TestParserLvalue(t *testing.T) {
-	_, err := Parse(`
-	a.b.c = 123
-	(a - 123).b = 999
-	("hi").blah = 1
+	{}
+	{ a: 1 }
+	{ a: 1, }
+	{ a: 1 b: 2 }
+	{ a: 1, b: 2 }
+	{ a: 1, b: 2, }
 `)
 	require.NoError(t, err)
 }
 
 func TestParserArray(t *testing.T) {
 	_, err := Parse(`
+	a = [ if foo then end ]
+	a = [ if foo then 1, end ]
+	a = [ if foo then 1,2 end ]
+	a = [ if foo then 1,2,3 end ]
+	a = [ 1, if foo then 2,3 end ]
+	a = [ 1, if foo then 2,3 end 4 ]
+	a = [ 1, if foo then 2,3 end 4, ]
 	b = [
   	1,
 	if foo then
 		2, 3,
-	else
+	elif bar then
 		4,
+	elif plan_b or plan_c then
+		4,
+	else
+		5,
 	end
-		8
+		999,
 	]
 `)
 	require.NoError(t, err)
