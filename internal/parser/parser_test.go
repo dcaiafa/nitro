@@ -53,6 +53,9 @@ func TestObject(t *testing.T) {
 	{ a: 1 b: 2 }
 	{ a: 1, b: 2 }
 	{ a: 1, b: 2, }
+
+	{ a: [ 1, 2, 3 ] }
+	{ a: { b: 1 } }
 `)
 	require.NoError(t, err)
 }
@@ -79,6 +82,8 @@ func TestParserArray(t *testing.T) {
 	end
 		999,
 	]
+
+	a = [ { name: "alice" }, { name: "bob" } ]
 `)
 	require.NoError(t, err)
 }

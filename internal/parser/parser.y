@@ -30,28 +30,6 @@ import (
 %token <str> STRING
 %token <str> ID
 
-%type <ast> assignment_stmt
-%type <ast> expr
-%type <ast> if_stmt
-%type <ast> lvalue
-%type <ast> number
-%type <ast> object_elif
-%type <ast> object_elifs
-%type <ast> object_else
-%type <ast> object_field
-%type <ast> object_fields
-%type <ast> object_if
-%type <ast> object_literal 
-%type <ast> object_literal_stmt
-%type <ast> object_elifs_opt
-%type <ast> object_else_opt
-%type <ast> object_fields_opt
-%type <ast> stmt
-%type <ast> stmts
-%type <ast> term
-%type <ast> term_no_number
-%type <ast> unary_expr
-
 %left OR kOR
 %left AND kAND
 %nonassoc kIN
@@ -63,7 +41,7 @@ import (
 
 %%
 
-program: stmts                            { }
+program: stmts                            {}
 
 stmts: stmts stmt                         {}
      | stmt                               {}
@@ -152,27 +130,27 @@ object_else: kELSE
                object_fields_opt
              {}
 
-array_literal: '[' array_elements_opt ']' {}
+array_literal: '[' array_elems_opt ']' {}
 
-array_elements_opt: array_elements array_last_elem_opt {}
-                  | array_last_elem_opt {}
-                  | {}
+array_elems_opt: array_elems expr_opt {}
+               | expr {}
+               | {}
 
-array_elements: array_elements array_element {}
-              | array_element {}
+array_elems: array_elems array_elem {}
+           | array_elem {}
 
-array_element: expr ',' {}
-             | array_if {}
+array_elem: expr ',' {}
+          | array_if {}
 
 array_if: kIF expr kTHEN
-            array_elements_opt
+            array_elems_opt
           array_elifs_opt
           array_else_opt
           kEND
           {}
 
-array_last_elem_opt: expr {}
-                   |  {}
+expr_opt: expr {}
+        |  {}
 
 array_elifs_opt: array_elifs {}
                | {}
@@ -181,12 +159,12 @@ array_elifs: array_elifs array_elif
            | array_elif
 
 array_elif: kELIF expr kTHEN
-              array_elements_opt
+              array_elems_opt
             {}
 
 array_else_opt: array_else {}
               | {}
 
 array_else: kELSE
-              array_elements_opt
+              array_elems_opt
             {}
