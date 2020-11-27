@@ -112,8 +112,8 @@ state 9
 	array_literal  goto 13
 
 state 10
-	object_literal:  '{'.opt_object_fields '}' 
-	opt_object_fields: .    (40)
+	object_literal:  '{'.object_fields_opt '}' 
+	object_fields_opt: .    (40)
 
 	kIF  shift 35
 	ID  shift 32
@@ -123,7 +123,7 @@ state 10
 	object_field  goto 31
 	object_fields  goto 30
 	object_if  goto 34
-	opt_object_fields  goto 29
+	object_fields_opt  goto 29
 
 state 11
 	lvalue:  term_no_number.'.' ID 
@@ -173,8 +173,8 @@ state 15
 	array_literal  goto 13
 
 state 16
-	array_literal:  '['.opt_array_elements ']' 
-	opt_array_elements: .    (57)
+	array_literal:  '['.array_elements_opt ']' 
+	array_elements_opt: .    (57)
 
 	kIF  shift 43
 	kNOT  shift 21
@@ -195,7 +195,7 @@ state 16
 	term_no_number  goto 24
 	unary_expr  goto 20
 	array_literal  goto 13
-	opt_array_elements  goto 38
+	array_elements_opt  goto 38
 	array_elements  goto 39
 	array_element  goto 40
 	array_if  goto 42
@@ -330,14 +330,14 @@ state 28
 
 
 state 29
-	object_literal:  '{' opt_object_fields.'}' 
+	object_literal:  '{' object_fields_opt.'}' 
 
 	'}'  shift 60
 	.  error
 
 
 state 30
-	opt_object_fields:  object_fields.    (39)
+	object_fields_opt:  object_fields.    (39)
 	object_fields:  object_fields.object_field 
 
 	kIF  shift 35
@@ -355,14 +355,14 @@ state 31
 
 
 state 32
-	object_field:  ID.':' expr opt_comma 
+	object_field:  ID.':' expr comma_opt 
 
 	':'  shift 62
 	.  error
 
 
 state 33
-	object_field:  '['.expr ']' ':' expr opt_comma 
+	object_field:  '['.expr ']' ':' expr comma_opt 
 
 	kNOT  shift 21
 	NUMBER  shift 26
@@ -384,13 +384,16 @@ state 33
 	array_literal  goto 13
 
 state 34
-	object_field:  object_if.    (45)
+	object_field:  object_if.comma_opt 
+	comma_opt: .    (5)
 
-	.  reduce 45 (src line 129)
+	','  shift 65
+	.  reduce 5 (src line 72)
 
+	comma_opt  goto 64
 
 state 35
-	object_if:  kIF.expr kTHEN opt_object_fields opt_object_elifs opt_object_else kEND 
+	object_if:  kIF.expr kTHEN object_fields_opt object_elifs_opt object_else_opt kEND 
 
 	kNOT  shift 21
 	NUMBER  shift 26
@@ -402,7 +405,7 @@ state 35
 	'['  shift 16
 	.  error
 
-	expr  goto 64
+	expr  goto 66
 	lvalue  goto 28
 	number  goto 23
 	object_literal  goto 27
@@ -414,7 +417,7 @@ state 35
 state 36
 	lvalue:  term_no_number '.'.ID 
 
-	ID  shift 65
+	ID  shift 67
 	.  error
 
 
@@ -445,20 +448,21 @@ state 37
 	'-'  shift 47
 	'*'  shift 48
 	'/'  shift 49
-	')'  shift 66
+	')'  shift 68
 	.  error
 
 
 state 38
-	array_literal:  '[' opt_array_elements.']' 
+	array_literal:  '[' array_elements_opt.']' 
 
-	']'  shift 67
+	']'  shift 69
 	.  error
 
 
 state 39
-	opt_array_elements:  array_elements.    (56)
+	array_elements_opt:  array_elements.array_last_elem_opt 
 	array_elements:  array_elements.array_element 
+	array_last_elem_opt: .    (64)
 
 	kIF  shift 43
 	kNOT  shift 21
@@ -469,9 +473,9 @@ state 39
 	'('  shift 15
 	'{'  shift 10
 	'['  shift 16
-	.  reduce 56 (src line 157)
+	.  reduce 64 (src line 172)
 
-	expr  goto 41
+	expr  goto 72
 	lvalue  goto 28
 	number  goto 23
 	object_literal  goto 27
@@ -479,7 +483,8 @@ state 39
 	term_no_number  goto 24
 	unary_expr  goto 20
 	array_literal  goto 13
-	array_element  goto 68
+	array_last_elem_opt  goto 70
+	array_element  goto 71
 	array_if  goto 42
 
 state 40
@@ -515,7 +520,7 @@ state 41
 	'-'  shift 47
 	'*'  shift 48
 	'/'  shift 49
-	','  shift 69
+	','  shift 73
 	.  error
 
 
@@ -526,7 +531,7 @@ state 42
 
 
 state 43
-	array_if:  kIF.expr kTHEN opt_array_elements kEND 
+	array_if:  kIF.expr kTHEN array_elements_opt kEND 
 
 	kNOT  shift 21
 	NUMBER  shift 26
@@ -538,7 +543,7 @@ state 43
 	'['  shift 16
 	.  error
 
-	expr  goto 70
+	expr  goto 74
 	lvalue  goto 28
 	number  goto 23
 	object_literal  goto 27
@@ -594,7 +599,7 @@ state 45
 	object_literal  goto 7
 	object_literal_stmt  goto 4
 	stmt  goto 3
-	stmts  goto 71
+	stmts  goto 75
 	term_no_number  goto 11
 	array_literal  goto 13
 
@@ -611,7 +616,7 @@ state 46
 	'['  shift 16
 	.  error
 
-	expr  goto 72
+	expr  goto 76
 	lvalue  goto 28
 	number  goto 23
 	object_literal  goto 27
@@ -633,7 +638,7 @@ state 47
 	'['  shift 16
 	.  error
 
-	expr  goto 73
+	expr  goto 77
 	lvalue  goto 28
 	number  goto 23
 	object_literal  goto 27
@@ -655,7 +660,7 @@ state 48
 	'['  shift 16
 	.  error
 
-	expr  goto 74
+	expr  goto 78
 	lvalue  goto 28
 	number  goto 23
 	object_literal  goto 27
@@ -677,7 +682,7 @@ state 49
 	'['  shift 16
 	.  error
 
-	expr  goto 75
+	expr  goto 79
 	lvalue  goto 28
 	number  goto 23
 	object_literal  goto 27
@@ -699,7 +704,7 @@ state 50
 	'['  shift 16
 	.  error
 
-	expr  goto 76
+	expr  goto 80
 	lvalue  goto 28
 	number  goto 23
 	object_literal  goto 27
@@ -721,7 +726,7 @@ state 51
 	'['  shift 16
 	.  error
 
-	expr  goto 77
+	expr  goto 81
 	lvalue  goto 28
 	number  goto 23
 	object_literal  goto 27
@@ -743,7 +748,7 @@ state 52
 	'['  shift 16
 	.  error
 
-	expr  goto 78
+	expr  goto 82
 	lvalue  goto 28
 	number  goto 23
 	object_literal  goto 27
@@ -765,7 +770,7 @@ state 53
 	'['  shift 16
 	.  error
 
-	expr  goto 79
+	expr  goto 83
 	lvalue  goto 28
 	number  goto 23
 	object_literal  goto 27
@@ -787,7 +792,7 @@ state 54
 	'['  shift 16
 	.  error
 
-	expr  goto 80
+	expr  goto 84
 	lvalue  goto 28
 	number  goto 23
 	object_literal  goto 27
@@ -809,7 +814,7 @@ state 55
 	'['  shift 16
 	.  error
 
-	expr  goto 81
+	expr  goto 85
 	lvalue  goto 28
 	number  goto 23
 	object_literal  goto 27
@@ -831,7 +836,7 @@ state 56
 	'['  shift 16
 	.  error
 
-	expr  goto 82
+	expr  goto 86
 	lvalue  goto 28
 	number  goto 23
 	object_literal  goto 27
@@ -853,7 +858,7 @@ state 57
 	'['  shift 16
 	.  error
 
-	expr  goto 83
+	expr  goto 87
 	lvalue  goto 28
 	number  goto 23
 	object_literal  goto 27
@@ -875,7 +880,7 @@ state 59
 
 
 state 60
-	object_literal:  '{' opt_object_fields '}'.    (38)
+	object_literal:  '{' object_fields_opt '}'.    (38)
 
 	.  reduce 38 (src line 119)
 
@@ -887,7 +892,7 @@ state 61
 
 
 state 62
-	object_field:  ID ':'.expr opt_comma 
+	object_field:  ID ':'.expr comma_opt 
 
 	kNOT  shift 21
 	NUMBER  shift 26
@@ -899,7 +904,7 @@ state 62
 	'['  shift 16
 	.  error
 
-	expr  goto 84
+	expr  goto 88
 	lvalue  goto 28
 	number  goto 23
 	object_literal  goto 27
@@ -921,7 +926,7 @@ state 63
 	expr:  expr.NE expr 
 	expr:  expr.kAND expr 
 	expr:  expr.kOR expr 
-	object_field:  '[' expr.']' ':' expr opt_comma 
+	object_field:  '[' expr.']' ':' expr comma_opt 
 
 	kAND  shift 56
 	kOR  shift 57
@@ -935,11 +940,23 @@ state 63
 	'-'  shift 47
 	'*'  shift 48
 	'/'  shift 49
-	']'  shift 85
+	']'  shift 89
 	.  error
 
 
 state 64
+	object_field:  object_if comma_opt.    (45)
+
+	.  reduce 45 (src line 129)
+
+
+state 65
+	comma_opt:  ','.    (4)
+
+	.  reduce 4 (src line 71)
+
+
+state 66
 	expr:  expr.'+' expr 
 	expr:  expr.'-' expr 
 	expr:  expr.'*' expr 
@@ -952,11 +969,11 @@ state 64
 	expr:  expr.NE expr 
 	expr:  expr.kAND expr 
 	expr:  expr.kOR expr 
-	object_if:  kIF expr.kTHEN opt_object_fields opt_object_elifs opt_object_else kEND 
+	object_if:  kIF expr.kTHEN object_fields_opt object_elifs_opt object_else_opt kEND 
 
 	kAND  shift 56
 	kOR  shift 57
-	kTHEN  shift 86
+	kTHEN  shift 90
 	'<'  shift 50
 	LE  shift 51
 	'>'  shift 52
@@ -970,37 +987,37 @@ state 64
 	.  error
 
 
-state 65
+state 67
 	lvalue:  term_no_number '.' ID.    (25)
 
 	.  reduce 25 (src line 101)
 
 
-state 66
+state 68
 	term_no_number:  '(' expr ')'.    (35)
 
 	.  reduce 35 (src line 114)
 
 
-state 67
-	array_literal:  '[' opt_array_elements ']'.    (55)
+state 69
+	array_literal:  '[' array_elements_opt ']'.    (55)
 
 	.  reduce 55 (src line 155)
 
 
-state 68
+state 70
+	array_elements_opt:  array_elements array_last_elem_opt.    (56)
+
+	.  reduce 56 (src line 157)
+
+
+state 71
 	array_elements:  array_elements array_element.    (58)
 
 	.  reduce 58 (src line 160)
 
 
-state 69
-	array_element:  expr ','.    (60)
-
-	.  reduce 60 (src line 163)
-
-
-state 70
+state 72
 	expr:  expr.'+' expr 
 	expr:  expr.'-' expr 
 	expr:  expr.'*' expr 
@@ -1013,11 +1030,49 @@ state 70
 	expr:  expr.NE expr 
 	expr:  expr.kAND expr 
 	expr:  expr.kOR expr 
-	array_if:  kIF expr.kTHEN opt_array_elements kEND 
+	array_element:  expr.',' 
+	array_last_elem_opt:  expr.    (63)
 
 	kAND  shift 56
 	kOR  shift 57
-	kTHEN  shift 87
+	'<'  shift 50
+	LE  shift 51
+	'>'  shift 52
+	GE  shift 53
+	EQ  shift 54
+	NE  shift 55
+	'+'  shift 46
+	'-'  shift 47
+	'*'  shift 48
+	'/'  shift 49
+	','  shift 73
+	.  reduce 63 (src line 171)
+
+
+state 73
+	array_element:  expr ','.    (60)
+
+	.  reduce 60 (src line 163)
+
+
+state 74
+	expr:  expr.'+' expr 
+	expr:  expr.'-' expr 
+	expr:  expr.'*' expr 
+	expr:  expr.'/' expr 
+	expr:  expr.'<' expr 
+	expr:  expr.LE expr 
+	expr:  expr.'>' expr 
+	expr:  expr.GE expr 
+	expr:  expr.EQ expr 
+	expr:  expr.NE expr 
+	expr:  expr.kAND expr 
+	expr:  expr.kOR expr 
+	array_if:  kIF expr.kTHEN array_elements_opt kEND 
+
+	kAND  shift 56
+	kOR  shift 57
+	kTHEN  shift 91
 	'<'  shift 50
 	LE  shift 51
 	'>'  shift 52
@@ -1031,11 +1086,11 @@ state 70
 	.  error
 
 
-state 71
+state 75
 	stmts:  stmts.stmt 
 	if_stmt:  kIF expr kTHEN stmts.kEND 
 
-	kEND  shift 88
+	kEND  shift 92
 	kIF  shift 9
 	STRING  shift 14
 	ID  shift 12
@@ -1053,7 +1108,7 @@ state 71
 	term_no_number  goto 11
 	array_literal  goto 13
 
-state 72
+state 76
 	expr:  expr.'+' expr 
 	expr:  expr '+' expr.    (13)
 	expr:  expr.'-' expr 
@@ -1073,7 +1128,7 @@ state 72
 	.  reduce 13 (src line 88)
 
 
-state 73
+state 77
 	expr:  expr.'+' expr 
 	expr:  expr.'-' expr 
 	expr:  expr '-' expr.    (14)
@@ -1093,7 +1148,7 @@ state 73
 	.  reduce 14 (src line 89)
 
 
-state 74
+state 78
 	expr:  expr.'+' expr 
 	expr:  expr.'-' expr 
 	expr:  expr.'*' expr 
@@ -1111,7 +1166,7 @@ state 74
 	.  reduce 15 (src line 90)
 
 
-state 75
+state 79
 	expr:  expr.'+' expr 
 	expr:  expr.'-' expr 
 	expr:  expr.'*' expr 
@@ -1129,7 +1184,7 @@ state 75
 	.  reduce 16 (src line 91)
 
 
-state 76
+state 80
 	expr:  expr.'+' expr 
 	expr:  expr.'-' expr 
 	expr:  expr.'*' expr 
@@ -1157,7 +1212,7 @@ state 76
 	.  reduce 17 (src line 92)
 
 
-state 77
+state 81
 	expr:  expr.'+' expr 
 	expr:  expr.'-' expr 
 	expr:  expr.'*' expr 
@@ -1185,7 +1240,7 @@ state 77
 	.  reduce 18 (src line 93)
 
 
-state 78
+state 82
 	expr:  expr.'+' expr 
 	expr:  expr.'-' expr 
 	expr:  expr.'*' expr 
@@ -1213,7 +1268,7 @@ state 78
 	.  reduce 19 (src line 94)
 
 
-state 79
+state 83
 	expr:  expr.'+' expr 
 	expr:  expr.'-' expr 
 	expr:  expr.'*' expr 
@@ -1241,7 +1296,7 @@ state 79
 	.  reduce 20 (src line 95)
 
 
-state 80
+state 84
 	expr:  expr.'+' expr 
 	expr:  expr.'-' expr 
 	expr:  expr.'*' expr 
@@ -1269,7 +1324,7 @@ state 80
 	.  reduce 21 (src line 96)
 
 
-state 81
+state 85
 	expr:  expr.'+' expr 
 	expr:  expr.'-' expr 
 	expr:  expr.'*' expr 
@@ -1297,7 +1352,7 @@ state 81
 	.  reduce 22 (src line 97)
 
 
-state 82
+state 86
 	expr:  expr.'+' expr 
 	expr:  expr.'-' expr 
 	expr:  expr.'*' expr 
@@ -1325,7 +1380,7 @@ state 82
 	.  reduce 23 (src line 98)
 
 
-state 83
+state 87
 	expr:  expr.'+' expr 
 	expr:  expr.'-' expr 
 	expr:  expr.'*' expr 
@@ -1354,7 +1409,7 @@ state 83
 	.  reduce 24 (src line 99)
 
 
-state 84
+state 88
 	expr:  expr.'+' expr 
 	expr:  expr.'-' expr 
 	expr:  expr.'*' expr 
@@ -1367,8 +1422,8 @@ state 84
 	expr:  expr.NE expr 
 	expr:  expr.kAND expr 
 	expr:  expr.kOR expr 
-	object_field:  ID ':' expr.opt_comma 
-	opt_comma: .    (5)
+	object_field:  ID ':' expr.comma_opt 
+	comma_opt: .    (5)
 
 	kAND  shift 56
 	kOR  shift 57
@@ -1382,21 +1437,21 @@ state 84
 	'-'  shift 47
 	'*'  shift 48
 	'/'  shift 49
-	','  shift 90
+	','  shift 65
 	.  reduce 5 (src line 72)
 
-	opt_comma  goto 89
+	comma_opt  goto 93
 
-state 85
-	object_field:  '[' expr ']'.':' expr opt_comma 
+state 89
+	object_field:  '[' expr ']'.':' expr comma_opt 
 
-	':'  shift 91
+	':'  shift 94
 	.  error
 
 
-state 86
-	object_if:  kIF expr kTHEN.opt_object_fields opt_object_elifs opt_object_else kEND 
-	opt_object_fields: .    (40)
+state 90
+	object_if:  kIF expr kTHEN.object_fields_opt object_elifs_opt object_else_opt kEND 
+	object_fields_opt: .    (40)
 
 	kIF  shift 35
 	ID  shift 32
@@ -1406,11 +1461,11 @@ state 86
 	object_field  goto 31
 	object_fields  goto 30
 	object_if  goto 34
-	opt_object_fields  goto 92
+	object_fields_opt  goto 95
 
-state 87
-	array_if:  kIF expr kTHEN.opt_array_elements kEND 
-	opt_array_elements: .    (57)
+state 91
+	array_if:  kIF expr kTHEN.array_elements_opt kEND 
+	array_elements_opt: .    (57)
 
 	kIF  shift 43
 	kNOT  shift 21
@@ -1431,31 +1486,25 @@ state 87
 	term_no_number  goto 24
 	unary_expr  goto 20
 	array_literal  goto 13
-	opt_array_elements  goto 93
+	array_elements_opt  goto 96
 	array_elements  goto 39
 	array_element  goto 40
 	array_if  goto 42
 
-state 88
+state 92
 	if_stmt:  kIF expr kTHEN stmts kEND.    (9)
 
 	.  reduce 9 (src line 78)
 
 
-state 89
-	object_field:  ID ':' expr opt_comma.    (43)
+state 93
+	object_field:  ID ':' expr comma_opt.    (43)
 
 	.  reduce 43 (src line 127)
 
 
-state 90
-	opt_comma:  ','.    (4)
-
-	.  reduce 4 (src line 71)
-
-
-state 91
-	object_field:  '[' expr ']' ':'.expr opt_comma 
+state 94
+	object_field:  '[' expr ']' ':'.expr comma_opt 
 
 	kNOT  shift 21
 	NUMBER  shift 26
@@ -1467,7 +1516,7 @@ state 91
 	'['  shift 16
 	.  error
 
-	expr  goto 94
+	expr  goto 97
 	lvalue  goto 28
 	number  goto 23
 	object_literal  goto 27
@@ -1476,25 +1525,25 @@ state 91
 	unary_expr  goto 20
 	array_literal  goto 13
 
-state 92
-	object_if:  kIF expr kTHEN opt_object_fields.opt_object_elifs opt_object_else kEND 
-	opt_object_elifs: .    (48)
+state 95
+	object_if:  kIF expr kTHEN object_fields_opt.object_elifs_opt object_else_opt kEND 
+	object_elifs_opt: .    (48)
 
-	kELIF  shift 98
+	kELIF  shift 101
 	.  reduce 48 (src line 139)
 
-	object_elif  goto 97
-	object_elifs  goto 96
-	opt_object_elifs  goto 95
+	object_elif  goto 100
+	object_elifs  goto 99
+	object_elifs_opt  goto 98
 
-state 93
-	array_if:  kIF expr kTHEN opt_array_elements.kEND 
+state 96
+	array_if:  kIF expr kTHEN array_elements_opt.kEND 
 
-	kEND  shift 99
+	kEND  shift 102
 	.  error
 
 
-state 94
+state 97
 	expr:  expr.'+' expr 
 	expr:  expr.'-' expr 
 	expr:  expr.'*' expr 
@@ -1507,8 +1556,8 @@ state 94
 	expr:  expr.NE expr 
 	expr:  expr.kAND expr 
 	expr:  expr.kOR expr 
-	object_field:  '[' expr ']' ':' expr.opt_comma 
-	opt_comma: .    (5)
+	object_field:  '[' expr ']' ':' expr.comma_opt 
+	comma_opt: .    (5)
 
 	kAND  shift 56
 	kOR  shift 57
@@ -1522,38 +1571,38 @@ state 94
 	'-'  shift 47
 	'*'  shift 48
 	'/'  shift 49
-	','  shift 90
+	','  shift 65
 	.  reduce 5 (src line 72)
 
-	opt_comma  goto 100
+	comma_opt  goto 103
 
-state 95
-	object_if:  kIF expr kTHEN opt_object_fields opt_object_elifs.opt_object_else kEND 
-	opt_object_else: .    (53)
+state 98
+	object_if:  kIF expr kTHEN object_fields_opt object_elifs_opt.object_else_opt kEND 
+	object_else_opt: .    (53)
 
-	kELSE  shift 103
+	kELSE  shift 106
 	.  reduce 53 (src line 149)
 
-	object_else  goto 102
-	opt_object_else  goto 101
+	object_else  goto 105
+	object_else_opt  goto 104
 
-state 96
-	opt_object_elifs:  object_elifs.    (47)
+state 99
+	object_elifs_opt:  object_elifs.    (47)
 	object_elifs:  object_elifs.object_elif 
 
-	kELIF  shift 98
+	kELIF  shift 101
 	.  reduce 47 (src line 138)
 
-	object_elif  goto 104
+	object_elif  goto 107
 
-state 97
+state 100
 	object_elifs:  object_elif.    (50)
 
 	.  reduce 50 (src line 142)
 
 
-state 98
-	object_elif:  kELIF.expr kTHEN opt_object_fields 
+state 101
+	object_elif:  kELIF.expr kTHEN object_fields_opt 
 
 	kNOT  shift 21
 	NUMBER  shift 26
@@ -1565,7 +1614,7 @@ state 98
 	'['  shift 16
 	.  error
 
-	expr  goto 105
+	expr  goto 108
 	lvalue  goto 28
 	number  goto 23
 	object_literal  goto 27
@@ -1574,34 +1623,34 @@ state 98
 	unary_expr  goto 20
 	array_literal  goto 13
 
-state 99
-	array_if:  kIF expr kTHEN opt_array_elements kEND.    (62)
+state 102
+	array_if:  kIF expr kTHEN array_elements_opt kEND.    (62)
 
 	.  reduce 62 (src line 166)
 
 
-state 100
-	object_field:  '[' expr ']' ':' expr opt_comma.    (44)
+state 103
+	object_field:  '[' expr ']' ':' expr comma_opt.    (44)
 
 	.  reduce 44 (src line 128)
 
 
-state 101
-	object_if:  kIF expr kTHEN opt_object_fields opt_object_elifs opt_object_else.kEND 
+state 104
+	object_if:  kIF expr kTHEN object_fields_opt object_elifs_opt object_else_opt.kEND 
 
-	kEND  shift 106
+	kEND  shift 109
 	.  error
 
 
-state 102
-	opt_object_else:  object_else.    (52)
+state 105
+	object_else_opt:  object_else.    (52)
 
 	.  reduce 52 (src line 148)
 
 
-state 103
-	object_else:  kELSE.opt_object_fields 
-	opt_object_fields: .    (40)
+state 106
+	object_else:  kELSE.object_fields_opt 
+	object_fields_opt: .    (40)
 
 	kIF  shift 35
 	ID  shift 32
@@ -1611,15 +1660,15 @@ state 103
 	object_field  goto 31
 	object_fields  goto 30
 	object_if  goto 34
-	opt_object_fields  goto 107
+	object_fields_opt  goto 110
 
-state 104
+state 107
 	object_elifs:  object_elifs object_elif.    (49)
 
 	.  reduce 49 (src line 141)
 
 
-state 105
+state 108
 	expr:  expr.'+' expr 
 	expr:  expr.'-' expr 
 	expr:  expr.'*' expr 
@@ -1632,11 +1681,11 @@ state 105
 	expr:  expr.NE expr 
 	expr:  expr.kAND expr 
 	expr:  expr.kOR expr 
-	object_elif:  kELIF expr.kTHEN opt_object_fields 
+	object_elif:  kELIF expr.kTHEN object_fields_opt 
 
 	kAND  shift 56
 	kOR  shift 57
-	kTHEN  shift 108
+	kTHEN  shift 111
 	'<'  shift 50
 	LE  shift 51
 	'>'  shift 52
@@ -1650,21 +1699,21 @@ state 105
 	.  error
 
 
-state 106
-	object_if:  kIF expr kTHEN opt_object_fields opt_object_elifs opt_object_else kEND.    (46)
+state 109
+	object_if:  kIF expr kTHEN object_fields_opt object_elifs_opt object_else_opt kEND.    (46)
 
 	.  reduce 46 (src line 131)
 
 
-state 107
-	object_else:  kELSE opt_object_fields.    (54)
+state 110
+	object_else:  kELSE object_fields_opt.    (54)
 
 	.  reduce 54 (src line 151)
 
 
-state 108
-	object_elif:  kELIF expr kTHEN.opt_object_fields 
-	opt_object_fields: .    (40)
+state 111
+	object_elif:  kELIF expr kTHEN.object_fields_opt 
+	object_fields_opt: .    (40)
 
 	kIF  shift 35
 	ID  shift 32
@@ -1674,23 +1723,23 @@ state 108
 	object_field  goto 31
 	object_fields  goto 30
 	object_if  goto 34
-	opt_object_fields  goto 109
+	object_fields_opt  goto 112
 
-state 109
-	object_elif:  kELIF expr kTHEN opt_object_fields.    (51)
+state 112
+	object_elif:  kELIF expr kTHEN object_fields_opt.    (51)
 
 	.  reduce 51 (src line 144)
 
 
-40 terminals, 29 nonterminals
-63 grammar rules, 110/8000 states
+40 terminals, 30 nonterminals
+65 grammar rules, 113/8000 states
 0 shift/reduce, 0 reduce/reduce conflicts reported
-78 working sets used
-memory: parser 386/120000
-145 extra closures
-434 shift entries, 38 exceptions
-73 goto entries
-196 entries saved by goto default
-Optimizer space used: output 403/120000
-403 table entries, 135 zero
-maximum spread: 40, maximum offset: 108
+79 working sets used
+memory: parser 387/120000
+148 extra closures
+448 shift entries, 38 exceptions
+76 goto entries
+195 entries saved by goto default
+Optimizer space used: output 397/120000
+397 table entries, 125 zero
+maximum spread: 40, maximum offset: 111
