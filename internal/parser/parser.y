@@ -165,11 +165,27 @@ array_element: expr ',' {}
 
 array_if: kIF expr kTHEN
             array_elements_opt
+          array_elifs_opt
+          array_else_opt
           kEND
           {}
 
 array_last_elem_opt: expr {}
                    |  {}
 
+array_elifs_opt: array_elifs {}
+               | {}
 
+array_elifs: array_elifs array_elif
+           | array_elif
 
+array_elif: kELIF expr kTHEN
+              array_elements_opt
+            {}
+
+array_else_opt: array_else {}
+              | {}
+
+array_else: kELSE
+              array_elements_opt
+            {}

@@ -52,13 +52,14 @@ func TestParserLvalue(t *testing.T) {
 
 func TestParserArray(t *testing.T) {
 	_, err := Parse(`
-	a = [ 1, 2, 3 ]
 	b = [
   	1,
 	if foo then
 		2, 3,
-	end
+	else
 		4,
+	end
+		8
 	]
 `)
 	require.NoError(t, err)
