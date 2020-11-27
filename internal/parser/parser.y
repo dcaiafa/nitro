@@ -108,6 +108,7 @@ term: number                              { $$ = nil }
     | term_no_number                      { $$ = nil }
 
 term_no_number: object_literal       { $$ = nil }
+              | array_literal        {}
               | STRING               { $$ = nil }
               | lvalue               { $$ = nil }
               | '(' expr ')'         { $$ = nil }
@@ -150,3 +151,19 @@ opt_object_else: object_else { $$ = nil }
 object_else: kELSE 
                opt_object_fields
              { $$ = nil }
+
+array_literal: '[' opt_array_elements ']' {}
+
+opt_array_elements: array_elements {}
+                  | {}
+
+array_elements: array_elements array_element {}
+              | array_element {}
+
+array_element: expr ',' {}
+             | array_if {}
+
+array_if: kIF expr kTHEN
+            opt_array_elements
+          kEND
+          {}
