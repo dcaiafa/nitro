@@ -14,11 +14,14 @@ import (
 }
 
 %token LEXERR
+%token kVAR
 %token kAND 
+%token kDO
 %token kELIF 
 %token kELSE 
 %token kEND 
 %token kFALSE 
+%token kFOR
 %token kIF 
 %token kIN 
 %token kNOT 
@@ -47,20 +50,52 @@ stmts: stmts stmt                         {}
      | stmt                               {}
 
 comma_opt: ','
-         |
+         | /*empty*/
 
 stmt: object_literal_stmt                 {}
     | assignment_stmt                     {}
+    | var_decl_stmt                       {}
     | if_stmt                             {}
+    | for_stmt                            {}
 
 if_stmt: kIF expr kTHEN
            stmts
+         elifs_opt
+         else_opt
          kEND
          {}
 
+elifs_opt: elifs {}
+         | /*empty*/ {}
+
+elifs: elifs elif {}
+     | elif {}
+
+elif: kELIF expr kTHEN
+        stmts
+      {}
+
+else_opt: else {}
+        | /*empty*/ {}
+
+else: kELSE expr 
+        stmts
+      {}
+
+for_stmt: kFOR for_args kIN expr kDO
+            stmts
+          kEND
+          {}
+
+for_args: for_args ',' ID {}
+        | ID {}
+
 object_literal_stmt: object_literal       {}
 
-assignment_stmt: lvalue '=' expr          {}
+assignment_stmt: symbol_ref '=' expr          {}
+
+var_decl_stmt: kVAR ID                    {}
+             | kVAR ID '=' expr           {}
 
 expr: unary_expr                          {}
     | expr '+' expr                       {}
@@ -76,8 +111,8 @@ expr: unary_expr                          {}
     | expr kAND expr                      {}
     | expr kOR expr                       {}
 
-lvalue: term_no_number '.' ID             {}
-      | ID                                {}
+symbol_ref: term_no_number '.' ID             {}
+          | ID                                {}
 
 unary_expr: kNOT term                     {}
           | term                          {}
@@ -85,14 +120,16 @@ unary_expr: kNOT term                     {}
 term: number                              {}
     | term_no_number                      {}
 
-term_no_number: object_literal       {}
-              | array_literal        {}
-              | STRING               {}
-              | lvalue               {}
-              | '(' expr ')'         {}
-
 number: '-' NUMBER                        {}
       | NUMBER                            {}
+
+term_no_number: STRING               {}
+              | array_literal        {}
+              | object_literal       {}
+              | symbol_ref           {}
+              | '(' expr ')'         {}
+
+//invocation: term_no_number '(' ')'
 
 object_literal: '{' object_fields_opt '}' {}
 
