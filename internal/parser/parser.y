@@ -49,16 +49,17 @@ program: opt_stmts                        {}
 opt_stmts: stmts                          {}
          | /*empty*/                      {}
 
-stmts: stmts stmt                         {}
-     | stmt                               {}
+stmts: stmts stmt ';'                     {}
+     | stmt ';'                           {}
 
-stmt: assignment_stmt ';'                 {}
-    | var_decl_stmt ';'                   {}
-    | expr ';'                            {}
+stmt: assignment_stmt                     {}
+    | var_decl_stmt                       {}
+    | expr                                {}
     | for_stmt                            {}
+    | if_expr                             {}
 
 if_expr: kIF expr kTHEN
-           stmts
+           opt_stmts
          elifs_opt
          else_opt
          kEND
@@ -71,18 +72,18 @@ elifs: elifs elif {}
      | elif {}
 
 elif: kELIF expr kTHEN
-        stmts
+        opt_stmts
       {}
 
 else_opt: else {}
         | /*empty*/ {}
 
 else: kELSE
-        stmts
+        opt_stmts
       {}
 
 for_stmt: kFOR for_args kIN expr kDO
-            stmts
+            opt_stmts
           kEND
           {}
 
@@ -95,7 +96,6 @@ var_decl_stmt: kVAR ID                    {}
              | kVAR ID '=' expr           {}
 
 expr: unary_expr                          {}
-    | if_expr                             {}
     | expr '+' expr                       {}
     | expr '-' expr                       {}
     | expr '*' expr                       {}
@@ -128,21 +128,16 @@ expr3: STRING           {}
 
 object_literal: '{' object_fields_opt '}' {}
 
-object_fields_opt: object_fields object_field_simple_opt {}
-                 | object_field_simple      {}
-                 |                          {}
+object_fields_opt: object_fields comma_or_semicollon_opt {}
+                 |               {}
 
-object_fields: object_fields object_field   {}
-             | object_field                 {}
+object_fields: object_fields ',' object_field   {}
+             | object_fields ';' object_field   {} 
+             | object_field                     {}
 
-object_field_simple_opt: object_field_simple {}
-                       | /*empty*/ {}
-
-object_field: object_field_simple ',' {}
+object_field: ID ':' expr {}
+            | '[' expr ']' ':' expr {}
             | object_if {}
-
-object_field_simple: ID ':' expr {}
-                   | '[' expr ']' ':' expr {}
 
 object_if: kIF expr kTHEN
              object_fields_opt
@@ -170,14 +165,14 @@ object_else: kELSE
 
 array_literal: '[' array_elems_opt ']' {}
 
-array_elems_opt: array_elems expr_opt {}
-               | expr {}
+array_elems_opt: array_elems comma_or_semicollon_opt {}
                | {}
 
-array_elems: array_elems array_elem {}
-           | array_elem {}
+array_elems: array_elems ',' array_elem         {}
+           | array_elems ';' array_elem         {} 
+           | array_elem                         {}
 
-array_elem: expr ',' {}
+array_elem: expr     {}
           | array_if {}
 
 array_if: kIF expr kTHEN
@@ -186,9 +181,6 @@ array_if: kIF expr kTHEN
           array_else_opt
           kEND
           {}
-
-expr_opt: expr {}
-        |  {}
 
 array_elifs_opt: array_elifs {}
                | {}
@@ -206,3 +198,5 @@ array_else_opt: array_else {}
 array_else: kELSE
               array_elems_opt
             {}
+
+comma_or_semicollon_opt: ';' | ',' 

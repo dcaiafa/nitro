@@ -22,14 +22,14 @@ func TestObject(t *testing.T) {
 
 		if ans == 42 then
 			fade_away: "let it go",
-			moar: if blobs then 1; end,
+			moar: like + "stone",
 		elif plan_b or plan_c then
-			next_best_thing: 123
+			next_best_thing: 123,
 		else
-			last_recourse: false
-		end
+			last_recourse: false,
+		end;
 
-			b: "nope"
+			b: "nope",
 		};
 `)
 	require.NoError(t, err)
