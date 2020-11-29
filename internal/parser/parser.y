@@ -44,21 +44,20 @@ import (
 
 %%
 
-program: stmts                            {}
+program: opt_stmts                        {}
+
+opt_stmts: stmts                          {}
+         | /*empty*/                      {}
 
 stmts: stmts stmt                         {}
      | stmt                               {}
 
-comma_opt: ','
-         | /*empty*/
-
-stmt: object_literal_stmt                 {}
-    | assignment_stmt                     {}
-    | var_decl_stmt                       {}
-    | if_stmt                             {}
+stmt: assignment_stmt ';'                 {}
+    | var_decl_stmt ';'                   {}
+    | expr ';'                            {}
     | for_stmt                            {}
 
-if_stmt: kIF expr kTHEN
+if_expr: kIF expr kTHEN
            stmts
          elifs_opt
          else_opt
@@ -78,7 +77,7 @@ elif: kELIF expr kTHEN
 else_opt: else {}
         | /*empty*/ {}
 
-else: kELSE expr 
+else: kELSE
         stmts
       {}
 
@@ -90,14 +89,13 @@ for_stmt: kFOR for_args kIN expr kDO
 for_args: for_args ',' ID {}
         | ID {}
 
-object_literal_stmt: object_literal       {}
-
-assignment_stmt: symbol_ref '=' expr          {}
+assignment_stmt: expr '=' expr          {}
 
 var_decl_stmt: kVAR ID                    {}
              | kVAR ID '=' expr           {}
 
 expr: unary_expr                          {}
+    | if_expr                             {}
     | expr '+' expr                       {}
     | expr '-' expr                       {}
     | expr '*' expr                       {}
@@ -111,37 +109,40 @@ expr: unary_expr                          {}
     | expr kAND expr                      {}
     | expr kOR expr                       {}
 
-symbol_ref: term_no_number '.' ID             {}
-          | ID                                {}
+unary_expr: kNOT unary_expr               {}
+        | '+' unary_expr                  {}
+        | '-' unary_expr                  {}
+        | expr3                           {}
 
-unary_expr: kNOT term                     {}
-          | term                          {}
-
-term: number                              {}
-    | term_no_number                      {}
-
-number: '-' NUMBER                        {}
-      | NUMBER                            {}
-
-term_no_number: STRING               {}
-              | array_literal        {}
-              | object_literal       {}
-              | symbol_ref           {}
-              | '(' expr ')'         {}
-
-//invocation: term_no_number '(' ')'
+expr3: STRING           {}
+     | NUMBER           {}
+     | ID               {}
+     | kTRUE            {}
+     | kFALSE           {}
+     | array_literal    {}
+     | object_literal   {}
+     | expr3 '[' expr ']' {}
+     | expr3 '.' ID     {}
+     | expr3 '(' ')'    {}
+     | '(' expr ')'     {}
 
 object_literal: '{' object_fields_opt '}' {}
 
-object_fields_opt: object_fields            {}
+object_fields_opt: object_fields object_field_simple_opt {}
+                 | object_field_simple      {}
                  |                          {}
 
 object_fields: object_fields object_field   {}
              | object_field                 {}
 
-object_field: ID ':' expr comma_opt {}
-            | '[' expr ']' ':' expr comma_opt {}
-            | object_if comma_opt {}
+object_field_simple_opt: object_field_simple {}
+                       | /*empty*/ {}
+
+object_field: object_field_simple ',' {}
+            | object_if {}
+
+object_field_simple: ID ':' expr {}
+                   | '[' expr ']' ':' expr {}
 
 object_if: kIF expr kTHEN
              object_fields_opt
