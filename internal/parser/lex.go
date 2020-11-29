@@ -24,17 +24,17 @@ var keywords = map[string]int{
 type lex struct {
 	//Program *ast.Program
 
-	input   *strings.Reader
-	buf     bytes.Buffer
-	pos     int
-	err     error
-	newLine bool
+	input *strings.Reader
+	buf   bytes.Buffer
+	pos   int
+	err   error
+
+	synthSemicol bool
 }
 
 func newLex(input string) *lex {
 	return &lex{
-		input:   strings.NewReader(input),
-		newLine: true,
+		input: strings.NewReader(input),
 	}
 }
 
@@ -43,6 +43,11 @@ func (l *lex) Lex(lval *yySymType) int {
 }
 
 func (l *lex) scan(lval *yySymType) int {
+	eolToken := false
+	defer func() {
+		l.synthSemicol = eolToken
+	}()
+
 	for {
 		r := l.read()
 		if r == 0 {
@@ -52,7 +57,9 @@ func (l *lex) scan(lval *yySymType) int {
 			continue
 		}
 		if r == '\n' {
-			l.newLine = true
+			if l.synthSemicol {
+				return ';'
+			}
 			continue
 		}
 		switch r {
@@ -85,16 +92,25 @@ func (l *lex) scan(lval *yySymType) int {
 			return GE
 		case '"':
 			l.unread()
+			eolToken = true
 			return l.scanQuotedString(lval)
-		case '+', '-', '*', '/', ';', '(', ')', ',', '[', ']', ':', '.', '{', '}':
+		case '+', '-', '*', '/', ';', '(', ',', '[', ':', '.', '{':
+			return int(r)
+		case ')', ']', '}':
+			eolToken = true
 			return int(r)
 		default:
 			if isNumber(r) {
 				l.unread()
+				eolToken = true
 				return l.scanNumber(lval)
 			} else if isLetter(r) || r == '_' {
 				l.unread()
-				return l.scanIdentifier(lval)
+				tok := l.scanIdentifier(lval)
+				if tok == ID || tok == kEND {
+					eolToken = true
+				}
+				return tok
 			} else {
 				return LEXERR
 			}

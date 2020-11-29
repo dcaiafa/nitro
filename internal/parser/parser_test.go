@@ -8,9 +8,10 @@ import (
 
 func TestParserLvalue(t *testing.T) {
 	_, err := Parse(`
-	a.b.c = 123;
-	(a - 123).b = 999;
-	("hi").blah = 1;
+	a.b.c = 123
+	(a - 123).b = 999;;
+	("hi").blah = 1
+	;
 `)
 	require.NoError(t, err)
 }
@@ -18,18 +19,25 @@ func TestParserLvalue(t *testing.T) {
 func TestObject(t *testing.T) {
 	_, err := Parse(`
 		{ 
-    	a: "foo",
+			a: "foo", b: "bar";
 
 		if ans == 42 then
-			fade_away: "let it go",
-			moar: like + "stone",
+			fade_away: "let it go"
+			moar: like + "stone"
 		elif plan_b or plan_c then
-			next_best_thing: 123,
+			next_best_thing: 123
 		else
-			last_recourse: false,
-		end;
+			last_recourse: false
+		end
 
-			b: "nope",
+		if x then x: 1, y: 2 end,
+		if x then x: 1, y: 2 end
+		if x then x: 1, y: 2, end;
+		if x then x: 1 end
+		if x then x: 1, end
+		if x then x: 1; end
+
+			b: "nope"
 		};
 `)
 	require.NoError(t, err)

@@ -44,13 +44,15 @@ import (
 
 %%
 
-program: opt_stmts                        {}
+program: opt_stmts {}
 
 opt_stmts: stmts                          {}
          | /*empty*/                      {}
 
 stmts: stmts stmt ';'                     {}
+     | stmts ';'                          {}
      | stmt ';'                           {}
+     | ';'                                {}
 
 stmt: assignment_stmt                     {}
     | var_decl_stmt                       {}
@@ -128,7 +130,7 @@ expr3: STRING           {}
 
 object_literal: '{' object_fields_opt '}' {}
 
-object_fields_opt: object_fields comma_or_semicollon_opt {}
+object_fields_opt: object_fields trailing_seps {}
                  |               {}
 
 object_fields: object_fields ',' object_field   {}
@@ -165,7 +167,7 @@ object_else: kELSE
 
 array_literal: '[' array_elems_opt ']' {}
 
-array_elems_opt: array_elems comma_or_semicollon_opt {}
+array_elems_opt: array_elems trailing_seps {}
                | {}
 
 array_elems: array_elems ',' array_elem         {}
@@ -199,4 +201,9 @@ array_else: kELSE
               array_elems_opt
             {}
 
-comma_or_semicollon_opt: ';' | ',' 
+trailing_seps: /*empty*/ | trailing_seps1
+
+trailing_seps1: trailing_seps1 ';'
+              | trailing_seps1 ','
+              | ';'
+              | ','
