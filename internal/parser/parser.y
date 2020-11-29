@@ -58,9 +58,9 @@ stmt: assignment_stmt                     {}
     | var_decl_stmt                       {}
     | expr                                {}
     | for_stmt                            {}
-    | if_expr                             {}
+    | if_stmt                             {}
 
-if_expr: kIF expr kTHEN
+if_stmt: kIF expr kTHEN
            opt_stmts
          elifs_opt
          else_opt
@@ -114,19 +114,25 @@ expr: unary_expr                          {}
 unary_expr: kNOT unary_expr               {}
         | '+' unary_expr                  {}
         | '-' unary_expr                  {}
-        | expr3                           {}
+        | primary_expr                    {}
 
-expr3: STRING           {}
-     | NUMBER           {}
-     | ID               {}
-     | kTRUE            {}
-     | kFALSE           {}
-     | array_literal    {}
-     | object_literal   {}
-     | expr3 '[' expr ']' {}
-     | expr3 '.' ID     {}
-     | expr3 '(' ')'    {}
-     | '(' expr ')'     {}
+primary_expr: STRING                             {}
+            | NUMBER                             {}
+            | ID                                 {}
+            | kTRUE                              {}
+            | kFALSE                             {}
+            | array_literal                      {}
+            | object_literal                     {}
+            | primary_expr '[' expr ']'          {}
+            | primary_expr '.' ID                {}
+            | primary_expr '(' arg_list_opt ')'  {}
+            | '(' expr ')'                       {}
+
+arg_list_opt: arg_list trailing_comma {}
+            | /*empty*/               {}
+
+arg_list: arg_list ',' expr           {}
+        | expr                        {}
 
 object_literal: '{' object_fields_opt '}' {}
 
@@ -207,3 +213,5 @@ trailing_seps1: trailing_seps1 ';'
               | trailing_seps1 ','
               | ';'
               | ','
+
+trailing_comma: ',' | /*empty*/
