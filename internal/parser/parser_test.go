@@ -6,6 +6,16 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestParserProg(t *testing.T) {
+	_, err := Parse(`
+	fn counter(n)
+		var i = 0 
+  	fn() i = i + 1; i; end
+	end
+`)
+	require.NoError(t, err)
+}
+
 func TestParserLvalue(t *testing.T) {
 	_, err := Parse(`
 	a.b.c = 123
@@ -38,7 +48,7 @@ func TestObject(t *testing.T) {
 		if x then x: 1; end
 
 			b: "nope"
-		};
+		} | map("foo", 1234 + youtube(false))
 `)
 	require.NoError(t, err)
 }

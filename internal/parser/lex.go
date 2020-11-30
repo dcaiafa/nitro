@@ -19,6 +19,8 @@ var keywords = map[string]int{
 	"or":    kOR,
 	"true":  kTRUE,
 	"then":  kTHEN,
+	"fn":    kFN,
+	"var":   kVAR,
 }
 
 type lex struct {
@@ -94,7 +96,7 @@ func (l *lex) scan(lval *yySymType) int {
 			l.unread()
 			eolToken = true
 			return l.scanQuotedString(lval)
-		case '+', '-', '*', '/', ';', '(', ',', '[', ':', '.', '{':
+		case '|', '+', '-', '*', '/', ';', '(', ',', '[', ':', '.', '{':
 			return int(r)
 		case ')', ']', '}':
 			eolToken = true

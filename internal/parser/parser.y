@@ -28,6 +28,7 @@ import (
 %token kOR 
 %token kTHEN
 %token kTRUE 
+%token kFN
 
 %token <num> NUMBER
 %token <str> STRING
@@ -59,6 +60,12 @@ stmt: assignment_stmt                     {}
     | expr                                {}
     | for_stmt                            {}
     | if_stmt                             {}
+    | func_stmt                           {}
+
+func_stmt: kFN ID '(' param_list_opt ')'
+             opt_stmts
+           kEND
+           {}
 
 if_stmt: kIF expr kTHEN
            opt_stmts
@@ -97,19 +104,22 @@ assignment_stmt: expr '=' expr          {}
 var_decl_stmt: kVAR ID                    {}
              | kVAR ID '=' expr           {}
 
-expr: unary_expr                          {}
-    | expr '+' expr                       {}
-    | expr '-' expr                       {}
-    | expr '*' expr                       {}
-    | expr '/' expr                       {}
-    | expr '<' expr                       {}
-    | expr LE expr                        {}
-    | expr '>' expr                       {}
-    | expr GE expr                        {}
-    | expr EQ expr                        {}
-    | expr NE expr                        {}
-    | expr kAND expr                      {}
-    | expr kOR expr                       {}
+expr: bin_expr '|' bin_expr {}
+    | bin_expr
+
+bin_expr: unary_expr                          {}
+    | bin_expr '+' bin_expr                       {}
+    | bin_expr '-' bin_expr                       {}
+    | bin_expr '*' bin_expr                       {}
+    | bin_expr '/' bin_expr                       {}
+    | bin_expr '<' bin_expr                       {}
+    | bin_expr LE bin_expr                        {}
+    | bin_expr '>' bin_expr                       {}
+    | bin_expr GE bin_expr                        {}
+    | bin_expr EQ bin_expr                        {}
+    | bin_expr NE bin_expr                        {}
+    | bin_expr kAND bin_expr                      {}
+    | bin_expr kOR bin_expr                       {}
 
 unary_expr: kNOT unary_expr               {}
         | '+' unary_expr                  {}
@@ -126,7 +136,19 @@ primary_expr: STRING                             {}
             | primary_expr '[' expr ']'          {}
             | primary_expr '.' ID                {}
             | primary_expr '(' arg_list_opt ')'  {}
+            | func_expr                          {}
             | '(' expr ')'                       {}
+
+func_expr: kFN '(' param_list_opt ')'
+             opt_stmts
+           kEND
+           {}
+
+param_list_opt: param_list {}
+              | /*empty*/ {}
+
+param_list: param_list ',' ID {}
+          | ID {}
 
 arg_list_opt: arg_list trailing_comma {}
             | /*empty*/               {}
