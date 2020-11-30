@@ -8,19 +8,23 @@ import (
 )
 
 var keywords = map[string]int{
-	"and":   kAND,
-	"elif":  kELIF,
-	"else":  kELSE,
-	"end":   kEND,
-	"false": kFALSE,
-	"if":    kIF,
-	"in":    kIN,
-	"not":   kNOT,
-	"or":    kOR,
-	"true":  kTRUE,
-	"then":  kTHEN,
-	"fn":    kFN,
-	"var":   kVAR,
+	"and":    kAND,
+	"do":     kDO,
+	"elif":   kELIF,
+	"else":   kELSE,
+	"end":    kEND,
+	"false":  kFALSE,
+	"fn":     kFN,
+	"for":    kFOR,
+	"if":     kIF,
+	"in":     kIN,
+	"not":    kNOT,
+	"or":     kOR,
+	"return": kRETURN,
+	"then":   kTHEN,
+	"true":   kTRUE,
+	"var":    kVAR,
+	"while":  kWHILE,
 }
 
 type lex struct {
@@ -109,7 +113,7 @@ func (l *lex) scan(lval *yySymType) int {
 			} else if isLetter(r) || r == '_' {
 				l.unread()
 				tok := l.scanIdentifier(lval)
-				if tok == ID || tok == kEND {
+				if tok == ID || tok == kEND || tok == kTRUE || tok == kFALSE {
 					eolToken = true
 				}
 				return tok

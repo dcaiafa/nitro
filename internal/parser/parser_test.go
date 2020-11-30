@@ -10,8 +10,61 @@ func TestParserProg(t *testing.T) {
 	_, err := Parse(`
 	fn counter(n)
 		var i = 0 
-  	fn() i = i + 1; i; end
+  	return fn() 
+			if i < n then
+				var ret = i
+				i = i + 1
+				return i, true
+			else
+				return 0, false
+			end
+		end
 	end
+
+	for x in counter(5) do
+		print(x)
+	end
+
+	var less = fn(x,y)
+		x < y
+	end
+
+  var someMult2 = [ 1, 2, 3 ].map(fn(x) x*2 end)
+
+	{
+		id: {
+			customer: customer
+			name: id
+			region: region
+		}
+
+		video_encoders: [
+			for enc in videoEncoders do
+				{
+					id: enc.id
+					frame_rate: fixFrameRate(enc.frameRate)
+					width: enc.width
+					height: enc.height
+					bit_rate: enc.bitRate
+					codec: "H264"
+					h264: {
+						nal_hrd: "NAL_HRD_NONE",
+						profile: "HIGH",
+					}
+				}
+			end
+		]
+
+		publishPoints: {
+			for pp in publishPoints do
+				[pp.id] : {
+					publishBaseUrl: pp.publishURL
+					playbackBaseUrl: pp.playbackURL
+					doNotMonitor: false
+				}
+			end
+		}
+	}
 `)
 	require.NoError(t, err)
 }
@@ -48,7 +101,7 @@ func TestObject(t *testing.T) {
 		if x then x: 1; end
 
 			b: "nope"
-		} | map("foo", 1234 + youtube(false))
+		}.map("foo", 1234 + youtube(false))
 `)
 	require.NoError(t, err)
 }

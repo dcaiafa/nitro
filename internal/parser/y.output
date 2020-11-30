@@ -1,28 +1,30 @@
 
 state 0
 	$accept: .program $end 
-	opt_stmts: .    (3)
+	stmts_opt: .    (4)
 
-	kVAR  shift 12
-	kFALSE  shift 26
-	kFOR  shift 14
-	kIF  shift 15
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 16
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
+	kFALSE  shift 29
+	kFN  shift 18
+	kFOR  shift 16
+	kIF  shift 17
+	kNOT  shift 21
+	kRETURN  shift 19
+	kTRUE  shift 28
+	kVAR  shift 14
+	kWHILE  shift 20
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
 	';'  shift 5
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  reduce 3 (src line 51)
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  reduce 4 (src line 53)
 
 	program  goto 1
-	opt_stmts  goto 2
+	stmts_opt  goto 2
 	stmts  goto 3
 	stmt  goto 4
 	assignment_stmt  goto 6
@@ -31,12 +33,13 @@ state 0
 	for_stmt  goto 9
 	if_stmt  goto 10
 	func_stmt  goto 11
-	bin_expr  goto 13
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
+	return_stmt  goto 12
+	while_stmt  goto 13
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
 
 state 1
 	$accept:  program.$end 
@@ -46,2563 +49,3401 @@ state 1
 
 
 state 2
-	program:  opt_stmts.    (1)
+	program:  stmts_opt.    (1)
 
-	.  reduce 1 (src line 48)
+	.  reduce 1 (src line 49)
 
 
 state 3
-	opt_stmts:  stmts.    (2)
+	stmts_opt:  stmts.    (2)
 	stmts:  stmts.stmt ';' 
 	stmts:  stmts.';' 
 
-	kVAR  shift 12
-	kFALSE  shift 26
-	kFOR  shift 14
-	kIF  shift 15
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 16
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	';'  shift 34
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  reduce 2 (src line 50)
+	kFALSE  shift 29
+	kFN  shift 18
+	kFOR  shift 16
+	kIF  shift 17
+	kNOT  shift 21
+	kRETURN  shift 19
+	kTRUE  shift 28
+	kVAR  shift 14
+	kWHILE  shift 20
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	';'  shift 37
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  reduce 2 (src line 51)
 
-	stmt  goto 33
+	stmt  goto 36
 	assignment_stmt  goto 6
 	var_decl_stmt  goto 7
 	expr  goto 8
 	for_stmt  goto 9
 	if_stmt  goto 10
 	func_stmt  goto 11
-	bin_expr  goto 13
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
+	return_stmt  goto 12
+	while_stmt  goto 13
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
 
 state 4
+	stmts_opt:  stmt.    (3)
 	stmts:  stmt.';' 
 
-	';'  shift 35
-	.  error
+	';'  shift 38
+	.  reduce 3 (src line 52)
 
 
 state 5
-	stmts:  ';'.    (7)
-
-	.  reduce 7 (src line 56)
-
-
-state 6
-	stmt:  assignment_stmt.    (8)
+	stmts:  ';'.    (8)
 
 	.  reduce 8 (src line 58)
 
 
-state 7
-	stmt:  var_decl_stmt.    (9)
+state 6
+	stmt:  assignment_stmt.    (9)
 
-	.  reduce 9 (src line 59)
+	.  reduce 9 (src line 60)
+
+
+state 7
+	stmt:  var_decl_stmt.    (10)
+
+	.  reduce 10 (src line 61)
 
 
 state 8
-	stmt:  expr.    (10)
+	stmt:  expr.    (11)
 	assignment_stmt:  expr.'=' expr 
+	expr:  expr.'+' expr 
+	expr:  expr.'-' expr 
+	expr:  expr.'*' expr 
+	expr:  expr.'/' expr 
+	expr:  expr.'<' expr 
+	expr:  expr.LE expr 
+	expr:  expr.'>' expr 
+	expr:  expr.GE expr 
+	expr:  expr.EQ expr 
+	expr:  expr.NE expr 
+	expr:  expr.kAND expr 
+	expr:  expr.kOR expr 
 
-	'='  shift 36
-	.  reduce 10 (src line 60)
+	kAND  shift 50
+	kOR  shift 51
+	'<'  shift 44
+	LE  shift 45
+	'>'  shift 46
+	GE  shift 47
+	EQ  shift 48
+	NE  shift 49
+	'+'  shift 40
+	'-'  shift 41
+	'*'  shift 42
+	'/'  shift 43
+	'='  shift 39
+	.  reduce 11 (src line 62)
 
 
 state 9
-	stmt:  for_stmt.    (11)
+	stmt:  for_stmt.    (12)
 
-	.  reduce 11 (src line 61)
+	.  reduce 12 (src line 63)
 
 
 state 10
-	stmt:  if_stmt.    (12)
+	stmt:  if_stmt.    (13)
 
-	.  reduce 12 (src line 62)
+	.  reduce 13 (src line 64)
 
 
 state 11
-	stmt:  func_stmt.    (13)
-
-	.  reduce 13 (src line 63)
-
-
-state 12
-	var_decl_stmt:  kVAR.ID 
-	var_decl_stmt:  kVAR.ID '=' expr 
-
-	ID  shift 37
-	.  error
-
-
-state 13
-	expr:  bin_expr.'|' bin_expr 
-	expr:  bin_expr.    (31)
-	bin_expr:  bin_expr.'+' bin_expr 
-	bin_expr:  bin_expr.'-' bin_expr 
-	bin_expr:  bin_expr.'*' bin_expr 
-	bin_expr:  bin_expr.'/' bin_expr 
-	bin_expr:  bin_expr.'<' bin_expr 
-	bin_expr:  bin_expr.LE bin_expr 
-	bin_expr:  bin_expr.'>' bin_expr 
-	bin_expr:  bin_expr.GE bin_expr 
-	bin_expr:  bin_expr.EQ bin_expr 
-	bin_expr:  bin_expr.NE bin_expr 
-	bin_expr:  bin_expr.kAND bin_expr 
-	bin_expr:  bin_expr.kOR bin_expr 
-
-	kAND  shift 49
-	kOR  shift 50
-	'<'  shift 43
-	LE  shift 44
-	'>'  shift 45
-	GE  shift 46
-	EQ  shift 47
-	NE  shift 48
-	'+'  shift 39
-	'-'  shift 40
-	'*'  shift 41
-	'/'  shift 42
-	'|'  shift 38
-	.  reduce 31 (src line 108)
-
-
-state 14
-	for_stmt:  kFOR.for_args kIN expr kDO opt_stmts kEND 
-
-	ID  shift 52
-	.  error
-
-	for_args  goto 51
-
-state 15
-	if_stmt:  kIF.expr kTHEN opt_stmts elifs_opt else_opt kEND 
-
-	kFALSE  shift 26
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  error
-
-	expr  goto 53
-	bin_expr  goto 13
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 16
-	func_stmt:  kFN.ID '(' param_list_opt ')' opt_stmts kEND 
-	func_expr:  kFN.'(' param_list_opt ')' opt_stmts kEND 
-
-	ID  shift 55
-	'('  shift 56
-	.  error
-
-
-state 17
-	bin_expr:  unary_expr.    (32)
-
-	.  reduce 32 (src line 110)
-
-
-state 18
-	unary_expr:  kNOT.unary_expr 
-
-	kFALSE  shift 26
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  error
-
-	unary_expr  goto 57
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 19
-	unary_expr:  '+'.unary_expr 
-
-	kFALSE  shift 26
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  error
-
-	unary_expr  goto 58
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 20
-	unary_expr:  '-'.unary_expr 
-
-	kFALSE  shift 26
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  error
-
-	unary_expr  goto 59
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 21
-	unary_expr:  primary_expr.    (48)
-	primary_expr:  primary_expr.'[' expr ']' 
-	primary_expr:  primary_expr.'.' ID 
-	primary_expr:  primary_expr.'(' arg_list_opt ')' 
-
-	'('  shift 62
-	'['  shift 60
-	'.'  shift 61
-	.  reduce 48 (src line 127)
-
-
-state 22
-	primary_expr:  STRING.    (49)
-
-	.  reduce 49 (src line 129)
-
-
-state 23
-	primary_expr:  NUMBER.    (50)
-
-	.  reduce 50 (src line 130)
-
-
-state 24
-	primary_expr:  ID.    (51)
-
-	.  reduce 51 (src line 131)
-
-
-state 25
-	primary_expr:  kTRUE.    (52)
-
-	.  reduce 52 (src line 132)
-
-
-state 26
-	primary_expr:  kFALSE.    (53)
-
-	.  reduce 53 (src line 133)
-
-
-state 27
-	primary_expr:  array_literal.    (54)
-
-	.  reduce 54 (src line 134)
-
-
-state 28
-	primary_expr:  object_literal.    (55)
-
-	.  reduce 55 (src line 135)
-
-
-state 29
-	primary_expr:  func_expr.    (59)
-
-	.  reduce 59 (src line 139)
-
-
-state 30
-	primary_expr:  '('.expr ')' 
-
-	kFALSE  shift 26
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  error
-
-	expr  goto 63
-	bin_expr  goto 13
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 31
-	array_literal:  '['.array_elems_opt ']' 
-	array_elems_opt: .    (90)
-
-	kFALSE  shift 26
-	kIF  shift 69
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  reduce 90 (src line 199)
-
-	expr  goto 67
-	bin_expr  goto 13
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-	array_elems_opt  goto 64
-	array_elems  goto 65
-	array_elem  goto 66
-	array_if  goto 68
-
-state 32
-	object_literal:  '{'.object_fields_opt '}' 
-	object_fields_opt: .    (72)
-
-	kIF  shift 76
-	ID  shift 73
-	'['  shift 74
-	.  reduce 72 (src line 162)
-
-	object_fields_opt  goto 70
-	object_fields  goto 71
-	object_field  goto 72
-	object_if  goto 75
-
-state 33
-	stmts:  stmts stmt.';' 
-
-	';'  shift 77
-	.  error
-
-
-state 34
-	stmts:  stmts ';'.    (5)
-
-	.  reduce 5 (src line 54)
-
-
-state 35
-	stmts:  stmt ';'.    (6)
-
-	.  reduce 6 (src line 55)
-
-
-state 36
-	assignment_stmt:  expr '='.expr 
-
-	kFALSE  shift 26
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  error
-
-	expr  goto 78
-	bin_expr  goto 13
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 37
-	var_decl_stmt:  kVAR ID.    (28)
-	var_decl_stmt:  kVAR ID.'=' expr 
-
-	'='  shift 79
-	.  reduce 28 (src line 104)
-
-
-state 38
-	expr:  bin_expr '|'.bin_expr 
-
-	kFALSE  shift 26
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  error
-
-	bin_expr  goto 80
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 39
-	bin_expr:  bin_expr '+'.bin_expr 
-
-	kFALSE  shift 26
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  error
-
-	bin_expr  goto 81
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 40
-	bin_expr:  bin_expr '-'.bin_expr 
-
-	kFALSE  shift 26
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  error
-
-	bin_expr  goto 82
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 41
-	bin_expr:  bin_expr '*'.bin_expr 
-
-	kFALSE  shift 26
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  error
-
-	bin_expr  goto 83
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 42
-	bin_expr:  bin_expr '/'.bin_expr 
-
-	kFALSE  shift 26
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  error
-
-	bin_expr  goto 84
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 43
-	bin_expr:  bin_expr '<'.bin_expr 
-
-	kFALSE  shift 26
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  error
-
-	bin_expr  goto 85
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 44
-	bin_expr:  bin_expr LE.bin_expr 
-
-	kFALSE  shift 26
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  error
-
-	bin_expr  goto 86
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 45
-	bin_expr:  bin_expr '>'.bin_expr 
-
-	kFALSE  shift 26
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  error
-
-	bin_expr  goto 87
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 46
-	bin_expr:  bin_expr GE.bin_expr 
-
-	kFALSE  shift 26
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  error
-
-	bin_expr  goto 88
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 47
-	bin_expr:  bin_expr EQ.bin_expr 
-
-	kFALSE  shift 26
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  error
-
-	bin_expr  goto 89
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 48
-	bin_expr:  bin_expr NE.bin_expr 
-
-	kFALSE  shift 26
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  error
-
-	bin_expr  goto 90
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 49
-	bin_expr:  bin_expr kAND.bin_expr 
-
-	kFALSE  shift 26
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  error
-
-	bin_expr  goto 91
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 50
-	bin_expr:  bin_expr kOR.bin_expr 
-
-	kFALSE  shift 26
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  error
-
-	bin_expr  goto 92
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 51
-	for_stmt:  kFOR for_args.kIN expr kDO opt_stmts kEND 
-	for_args:  for_args.',' ID 
-
-	kIN  shift 93
-	','  shift 94
-	.  error
-
-
-state 52
-	for_args:  ID.    (26)
-
-	.  reduce 26 (src line 100)
-
-
-state 53
-	if_stmt:  kIF expr.kTHEN opt_stmts elifs_opt else_opt kEND 
-
-	kTHEN  shift 95
-	.  error
-
-
-state 54
-	func_expr:  kFN.'(' param_list_opt ')' opt_stmts kEND 
-
-	'('  shift 56
-	.  error
-
-
-state 55
-	func_stmt:  kFN ID.'(' param_list_opt ')' opt_stmts kEND 
-
-	'('  shift 96
-	.  error
-
-
-state 56
-	func_expr:  kFN '('.param_list_opt ')' opt_stmts kEND 
-	param_list_opt: .    (63)
-
-	ID  shift 99
-	.  reduce 63 (src line 148)
-
-	param_list_opt  goto 97
-	param_list  goto 98
-
-state 57
-	unary_expr:  kNOT unary_expr.    (45)
-
-	.  reduce 45 (src line 124)
-
-
-state 58
-	unary_expr:  '+' unary_expr.    (46)
-
-	.  reduce 46 (src line 125)
-
-
-state 59
-	unary_expr:  '-' unary_expr.    (47)
-
-	.  reduce 47 (src line 126)
-
-
-state 60
-	primary_expr:  primary_expr '['.expr ']' 
-
-	kFALSE  shift 26
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  error
-
-	expr  goto 100
-	bin_expr  goto 13
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 61
-	primary_expr:  primary_expr '.'.ID 
-
-	ID  shift 101
-	.  error
-
-
-state 62
-	primary_expr:  primary_expr '('.arg_list_opt ')' 
-	arg_list_opt: .    (67)
-
-	kFALSE  shift 26
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  reduce 67 (src line 154)
-
-	expr  goto 104
-	bin_expr  goto 13
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	arg_list_opt  goto 102
-	func_expr  goto 29
-	arg_list  goto 103
-
-state 63
-	primary_expr:  '(' expr.')' 
-
-	')'  shift 105
-	.  error
-
-
-state 64
-	array_literal:  '[' array_elems_opt.']' 
-
-	']'  shift 106
-	.  error
-
-
-state 65
-	array_elems_opt:  array_elems.trailing_seps 
-	array_elems:  array_elems.',' array_elem 
-	array_elems:  array_elems.';' array_elem 
-	trailing_seps: .    (105)
-
-	';'  shift 109
-	','  shift 108
-	.  reduce 105 (src line 232)
-
-	trailing_seps  goto 107
-	trailing_seps1  goto 110
-
-state 66
-	array_elems:  array_elem.    (93)
-
-	.  reduce 93 (src line 203)
-
-
-state 67
-	array_elem:  expr.    (94)
-
-	.  reduce 94 (src line 205)
-
-
-state 68
-	array_elem:  array_if.    (95)
-
-	.  reduce 95 (src line 206)
-
-
-state 69
-	array_if:  kIF.expr kTHEN array_elems_opt array_elifs_opt array_else_opt kEND 
-
-	kFALSE  shift 26
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  error
-
-	expr  goto 111
-	bin_expr  goto 13
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 70
-	object_literal:  '{' object_fields_opt.'}' 
-
-	'}'  shift 112
-	.  error
-
-
-state 71
-	object_fields_opt:  object_fields.trailing_seps 
-	object_fields:  object_fields.',' object_field 
-	object_fields:  object_fields.';' object_field 
-	trailing_seps: .    (105)
-
-	';'  shift 115
-	','  shift 114
-	.  reduce 105 (src line 232)
-
-	trailing_seps  goto 113
-	trailing_seps1  goto 110
-
-state 72
-	object_fields:  object_field.    (75)
-
-	.  reduce 75 (src line 166)
-
-
-state 73
-	object_field:  ID.':' expr 
-
-	':'  shift 116
-	.  error
-
-
-state 74
-	object_field:  '['.expr ']' ':' expr 
-
-	kFALSE  shift 26
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  error
-
-	expr  goto 117
-	bin_expr  goto 13
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 75
-	object_field:  object_if.    (78)
-
-	.  reduce 78 (src line 170)
-
-
-state 76
-	object_if:  kIF.expr kTHEN object_fields_opt object_elifs_opt object_else_opt kEND 
-
-	kFALSE  shift 26
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  error
-
-	expr  goto 118
-	bin_expr  goto 13
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 77
-	stmts:  stmts stmt ';'.    (4)
-
-	.  reduce 4 (src line 53)
-
-
-state 78
-	assignment_stmt:  expr '=' expr.    (27)
-
-	.  reduce 27 (src line 102)
-
-
-state 79
-	var_decl_stmt:  kVAR ID '='.expr 
-
-	kFALSE  shift 26
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  error
-
-	expr  goto 119
-	bin_expr  goto 13
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 80
-	expr:  bin_expr '|' bin_expr.    (30)
-	bin_expr:  bin_expr.'+' bin_expr 
-	bin_expr:  bin_expr.'-' bin_expr 
-	bin_expr:  bin_expr.'*' bin_expr 
-	bin_expr:  bin_expr.'/' bin_expr 
-	bin_expr:  bin_expr.'<' bin_expr 
-	bin_expr:  bin_expr.LE bin_expr 
-	bin_expr:  bin_expr.'>' bin_expr 
-	bin_expr:  bin_expr.GE bin_expr 
-	bin_expr:  bin_expr.EQ bin_expr 
-	bin_expr:  bin_expr.NE bin_expr 
-	bin_expr:  bin_expr.kAND bin_expr 
-	bin_expr:  bin_expr.kOR bin_expr 
-
-	kAND  shift 49
-	kOR  shift 50
-	'<'  shift 43
-	LE  shift 44
-	'>'  shift 45
-	GE  shift 46
-	EQ  shift 47
-	NE  shift 48
-	'+'  shift 39
-	'-'  shift 40
-	'*'  shift 41
-	'/'  shift 42
-	.  reduce 30 (src line 107)
-
-
-state 81
-	bin_expr:  bin_expr.'+' bin_expr 
-	bin_expr:  bin_expr '+' bin_expr.    (33)
-	bin_expr:  bin_expr.'-' bin_expr 
-	bin_expr:  bin_expr.'*' bin_expr 
-	bin_expr:  bin_expr.'/' bin_expr 
-	bin_expr:  bin_expr.'<' bin_expr 
-	bin_expr:  bin_expr.LE bin_expr 
-	bin_expr:  bin_expr.'>' bin_expr 
-	bin_expr:  bin_expr.GE bin_expr 
-	bin_expr:  bin_expr.EQ bin_expr 
-	bin_expr:  bin_expr.NE bin_expr 
-	bin_expr:  bin_expr.kAND bin_expr 
-	bin_expr:  bin_expr.kOR bin_expr 
-
-	'*'  shift 41
-	'/'  shift 42
-	.  reduce 33 (src line 111)
-
-
-state 82
-	bin_expr:  bin_expr.'+' bin_expr 
-	bin_expr:  bin_expr.'-' bin_expr 
-	bin_expr:  bin_expr '-' bin_expr.    (34)
-	bin_expr:  bin_expr.'*' bin_expr 
-	bin_expr:  bin_expr.'/' bin_expr 
-	bin_expr:  bin_expr.'<' bin_expr 
-	bin_expr:  bin_expr.LE bin_expr 
-	bin_expr:  bin_expr.'>' bin_expr 
-	bin_expr:  bin_expr.GE bin_expr 
-	bin_expr:  bin_expr.EQ bin_expr 
-	bin_expr:  bin_expr.NE bin_expr 
-	bin_expr:  bin_expr.kAND bin_expr 
-	bin_expr:  bin_expr.kOR bin_expr 
-
-	'*'  shift 41
-	'/'  shift 42
-	.  reduce 34 (src line 112)
-
-
-state 83
-	bin_expr:  bin_expr.'+' bin_expr 
-	bin_expr:  bin_expr.'-' bin_expr 
-	bin_expr:  bin_expr.'*' bin_expr 
-	bin_expr:  bin_expr '*' bin_expr.    (35)
-	bin_expr:  bin_expr.'/' bin_expr 
-	bin_expr:  bin_expr.'<' bin_expr 
-	bin_expr:  bin_expr.LE bin_expr 
-	bin_expr:  bin_expr.'>' bin_expr 
-	bin_expr:  bin_expr.GE bin_expr 
-	bin_expr:  bin_expr.EQ bin_expr 
-	bin_expr:  bin_expr.NE bin_expr 
-	bin_expr:  bin_expr.kAND bin_expr 
-	bin_expr:  bin_expr.kOR bin_expr 
-
-	.  reduce 35 (src line 113)
-
-
-state 84
-	bin_expr:  bin_expr.'+' bin_expr 
-	bin_expr:  bin_expr.'-' bin_expr 
-	bin_expr:  bin_expr.'*' bin_expr 
-	bin_expr:  bin_expr.'/' bin_expr 
-	bin_expr:  bin_expr '/' bin_expr.    (36)
-	bin_expr:  bin_expr.'<' bin_expr 
-	bin_expr:  bin_expr.LE bin_expr 
-	bin_expr:  bin_expr.'>' bin_expr 
-	bin_expr:  bin_expr.GE bin_expr 
-	bin_expr:  bin_expr.EQ bin_expr 
-	bin_expr:  bin_expr.NE bin_expr 
-	bin_expr:  bin_expr.kAND bin_expr 
-	bin_expr:  bin_expr.kOR bin_expr 
-
-	.  reduce 36 (src line 114)
-
-
-state 85
-	bin_expr:  bin_expr.'+' bin_expr 
-	bin_expr:  bin_expr.'-' bin_expr 
-	bin_expr:  bin_expr.'*' bin_expr 
-	bin_expr:  bin_expr.'/' bin_expr 
-	bin_expr:  bin_expr.'<' bin_expr 
-	bin_expr:  bin_expr '<' bin_expr.    (37)
-	bin_expr:  bin_expr.LE bin_expr 
-	bin_expr:  bin_expr.'>' bin_expr 
-	bin_expr:  bin_expr.GE bin_expr 
-	bin_expr:  bin_expr.EQ bin_expr 
-	bin_expr:  bin_expr.NE bin_expr 
-	bin_expr:  bin_expr.kAND bin_expr 
-	bin_expr:  bin_expr.kOR bin_expr 
-
-	'<'  error
-	LE  error
-	'>'  error
-	GE  error
-	EQ  error
-	NE  error
-	'+'  shift 39
-	'-'  shift 40
-	'*'  shift 41
-	'/'  shift 42
-	.  reduce 37 (src line 115)
-
-
-state 86
-	bin_expr:  bin_expr.'+' bin_expr 
-	bin_expr:  bin_expr.'-' bin_expr 
-	bin_expr:  bin_expr.'*' bin_expr 
-	bin_expr:  bin_expr.'/' bin_expr 
-	bin_expr:  bin_expr.'<' bin_expr 
-	bin_expr:  bin_expr.LE bin_expr 
-	bin_expr:  bin_expr LE bin_expr.    (38)
-	bin_expr:  bin_expr.'>' bin_expr 
-	bin_expr:  bin_expr.GE bin_expr 
-	bin_expr:  bin_expr.EQ bin_expr 
-	bin_expr:  bin_expr.NE bin_expr 
-	bin_expr:  bin_expr.kAND bin_expr 
-	bin_expr:  bin_expr.kOR bin_expr 
-
-	'<'  error
-	LE  error
-	'>'  error
-	GE  error
-	EQ  error
-	NE  error
-	'+'  shift 39
-	'-'  shift 40
-	'*'  shift 41
-	'/'  shift 42
-	.  reduce 38 (src line 116)
-
-
-state 87
-	bin_expr:  bin_expr.'+' bin_expr 
-	bin_expr:  bin_expr.'-' bin_expr 
-	bin_expr:  bin_expr.'*' bin_expr 
-	bin_expr:  bin_expr.'/' bin_expr 
-	bin_expr:  bin_expr.'<' bin_expr 
-	bin_expr:  bin_expr.LE bin_expr 
-	bin_expr:  bin_expr.'>' bin_expr 
-	bin_expr:  bin_expr '>' bin_expr.    (39)
-	bin_expr:  bin_expr.GE bin_expr 
-	bin_expr:  bin_expr.EQ bin_expr 
-	bin_expr:  bin_expr.NE bin_expr 
-	bin_expr:  bin_expr.kAND bin_expr 
-	bin_expr:  bin_expr.kOR bin_expr 
-
-	'<'  error
-	LE  error
-	'>'  error
-	GE  error
-	EQ  error
-	NE  error
-	'+'  shift 39
-	'-'  shift 40
-	'*'  shift 41
-	'/'  shift 42
-	.  reduce 39 (src line 117)
-
-
-state 88
-	bin_expr:  bin_expr.'+' bin_expr 
-	bin_expr:  bin_expr.'-' bin_expr 
-	bin_expr:  bin_expr.'*' bin_expr 
-	bin_expr:  bin_expr.'/' bin_expr 
-	bin_expr:  bin_expr.'<' bin_expr 
-	bin_expr:  bin_expr.LE bin_expr 
-	bin_expr:  bin_expr.'>' bin_expr 
-	bin_expr:  bin_expr.GE bin_expr 
-	bin_expr:  bin_expr GE bin_expr.    (40)
-	bin_expr:  bin_expr.EQ bin_expr 
-	bin_expr:  bin_expr.NE bin_expr 
-	bin_expr:  bin_expr.kAND bin_expr 
-	bin_expr:  bin_expr.kOR bin_expr 
-
-	'<'  error
-	LE  error
-	'>'  error
-	GE  error
-	EQ  error
-	NE  error
-	'+'  shift 39
-	'-'  shift 40
-	'*'  shift 41
-	'/'  shift 42
-	.  reduce 40 (src line 118)
-
-
-state 89
-	bin_expr:  bin_expr.'+' bin_expr 
-	bin_expr:  bin_expr.'-' bin_expr 
-	bin_expr:  bin_expr.'*' bin_expr 
-	bin_expr:  bin_expr.'/' bin_expr 
-	bin_expr:  bin_expr.'<' bin_expr 
-	bin_expr:  bin_expr.LE bin_expr 
-	bin_expr:  bin_expr.'>' bin_expr 
-	bin_expr:  bin_expr.GE bin_expr 
-	bin_expr:  bin_expr.EQ bin_expr 
-	bin_expr:  bin_expr EQ bin_expr.    (41)
-	bin_expr:  bin_expr.NE bin_expr 
-	bin_expr:  bin_expr.kAND bin_expr 
-	bin_expr:  bin_expr.kOR bin_expr 
-
-	'<'  error
-	LE  error
-	'>'  error
-	GE  error
-	EQ  error
-	NE  error
-	'+'  shift 39
-	'-'  shift 40
-	'*'  shift 41
-	'/'  shift 42
-	.  reduce 41 (src line 119)
-
-
-state 90
-	bin_expr:  bin_expr.'+' bin_expr 
-	bin_expr:  bin_expr.'-' bin_expr 
-	bin_expr:  bin_expr.'*' bin_expr 
-	bin_expr:  bin_expr.'/' bin_expr 
-	bin_expr:  bin_expr.'<' bin_expr 
-	bin_expr:  bin_expr.LE bin_expr 
-	bin_expr:  bin_expr.'>' bin_expr 
-	bin_expr:  bin_expr.GE bin_expr 
-	bin_expr:  bin_expr.EQ bin_expr 
-	bin_expr:  bin_expr.NE bin_expr 
-	bin_expr:  bin_expr NE bin_expr.    (42)
-	bin_expr:  bin_expr.kAND bin_expr 
-	bin_expr:  bin_expr.kOR bin_expr 
-
-	'<'  error
-	LE  error
-	'>'  error
-	GE  error
-	EQ  error
-	NE  error
-	'+'  shift 39
-	'-'  shift 40
-	'*'  shift 41
-	'/'  shift 42
-	.  reduce 42 (src line 120)
-
-
-state 91
-	bin_expr:  bin_expr.'+' bin_expr 
-	bin_expr:  bin_expr.'-' bin_expr 
-	bin_expr:  bin_expr.'*' bin_expr 
-	bin_expr:  bin_expr.'/' bin_expr 
-	bin_expr:  bin_expr.'<' bin_expr 
-	bin_expr:  bin_expr.LE bin_expr 
-	bin_expr:  bin_expr.'>' bin_expr 
-	bin_expr:  bin_expr.GE bin_expr 
-	bin_expr:  bin_expr.EQ bin_expr 
-	bin_expr:  bin_expr.NE bin_expr 
-	bin_expr:  bin_expr.kAND bin_expr 
-	bin_expr:  bin_expr kAND bin_expr.    (43)
-	bin_expr:  bin_expr.kOR bin_expr 
-
-	'<'  shift 43
-	LE  shift 44
-	'>'  shift 45
-	GE  shift 46
-	EQ  shift 47
-	NE  shift 48
-	'+'  shift 39
-	'-'  shift 40
-	'*'  shift 41
-	'/'  shift 42
-	.  reduce 43 (src line 121)
-
-
-state 92
-	bin_expr:  bin_expr.'+' bin_expr 
-	bin_expr:  bin_expr.'-' bin_expr 
-	bin_expr:  bin_expr.'*' bin_expr 
-	bin_expr:  bin_expr.'/' bin_expr 
-	bin_expr:  bin_expr.'<' bin_expr 
-	bin_expr:  bin_expr.LE bin_expr 
-	bin_expr:  bin_expr.'>' bin_expr 
-	bin_expr:  bin_expr.GE bin_expr 
-	bin_expr:  bin_expr.EQ bin_expr 
-	bin_expr:  bin_expr.NE bin_expr 
-	bin_expr:  bin_expr.kAND bin_expr 
-	bin_expr:  bin_expr.kOR bin_expr 
-	bin_expr:  bin_expr kOR bin_expr.    (44)
-
-	kAND  shift 49
-	'<'  shift 43
-	LE  shift 44
-	'>'  shift 45
-	GE  shift 46
-	EQ  shift 47
-	NE  shift 48
-	'+'  shift 39
-	'-'  shift 40
-	'*'  shift 41
-	'/'  shift 42
-	.  reduce 44 (src line 122)
-
-
-state 93
-	for_stmt:  kFOR for_args kIN.expr kDO opt_stmts kEND 
-
-	kFALSE  shift 26
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  error
-
-	expr  goto 120
-	bin_expr  goto 13
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 94
-	for_args:  for_args ','.ID 
-
-	ID  shift 121
-	.  error
-
-
-state 95
-	if_stmt:  kIF expr kTHEN.opt_stmts elifs_opt else_opt kEND 
-	opt_stmts: .    (3)
-
-	kVAR  shift 12
-	kFALSE  shift 26
-	kFOR  shift 14
-	kIF  shift 15
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 16
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	';'  shift 5
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  reduce 3 (src line 51)
-
-	opt_stmts  goto 122
-	stmts  goto 3
-	stmt  goto 4
-	assignment_stmt  goto 6
-	var_decl_stmt  goto 7
-	expr  goto 8
-	for_stmt  goto 9
-	if_stmt  goto 10
-	func_stmt  goto 11
-	bin_expr  goto 13
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 96
-	func_stmt:  kFN ID '('.param_list_opt ')' opt_stmts kEND 
-	param_list_opt: .    (63)
-
-	ID  shift 99
-	.  reduce 63 (src line 148)
-
-	param_list_opt  goto 123
-	param_list  goto 98
-
-state 97
-	func_expr:  kFN '(' param_list_opt.')' opt_stmts kEND 
-
-	')'  shift 124
-	.  error
-
-
-state 98
-	param_list_opt:  param_list.    (62)
-	param_list:  param_list.',' ID 
-
-	','  shift 125
-	.  reduce 62 (src line 147)
-
-
-state 99
-	param_list:  ID.    (65)
-
-	.  reduce 65 (src line 151)
-
-
-state 100
-	primary_expr:  primary_expr '[' expr.']' 
-
-	']'  shift 126
-	.  error
-
-
-state 101
-	primary_expr:  primary_expr '.' ID.    (57)
-
-	.  reduce 57 (src line 137)
-
-
-state 102
-	primary_expr:  primary_expr '(' arg_list_opt.')' 
-
-	')'  shift 127
-	.  error
-
-
-state 103
-	arg_list_opt:  arg_list.trailing_comma 
-	arg_list:  arg_list.',' expr 
-	trailing_comma: .    (112)
-
-	','  shift 129
-	.  reduce 112 (src line 239)
-
-	trailing_comma  goto 128
-
-state 104
-	arg_list:  expr.    (69)
-
-	.  reduce 69 (src line 157)
-
-
-state 105
-	primary_expr:  '(' expr ')'.    (60)
-
-	.  reduce 60 (src line 140)
-
-
-state 106
-	array_literal:  '[' array_elems_opt ']'.    (88)
-
-	.  reduce 88 (src line 196)
-
-
-state 107
-	array_elems_opt:  array_elems trailing_seps.    (89)
-
-	.  reduce 89 (src line 198)
-
-
-state 108
-	array_elems:  array_elems ','.array_elem 
-	trailing_seps1:  ','.    (110)
-
-	kFALSE  shift 26
-	kIF  shift 69
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  reduce 110 (src line 237)
-
-	expr  goto 67
-	bin_expr  goto 13
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-	array_elem  goto 130
-	array_if  goto 68
-
-state 109
-	array_elems:  array_elems ';'.array_elem 
-	trailing_seps1:  ';'.    (109)
-
-	kFALSE  shift 26
-	kIF  shift 69
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  reduce 109 (src line 236)
-
-	expr  goto 67
-	bin_expr  goto 13
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-	array_elem  goto 131
-	array_if  goto 68
-
-state 110
-	trailing_seps:  trailing_seps1.    (106)
-	trailing_seps1:  trailing_seps1.';' 
-	trailing_seps1:  trailing_seps1.',' 
-
-	';'  shift 132
-	','  shift 133
-	.  reduce 106 (src line 232)
-
-
-state 111
-	array_if:  kIF expr.kTHEN array_elems_opt array_elifs_opt array_else_opt kEND 
-
-	kTHEN  shift 134
-	.  error
-
-
-state 112
-	object_literal:  '{' object_fields_opt '}'.    (70)
-
-	.  reduce 70 (src line 159)
-
-
-state 113
-	object_fields_opt:  object_fields trailing_seps.    (71)
-
-	.  reduce 71 (src line 161)
-
-
-state 114
-	object_fields:  object_fields ','.object_field 
-	trailing_seps1:  ','.    (110)
-
-	kIF  shift 76
-	ID  shift 73
-	'['  shift 74
-	.  reduce 110 (src line 237)
-
-	object_field  goto 135
-	object_if  goto 75
-
-state 115
-	object_fields:  object_fields ';'.object_field 
-	trailing_seps1:  ';'.    (109)
-
-	kIF  shift 76
-	ID  shift 73
-	'['  shift 74
-	.  reduce 109 (src line 236)
-
-	object_field  goto 136
-	object_if  goto 75
-
-state 116
-	object_field:  ID ':'.expr 
-
-	kFALSE  shift 26
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  error
-
-	expr  goto 137
-	bin_expr  goto 13
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 117
-	object_field:  '[' expr.']' ':' expr 
-
-	']'  shift 138
-	.  error
-
-
-state 118
-	object_if:  kIF expr.kTHEN object_fields_opt object_elifs_opt object_else_opt kEND 
-
-	kTHEN  shift 139
-	.  error
-
-
-state 119
-	var_decl_stmt:  kVAR ID '=' expr.    (29)
-
-	.  reduce 29 (src line 105)
-
-
-state 120
-	for_stmt:  kFOR for_args kIN expr.kDO opt_stmts kEND 
-
-	kDO  shift 140
-	.  error
-
-
-state 121
-	for_args:  for_args ',' ID.    (25)
-
-	.  reduce 25 (src line 99)
-
-
-state 122
-	if_stmt:  kIF expr kTHEN opt_stmts.elifs_opt else_opt kEND 
-	elifs_opt: .    (17)
-
-	kELIF  shift 144
-	.  reduce 17 (src line 78)
-
-	elifs_opt  goto 141
-	elifs  goto 142
-	elif  goto 143
-
-state 123
-	func_stmt:  kFN ID '(' param_list_opt.')' opt_stmts kEND 
-
-	')'  shift 145
-	.  error
-
-
-state 124
-	func_expr:  kFN '(' param_list_opt ')'.opt_stmts kEND 
-	opt_stmts: .    (3)
-
-	kVAR  shift 12
-	kFALSE  shift 26
-	kFOR  shift 14
-	kIF  shift 15
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 16
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	';'  shift 5
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  reduce 3 (src line 51)
-
-	opt_stmts  goto 146
-	stmts  goto 3
-	stmt  goto 4
-	assignment_stmt  goto 6
-	var_decl_stmt  goto 7
-	expr  goto 8
-	for_stmt  goto 9
-	if_stmt  goto 10
-	func_stmt  goto 11
-	bin_expr  goto 13
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 125
-	param_list:  param_list ','.ID 
-
-	ID  shift 147
-	.  error
-
-
-state 126
-	primary_expr:  primary_expr '[' expr ']'.    (56)
-
-	.  reduce 56 (src line 136)
-
-
-state 127
-	primary_expr:  primary_expr '(' arg_list_opt ')'.    (58)
-
-	.  reduce 58 (src line 138)
-
-
-state 128
-	arg_list_opt:  arg_list trailing_comma.    (66)
-
-	.  reduce 66 (src line 153)
-
-
-state 129
-	arg_list:  arg_list ','.expr 
-	trailing_comma:  ','.    (111)
-
-	kFALSE  shift 26
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  reduce 111 (src line 239)
-
-	expr  goto 148
-	bin_expr  goto 13
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 130
-	array_elems:  array_elems ',' array_elem.    (91)
-
-	.  reduce 91 (src line 201)
-
-
-state 131
-	array_elems:  array_elems ';' array_elem.    (92)
-
-	.  reduce 92 (src line 202)
-
-
-state 132
-	trailing_seps1:  trailing_seps1 ';'.    (107)
-
-	.  reduce 107 (src line 234)
-
-
-state 133
-	trailing_seps1:  trailing_seps1 ','.    (108)
-
-	.  reduce 108 (src line 235)
-
-
-state 134
-	array_if:  kIF expr kTHEN.array_elems_opt array_elifs_opt array_else_opt kEND 
-	array_elems_opt: .    (90)
-
-	kFALSE  shift 26
-	kIF  shift 69
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  reduce 90 (src line 199)
-
-	expr  goto 67
-	bin_expr  goto 13
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-	array_elems_opt  goto 149
-	array_elems  goto 65
-	array_elem  goto 66
-	array_if  goto 68
-
-state 135
-	object_fields:  object_fields ',' object_field.    (73)
-
-	.  reduce 73 (src line 164)
-
-
-state 136
-	object_fields:  object_fields ';' object_field.    (74)
-
-	.  reduce 74 (src line 165)
-
-
-state 137
-	object_field:  ID ':' expr.    (76)
-
-	.  reduce 76 (src line 168)
-
-
-state 138
-	object_field:  '[' expr ']'.':' expr 
-
-	':'  shift 150
-	.  error
-
-
-state 139
-	object_if:  kIF expr kTHEN.object_fields_opt object_elifs_opt object_else_opt kEND 
-	object_fields_opt: .    (72)
-
-	kIF  shift 76
-	ID  shift 73
-	'['  shift 74
-	.  reduce 72 (src line 162)
-
-	object_fields_opt  goto 151
-	object_fields  goto 71
-	object_field  goto 72
-	object_if  goto 75
-
-state 140
-	for_stmt:  kFOR for_args kIN expr kDO.opt_stmts kEND 
-	opt_stmts: .    (3)
-
-	kVAR  shift 12
-	kFALSE  shift 26
-	kFOR  shift 14
-	kIF  shift 15
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 16
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	';'  shift 5
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  reduce 3 (src line 51)
-
-	opt_stmts  goto 152
-	stmts  goto 3
-	stmt  goto 4
-	assignment_stmt  goto 6
-	var_decl_stmt  goto 7
-	expr  goto 8
-	for_stmt  goto 9
-	if_stmt  goto 10
-	func_stmt  goto 11
-	bin_expr  goto 13
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 141
-	if_stmt:  kIF expr kTHEN opt_stmts elifs_opt.else_opt kEND 
-	else_opt: .    (22)
-
-	kELSE  shift 155
-	.  reduce 22 (src line 88)
-
-	else_opt  goto 153
-	else  goto 154
-
-state 142
-	elifs_opt:  elifs.    (16)
-	elifs:  elifs.elif 
-
-	kELIF  shift 144
-	.  reduce 16 (src line 77)
-
-	elif  goto 156
-
-state 143
-	elifs:  elif.    (19)
-
-	.  reduce 19 (src line 81)
-
-
-state 144
-	elif:  kELIF.expr kTHEN opt_stmts 
-
-	kFALSE  shift 26
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  error
-
-	expr  goto 157
-	bin_expr  goto 13
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 145
-	func_stmt:  kFN ID '(' param_list_opt ')'.opt_stmts kEND 
-	opt_stmts: .    (3)
-
-	kVAR  shift 12
-	kFALSE  shift 26
-	kFOR  shift 14
-	kIF  shift 15
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 16
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	';'  shift 5
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  reduce 3 (src line 51)
-
-	opt_stmts  goto 158
-	stmts  goto 3
-	stmt  goto 4
-	assignment_stmt  goto 6
-	var_decl_stmt  goto 7
-	expr  goto 8
-	for_stmt  goto 9
-	if_stmt  goto 10
-	func_stmt  goto 11
-	bin_expr  goto 13
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 146
-	func_expr:  kFN '(' param_list_opt ')' opt_stmts.kEND 
-
-	kEND  shift 159
-	.  error
-
-
-state 147
-	param_list:  param_list ',' ID.    (64)
-
-	.  reduce 64 (src line 150)
-
-
-state 148
-	arg_list:  arg_list ',' expr.    (68)
-
-	.  reduce 68 (src line 156)
-
-
-state 149
-	array_if:  kIF expr kTHEN array_elems_opt.array_elifs_opt array_else_opt kEND 
-	array_elifs_opt: .    (98)
-
-	kELIF  shift 163
-	.  reduce 98 (src line 216)
-
-	array_elifs_opt  goto 160
-	array_elifs  goto 161
-	array_elif  goto 162
-
-state 150
-	object_field:  '[' expr ']' ':'.expr 
-
-	kFALSE  shift 26
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  error
-
-	expr  goto 164
-	bin_expr  goto 13
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 151
-	object_if:  kIF expr kTHEN object_fields_opt.object_elifs_opt object_else_opt kEND 
-	object_elifs_opt: .    (81)
-
-	kELIF  shift 168
-	.  reduce 81 (src line 180)
-
-	object_elifs_opt  goto 165
-	object_elifs  goto 166
-	object_elif  goto 167
-
-state 152
-	for_stmt:  kFOR for_args kIN expr kDO opt_stmts.kEND 
-
-	kEND  shift 169
-	.  error
-
-
-state 153
-	if_stmt:  kIF expr kTHEN opt_stmts elifs_opt else_opt.kEND 
-
-	kEND  shift 170
-	.  error
-
-
-state 154
-	else_opt:  else.    (21)
-
-	.  reduce 21 (src line 87)
-
-
-state 155
-	else:  kELSE.opt_stmts 
-	opt_stmts: .    (3)
-
-	kVAR  shift 12
-	kFALSE  shift 26
-	kFOR  shift 14
-	kIF  shift 15
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 16
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	';'  shift 5
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  reduce 3 (src line 51)
-
-	opt_stmts  goto 171
-	stmts  goto 3
-	stmt  goto 4
-	assignment_stmt  goto 6
-	var_decl_stmt  goto 7
-	expr  goto 8
-	for_stmt  goto 9
-	if_stmt  goto 10
-	func_stmt  goto 11
-	bin_expr  goto 13
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 156
-	elifs:  elifs elif.    (18)
-
-	.  reduce 18 (src line 80)
-
-
-state 157
-	elif:  kELIF expr.kTHEN opt_stmts 
-
-	kTHEN  shift 172
-	.  error
-
-
-state 158
-	func_stmt:  kFN ID '(' param_list_opt ')' opt_stmts.kEND 
-
-	kEND  shift 173
-	.  error
-
-
-state 159
-	func_expr:  kFN '(' param_list_opt ')' opt_stmts kEND.    (61)
-
-	.  reduce 61 (src line 142)
-
-
-state 160
-	array_if:  kIF expr kTHEN array_elems_opt array_elifs_opt.array_else_opt kEND 
-	array_else_opt: .    (103)
-
-	kELSE  shift 176
-	.  reduce 103 (src line 226)
-
-	array_else_opt  goto 174
-	array_else  goto 175
-
-state 161
-	array_elifs_opt:  array_elifs.    (97)
-	array_elifs:  array_elifs.array_elif 
-
-	kELIF  shift 163
-	.  reduce 97 (src line 215)
-
-	array_elif  goto 177
-
-state 162
-	array_elifs:  array_elif.    (100)
-
-	.  reduce 100 (src line 219)
-
-
-state 163
-	array_elif:  kELIF.expr kTHEN array_elems_opt 
-
-	kFALSE  shift 26
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  error
-
-	expr  goto 178
-	bin_expr  goto 13
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 164
-	object_field:  '[' expr ']' ':' expr.    (77)
-
-	.  reduce 77 (src line 169)
-
-
-state 165
-	object_if:  kIF expr kTHEN object_fields_opt object_elifs_opt.object_else_opt kEND 
-	object_else_opt: .    (86)
-
-	kELSE  shift 181
-	.  reduce 86 (src line 190)
-
-	object_else_opt  goto 179
-	object_else  goto 180
-
-state 166
-	object_elifs_opt:  object_elifs.    (80)
-	object_elifs:  object_elifs.object_elif 
-
-	kELIF  shift 168
-	.  reduce 80 (src line 179)
-
-	object_elif  goto 182
-
-state 167
-	object_elifs:  object_elif.    (83)
-
-	.  reduce 83 (src line 183)
-
-
-state 168
-	object_elif:  kELIF.expr kTHEN object_fields_opt 
-
-	kFALSE  shift 26
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  error
-
-	expr  goto 183
-	bin_expr  goto 13
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 169
-	for_stmt:  kFOR for_args kIN expr kDO opt_stmts kEND.    (24)
-
-	.  reduce 24 (src line 94)
-
-
-state 170
-	if_stmt:  kIF expr kTHEN opt_stmts elifs_opt else_opt kEND.    (15)
-
-	.  reduce 15 (src line 70)
-
-
-state 171
-	else:  kELSE opt_stmts.    (23)
-
-	.  reduce 23 (src line 90)
-
-
-state 172
-	elif:  kELIF expr kTHEN.opt_stmts 
-	opt_stmts: .    (3)
-
-	kVAR  shift 12
-	kFALSE  shift 26
-	kFOR  shift 14
-	kIF  shift 15
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 16
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	';'  shift 5
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  reduce 3 (src line 51)
-
-	opt_stmts  goto 184
-	stmts  goto 3
-	stmt  goto 4
-	assignment_stmt  goto 6
-	var_decl_stmt  goto 7
-	expr  goto 8
-	for_stmt  goto 9
-	if_stmt  goto 10
-	func_stmt  goto 11
-	bin_expr  goto 13
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-
-state 173
-	func_stmt:  kFN ID '(' param_list_opt ')' opt_stmts kEND.    (14)
+	stmt:  func_stmt.    (14)
 
 	.  reduce 14 (src line 65)
 
 
-state 174
-	array_if:  kIF expr kTHEN array_elems_opt array_elifs_opt array_else_opt.kEND 
+state 12
+	stmt:  return_stmt.    (15)
 
-	kEND  shift 185
+	.  reduce 15 (src line 66)
+
+
+state 13
+	stmt:  while_stmt.    (16)
+
+	.  reduce 16 (src line 67)
+
+
+state 14
+	var_decl_stmt:  kVAR.ID 
+	var_decl_stmt:  kVAR.ID '=' expr 
+
+	ID  shift 52
 	.  error
 
 
-state 175
-	array_else_opt:  array_else.    (102)
+state 15
+	expr:  unary_expr.    (37)
 
-	.  reduce 102 (src line 225)
+	.  reduce 37 (src line 121)
+
+
+state 16
+	for_stmt:  kFOR.for_args kIN expr kDO stmts_opt kEND 
+
+	ID  shift 54
+	.  error
+
+	for_args  goto 53
+
+state 17
+	if_stmt:  kIF.expr kTHEN stmts_opt elifs_opt else_opt kEND 
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  error
+
+	expr  goto 55
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 18
+	func_stmt:  kFN.ID '(' param_list_opt ')' stmts_opt kEND 
+	lambda_expr:  kFN.'(' param_list_opt ')' stmts_opt kEND 
+
+	ID  shift 57
+	'('  shift 58
+	.  error
+
+
+state 19
+	return_stmt:  kRETURN.return_list 
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  error
+
+	expr  goto 60
+	return_list  goto 59
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 20
+	while_stmt:  kWHILE.expr kDO stmts_opt kEND 
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  error
+
+	expr  goto 61
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 21
+	unary_expr:  kNOT.unary_expr 
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  error
+
+	unary_expr  goto 62
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 22
+	unary_expr:  '+'.unary_expr 
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  error
+
+	unary_expr  goto 63
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 23
+	unary_expr:  '-'.unary_expr 
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  error
+
+	unary_expr  goto 64
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 24
+	unary_expr:  primary_expr.    (53)
+	primary_expr:  primary_expr.'[' expr ']' 
+	primary_expr:  primary_expr.'.' ID 
+	primary_expr:  primary_expr.'(' arg_list_opt ')' 
+
+	'('  shift 67
+	'['  shift 65
+	'.'  shift 66
+	.  reduce 53 (src line 138)
+
+
+state 25
+	primary_expr:  STRING.    (54)
+
+	.  reduce 54 (src line 140)
+
+
+state 26
+	primary_expr:  NUMBER.    (55)
+
+	.  reduce 55 (src line 141)
+
+
+state 27
+	primary_expr:  ID.    (56)
+
+	.  reduce 56 (src line 142)
+
+
+state 28
+	primary_expr:  kTRUE.    (57)
+
+	.  reduce 57 (src line 143)
+
+
+state 29
+	primary_expr:  kFALSE.    (58)
+
+	.  reduce 58 (src line 144)
+
+
+state 30
+	primary_expr:  array_literal.    (59)
+
+	.  reduce 59 (src line 145)
+
+
+state 31
+	primary_expr:  object_literal.    (60)
+
+	.  reduce 60 (src line 146)
+
+
+state 32
+	primary_expr:  lambda_expr.    (64)
+
+	.  reduce 64 (src line 150)
+
+
+state 33
+	primary_expr:  '('.expr ')' 
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  error
+
+	expr  goto 68
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 34
+	array_literal:  '['.array_elems_opt ']' 
+	array_elems_opt: .    (97)
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kFOR  shift 76
+	kIF  shift 75
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  reduce 97 (src line 216)
+
+	expr  goto 72
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+	array_elems_opt  goto 69
+	array_elems  goto 70
+	array_elem  goto 71
+	array_if  goto 73
+	array_for  goto 74
+
+state 35
+	object_literal:  '{'.object_fields_opt '}' 
+	object_fields_opt: .    (77)
+
+	kFOR  shift 85
+	kIF  shift 84
+	ID  shift 80
+	'['  shift 81
+	.  reduce 77 (src line 173)
+
+	object_fields_opt  goto 77
+	object_fields  goto 78
+	object_field  goto 79
+	object_if  goto 82
+	object_for  goto 83
+
+state 36
+	stmts:  stmts stmt.';' 
+
+	';'  shift 86
+	.  error
+
+
+state 37
+	stmts:  stmts ';'.    (6)
+
+	.  reduce 6 (src line 56)
+
+
+state 38
+	stmts:  stmt ';'.    (7)
+
+	.  reduce 7 (src line 57)
+
+
+state 39
+	assignment_stmt:  expr '='.expr 
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  error
+
+	expr  goto 87
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 40
+	expr:  expr '+'.expr 
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  error
+
+	expr  goto 88
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 41
+	expr:  expr '-'.expr 
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  error
+
+	expr  goto 89
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 42
+	expr:  expr '*'.expr 
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  error
+
+	expr  goto 90
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 43
+	expr:  expr '/'.expr 
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  error
+
+	expr  goto 91
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 44
+	expr:  expr '<'.expr 
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  error
+
+	expr  goto 92
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 45
+	expr:  expr LE.expr 
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  error
+
+	expr  goto 93
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 46
+	expr:  expr '>'.expr 
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  error
+
+	expr  goto 94
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 47
+	expr:  expr GE.expr 
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  error
+
+	expr  goto 95
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 48
+	expr:  expr EQ.expr 
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  error
+
+	expr  goto 96
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 49
+	expr:  expr NE.expr 
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  error
+
+	expr  goto 97
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 50
+	expr:  expr kAND.expr 
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  error
+
+	expr  goto 98
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 51
+	expr:  expr kOR.expr 
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  error
+
+	expr  goto 99
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 52
+	var_decl_stmt:  kVAR ID.    (35)
+	var_decl_stmt:  kVAR ID.'=' expr 
+
+	'='  shift 100
+	.  reduce 35 (src line 118)
+
+
+state 53
+	for_stmt:  kFOR for_args.kIN expr kDO stmts_opt kEND 
+	for_args:  for_args.',' ID 
+
+	kIN  shift 101
+	','  shift 102
+	.  error
+
+
+state 54
+	for_args:  ID.    (33)
+
+	.  reduce 33 (src line 114)
+
+
+state 55
+	if_stmt:  kIF expr.kTHEN stmts_opt elifs_opt else_opt kEND 
+	expr:  expr.'+' expr 
+	expr:  expr.'-' expr 
+	expr:  expr.'*' expr 
+	expr:  expr.'/' expr 
+	expr:  expr.'<' expr 
+	expr:  expr.LE expr 
+	expr:  expr.'>' expr 
+	expr:  expr.GE expr 
+	expr:  expr.EQ expr 
+	expr:  expr.NE expr 
+	expr:  expr.kAND expr 
+	expr:  expr.kOR expr 
+
+	kAND  shift 50
+	kOR  shift 51
+	kTHEN  shift 103
+	'<'  shift 44
+	LE  shift 45
+	'>'  shift 46
+	GE  shift 47
+	EQ  shift 48
+	NE  shift 49
+	'+'  shift 40
+	'-'  shift 41
+	'*'  shift 42
+	'/'  shift 43
+	.  error
+
+
+state 56
+	lambda_expr:  kFN.'(' param_list_opt ')' stmts_opt kEND 
+
+	'('  shift 58
+	.  error
+
+
+state 57
+	func_stmt:  kFN ID.'(' param_list_opt ')' stmts_opt kEND 
+
+	'('  shift 104
+	.  error
+
+
+state 58
+	lambda_expr:  kFN '('.param_list_opt ')' stmts_opt kEND 
+	param_list_opt: .    (68)
+
+	ID  shift 107
+	.  reduce 68 (src line 159)
+
+	param_list_opt  goto 105
+	param_list  goto 106
+
+state 59
+	return_stmt:  kRETURN return_list.    (18)
+	return_list:  return_list.',' expr 
+
+	','  shift 108
+	.  reduce 18 (src line 74)
+
+
+state 60
+	return_list:  expr.    (20)
+	expr:  expr.'+' expr 
+	expr:  expr.'-' expr 
+	expr:  expr.'*' expr 
+	expr:  expr.'/' expr 
+	expr:  expr.'<' expr 
+	expr:  expr.LE expr 
+	expr:  expr.'>' expr 
+	expr:  expr.GE expr 
+	expr:  expr.EQ expr 
+	expr:  expr.NE expr 
+	expr:  expr.kAND expr 
+	expr:  expr.kOR expr 
+
+	kAND  shift 50
+	kOR  shift 51
+	'<'  shift 44
+	LE  shift 45
+	'>'  shift 46
+	GE  shift 47
+	EQ  shift 48
+	NE  shift 49
+	'+'  shift 40
+	'-'  shift 41
+	'*'  shift 42
+	'/'  shift 43
+	.  reduce 20 (src line 77)
+
+
+state 61
+	while_stmt:  kWHILE expr.kDO stmts_opt kEND 
+	expr:  expr.'+' expr 
+	expr:  expr.'-' expr 
+	expr:  expr.'*' expr 
+	expr:  expr.'/' expr 
+	expr:  expr.'<' expr 
+	expr:  expr.LE expr 
+	expr:  expr.'>' expr 
+	expr:  expr.GE expr 
+	expr:  expr.EQ expr 
+	expr:  expr.NE expr 
+	expr:  expr.kAND expr 
+	expr:  expr.kOR expr 
+
+	kAND  shift 50
+	kDO  shift 109
+	kOR  shift 51
+	'<'  shift 44
+	LE  shift 45
+	'>'  shift 46
+	GE  shift 47
+	EQ  shift 48
+	NE  shift 49
+	'+'  shift 40
+	'-'  shift 41
+	'*'  shift 42
+	'/'  shift 43
+	.  error
+
+
+state 62
+	unary_expr:  kNOT unary_expr.    (50)
+
+	.  reduce 50 (src line 135)
+
+
+state 63
+	unary_expr:  '+' unary_expr.    (51)
+
+	.  reduce 51 (src line 136)
+
+
+state 64
+	unary_expr:  '-' unary_expr.    (52)
+
+	.  reduce 52 (src line 137)
+
+
+state 65
+	primary_expr:  primary_expr '['.expr ']' 
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  error
+
+	expr  goto 110
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 66
+	primary_expr:  primary_expr '.'.ID 
+
+	ID  shift 111
+	.  error
+
+
+state 67
+	primary_expr:  primary_expr '('.arg_list_opt ')' 
+	arg_list_opt: .    (72)
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  reduce 72 (src line 165)
+
+	expr  goto 114
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	arg_list_opt  goto 112
+	lambda_expr  goto 32
+	arg_list  goto 113
+
+state 68
+	expr:  expr.'+' expr 
+	expr:  expr.'-' expr 
+	expr:  expr.'*' expr 
+	expr:  expr.'/' expr 
+	expr:  expr.'<' expr 
+	expr:  expr.LE expr 
+	expr:  expr.'>' expr 
+	expr:  expr.GE expr 
+	expr:  expr.EQ expr 
+	expr:  expr.NE expr 
+	expr:  expr.kAND expr 
+	expr:  expr.kOR expr 
+	primary_expr:  '(' expr.')' 
+
+	kAND  shift 50
+	kOR  shift 51
+	'<'  shift 44
+	LE  shift 45
+	'>'  shift 46
+	GE  shift 47
+	EQ  shift 48
+	NE  shift 49
+	'+'  shift 40
+	'-'  shift 41
+	'*'  shift 42
+	'/'  shift 43
+	')'  shift 115
+	.  error
+
+
+state 69
+	array_literal:  '[' array_elems_opt.']' 
+
+	']'  shift 116
+	.  error
+
+
+state 70
+	array_elems_opt:  array_elems.trailing_seps 
+	array_elems:  array_elems.',' array_elem 
+	array_elems:  array_elems.';' array_elem 
+	trailing_seps: .    (114)
+
+	';'  shift 119
+	','  shift 118
+	.  reduce 114 (src line 255)
+
+	trailing_seps  goto 117
+	trailing_seps1  goto 120
+
+state 71
+	array_elems:  array_elem.    (100)
+
+	.  reduce 100 (src line 220)
+
+
+state 72
+	expr:  expr.'+' expr 
+	expr:  expr.'-' expr 
+	expr:  expr.'*' expr 
+	expr:  expr.'/' expr 
+	expr:  expr.'<' expr 
+	expr:  expr.LE expr 
+	expr:  expr.'>' expr 
+	expr:  expr.GE expr 
+	expr:  expr.EQ expr 
+	expr:  expr.NE expr 
+	expr:  expr.kAND expr 
+	expr:  expr.kOR expr 
+	array_elem:  expr.    (101)
+
+	kAND  shift 50
+	kOR  shift 51
+	'<'  shift 44
+	LE  shift 45
+	'>'  shift 46
+	GE  shift 47
+	EQ  shift 48
+	NE  shift 49
+	'+'  shift 40
+	'-'  shift 41
+	'*'  shift 42
+	'/'  shift 43
+	.  reduce 101 (src line 222)
+
+
+state 73
+	array_elem:  array_if.    (102)
+
+	.  reduce 102 (src line 223)
+
+
+state 74
+	array_elem:  array_for.    (103)
+
+	.  reduce 103 (src line 224)
+
+
+state 75
+	array_if:  kIF.expr kTHEN array_elems_opt array_elifs_opt array_else_opt kEND 
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  error
+
+	expr  goto 121
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 76
+	array_for:  kFOR.for_args kIN expr kDO array_elems_opt kEND 
+
+	ID  shift 54
+	.  error
+
+	for_args  goto 122
+
+state 77
+	object_literal:  '{' object_fields_opt.'}' 
+
+	'}'  shift 123
+	.  error
+
+
+state 78
+	object_fields_opt:  object_fields.trailing_seps 
+	object_fields:  object_fields.',' object_field 
+	object_fields:  object_fields.';' object_field 
+	trailing_seps: .    (114)
+
+	';'  shift 126
+	','  shift 125
+	.  reduce 114 (src line 255)
+
+	trailing_seps  goto 124
+	trailing_seps1  goto 120
+
+state 79
+	object_fields:  object_field.    (80)
+
+	.  reduce 80 (src line 177)
+
+
+state 80
+	object_field:  ID.':' expr 
+
+	':'  shift 127
+	.  error
+
+
+state 81
+	object_field:  '['.expr ']' ':' expr 
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  error
+
+	expr  goto 128
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 82
+	object_field:  object_if.    (83)
+
+	.  reduce 83 (src line 181)
+
+
+state 83
+	object_field:  object_for.    (84)
+
+	.  reduce 84 (src line 182)
+
+
+state 84
+	object_if:  kIF.expr kTHEN object_fields_opt object_elifs_opt object_else_opt kEND 
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  error
+
+	expr  goto 129
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 85
+	object_for:  kFOR.for_args kIN expr kDO object_fields_opt kEND 
+
+	ID  shift 54
+	.  error
+
+	for_args  goto 130
+
+state 86
+	stmts:  stmts stmt ';'.    (5)
+
+	.  reduce 5 (src line 55)
+
+
+state 87
+	assignment_stmt:  expr '=' expr.    (34)
+	expr:  expr.'+' expr 
+	expr:  expr.'-' expr 
+	expr:  expr.'*' expr 
+	expr:  expr.'/' expr 
+	expr:  expr.'<' expr 
+	expr:  expr.LE expr 
+	expr:  expr.'>' expr 
+	expr:  expr.GE expr 
+	expr:  expr.EQ expr 
+	expr:  expr.NE expr 
+	expr:  expr.kAND expr 
+	expr:  expr.kOR expr 
+
+	kAND  shift 50
+	kOR  shift 51
+	'<'  shift 44
+	LE  shift 45
+	'>'  shift 46
+	GE  shift 47
+	EQ  shift 48
+	NE  shift 49
+	'+'  shift 40
+	'-'  shift 41
+	'*'  shift 42
+	'/'  shift 43
+	.  reduce 34 (src line 116)
+
+
+state 88
+	expr:  expr.'+' expr 
+	expr:  expr '+' expr.    (38)
+	expr:  expr.'-' expr 
+	expr:  expr.'*' expr 
+	expr:  expr.'/' expr 
+	expr:  expr.'<' expr 
+	expr:  expr.LE expr 
+	expr:  expr.'>' expr 
+	expr:  expr.GE expr 
+	expr:  expr.EQ expr 
+	expr:  expr.NE expr 
+	expr:  expr.kAND expr 
+	expr:  expr.kOR expr 
+
+	'*'  shift 42
+	'/'  shift 43
+	.  reduce 38 (src line 122)
+
+
+state 89
+	expr:  expr.'+' expr 
+	expr:  expr.'-' expr 
+	expr:  expr '-' expr.    (39)
+	expr:  expr.'*' expr 
+	expr:  expr.'/' expr 
+	expr:  expr.'<' expr 
+	expr:  expr.LE expr 
+	expr:  expr.'>' expr 
+	expr:  expr.GE expr 
+	expr:  expr.EQ expr 
+	expr:  expr.NE expr 
+	expr:  expr.kAND expr 
+	expr:  expr.kOR expr 
+
+	'*'  shift 42
+	'/'  shift 43
+	.  reduce 39 (src line 123)
+
+
+state 90
+	expr:  expr.'+' expr 
+	expr:  expr.'-' expr 
+	expr:  expr.'*' expr 
+	expr:  expr '*' expr.    (40)
+	expr:  expr.'/' expr 
+	expr:  expr.'<' expr 
+	expr:  expr.LE expr 
+	expr:  expr.'>' expr 
+	expr:  expr.GE expr 
+	expr:  expr.EQ expr 
+	expr:  expr.NE expr 
+	expr:  expr.kAND expr 
+	expr:  expr.kOR expr 
+
+	.  reduce 40 (src line 124)
+
+
+state 91
+	expr:  expr.'+' expr 
+	expr:  expr.'-' expr 
+	expr:  expr.'*' expr 
+	expr:  expr.'/' expr 
+	expr:  expr '/' expr.    (41)
+	expr:  expr.'<' expr 
+	expr:  expr.LE expr 
+	expr:  expr.'>' expr 
+	expr:  expr.GE expr 
+	expr:  expr.EQ expr 
+	expr:  expr.NE expr 
+	expr:  expr.kAND expr 
+	expr:  expr.kOR expr 
+
+	.  reduce 41 (src line 125)
+
+
+state 92
+	expr:  expr.'+' expr 
+	expr:  expr.'-' expr 
+	expr:  expr.'*' expr 
+	expr:  expr.'/' expr 
+	expr:  expr.'<' expr 
+	expr:  expr '<' expr.    (42)
+	expr:  expr.LE expr 
+	expr:  expr.'>' expr 
+	expr:  expr.GE expr 
+	expr:  expr.EQ expr 
+	expr:  expr.NE expr 
+	expr:  expr.kAND expr 
+	expr:  expr.kOR expr 
+
+	'<'  error
+	LE  error
+	'>'  error
+	GE  error
+	EQ  error
+	NE  error
+	'+'  shift 40
+	'-'  shift 41
+	'*'  shift 42
+	'/'  shift 43
+	.  reduce 42 (src line 126)
+
+
+state 93
+	expr:  expr.'+' expr 
+	expr:  expr.'-' expr 
+	expr:  expr.'*' expr 
+	expr:  expr.'/' expr 
+	expr:  expr.'<' expr 
+	expr:  expr.LE expr 
+	expr:  expr LE expr.    (43)
+	expr:  expr.'>' expr 
+	expr:  expr.GE expr 
+	expr:  expr.EQ expr 
+	expr:  expr.NE expr 
+	expr:  expr.kAND expr 
+	expr:  expr.kOR expr 
+
+	'<'  error
+	LE  error
+	'>'  error
+	GE  error
+	EQ  error
+	NE  error
+	'+'  shift 40
+	'-'  shift 41
+	'*'  shift 42
+	'/'  shift 43
+	.  reduce 43 (src line 127)
+
+
+state 94
+	expr:  expr.'+' expr 
+	expr:  expr.'-' expr 
+	expr:  expr.'*' expr 
+	expr:  expr.'/' expr 
+	expr:  expr.'<' expr 
+	expr:  expr.LE expr 
+	expr:  expr.'>' expr 
+	expr:  expr '>' expr.    (44)
+	expr:  expr.GE expr 
+	expr:  expr.EQ expr 
+	expr:  expr.NE expr 
+	expr:  expr.kAND expr 
+	expr:  expr.kOR expr 
+
+	'<'  error
+	LE  error
+	'>'  error
+	GE  error
+	EQ  error
+	NE  error
+	'+'  shift 40
+	'-'  shift 41
+	'*'  shift 42
+	'/'  shift 43
+	.  reduce 44 (src line 128)
+
+
+state 95
+	expr:  expr.'+' expr 
+	expr:  expr.'-' expr 
+	expr:  expr.'*' expr 
+	expr:  expr.'/' expr 
+	expr:  expr.'<' expr 
+	expr:  expr.LE expr 
+	expr:  expr.'>' expr 
+	expr:  expr.GE expr 
+	expr:  expr GE expr.    (45)
+	expr:  expr.EQ expr 
+	expr:  expr.NE expr 
+	expr:  expr.kAND expr 
+	expr:  expr.kOR expr 
+
+	'<'  error
+	LE  error
+	'>'  error
+	GE  error
+	EQ  error
+	NE  error
+	'+'  shift 40
+	'-'  shift 41
+	'*'  shift 42
+	'/'  shift 43
+	.  reduce 45 (src line 129)
+
+
+state 96
+	expr:  expr.'+' expr 
+	expr:  expr.'-' expr 
+	expr:  expr.'*' expr 
+	expr:  expr.'/' expr 
+	expr:  expr.'<' expr 
+	expr:  expr.LE expr 
+	expr:  expr.'>' expr 
+	expr:  expr.GE expr 
+	expr:  expr.EQ expr 
+	expr:  expr EQ expr.    (46)
+	expr:  expr.NE expr 
+	expr:  expr.kAND expr 
+	expr:  expr.kOR expr 
+
+	'<'  error
+	LE  error
+	'>'  error
+	GE  error
+	EQ  error
+	NE  error
+	'+'  shift 40
+	'-'  shift 41
+	'*'  shift 42
+	'/'  shift 43
+	.  reduce 46 (src line 130)
+
+
+state 97
+	expr:  expr.'+' expr 
+	expr:  expr.'-' expr 
+	expr:  expr.'*' expr 
+	expr:  expr.'/' expr 
+	expr:  expr.'<' expr 
+	expr:  expr.LE expr 
+	expr:  expr.'>' expr 
+	expr:  expr.GE expr 
+	expr:  expr.EQ expr 
+	expr:  expr.NE expr 
+	expr:  expr NE expr.    (47)
+	expr:  expr.kAND expr 
+	expr:  expr.kOR expr 
+
+	'<'  error
+	LE  error
+	'>'  error
+	GE  error
+	EQ  error
+	NE  error
+	'+'  shift 40
+	'-'  shift 41
+	'*'  shift 42
+	'/'  shift 43
+	.  reduce 47 (src line 131)
+
+
+state 98
+	expr:  expr.'+' expr 
+	expr:  expr.'-' expr 
+	expr:  expr.'*' expr 
+	expr:  expr.'/' expr 
+	expr:  expr.'<' expr 
+	expr:  expr.LE expr 
+	expr:  expr.'>' expr 
+	expr:  expr.GE expr 
+	expr:  expr.EQ expr 
+	expr:  expr.NE expr 
+	expr:  expr.kAND expr 
+	expr:  expr kAND expr.    (48)
+	expr:  expr.kOR expr 
+
+	'<'  shift 44
+	LE  shift 45
+	'>'  shift 46
+	GE  shift 47
+	EQ  shift 48
+	NE  shift 49
+	'+'  shift 40
+	'-'  shift 41
+	'*'  shift 42
+	'/'  shift 43
+	.  reduce 48 (src line 132)
+
+
+state 99
+	expr:  expr.'+' expr 
+	expr:  expr.'-' expr 
+	expr:  expr.'*' expr 
+	expr:  expr.'/' expr 
+	expr:  expr.'<' expr 
+	expr:  expr.LE expr 
+	expr:  expr.'>' expr 
+	expr:  expr.GE expr 
+	expr:  expr.EQ expr 
+	expr:  expr.NE expr 
+	expr:  expr.kAND expr 
+	expr:  expr.kOR expr 
+	expr:  expr kOR expr.    (49)
+
+	kAND  shift 50
+	'<'  shift 44
+	LE  shift 45
+	'>'  shift 46
+	GE  shift 47
+	EQ  shift 48
+	NE  shift 49
+	'+'  shift 40
+	'-'  shift 41
+	'*'  shift 42
+	'/'  shift 43
+	.  reduce 49 (src line 133)
+
+
+state 100
+	var_decl_stmt:  kVAR ID '='.expr 
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  error
+
+	expr  goto 131
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 101
+	for_stmt:  kFOR for_args kIN.expr kDO stmts_opt kEND 
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  error
+
+	expr  goto 132
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 102
+	for_args:  for_args ','.ID 
+
+	ID  shift 133
+	.  error
+
+
+state 103
+	if_stmt:  kIF expr kTHEN.stmts_opt elifs_opt else_opt kEND 
+	stmts_opt: .    (4)
+
+	kFALSE  shift 29
+	kFN  shift 18
+	kFOR  shift 16
+	kIF  shift 17
+	kNOT  shift 21
+	kRETURN  shift 19
+	kTRUE  shift 28
+	kVAR  shift 14
+	kWHILE  shift 20
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	';'  shift 5
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  reduce 4 (src line 53)
+
+	stmts_opt  goto 134
+	stmts  goto 3
+	stmt  goto 4
+	assignment_stmt  goto 6
+	var_decl_stmt  goto 7
+	expr  goto 8
+	for_stmt  goto 9
+	if_stmt  goto 10
+	func_stmt  goto 11
+	return_stmt  goto 12
+	while_stmt  goto 13
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 104
+	func_stmt:  kFN ID '('.param_list_opt ')' stmts_opt kEND 
+	param_list_opt: .    (68)
+
+	ID  shift 107
+	.  reduce 68 (src line 159)
+
+	param_list_opt  goto 135
+	param_list  goto 106
+
+state 105
+	lambda_expr:  kFN '(' param_list_opt.')' stmts_opt kEND 
+
+	')'  shift 136
+	.  error
+
+
+state 106
+	param_list_opt:  param_list.    (67)
+	param_list:  param_list.',' ID 
+
+	','  shift 137
+	.  reduce 67 (src line 158)
+
+
+state 107
+	param_list:  ID.    (70)
+
+	.  reduce 70 (src line 162)
+
+
+state 108
+	return_list:  return_list ','.expr 
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  error
+
+	expr  goto 138
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 109
+	while_stmt:  kWHILE expr kDO.stmts_opt kEND 
+	stmts_opt: .    (4)
+
+	kFALSE  shift 29
+	kFN  shift 18
+	kFOR  shift 16
+	kIF  shift 17
+	kNOT  shift 21
+	kRETURN  shift 19
+	kTRUE  shift 28
+	kVAR  shift 14
+	kWHILE  shift 20
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	';'  shift 5
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  reduce 4 (src line 53)
+
+	stmts_opt  goto 139
+	stmts  goto 3
+	stmt  goto 4
+	assignment_stmt  goto 6
+	var_decl_stmt  goto 7
+	expr  goto 8
+	for_stmt  goto 9
+	if_stmt  goto 10
+	func_stmt  goto 11
+	return_stmt  goto 12
+	while_stmt  goto 13
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 110
+	expr:  expr.'+' expr 
+	expr:  expr.'-' expr 
+	expr:  expr.'*' expr 
+	expr:  expr.'/' expr 
+	expr:  expr.'<' expr 
+	expr:  expr.LE expr 
+	expr:  expr.'>' expr 
+	expr:  expr.GE expr 
+	expr:  expr.EQ expr 
+	expr:  expr.NE expr 
+	expr:  expr.kAND expr 
+	expr:  expr.kOR expr 
+	primary_expr:  primary_expr '[' expr.']' 
+
+	kAND  shift 50
+	kOR  shift 51
+	'<'  shift 44
+	LE  shift 45
+	'>'  shift 46
+	GE  shift 47
+	EQ  shift 48
+	NE  shift 49
+	'+'  shift 40
+	'-'  shift 41
+	'*'  shift 42
+	'/'  shift 43
+	']'  shift 140
+	.  error
+
+
+state 111
+	primary_expr:  primary_expr '.' ID.    (62)
+
+	.  reduce 62 (src line 148)
+
+
+state 112
+	primary_expr:  primary_expr '(' arg_list_opt.')' 
+
+	')'  shift 141
+	.  error
+
+
+state 113
+	arg_list_opt:  arg_list.trailing_comma 
+	arg_list:  arg_list.',' expr 
+	trailing_comma: .    (121)
+
+	','  shift 143
+	.  reduce 121 (src line 262)
+
+	trailing_comma  goto 142
+
+state 114
+	expr:  expr.'+' expr 
+	expr:  expr.'-' expr 
+	expr:  expr.'*' expr 
+	expr:  expr.'/' expr 
+	expr:  expr.'<' expr 
+	expr:  expr.LE expr 
+	expr:  expr.'>' expr 
+	expr:  expr.GE expr 
+	expr:  expr.EQ expr 
+	expr:  expr.NE expr 
+	expr:  expr.kAND expr 
+	expr:  expr.kOR expr 
+	arg_list:  expr.    (74)
+
+	kAND  shift 50
+	kOR  shift 51
+	'<'  shift 44
+	LE  shift 45
+	'>'  shift 46
+	GE  shift 47
+	EQ  shift 48
+	NE  shift 49
+	'+'  shift 40
+	'-'  shift 41
+	'*'  shift 42
+	'/'  shift 43
+	.  reduce 74 (src line 168)
+
+
+state 115
+	primary_expr:  '(' expr ')'.    (65)
+
+	.  reduce 65 (src line 151)
+
+
+state 116
+	array_literal:  '[' array_elems_opt ']'.    (95)
+
+	.  reduce 95 (src line 213)
+
+
+state 117
+	array_elems_opt:  array_elems trailing_seps.    (96)
+
+	.  reduce 96 (src line 215)
+
+
+state 118
+	array_elems:  array_elems ','.array_elem 
+	trailing_seps1:  ','.    (119)
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kFOR  shift 76
+	kIF  shift 75
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  reduce 119 (src line 260)
+
+	expr  goto 72
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+	array_elem  goto 144
+	array_if  goto 73
+	array_for  goto 74
+
+state 119
+	array_elems:  array_elems ';'.array_elem 
+	trailing_seps1:  ';'.    (118)
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kFOR  shift 76
+	kIF  shift 75
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  reduce 118 (src line 259)
+
+	expr  goto 72
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+	array_elem  goto 145
+	array_if  goto 73
+	array_for  goto 74
+
+state 120
+	trailing_seps:  trailing_seps1.    (115)
+	trailing_seps1:  trailing_seps1.';' 
+	trailing_seps1:  trailing_seps1.',' 
+
+	';'  shift 146
+	','  shift 147
+	.  reduce 115 (src line 255)
+
+
+state 121
+	expr:  expr.'+' expr 
+	expr:  expr.'-' expr 
+	expr:  expr.'*' expr 
+	expr:  expr.'/' expr 
+	expr:  expr.'<' expr 
+	expr:  expr.LE expr 
+	expr:  expr.'>' expr 
+	expr:  expr.GE expr 
+	expr:  expr.EQ expr 
+	expr:  expr.NE expr 
+	expr:  expr.kAND expr 
+	expr:  expr.kOR expr 
+	array_if:  kIF expr.kTHEN array_elems_opt array_elifs_opt array_else_opt kEND 
+
+	kAND  shift 50
+	kOR  shift 51
+	kTHEN  shift 148
+	'<'  shift 44
+	LE  shift 45
+	'>'  shift 46
+	GE  shift 47
+	EQ  shift 48
+	NE  shift 49
+	'+'  shift 40
+	'-'  shift 41
+	'*'  shift 42
+	'/'  shift 43
+	.  error
+
+
+state 122
+	for_args:  for_args.',' ID 
+	array_for:  kFOR for_args.kIN expr kDO array_elems_opt kEND 
+
+	kIN  shift 149
+	','  shift 102
+	.  error
+
+
+state 123
+	object_literal:  '{' object_fields_opt '}'.    (75)
+
+	.  reduce 75 (src line 170)
+
+
+state 124
+	object_fields_opt:  object_fields trailing_seps.    (76)
+
+	.  reduce 76 (src line 172)
+
+
+state 125
+	object_fields:  object_fields ','.object_field 
+	trailing_seps1:  ','.    (119)
+
+	kFOR  shift 85
+	kIF  shift 84
+	ID  shift 80
+	'['  shift 81
+	.  reduce 119 (src line 260)
+
+	object_field  goto 150
+	object_if  goto 82
+	object_for  goto 83
+
+state 126
+	object_fields:  object_fields ';'.object_field 
+	trailing_seps1:  ';'.    (118)
+
+	kFOR  shift 85
+	kIF  shift 84
+	ID  shift 80
+	'['  shift 81
+	.  reduce 118 (src line 259)
+
+	object_field  goto 151
+	object_if  goto 82
+	object_for  goto 83
+
+state 127
+	object_field:  ID ':'.expr 
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  error
+
+	expr  goto 152
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 128
+	expr:  expr.'+' expr 
+	expr:  expr.'-' expr 
+	expr:  expr.'*' expr 
+	expr:  expr.'/' expr 
+	expr:  expr.'<' expr 
+	expr:  expr.LE expr 
+	expr:  expr.'>' expr 
+	expr:  expr.GE expr 
+	expr:  expr.EQ expr 
+	expr:  expr.NE expr 
+	expr:  expr.kAND expr 
+	expr:  expr.kOR expr 
+	object_field:  '[' expr.']' ':' expr 
+
+	kAND  shift 50
+	kOR  shift 51
+	'<'  shift 44
+	LE  shift 45
+	'>'  shift 46
+	GE  shift 47
+	EQ  shift 48
+	NE  shift 49
+	'+'  shift 40
+	'-'  shift 41
+	'*'  shift 42
+	'/'  shift 43
+	']'  shift 153
+	.  error
+
+
+state 129
+	expr:  expr.'+' expr 
+	expr:  expr.'-' expr 
+	expr:  expr.'*' expr 
+	expr:  expr.'/' expr 
+	expr:  expr.'<' expr 
+	expr:  expr.LE expr 
+	expr:  expr.'>' expr 
+	expr:  expr.GE expr 
+	expr:  expr.EQ expr 
+	expr:  expr.NE expr 
+	expr:  expr.kAND expr 
+	expr:  expr.kOR expr 
+	object_if:  kIF expr.kTHEN object_fields_opt object_elifs_opt object_else_opt kEND 
+
+	kAND  shift 50
+	kOR  shift 51
+	kTHEN  shift 154
+	'<'  shift 44
+	LE  shift 45
+	'>'  shift 46
+	GE  shift 47
+	EQ  shift 48
+	NE  shift 49
+	'+'  shift 40
+	'-'  shift 41
+	'*'  shift 42
+	'/'  shift 43
+	.  error
+
+
+state 130
+	for_args:  for_args.',' ID 
+	object_for:  kFOR for_args.kIN expr kDO object_fields_opt kEND 
+
+	kIN  shift 155
+	','  shift 102
+	.  error
+
+
+state 131
+	var_decl_stmt:  kVAR ID '=' expr.    (36)
+	expr:  expr.'+' expr 
+	expr:  expr.'-' expr 
+	expr:  expr.'*' expr 
+	expr:  expr.'/' expr 
+	expr:  expr.'<' expr 
+	expr:  expr.LE expr 
+	expr:  expr.'>' expr 
+	expr:  expr.GE expr 
+	expr:  expr.EQ expr 
+	expr:  expr.NE expr 
+	expr:  expr.kAND expr 
+	expr:  expr.kOR expr 
+
+	kAND  shift 50
+	kOR  shift 51
+	'<'  shift 44
+	LE  shift 45
+	'>'  shift 46
+	GE  shift 47
+	EQ  shift 48
+	NE  shift 49
+	'+'  shift 40
+	'-'  shift 41
+	'*'  shift 42
+	'/'  shift 43
+	.  reduce 36 (src line 119)
+
+
+state 132
+	for_stmt:  kFOR for_args kIN expr.kDO stmts_opt kEND 
+	expr:  expr.'+' expr 
+	expr:  expr.'-' expr 
+	expr:  expr.'*' expr 
+	expr:  expr.'/' expr 
+	expr:  expr.'<' expr 
+	expr:  expr.LE expr 
+	expr:  expr.'>' expr 
+	expr:  expr.GE expr 
+	expr:  expr.EQ expr 
+	expr:  expr.NE expr 
+	expr:  expr.kAND expr 
+	expr:  expr.kOR expr 
+
+	kAND  shift 50
+	kDO  shift 156
+	kOR  shift 51
+	'<'  shift 44
+	LE  shift 45
+	'>'  shift 46
+	GE  shift 47
+	EQ  shift 48
+	NE  shift 49
+	'+'  shift 40
+	'-'  shift 41
+	'*'  shift 42
+	'/'  shift 43
+	.  error
+
+
+state 133
+	for_args:  for_args ',' ID.    (32)
+
+	.  reduce 32 (src line 113)
+
+
+state 134
+	if_stmt:  kIF expr kTHEN stmts_opt.elifs_opt else_opt kEND 
+	elifs_opt: .    (24)
+
+	kELIF  shift 160
+	.  reduce 24 (src line 92)
+
+	elifs_opt  goto 157
+	elifs  goto 158
+	elif  goto 159
+
+state 135
+	func_stmt:  kFN ID '(' param_list_opt.')' stmts_opt kEND 
+
+	')'  shift 161
+	.  error
+
+
+state 136
+	lambda_expr:  kFN '(' param_list_opt ')'.stmts_opt kEND 
+	stmts_opt: .    (4)
+
+	kFALSE  shift 29
+	kFN  shift 18
+	kFOR  shift 16
+	kIF  shift 17
+	kNOT  shift 21
+	kRETURN  shift 19
+	kTRUE  shift 28
+	kVAR  shift 14
+	kWHILE  shift 20
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	';'  shift 5
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  reduce 4 (src line 53)
+
+	stmts_opt  goto 162
+	stmts  goto 3
+	stmt  goto 4
+	assignment_stmt  goto 6
+	var_decl_stmt  goto 7
+	expr  goto 8
+	for_stmt  goto 9
+	if_stmt  goto 10
+	func_stmt  goto 11
+	return_stmt  goto 12
+	while_stmt  goto 13
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 137
+	param_list:  param_list ','.ID 
+
+	ID  shift 163
+	.  error
+
+
+state 138
+	return_list:  return_list ',' expr.    (19)
+	expr:  expr.'+' expr 
+	expr:  expr.'-' expr 
+	expr:  expr.'*' expr 
+	expr:  expr.'/' expr 
+	expr:  expr.'<' expr 
+	expr:  expr.LE expr 
+	expr:  expr.'>' expr 
+	expr:  expr.GE expr 
+	expr:  expr.EQ expr 
+	expr:  expr.NE expr 
+	expr:  expr.kAND expr 
+	expr:  expr.kOR expr 
+
+	kAND  shift 50
+	kOR  shift 51
+	'<'  shift 44
+	LE  shift 45
+	'>'  shift 46
+	GE  shift 47
+	EQ  shift 48
+	NE  shift 49
+	'+'  shift 40
+	'-'  shift 41
+	'*'  shift 42
+	'/'  shift 43
+	.  reduce 19 (src line 76)
+
+
+state 139
+	while_stmt:  kWHILE expr kDO stmts_opt.kEND 
+
+	kEND  shift 164
+	.  error
+
+
+state 140
+	primary_expr:  primary_expr '[' expr ']'.    (61)
+
+	.  reduce 61 (src line 147)
+
+
+state 141
+	primary_expr:  primary_expr '(' arg_list_opt ')'.    (63)
+
+	.  reduce 63 (src line 149)
+
+
+state 142
+	arg_list_opt:  arg_list trailing_comma.    (71)
+
+	.  reduce 71 (src line 164)
+
+
+state 143
+	arg_list:  arg_list ','.expr 
+	trailing_comma:  ','.    (120)
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  reduce 120 (src line 262)
+
+	expr  goto 165
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 144
+	array_elems:  array_elems ',' array_elem.    (98)
+
+	.  reduce 98 (src line 218)
+
+
+state 145
+	array_elems:  array_elems ';' array_elem.    (99)
+
+	.  reduce 99 (src line 219)
+
+
+state 146
+	trailing_seps1:  trailing_seps1 ';'.    (116)
+
+	.  reduce 116 (src line 257)
+
+
+state 147
+	trailing_seps1:  trailing_seps1 ','.    (117)
+
+	.  reduce 117 (src line 258)
+
+
+state 148
+	array_if:  kIF expr kTHEN.array_elems_opt array_elifs_opt array_else_opt kEND 
+	array_elems_opt: .    (97)
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kFOR  shift 76
+	kIF  shift 75
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  reduce 97 (src line 216)
+
+	expr  goto 72
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+	array_elems_opt  goto 166
+	array_elems  goto 70
+	array_elem  goto 71
+	array_if  goto 73
+	array_for  goto 74
+
+state 149
+	array_for:  kFOR for_args kIN.expr kDO array_elems_opt kEND 
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  error
+
+	expr  goto 167
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 150
+	object_fields:  object_fields ',' object_field.    (78)
+
+	.  reduce 78 (src line 175)
+
+
+state 151
+	object_fields:  object_fields ';' object_field.    (79)
+
+	.  reduce 79 (src line 176)
+
+
+state 152
+	expr:  expr.'+' expr 
+	expr:  expr.'-' expr 
+	expr:  expr.'*' expr 
+	expr:  expr.'/' expr 
+	expr:  expr.'<' expr 
+	expr:  expr.LE expr 
+	expr:  expr.'>' expr 
+	expr:  expr.GE expr 
+	expr:  expr.EQ expr 
+	expr:  expr.NE expr 
+	expr:  expr.kAND expr 
+	expr:  expr.kOR expr 
+	object_field:  ID ':' expr.    (81)
+
+	kAND  shift 50
+	kOR  shift 51
+	'<'  shift 44
+	LE  shift 45
+	'>'  shift 46
+	GE  shift 47
+	EQ  shift 48
+	NE  shift 49
+	'+'  shift 40
+	'-'  shift 41
+	'*'  shift 42
+	'/'  shift 43
+	.  reduce 81 (src line 179)
+
+
+state 153
+	object_field:  '[' expr ']'.':' expr 
+
+	':'  shift 168
+	.  error
+
+
+state 154
+	object_if:  kIF expr kTHEN.object_fields_opt object_elifs_opt object_else_opt kEND 
+	object_fields_opt: .    (77)
+
+	kFOR  shift 85
+	kIF  shift 84
+	ID  shift 80
+	'['  shift 81
+	.  reduce 77 (src line 173)
+
+	object_fields_opt  goto 169
+	object_fields  goto 78
+	object_field  goto 79
+	object_if  goto 82
+	object_for  goto 83
+
+state 155
+	object_for:  kFOR for_args kIN.expr kDO object_fields_opt kEND 
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  error
+
+	expr  goto 170
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 156
+	for_stmt:  kFOR for_args kIN expr kDO.stmts_opt kEND 
+	stmts_opt: .    (4)
+
+	kFALSE  shift 29
+	kFN  shift 18
+	kFOR  shift 16
+	kIF  shift 17
+	kNOT  shift 21
+	kRETURN  shift 19
+	kTRUE  shift 28
+	kVAR  shift 14
+	kWHILE  shift 20
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	';'  shift 5
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  reduce 4 (src line 53)
+
+	stmts_opt  goto 171
+	stmts  goto 3
+	stmt  goto 4
+	assignment_stmt  goto 6
+	var_decl_stmt  goto 7
+	expr  goto 8
+	for_stmt  goto 9
+	if_stmt  goto 10
+	func_stmt  goto 11
+	return_stmt  goto 12
+	while_stmt  goto 13
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 157
+	if_stmt:  kIF expr kTHEN stmts_opt elifs_opt.else_opt kEND 
+	else_opt: .    (29)
+
+	kELSE  shift 174
+	.  reduce 29 (src line 102)
+
+	else_opt  goto 172
+	else  goto 173
+
+state 158
+	elifs_opt:  elifs.    (23)
+	elifs:  elifs.elif 
+
+	kELIF  shift 160
+	.  reduce 23 (src line 91)
+
+	elif  goto 175
+
+state 159
+	elifs:  elif.    (26)
+
+	.  reduce 26 (src line 95)
+
+
+state 160
+	elif:  kELIF.expr kTHEN stmts_opt 
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  error
+
+	expr  goto 176
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 161
+	func_stmt:  kFN ID '(' param_list_opt ')'.stmts_opt kEND 
+	stmts_opt: .    (4)
+
+	kFALSE  shift 29
+	kFN  shift 18
+	kFOR  shift 16
+	kIF  shift 17
+	kNOT  shift 21
+	kRETURN  shift 19
+	kTRUE  shift 28
+	kVAR  shift 14
+	kWHILE  shift 20
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	';'  shift 5
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  reduce 4 (src line 53)
+
+	stmts_opt  goto 177
+	stmts  goto 3
+	stmt  goto 4
+	assignment_stmt  goto 6
+	var_decl_stmt  goto 7
+	expr  goto 8
+	for_stmt  goto 9
+	if_stmt  goto 10
+	func_stmt  goto 11
+	return_stmt  goto 12
+	while_stmt  goto 13
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 162
+	lambda_expr:  kFN '(' param_list_opt ')' stmts_opt.kEND 
+
+	kEND  shift 178
+	.  error
+
+
+state 163
+	param_list:  param_list ',' ID.    (69)
+
+	.  reduce 69 (src line 161)
+
+
+state 164
+	while_stmt:  kWHILE expr kDO stmts_opt kEND.    (17)
+
+	.  reduce 17 (src line 69)
+
+
+state 165
+	expr:  expr.'+' expr 
+	expr:  expr.'-' expr 
+	expr:  expr.'*' expr 
+	expr:  expr.'/' expr 
+	expr:  expr.'<' expr 
+	expr:  expr.LE expr 
+	expr:  expr.'>' expr 
+	expr:  expr.GE expr 
+	expr:  expr.EQ expr 
+	expr:  expr.NE expr 
+	expr:  expr.kAND expr 
+	expr:  expr.kOR expr 
+	arg_list:  arg_list ',' expr.    (73)
+
+	kAND  shift 50
+	kOR  shift 51
+	'<'  shift 44
+	LE  shift 45
+	'>'  shift 46
+	GE  shift 47
+	EQ  shift 48
+	NE  shift 49
+	'+'  shift 40
+	'-'  shift 41
+	'*'  shift 42
+	'/'  shift 43
+	.  reduce 73 (src line 167)
+
+
+state 166
+	array_if:  kIF expr kTHEN array_elems_opt.array_elifs_opt array_else_opt kEND 
+	array_elifs_opt: .    (107)
+
+	kELIF  shift 182
+	.  reduce 107 (src line 239)
+
+	array_elifs_opt  goto 179
+	array_elifs  goto 180
+	array_elif  goto 181
+
+state 167
+	expr:  expr.'+' expr 
+	expr:  expr.'-' expr 
+	expr:  expr.'*' expr 
+	expr:  expr.'/' expr 
+	expr:  expr.'<' expr 
+	expr:  expr.LE expr 
+	expr:  expr.'>' expr 
+	expr:  expr.GE expr 
+	expr:  expr.EQ expr 
+	expr:  expr.NE expr 
+	expr:  expr.kAND expr 
+	expr:  expr.kOR expr 
+	array_for:  kFOR for_args kIN expr.kDO array_elems_opt kEND 
+
+	kAND  shift 50
+	kDO  shift 183
+	kOR  shift 51
+	'<'  shift 44
+	LE  shift 45
+	'>'  shift 46
+	GE  shift 47
+	EQ  shift 48
+	NE  shift 49
+	'+'  shift 40
+	'-'  shift 41
+	'*'  shift 42
+	'/'  shift 43
+	.  error
+
+
+state 168
+	object_field:  '[' expr ']' ':'.expr 
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  error
+
+	expr  goto 184
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 169
+	object_if:  kIF expr kTHEN object_fields_opt.object_elifs_opt object_else_opt kEND 
+	object_elifs_opt: .    (88)
+
+	kELIF  shift 188
+	.  reduce 88 (src line 197)
+
+	object_elifs_opt  goto 185
+	object_elifs  goto 186
+	object_elif  goto 187
+
+state 170
+	expr:  expr.'+' expr 
+	expr:  expr.'-' expr 
+	expr:  expr.'*' expr 
+	expr:  expr.'/' expr 
+	expr:  expr.'<' expr 
+	expr:  expr.LE expr 
+	expr:  expr.'>' expr 
+	expr:  expr.GE expr 
+	expr:  expr.EQ expr 
+	expr:  expr.NE expr 
+	expr:  expr.kAND expr 
+	expr:  expr.kOR expr 
+	object_for:  kFOR for_args kIN expr.kDO object_fields_opt kEND 
+
+	kAND  shift 50
+	kDO  shift 189
+	kOR  shift 51
+	'<'  shift 44
+	LE  shift 45
+	'>'  shift 46
+	GE  shift 47
+	EQ  shift 48
+	NE  shift 49
+	'+'  shift 40
+	'-'  shift 41
+	'*'  shift 42
+	'/'  shift 43
+	.  error
+
+
+state 171
+	for_stmt:  kFOR for_args kIN expr kDO stmts_opt.kEND 
+
+	kEND  shift 190
+	.  error
+
+
+state 172
+	if_stmt:  kIF expr kTHEN stmts_opt elifs_opt else_opt.kEND 
+
+	kEND  shift 191
+	.  error
+
+
+state 173
+	else_opt:  else.    (28)
+
+	.  reduce 28 (src line 101)
+
+
+state 174
+	else:  kELSE.stmts_opt 
+	stmts_opt: .    (4)
+
+	kFALSE  shift 29
+	kFN  shift 18
+	kFOR  shift 16
+	kIF  shift 17
+	kNOT  shift 21
+	kRETURN  shift 19
+	kTRUE  shift 28
+	kVAR  shift 14
+	kWHILE  shift 20
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	';'  shift 5
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  reduce 4 (src line 53)
+
+	stmts_opt  goto 192
+	stmts  goto 3
+	stmt  goto 4
+	assignment_stmt  goto 6
+	var_decl_stmt  goto 7
+	expr  goto 8
+	for_stmt  goto 9
+	if_stmt  goto 10
+	func_stmt  goto 11
+	return_stmt  goto 12
+	while_stmt  goto 13
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 175
+	elifs:  elifs elif.    (25)
+
+	.  reduce 25 (src line 94)
 
 
 state 176
-	array_else:  kELSE.array_elems_opt 
-	array_elems_opt: .    (90)
+	elif:  kELIF expr.kTHEN stmts_opt 
+	expr:  expr.'+' expr 
+	expr:  expr.'-' expr 
+	expr:  expr.'*' expr 
+	expr:  expr.'/' expr 
+	expr:  expr.'<' expr 
+	expr:  expr.LE expr 
+	expr:  expr.'>' expr 
+	expr:  expr.GE expr 
+	expr:  expr.EQ expr 
+	expr:  expr.NE expr 
+	expr:  expr.kAND expr 
+	expr:  expr.kOR expr 
 
-	kFALSE  shift 26
-	kIF  shift 69
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  reduce 90 (src line 199)
+	kAND  shift 50
+	kOR  shift 51
+	kTHEN  shift 193
+	'<'  shift 44
+	LE  shift 45
+	'>'  shift 46
+	GE  shift 47
+	EQ  shift 48
+	NE  shift 49
+	'+'  shift 40
+	'-'  shift 41
+	'*'  shift 42
+	'/'  shift 43
+	.  error
 
-	expr  goto 67
-	bin_expr  goto 13
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-	array_elems_opt  goto 186
-	array_elems  goto 65
-	array_elem  goto 66
-	array_if  goto 68
 
 state 177
-	array_elifs:  array_elifs array_elif.    (99)
+	func_stmt:  kFN ID '(' param_list_opt ')' stmts_opt.kEND 
 
-	.  reduce 99 (src line 218)
+	kEND  shift 194
+	.  error
 
 
 state 178
-	array_elif:  kELIF expr.kTHEN array_elems_opt 
+	lambda_expr:  kFN '(' param_list_opt ')' stmts_opt kEND.    (66)
 
-	kTHEN  shift 187
-	.  error
+	.  reduce 66 (src line 153)
 
 
 state 179
-	object_if:  kIF expr kTHEN object_fields_opt object_elifs_opt object_else_opt.kEND 
+	array_if:  kIF expr kTHEN array_elems_opt array_elifs_opt.array_else_opt kEND 
+	array_else_opt: .    (112)
 
-	kEND  shift 188
-	.  error
+	kELSE  shift 197
+	.  reduce 112 (src line 249)
 
+	array_else_opt  goto 195
+	array_else  goto 196
 
 state 180
-	object_else_opt:  object_else.    (85)
+	array_elifs_opt:  array_elifs.    (106)
+	array_elifs:  array_elifs.array_elif 
 
-	.  reduce 85 (src line 189)
+	kELIF  shift 182
+	.  reduce 106 (src line 238)
 
+	array_elif  goto 198
 
 state 181
-	object_else:  kELSE.object_fields_opt 
-	object_fields_opt: .    (72)
+	array_elifs:  array_elif.    (109)
 
-	kIF  shift 76
-	ID  shift 73
-	'['  shift 74
-	.  reduce 72 (src line 162)
+	.  reduce 109 (src line 242)
 
-	object_fields_opt  goto 189
-	object_fields  goto 71
-	object_field  goto 72
-	object_if  goto 75
 
 state 182
-	object_elifs:  object_elifs object_elif.    (82)
+	array_elif:  kELIF.expr kTHEN array_elems_opt 
 
-	.  reduce 82 (src line 182)
-
-
-state 183
-	object_elif:  kELIF expr.kTHEN object_fields_opt 
-
-	kTHEN  shift 190
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
 	.  error
 
+	expr  goto 199
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 183
+	array_for:  kFOR for_args kIN expr kDO.array_elems_opt kEND 
+	array_elems_opt: .    (97)
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kFOR  shift 76
+	kIF  shift 75
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  reduce 97 (src line 216)
+
+	expr  goto 72
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+	array_elems_opt  goto 200
+	array_elems  goto 70
+	array_elem  goto 71
+	array_if  goto 73
+	array_for  goto 74
 
 state 184
-	elif:  kELIF expr kTHEN opt_stmts.    (20)
+	expr:  expr.'+' expr 
+	expr:  expr.'-' expr 
+	expr:  expr.'*' expr 
+	expr:  expr.'/' expr 
+	expr:  expr.'<' expr 
+	expr:  expr.LE expr 
+	expr:  expr.'>' expr 
+	expr:  expr.GE expr 
+	expr:  expr.EQ expr 
+	expr:  expr.NE expr 
+	expr:  expr.kAND expr 
+	expr:  expr.kOR expr 
+	object_field:  '[' expr ']' ':' expr.    (82)
 
-	.  reduce 20 (src line 83)
+	kAND  shift 50
+	kOR  shift 51
+	'<'  shift 44
+	LE  shift 45
+	'>'  shift 46
+	GE  shift 47
+	EQ  shift 48
+	NE  shift 49
+	'+'  shift 40
+	'-'  shift 41
+	'*'  shift 42
+	'/'  shift 43
+	.  reduce 82 (src line 180)
 
 
 state 185
-	array_if:  kIF expr kTHEN array_elems_opt array_elifs_opt array_else_opt kEND.    (96)
+	object_if:  kIF expr kTHEN object_fields_opt object_elifs_opt.object_else_opt kEND 
+	object_else_opt: .    (93)
 
-	.  reduce 96 (src line 208)
+	kELSE  shift 203
+	.  reduce 93 (src line 207)
 
+	object_else_opt  goto 201
+	object_else  goto 202
 
 state 186
-	array_else:  kELSE array_elems_opt.    (104)
+	object_elifs_opt:  object_elifs.    (87)
+	object_elifs:  object_elifs.object_elif 
 
-	.  reduce 104 (src line 228)
+	kELIF  shift 188
+	.  reduce 87 (src line 196)
 
+	object_elif  goto 204
 
 state 187
-	array_elif:  kELIF expr kTHEN.array_elems_opt 
-	array_elems_opt: .    (90)
+	object_elifs:  object_elif.    (90)
 
-	kFALSE  shift 26
-	kIF  shift 69
-	kNOT  shift 18
-	kTRUE  shift 25
-	kFN  shift 54
-	NUMBER  shift 23
-	STRING  shift 22
-	ID  shift 24
-	'+'  shift 19
-	'-'  shift 20
-	'('  shift 30
-	'['  shift 31
-	'{'  shift 32
-	.  reduce 90 (src line 199)
+	.  reduce 90 (src line 200)
 
-	expr  goto 67
-	bin_expr  goto 13
-	unary_expr  goto 17
-	primary_expr  goto 21
-	array_literal  goto 27
-	object_literal  goto 28
-	func_expr  goto 29
-	array_elems_opt  goto 191
-	array_elems  goto 65
-	array_elem  goto 66
-	array_if  goto 68
 
 state 188
-	object_if:  kIF expr kTHEN object_fields_opt object_elifs_opt object_else_opt kEND.    (79)
+	object_elif:  kELIF.expr kTHEN object_fields_opt 
 
-	.  reduce 79 (src line 172)
+	kFALSE  shift 29
+	kFN  shift 56
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  error
 
+	expr  goto 205
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
 
 state 189
-	object_else:  kELSE object_fields_opt.    (87)
+	object_for:  kFOR for_args kIN expr kDO.object_fields_opt kEND 
+	object_fields_opt: .    (77)
 
-	.  reduce 87 (src line 192)
+	kFOR  shift 85
+	kIF  shift 84
+	ID  shift 80
+	'['  shift 81
+	.  reduce 77 (src line 173)
 
+	object_fields_opt  goto 206
+	object_fields  goto 78
+	object_field  goto 79
+	object_if  goto 82
+	object_for  goto 83
 
 state 190
-	object_elif:  kELIF expr kTHEN.object_fields_opt 
-	object_fields_opt: .    (72)
+	for_stmt:  kFOR for_args kIN expr kDO stmts_opt kEND.    (31)
 
-	kIF  shift 76
-	ID  shift 73
-	'['  shift 74
-	.  reduce 72 (src line 162)
+	.  reduce 31 (src line 108)
 
-	object_fields_opt  goto 192
-	object_fields  goto 71
-	object_field  goto 72
-	object_if  goto 75
 
 state 191
-	array_elif:  kELIF expr kTHEN array_elems_opt.    (101)
+	if_stmt:  kIF expr kTHEN stmts_opt elifs_opt else_opt kEND.    (22)
 
-	.  reduce 101 (src line 221)
+	.  reduce 22 (src line 84)
 
 
 state 192
-	object_elif:  kELIF expr kTHEN object_fields_opt.    (84)
+	else:  kELSE stmts_opt.    (30)
 
-	.  reduce 84 (src line 185)
+	.  reduce 30 (src line 104)
 
 
-46 terminals, 48 nonterminals
-113 grammar rules, 193/8000 states
+state 193
+	elif:  kELIF expr kTHEN.stmts_opt 
+	stmts_opt: .    (4)
+
+	kFALSE  shift 29
+	kFN  shift 18
+	kFOR  shift 16
+	kIF  shift 17
+	kNOT  shift 21
+	kRETURN  shift 19
+	kTRUE  shift 28
+	kVAR  shift 14
+	kWHILE  shift 20
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	';'  shift 5
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  reduce 4 (src line 53)
+
+	stmts_opt  goto 207
+	stmts  goto 3
+	stmt  goto 4
+	assignment_stmt  goto 6
+	var_decl_stmt  goto 7
+	expr  goto 8
+	for_stmt  goto 9
+	if_stmt  goto 10
+	func_stmt  goto 11
+	return_stmt  goto 12
+	while_stmt  goto 13
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+
+state 194
+	func_stmt:  kFN ID '(' param_list_opt ')' stmts_opt kEND.    (21)
+
+	.  reduce 21 (src line 79)
+
+
+state 195
+	array_if:  kIF expr kTHEN array_elems_opt array_elifs_opt array_else_opt.kEND 
+
+	kEND  shift 208
+	.  error
+
+
+state 196
+	array_else_opt:  array_else.    (111)
+
+	.  reduce 111 (src line 248)
+
+
+state 197
+	array_else:  kELSE.array_elems_opt 
+	array_elems_opt: .    (97)
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kFOR  shift 76
+	kIF  shift 75
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  reduce 97 (src line 216)
+
+	expr  goto 72
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+	array_elems_opt  goto 209
+	array_elems  goto 70
+	array_elem  goto 71
+	array_if  goto 73
+	array_for  goto 74
+
+state 198
+	array_elifs:  array_elifs array_elif.    (108)
+
+	.  reduce 108 (src line 241)
+
+
+state 199
+	expr:  expr.'+' expr 
+	expr:  expr.'-' expr 
+	expr:  expr.'*' expr 
+	expr:  expr.'/' expr 
+	expr:  expr.'<' expr 
+	expr:  expr.LE expr 
+	expr:  expr.'>' expr 
+	expr:  expr.GE expr 
+	expr:  expr.EQ expr 
+	expr:  expr.NE expr 
+	expr:  expr.kAND expr 
+	expr:  expr.kOR expr 
+	array_elif:  kELIF expr.kTHEN array_elems_opt 
+
+	kAND  shift 50
+	kOR  shift 51
+	kTHEN  shift 210
+	'<'  shift 44
+	LE  shift 45
+	'>'  shift 46
+	GE  shift 47
+	EQ  shift 48
+	NE  shift 49
+	'+'  shift 40
+	'-'  shift 41
+	'*'  shift 42
+	'/'  shift 43
+	.  error
+
+
+state 200
+	array_for:  kFOR for_args kIN expr kDO array_elems_opt.kEND 
+
+	kEND  shift 211
+	.  error
+
+
+state 201
+	object_if:  kIF expr kTHEN object_fields_opt object_elifs_opt object_else_opt.kEND 
+
+	kEND  shift 212
+	.  error
+
+
+state 202
+	object_else_opt:  object_else.    (92)
+
+	.  reduce 92 (src line 206)
+
+
+state 203
+	object_else:  kELSE.object_fields_opt 
+	object_fields_opt: .    (77)
+
+	kFOR  shift 85
+	kIF  shift 84
+	ID  shift 80
+	'['  shift 81
+	.  reduce 77 (src line 173)
+
+	object_fields_opt  goto 213
+	object_fields  goto 78
+	object_field  goto 79
+	object_if  goto 82
+	object_for  goto 83
+
+state 204
+	object_elifs:  object_elifs object_elif.    (89)
+
+	.  reduce 89 (src line 199)
+
+
+state 205
+	expr:  expr.'+' expr 
+	expr:  expr.'-' expr 
+	expr:  expr.'*' expr 
+	expr:  expr.'/' expr 
+	expr:  expr.'<' expr 
+	expr:  expr.LE expr 
+	expr:  expr.'>' expr 
+	expr:  expr.GE expr 
+	expr:  expr.EQ expr 
+	expr:  expr.NE expr 
+	expr:  expr.kAND expr 
+	expr:  expr.kOR expr 
+	object_elif:  kELIF expr.kTHEN object_fields_opt 
+
+	kAND  shift 50
+	kOR  shift 51
+	kTHEN  shift 214
+	'<'  shift 44
+	LE  shift 45
+	'>'  shift 46
+	GE  shift 47
+	EQ  shift 48
+	NE  shift 49
+	'+'  shift 40
+	'-'  shift 41
+	'*'  shift 42
+	'/'  shift 43
+	.  error
+
+
+state 206
+	object_for:  kFOR for_args kIN expr kDO object_fields_opt.kEND 
+
+	kEND  shift 215
+	.  error
+
+
+state 207
+	elif:  kELIF expr kTHEN stmts_opt.    (27)
+
+	.  reduce 27 (src line 97)
+
+
+state 208
+	array_if:  kIF expr kTHEN array_elems_opt array_elifs_opt array_else_opt kEND.    (104)
+
+	.  reduce 104 (src line 226)
+
+
+state 209
+	array_else:  kELSE array_elems_opt.    (113)
+
+	.  reduce 113 (src line 251)
+
+
+state 210
+	array_elif:  kELIF expr kTHEN.array_elems_opt 
+	array_elems_opt: .    (97)
+
+	kFALSE  shift 29
+	kFN  shift 56
+	kFOR  shift 76
+	kIF  shift 75
+	kNOT  shift 21
+	kTRUE  shift 28
+	NUMBER  shift 26
+	STRING  shift 25
+	ID  shift 27
+	'+'  shift 22
+	'-'  shift 23
+	'('  shift 33
+	'['  shift 34
+	'{'  shift 35
+	.  reduce 97 (src line 216)
+
+	expr  goto 72
+	unary_expr  goto 15
+	primary_expr  goto 24
+	array_literal  goto 30
+	object_literal  goto 31
+	lambda_expr  goto 32
+	array_elems_opt  goto 216
+	array_elems  goto 70
+	array_elem  goto 71
+	array_if  goto 73
+	array_for  goto 74
+
+state 211
+	array_for:  kFOR for_args kIN expr kDO array_elems_opt kEND.    (105)
+
+	.  reduce 105 (src line 233)
+
+
+state 212
+	object_if:  kIF expr kTHEN object_fields_opt object_elifs_opt object_else_opt kEND.    (85)
+
+	.  reduce 85 (src line 184)
+
+
+state 213
+	object_else:  kELSE object_fields_opt.    (94)
+
+	.  reduce 94 (src line 209)
+
+
+state 214
+	object_elif:  kELIF expr kTHEN.object_fields_opt 
+	object_fields_opt: .    (77)
+
+	kFOR  shift 85
+	kIF  shift 84
+	ID  shift 80
+	'['  shift 81
+	.  reduce 77 (src line 173)
+
+	object_fields_opt  goto 217
+	object_fields  goto 78
+	object_field  goto 79
+	object_if  goto 82
+	object_for  goto 83
+
+state 215
+	object_for:  kFOR for_args kIN expr kDO object_fields_opt kEND.    (86)
+
+	.  reduce 86 (src line 191)
+
+
+state 216
+	array_elif:  kELIF expr kTHEN array_elems_opt.    (110)
+
+	.  reduce 110 (src line 244)
+
+
+state 217
+	object_elif:  kELIF expr kTHEN object_fields_opt.    (91)
+
+	.  reduce 91 (src line 202)
+
+
+45 terminals, 52 nonterminals
+122 grammar rules, 218/8000 states
 0 shift/reduce, 0 reduce/reduce conflicts reported
-97 working sets used
-memory: parser 493/120000
-115 extra closures
-742 shift entries, 37 exceptions
-107 goto entries
-329 entries saved by goto default
-Optimizer space used: output 334/120000
-334 table entries, 59 zero
-maximum spread: 46, maximum offset: 190
+101 working sets used
+memory: parser 578/120000
+173 extra closures
+1118 shift entries, 37 exceptions
+121 goto entries
+372 entries saved by goto default
+Optimizer space used: output 674/120000
+674 table entries, 213 zero
+maximum spread: 45, maximum offset: 214
