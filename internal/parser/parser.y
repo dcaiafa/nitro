@@ -107,12 +107,12 @@ S: program                             { yylex.(*lex).Program = $1.(*ast.Program
 
 program: stmts_opt                     { $$ = &ast.Program{Stmts: $1} }
 
-stmts_opt: stmts                       { $$ = $1 }
+stmts_opt: stmts
          | stmt                        { $$ = ast.ASTs{$1} }
          | /*empty*/                   { $$ = ast.ASTs{} }
 
 stmts: stmts stmt ';'                  { l := $1; $$ = append(l, $2) }
-     | stmts ';'                       { $$ = $1 }
+     | stmts ';'
      | stmt ';'                        { $$ = ast.ASTs{$1} }
      | ';'                             { $$ = ast.ASTs{} }
 
@@ -160,7 +160,7 @@ if_stmt: kIF expr kTHEN
            $$ = ifBlock
          }
 
-elifs_opt: elifs     { $$ = $1 }
+elifs_opt: elifs
          | /*empty*/ { $$ = ast.ASTs{} }
 
 elifs: elifs elif                      { l := $1; $$ = append(l, $2) }
@@ -170,7 +170,7 @@ elif: kELIF expr kTHEN
         stmts_opt
       { $$ = &ast.IfBlock{Pred:$2, Stmts:$4} }
 
-else_opt: else                         { $$ = $1 }
+else_opt: else
         | /*empty*/                    { $$ = nil }
 
 else: kELSE
@@ -190,7 +190,7 @@ assignment_stmt: expr '=' expr         { $$ = &ast.AssignStmt{Lvalue:$1, Rvalue:
 var_decl_stmt: kVAR ID                 { $$ = &ast.VarDeclStmt{VarName: $2, InitValue:nil} }
              | kVAR ID '=' expr        { $$ = &ast.VarDeclStmt{VarName: $2, InitValue:$4} }
 
-expr: unary_expr                       { $$ = $1 }
+expr: unary_expr
     | expr '+' expr                    { $$ = &ast.BinaryExpr{Left:$1, Right: $3, Op:ast.OpPlus} }
     | expr '-' expr                    { $$ = &ast.BinaryExpr{Left:$1, Right: $3, Op:ast.OpMinus} }
     | expr '*' expr                    { $$ = &ast.BinaryExpr{Left:$1, Right: $3, Op:ast.OpMult} }
@@ -207,19 +207,19 @@ expr: unary_expr                       { $$ = $1 }
 unary_expr: kNOT unary_expr            { $$ = &ast.UnaryExpr{ Term: $2, Op: ast.OpNot} }
         | '+' unary_expr               { $$ = &ast.UnaryExpr{ Term: $2, Op: ast.OpPlus} }
         | '-' unary_expr               { $$ = &ast.UnaryExpr{ Term: $2, Op: ast.OpMinus} }
-        | primary_expr                 { $$ = $1 }
+        | primary_expr
 
 primary_expr: STRING                             { $$ = &ast.LiteralExpr{Val:$1} }
             | NUMBER                             { $$ = &ast.LiteralExpr{Val:$1} }
             | ID                                 { $$ = &ast.SimpleRef{ID:$1} }
             | kTRUE                              { $$ = &ast.LiteralExpr{Val:$1} }
             | kFALSE                             { $$ = &ast.LiteralExpr{Val:$1} }
-            | array_literal                      { $$ = $1 }
-            | object_literal                     { $$ = $1 }
+            | array_literal
+            | object_literal
             | primary_expr '[' expr ']'          { $$ = &ast.IndexExpr{Target:$1, Index:$3} }
             | primary_expr '.' ID                { $$ = &ast.MemberAccess{Target:$1, Member:$3 } }
             | primary_expr '(' arg_list_opt ')'  { $$ = &ast.FuncCall{Target:$1, Args:$3} }
-            | lambda_expr                        { $$ = $1 }
+            | lambda_expr
             | '(' expr ')'                       { $$ = $2 }
 
 lambda_expr: kFN '(' param_list_opt ')'
@@ -227,13 +227,13 @@ lambda_expr: kFN '(' param_list_opt ')'
              kEND
              { $$ = &ast.LambdaExpr{FuncParams:$3, Stmts:$5} }
 
-param_list_opt: param_list             { $$ = $1 }
+param_list_opt: param_list
               | /*empty*/              { $$ = ast.ASTs{} }
 
 param_list: param_list ',' ID          { p := $1; p = append(p, $1); $$ = p }
           | ID                         { $$ = ast.ASTs{&ast.FuncParam{Name:$1}} }
 
-arg_list_opt: arg_list trailing_comma  { $$ = $1 }
+arg_list_opt: arg_list trailing_comma
             | /*empty*/                { $$ = ast.Exprs{} }
 
 arg_list: arg_list ',' expr            { l := $1; $$ = append(l, $3) }
@@ -241,7 +241,7 @@ arg_list: arg_list ',' expr            { l := $1; $$ = append(l, $3) }
 
 object_literal: '{' object_fields_opt '}'   { $$ = &ast.ObjectLiteral{Fields:$2} }
 
-object_fields_opt: object_fields trailing_seps  { $$ = $1 }
+object_fields_opt: object_fields trailing_seps
                  |                              { $$ = ast.ASTs{} }
 
 object_fields: object_fields ',' object_field   { l := $1; $$ = append(l, $3) }
@@ -250,8 +250,8 @@ object_fields: object_fields ',' object_field   { l := $1; $$ = append(l, $3) }
 
 object_field: ID ':' expr                { $$ = &ast.ObjectField{NameID:$1, Val:$3} }
             | '[' expr ']' ':' expr      { $$ = &ast.ObjectField{NameExpr:$2, Val: $5} }
-            | object_if                  { $$ = $1 }
-            | object_for                 { $$ = $1 }
+            | object_if
+            | object_for
 
 object_if: kIF expr kTHEN
              object_fields_opt
@@ -275,7 +275,7 @@ object_for: kFOR for_vars kIN expr kDO
             kEND
             { $$ = &ast.ForStmt{ForVars:$2, IterExpr:$4, Stmts: $6} }
 
-object_elifs_opt: object_elifs         { $$ = $1 }
+object_elifs_opt: object_elifs
                 |                      { $$ = ast.ASTs{} }
 
 object_elifs: object_elifs object_elif { l := $1.(ast.ASTs); $$ = append(l, $2) }
@@ -285,7 +285,7 @@ object_elif: kELIF expr kTHEN
                object_fields_opt
              { $$ = &ast.IfBlock{Pred:$2, Stmts:$4} }
 
-object_else_opt: object_else { $$ = $1 }
+object_else_opt: object_else
                |             { $$ = nil }
 
 object_else: kELSE 
@@ -294,7 +294,7 @@ object_else: kELSE
 
 array_literal: '[' array_elems_opt ']'          { $$ = &ast.ArrayLiteral{Elements:$2} }
 
-array_elems_opt: array_elems trailing_seps      { $$ = $1 }
+array_elems_opt: array_elems trailing_seps
                |                                { $$ = ast.ASTs{} }
 
 array_elems: array_elems ',' array_elem         { l := $1; $$ = append(l, $3) }
@@ -302,8 +302,8 @@ array_elems: array_elems ',' array_elem         { l := $1; $$ = append(l, $3) }
            | array_elem                         { $$ = ast.ASTs{$1} }
 
 array_elem: expr                       { $$ = &ast.ArrayElement{Val:$1} }
-          | array_if                   { $$ = $1 }
-          | array_for                  { $$ = $1 }
+          | array_if
+          | array_for
 
 array_if: kIF expr kTHEN
             array_elems_opt
@@ -327,7 +327,7 @@ array_for: kFOR for_vars kIN expr kDO
            kEND
            { $$ = &ast.ForStmt{ForVars:$2, IterExpr:$4, Stmts: $6} }
 
-array_elifs_opt: array_elifs           { $$ = $1 }
+array_elifs_opt: array_elifs
                |                       { $$ = ast.ASTs{} }
 
 array_elifs: array_elifs array_elif    { l := $1; $$ = append(l, $2) }
@@ -337,7 +337,7 @@ array_elif: kELIF expr kTHEN
               array_elems_opt
             { $$ = &ast.IfBlock{Pred:$2, Stmts:$4} }
 
-array_else_opt: array_else             { $$ = $1 }
+array_else_opt: array_else
               |                        { $$ = nil }
 
 array_else: kELSE
