@@ -2,9 +2,12 @@ package parser
 
 import (
 	"bytes"
-	"errors"
+	"fmt"
 	"strconv"
 	"strings"
+
+	"github.com/dcaiafa/nitro/internal/ast"
+	"github.com/dcaiafa/nitro/internal/token"
 )
 
 var keywords = map[string]int{
@@ -28,12 +31,15 @@ var keywords = map[string]int{
 }
 
 type lex struct {
-	//Program *ast.Program
+	Program *ast.Program
 
-	input *strings.Reader
-	buf   bytes.Buffer
-	pos   int
-	err   error
+	input      *strings.Reader
+	buf        bytes.Buffer
+	pos        int
+	err        error
+	line       int
+	col        int
+	lastTokPos token.Pos
 
 	synthSemicol bool
 }
@@ -41,6 +47,8 @@ type lex struct {
 func newLex(input string) *lex {
 	return &lex{
 		input: strings.NewReader(input),
+		line:  1,
+		col:   0,
 	}
 }
 
@@ -49,9 +57,13 @@ func (l *lex) Lex(lval *yySymType) int {
 }
 
 func (l *lex) scan(lval *yySymType) int {
+	lval.tok = token.Token{}
+
 	eolToken := false
 	defer func() {
 		l.synthSemicol = eolToken
+		l.lastTokPos = token.Pos{Line: l.line, Col: l.col}
+		lval.tok.Pos = l.lastTokPos
 	}()
 
 	for {
@@ -59,10 +71,13 @@ func (l *lex) scan(lval *yySymType) int {
 		if r == 0 {
 			return 0
 		}
+		l.col++
 		if isSpace(r) {
 			continue
 		}
 		if r == '\n' {
+			l.line++
+			l.col = 0
 			if l.synthSemicol {
 				return ';'
 			}
@@ -113,8 +128,20 @@ func (l *lex) scan(lval *yySymType) int {
 			} else if isLetter(r) || r == '_' {
 				l.unread()
 				tok := l.scanIdentifier(lval)
-				if tok == ID || tok == kEND || tok == kTRUE || tok == kFALSE {
+
+				switch tok {
+				case ID, kEND:
 					eolToken = true
+
+				case kTRUE:
+					eolToken = true
+					lval.tok.Type = token.Bool
+					lval.tok.Bool = true
+
+				case kFALSE:
+					eolToken = true
+					lval.tok.Type = token.Bool
+					lval.tok.Bool = false
 				}
 				return tok
 			} else {
@@ -142,13 +169,15 @@ func (l *lex) scanIdentifier(lval *yySymType) int {
 		l.buf.WriteRune(r)
 	}
 
-	lval.str = l.buf.String()
+	lval.tok.Str = l.buf.String()
 
-	keyword, ok := keywords[lval.str]
+	keyword, ok := keywords[lval.tok.Str]
 	if ok {
+		lval.tok.Type = token.Keyword
 		return keyword
 	}
 
+	lval.tok.Type = token.ID
 	return ID
 }
 
@@ -178,7 +207,8 @@ func (l *lex) scanQuotedString(lval *yySymType) int {
 		}
 	}
 
-	lval.str = l.buf.String()
+	lval.tok.Type = token.String
+	lval.tok.Str = l.buf.String()
 	return STRING
 }
 
@@ -215,13 +245,14 @@ func (l *lex) scanNumber(lval *yySymType) int {
 	l.unread()
 
 	var err error
-	lval.num, err = strconv.ParseFloat(l.buf.String(), 64)
+	lval.tok.Num, err = strconv.ParseFloat(l.buf.String(), 64)
 	if err != nil {
 		return LEXERR
 	}
 
-	return NUMBER
+	lval.tok.Type = token.Number
 
+	return NUMBER
 }
 
 func (l *lex) read() rune {
@@ -237,7 +268,7 @@ func (l *lex) unread() {
 }
 
 func (l *lex) Error(s string) {
-	l.err = errors.New(s)
+	l.err = fmt.Errorf("%s:%d: %s", l.lastTokPos.Filename, l.lastTokPos.Line, s)
 }
 
 func isNumber(r rune) bool {

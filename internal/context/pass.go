@@ -19,5 +19,5 @@ var Passes = []Pass{
 }
 
 type PassRunner interface {
-	RunPass(ctx *Context, pass Pass) error
+	RunPass(ctx *Context, pass Pass)
 }

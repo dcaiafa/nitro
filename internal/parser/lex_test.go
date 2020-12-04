@@ -28,9 +28,9 @@ func TestLex(t *testing.T) {
 
 				switch tk {
 				case NUMBER:
-					require.Equal(t, res[1].(float64), v.num)
+					require.Equal(t, res[1].(float64), v.tok.Num)
 				case STRING, ID:
-					require.Equal(t, res[1].(string), v.str)
+					require.Equal(t, res[1].(string), v.tok.Str)
 				default:
 				}
 
