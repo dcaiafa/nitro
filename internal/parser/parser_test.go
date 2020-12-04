@@ -7,7 +7,7 @@ import (
 )
 
 func TestParserProg(t *testing.T) {
-	_, err := Parse(`
+	err := parse(`
 	fn counter(n)
 		var i = 0 
   	return fn() 
@@ -70,7 +70,7 @@ func TestParserProg(t *testing.T) {
 }
 
 func TestParserLvalue(t *testing.T) {
-	_, err := Parse(`
+	err := parse(`
 	a.b.c = 123
 	(a - 123).b = 999;;
 	("hi").blah = 1
@@ -80,7 +80,7 @@ func TestParserLvalue(t *testing.T) {
 }
 
 func TestObject(t *testing.T) {
-	_, err := Parse(`
+	err := parse(`
 		{ 
 			a: "foo", b: "bar";
 
@@ -106,16 +106,14 @@ func TestObject(t *testing.T) {
 	require.NoError(t, err)
 }
 
-/*
 func TestParserArray(t *testing.T) {
-	_, err := Parse(`
+	err := parse(`
 	a = [ if foo then end ]
 	a = [ if foo then 1, end ]
 	a = [ if foo then 1,2 end ]
 	a = [ if foo then 1,2,3 end ]
 	a = [ 1, if foo then 2,3 end ]
-	a = [ 1, if foo then 2,3 end 4 ]
-	a = [ 1, if foo then 2,3 end 4, ]
+	a = [ 1, if foo then 2,3 end, 4 ]
 	b = [
   	1,
 	if foo then
@@ -134,4 +132,8 @@ func TestParserArray(t *testing.T) {
 `)
 	require.NoError(t, err)
 }
-*/
+
+func parse(input string) error {
+	_, err := Parse("test.nit", []byte(input))
+	return err
+}

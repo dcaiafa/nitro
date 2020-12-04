@@ -9,7 +9,7 @@ import (
 func TestLex(t *testing.T) {
 	run := func(name string, input string, res ...interface{}) {
 		t.Run(name, func(t *testing.T) {
-			l := newLex(input)
+			l := newLex([]byte(input))
 
 			for {
 				var v yySymType

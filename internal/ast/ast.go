@@ -45,13 +45,6 @@ func (exprs Exprs) RunPass(ctx *context.Context, pass context.Pass) {
 	}
 }
 
-type Program struct {
-	Stmts ASTs
-}
-
-func (p *Program) RunPass(ctx *context.Context, pass context.Pass) {
-}
-
 type ExprStmt struct {
 	Expr Expr
 }
@@ -116,14 +109,6 @@ type AssignStmt struct {
 func (s *AssignStmt) RunPass(ctx *context.Context, pass context.Pass) {
 }
 
-type VarDeclStmt struct {
-	VarName   token.Token
-	InitValue Expr
-}
-
-func (s *VarDeclStmt) RunPass(ctx *context.Context, pass context.Pass) {
-}
-
 type Operator int
 
 const (
@@ -176,17 +161,6 @@ func (s *LiteralExpr) Value() *Value {
 }
 
 func (s *LiteralExpr) RunPass(ctx *context.Context, pass context.Pass) {
-}
-
-type SimpleRef struct {
-	ID token.Token
-}
-
-func (s *SimpleRef) Value() *Value {
-	return nil
-}
-
-func (s *SimpleRef) RunPass(ctx *context.Context, pass context.Pass) {
 }
 
 type IndexExpr struct {

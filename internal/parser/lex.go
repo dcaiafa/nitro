@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/dcaiafa/nitro/internal/ast"
 	"github.com/dcaiafa/nitro/internal/token"
@@ -33,7 +32,7 @@ var keywords = map[string]int{
 type lex struct {
 	Program *ast.Program
 
-	input      *strings.Reader
+	input      *bytes.Reader
 	buf        bytes.Buffer
 	pos        int
 	err        error
@@ -44,9 +43,9 @@ type lex struct {
 	synthSemicol bool
 }
 
-func newLex(input string) *lex {
+func newLex(input []byte) *lex {
 	return &lex{
-		input: strings.NewReader(input),
+		input: bytes.NewReader(input),
 		line:  1,
 		col:   0,
 	}

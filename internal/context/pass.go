@@ -5,17 +5,11 @@ type Pass int
 const (
 	Print Pass = iota
 
-	ResolveNames
-	CheckTypes
-	Fold
-	Emit
+	CreateAndResolveNames
 )
 
 var Passes = []Pass{
-	ResolveNames,
-	CheckTypes,
-	Fold,
-	Emit,
+	CreateAndResolveNames,
 }
 
 type PassRunner interface {
