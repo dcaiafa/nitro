@@ -6,6 +6,7 @@ import (
 )
 
 type Program struct {
+	astBase
 	Stmts ASTs
 
 	scope *typecheck.Scope

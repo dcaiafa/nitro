@@ -7,6 +7,7 @@ import (
 )
 
 type VarDeclStmt struct {
+	astBase
 	VarName   token.Token
 	InitValue Expr
 }

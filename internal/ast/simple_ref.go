@@ -7,6 +7,7 @@ import (
 )
 
 type SimpleRef struct {
+	astBase
 	ID token.Token
 
 	sym *typecheck.Symbol
