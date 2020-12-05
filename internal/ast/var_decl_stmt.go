@@ -15,7 +15,7 @@ type VarDeclStmt struct {
 func (s *VarDeclStmt) RunPass(ctx *context.Context, pass context.Pass) {
 	s.runPassChildren(ctx, pass)
 
-	// Create the symbol *after* running the pass on the right side to prevent the
+	// Create the symbol *after* running the pass on the right to prevent the
 	// right side from being able to reference it. E.g. var a = a + 1.
 	if pass == context.CreateAndResolveNames {
 		symName := s.VarName.Str
@@ -23,7 +23,7 @@ func (s *VarDeclStmt) RunPass(ctx *context.Context, pass context.Pass) {
 		existingSym := ctx.Scopes().Current().GetSymbol(symName)
 		if existingSym != nil {
 			ctx.Failf(
-				s.VarName.Pos,
+				s.Pos(),
 				"There is already something named %q in the current scope. "+
 					"Declared right here: %v",
 				symName, existingSym.Pos)
@@ -31,7 +31,8 @@ func (s *VarDeclStmt) RunPass(ctx *context.Context, pass context.Pass) {
 		}
 
 		sym := typecheck.NewSymbol(symName)
-		sym.Pos = s.VarName.Pos
+		sym.Pos = s.Pos()
+		sym.Type = typecheck.Dynamic
 		ctx.Scopes().Current().PutSymbol(sym)
 	}
 }

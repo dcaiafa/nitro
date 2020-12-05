@@ -3,6 +3,7 @@ package ast
 import (
 	"github.com/dcaiafa/nitro/internal/context"
 	"github.com/dcaiafa/nitro/internal/token"
+	"github.com/dcaiafa/nitro/internal/typecheck"
 )
 
 type Type int
@@ -58,6 +59,11 @@ func (asts ASTs) SetPos(pos token.Pos) {}
 type Expr interface {
 	AST
 	Value() *Value
+}
+
+type LvalueExpr interface {
+	Expr
+	Symbol() *typecheck.Symbol
 }
 
 type Exprs []Expr
@@ -138,15 +144,6 @@ type ForVar struct {
 }
 
 func (s *ForVar) RunPass(ctx *context.Context, pass context.Pass) {
-}
-
-type AssignStmt struct {
-	astBase
-	Lvalue Expr
-	Rvalue Expr
-}
-
-func (s *AssignStmt) RunPass(ctx *context.Context, pass context.Pass) {
 }
 
 type Operator int

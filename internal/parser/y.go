@@ -715,13 +715,13 @@ yydefault:
 		yyDollar = yyS[yypt-1 : yypt+1]
 //line parser.y:106
 		{
-			yylex.(*lex).Program = yyDollar[1].ast.(*ast.Program)
+			yylex.(*lex).Module = yyDollar[1].ast.(*ast.Module)
 		}
 	case 2:
 		yyDollar = yyS[yypt-1 : yypt+1]
 //line parser.y:109
 		{
-			yyVAL.ast = &ast.Program{Stmts: yyDollar[1].asts}
+			yyVAL.ast = &ast.Module{Stmts: yyDollar[1].asts}
 			yyVAL.ast.SetPos(yyDollar[1].asts.Pos())
 		}
 	case 4:

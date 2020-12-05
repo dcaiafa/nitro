@@ -22,7 +22,7 @@ func (s *SimpleRef) RunPass(ctx *context.Context, pass context.Pass) {
 		symName := s.ID.Str
 		s.sym, _ = ctx.Scopes().FindSymbol(symName)
 		if s.sym == nil {
-			ctx.Failf(s.ID.Pos, "Symbol %q not found.", symName)
+			ctx.Failf(s.Pos(), "Symbol %q not found.", symName)
 		}
 	}
 }

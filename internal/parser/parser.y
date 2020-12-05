@@ -50,7 +50,7 @@ import (
 %left '+' '-'
 %left '*' '/'
 
-%type <ast> program
+%type <ast> module
 %type <asts> stmts_opt
 %type <asts> stmts
 %type <ast> stmt
@@ -103,13 +103,13 @@ import (
 
 %%
 
-S: program                             { yylex.(*lex).Program = $1.(*ast.Program) }
+S: module                             { yylex.(*lex).Module = $1.(*ast.Module) }
 
-program: stmts_opt                     
-       { 
-         $$ = &ast.Program{Stmts: $1}
-         $$.SetPos($1.Pos())
-       }
+module: stmts_opt                     
+      { 
+        $$ = &ast.Module{Stmts: $1}
+        $$.SetPos($1.Pos())
+      }
 
 stmts_opt: stmts
          | stmt                        { $$ = ast.ASTs{$1}; }

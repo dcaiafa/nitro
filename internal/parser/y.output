@@ -23,7 +23,7 @@ state 0
 	'{'  shift 36
 	.  reduce 5 (src line 116)
 
-	program  goto 2
+	module  goto 2
 	stmts_opt  goto 3
 	stmts  goto 4
 	stmt  goto 5
@@ -50,13 +50,13 @@ state 1
 
 
 state 2
-	S:  program.    (1)
+	S:  module.    (1)
 
 	.  reduce 1 (src line 106)
 
 
 state 3
-	program:  stmts_opt.    (2)
+	module:  stmts_opt.    (2)
 
 	.  reduce 2 (src line 108)
 

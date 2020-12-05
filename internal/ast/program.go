@@ -5,14 +5,14 @@ import (
 	"github.com/dcaiafa/nitro/internal/typecheck"
 )
 
-type Program struct {
+type Module struct {
 	astBase
 	Stmts ASTs
 
 	scope *typecheck.Scope
 }
 
-func (p *Program) RunPass(ctx *context.Context, pass context.Pass) {
+func (p *Module) RunPass(ctx *context.Context, pass context.Pass) {
 	if p.scope == nil {
 		p.scope = typecheck.NewScope()
 	}
@@ -22,6 +22,6 @@ func (p *Program) RunPass(ctx *context.Context, pass context.Pass) {
 	ctx.Scopes().Pop()
 }
 
-func (p *Program) runPassChildren(ctx *context.Context, pass context.Pass) {
+func (p *Module) runPassChildren(ctx *context.Context, pass context.Pass) {
 	p.Stmts.RunPass(ctx, pass)
 }

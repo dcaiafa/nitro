@@ -18,25 +18,25 @@ type FileSystem interface {
 
 type Compiler struct {
 	fileSystem FileSystem
-	mainProg   *ast.Program
-	allProgs   map[string]*ast.Program
+	mainMod    *ast.Module
+	allMods    map[string]*ast.Module
 }
 
 func (c *Compiler) Compile(filename string) error {
-	if c.mainProg != nil {
+	if c.mainMod != nil {
 		panic("Compile cannot be called twice")
 	}
 
 	var err error
-	c.mainProg, err = c.load(filename)
+	c.mainMod, err = c.load(filename)
 	if err != nil {
 		return err
 	}
 
 	ctx := context.NewContext()
 	for _, pass := range context.Passes {
-		for _, prog := range c.allProgs {
-			prog.RunPass(ctx, pass)
+		for _, mod := range c.allMods {
+			mod.RunPass(ctx, pass)
 			if ctx.HasErrors() {
 				return ctx.Errors()[0]
 			}
@@ -46,14 +46,14 @@ func (c *Compiler) Compile(filename string) error {
 	return nil
 }
 
-func (c *Compiler) load(filename string) (*ast.Program, error) {
+func (c *Compiler) load(filename string) (*ast.Module, error) {
 	absPath, err := c.fileSystem.AbsPath(filename)
 	if err != nil {
 		return nil, fmt.Errorf(
 			"couldn't get absolute path for %q: %w", filename, err)
 	}
 
-	if c.allProgs[absPath] != nil {
+	if c.allMods[absPath] != nil {
 		return nil, ErrAlreadyLoaded
 	}
 
@@ -67,7 +67,7 @@ func (c *Compiler) load(filename string) (*ast.Program, error) {
 		return nil, err
 	}
 
-	c.allProgs[absPath] = prog
+	c.allMods[absPath] = prog
 
 	return prog, nil
 }
