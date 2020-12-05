@@ -58,7 +58,7 @@ func (asts ASTs) SetPos(pos token.Pos) {}
 
 type Expr interface {
 	AST
-	Value() *Value
+	isExpr()
 }
 
 type LvalueExpr interface {
@@ -171,9 +171,7 @@ type BinaryExpr struct {
 	Right Expr
 }
 
-func (s *BinaryExpr) Value() *Value {
-	return nil
-}
+func (s *BinaryExpr) isExpr() {}
 
 func (s *BinaryExpr) RunPass(ctx *context.Context, pass context.Pass) {
 }
@@ -184,9 +182,7 @@ type UnaryExpr struct {
 	Op   Operator
 }
 
-func (s *UnaryExpr) Value() *Value {
-	return nil
-}
+func (s *UnaryExpr) isExpr() {}
 
 func (s *UnaryExpr) RunPass(ctx *context.Context, pass context.Pass) {
 }
@@ -196,9 +192,7 @@ type LiteralExpr struct {
 	Val token.Token
 }
 
-func (s *LiteralExpr) Value() *Value {
-	return nil
-}
+func (s *LiteralExpr) isExpr() {}
 
 func (s *LiteralExpr) RunPass(ctx *context.Context, pass context.Pass) {
 }
@@ -209,9 +203,7 @@ type IndexExpr struct {
 	Index  Expr
 }
 
-func (s *IndexExpr) Value() *Value {
-	return nil
-}
+func (s *IndexExpr) isExpr() {}
 
 func (s *IndexExpr) RunPass(ctx *context.Context, pass context.Pass) {
 }
@@ -222,9 +214,7 @@ type MemberAccess struct {
 	Member token.Token
 }
 
-func (s *MemberAccess) Value() *Value {
-	return nil
-}
+func (s *MemberAccess) isExpr() {}
 
 func (s *MemberAccess) RunPass(ctx *context.Context, pass context.Pass) {
 }
@@ -235,9 +225,7 @@ type FuncCall struct {
 	Args   Exprs
 }
 
-func (s *FuncCall) Value() *Value {
-	return nil
-}
+func (s *FuncCall) isExpr() {}
 
 func (s *FuncCall) RunPass(ctx *context.Context, pass context.Pass) {
 }
@@ -248,9 +236,7 @@ type LambdaExpr struct {
 	Stmts      ASTs
 }
 
-func (s *LambdaExpr) Value() *Value {
-	return nil
-}
+func (s *LambdaExpr) isExpr() {}
 
 func (s *LambdaExpr) RunPass(ctx *context.Context, pass context.Pass) {
 }
@@ -260,9 +246,7 @@ type ObjectLiteral struct {
 	Fields ASTs
 }
 
-func (s *ObjectLiteral) Value() *Value {
-	return nil
-}
+func (s *ObjectLiteral) isExpr() {}
 
 func (s *ObjectLiteral) RunPass(ctx *context.Context, pass context.Pass) {
 }
@@ -282,9 +266,7 @@ type ArrayLiteral struct {
 	Elements ASTs
 }
 
-func (s *ArrayLiteral) Value() *Value {
-	return nil
-}
+func (s *ArrayLiteral) isExpr() {}
 
 func (s *ArrayLiteral) RunPass(ctx *context.Context, pass context.Pass) {
 }

@@ -12,9 +12,10 @@ const (
 )
 
 type Symbol struct {
-	Name string
-	Type Type
-	Pos  token.Pos
+	Name  string
+	Type  Type
+	Pos   token.Pos
+	Scope *Scope
 }
 
 func NewSymbol(name string) *Symbol {

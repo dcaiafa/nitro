@@ -13,9 +13,7 @@ type SimpleRef struct {
 	sym *types.Symbol
 }
 
-func (s *SimpleRef) Value() *Value {
-	return nil
-}
+func (s *SimpleRef) isExpr() {}
 
 func (s *SimpleRef) RunPass(ctx *context.Context, pass context.Pass) {
 	if pass == context.CreateAndResolveNames {
