@@ -2,19 +2,19 @@ package ast
 
 import (
 	"github.com/dcaiafa/nitro/internal/context"
-	"github.com/dcaiafa/nitro/internal/typecheck"
+	"github.com/dcaiafa/nitro/internal/types"
 )
 
 type Module struct {
 	astBase
 	Stmts ASTs
 
-	scope *typecheck.Scope
+	scope *types.Scope
 }
 
 func (p *Module) RunPass(ctx *context.Context, pass context.Pass) {
 	if p.scope == nil {
-		p.scope = typecheck.NewScope()
+		p.scope = types.NewScope()
 	}
 
 	ctx.Scopes().Push(p.scope)

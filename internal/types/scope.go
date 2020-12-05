@@ -1,4 +1,4 @@
-package typecheck
+package types
 
 import "log"
 

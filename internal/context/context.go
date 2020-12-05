@@ -4,21 +4,21 @@ import (
 	"fmt"
 
 	"github.com/dcaiafa/nitro/internal/token"
-	"github.com/dcaiafa/nitro/internal/typecheck"
+	"github.com/dcaiafa/nitro/internal/types"
 )
 
 type Context struct {
-	scopes *typecheck.ScopeStack
+	scopes *types.ScopeStack
 	errors []error
 }
 
 func NewContext() *Context {
 	return &Context{
-		scopes: typecheck.NewScopeStack(),
+		scopes: types.NewScopeStack(),
 	}
 }
 
-func (c *Context) Scopes() *typecheck.ScopeStack {
+func (c *Context) Scopes() *types.ScopeStack {
 	return c.scopes
 }
 

@@ -3,14 +3,14 @@ package ast
 import (
 	"github.com/dcaiafa/nitro/internal/context"
 	"github.com/dcaiafa/nitro/internal/token"
-	"github.com/dcaiafa/nitro/internal/typecheck"
+	"github.com/dcaiafa/nitro/internal/types"
 )
 
 type SimpleRef struct {
 	astBase
 	ID token.Token
 
-	sym *typecheck.Symbol
+	sym *types.Symbol
 }
 
 func (s *SimpleRef) Value() *Value {

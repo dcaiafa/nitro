@@ -3,7 +3,7 @@ package ast
 import (
 	"github.com/dcaiafa/nitro/internal/context"
 	"github.com/dcaiafa/nitro/internal/token"
-	"github.com/dcaiafa/nitro/internal/typecheck"
+	"github.com/dcaiafa/nitro/internal/types"
 )
 
 type VarDeclStmt struct {
@@ -30,9 +30,9 @@ func (s *VarDeclStmt) RunPass(ctx *context.Context, pass context.Pass) {
 			return
 		}
 
-		sym := typecheck.NewSymbol(symName)
+		sym := types.NewSymbol(symName)
 		sym.Pos = s.Pos()
-		sym.Type = typecheck.Dynamic
+		sym.Type = types.Dynamic
 		ctx.Scopes().Current().PutSymbol(sym)
 	}
 }
