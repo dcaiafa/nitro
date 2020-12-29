@@ -36,10 +36,13 @@ func (e *Emitter) curFn() *Fn {
 	return e.fnStack[len(e.fnStack)-1]
 }
 
-func (e *Emitter) Emit(op OpCode, operand uint64) {
-	instr := MakeInstr(op, operand)
+func (e *Emitter) Emit(op OpCode, operand1 uint16, operand2 byte) {
 	curFn := e.curFn()
-	curFn.instrs = append(curFn.instrs, instr)
+	curFn.instrs = append(curFn.instrs, Instr{
+		Op:       op,
+		Operand2: operand2,
+		Operand1: operand1,
+	})
 }
 
 func (e *Emitter) AddExternalFunc(fn ExternalFunc) int {

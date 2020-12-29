@@ -50,7 +50,7 @@ func (s *SimpleRef) RunPass(ctx *Context, pass Pass) {
 func emitSymbolPush(emitter *runtime.Emitter, sym types.Symbol) {
 	switch sym := sym.(type) {
 	case *types.LocalVarSymbol:
-		emitter.Emit(runtime.OpPushLocal, uint64(sym.StorageIndex()))
+		emitter.Emit(runtime.OpPushLocal, uint16(sym.StorageIndex()), 0)
 
 	//case *types.CaptureSymbol:
 	//case *types.ParamSymbol:
@@ -59,14 +59,13 @@ func emitSymbolPush(emitter *runtime.Emitter, sym types.Symbol) {
 			emitSymbolPush(emitter, capture)
 		}
 
-		captureN := len(sym.Captures)
-		fn := uint32(sym.Fn)
+		capN := byte(len(sym.Captures))
+		fn := uint16(sym.Fn)
 		if sym.External {
-			fn |= 1 << 31
+			fn |= 1 << 15
 		}
-		emitter.Emit(
-			runtime.OpMakeClosure,
-			uint64(captureN)<<32|uint64(fn))
+		emitter.Emit(runtime.OpMakeClosure, fn, capN)
+
 	default:
 		panic("not implemented")
 	}
@@ -75,7 +74,7 @@ func emitSymbolPush(emitter *runtime.Emitter, sym types.Symbol) {
 func emitSymbolRefPush(emitter *runtime.Emitter, sym types.Symbol) {
 	switch sym := sym.(type) {
 	case *types.LocalVarSymbol:
-		emitter.Emit(runtime.OpPushLocalRef, uint64(sym.StorageIndex()))
+		emitter.Emit(runtime.OpPushLocalRef, uint16(sym.StorageIndex()), 0)
 
 	//case *types.CaptureSymbol:
 	//case *types.ParamSymbol:

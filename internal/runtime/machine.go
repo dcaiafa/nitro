@@ -62,13 +62,12 @@ func (m *Machine) run(ctx context.Context) error {
 
 	for {
 		instr := instrs[ip]
-		switch instr.Op() {
+		switch instr.Op {
 		case OpNop:
 
 		case OpCall:
-			operand := instr.Operand()
-			expRetN := int((operand >> 16) & 0xFFFF)
-			argN := int(operand & 0xFFFF)
+			expRetN := int(instr.Operand2)
+			argN := int(instr.Operand1)
 			args := popN(argN)
 			closure := pop().(*Closure)
 
@@ -97,12 +96,11 @@ func (m *Machine) run(ctx context.Context) error {
 			}
 
 		case OpMakeClosure:
-			operand := instr.Operand()
-			capN := int(operand >> 32)
-			fn := uint32(operand & 0xFFFFFFFF)
-			external := fn&0x80000000 != 0
+			capN := int(instr.Operand2)
+			fn := int(instr.Operand1)
+			external := fn&0x8000 != 0
 			if external {
-				fn &= 0x7FFFFFFF
+				fn &= 0x7FFF
 			}
 			caps := vcopy(popN(capN))
 			closure := &Closure{
@@ -113,13 +111,13 @@ func (m *Machine) run(ctx context.Context) error {
 			push(closure)
 
 		case OpPushInt:
-			push(int64(instr.Operand()))
+			push(int64(instr.Operand1))
 
 		case OpPushLocal:
-			push(f.Locals[int(instr.Operand())])
+			push(f.Locals[int(instr.Operand1)])
 
 		case OpPushLocalRef:
-			push(&f.Locals[int(instr.Operand())])
+			push(&f.Locals[int(instr.Operand1)])
 
 		case OpRet:
 			if f.ExpRetN > len(f.Stack) {

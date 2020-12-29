@@ -17,7 +17,7 @@ func (a *LiteralExpr) RunPass(ctx *Context, pass Pass) {
 	case Emit:
 		switch a.Val.Type {
 		case token.Number:
-			ctx.Emitter().Emit(runtime.OpPushInt, uint64(a.Val.Num))
+			ctx.Emitter().Emit(runtime.OpPushInt, uint16(a.Val.Num), 0)
 
 		default:
 			panic("not implemented")

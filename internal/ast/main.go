@@ -66,7 +66,7 @@ func (a *funcBase) RunPass(ctx *Context, pass Pass) {
 			synthesizeReturn = !hasReturnStmt
 		}
 		if synthesizeReturn {
-			ctx.Emitter().Emit(runtime.OpRet, 0)
+			ctx.Emitter().Emit(runtime.OpRet, 0, 0)
 		}
 
 		ctx.Emitter().PopFn()

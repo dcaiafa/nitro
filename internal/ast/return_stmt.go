@@ -16,6 +16,6 @@ func (s *ReturnStmt) RunPass(ctx *Context, pass Pass) {
 
 	switch pass {
 	case Emit:
-		ctx.Emitter().Emit(runtime.OpRet, uint64(len(s.Values)))
+		ctx.Emitter().Emit(runtime.OpRet, uint16(len(s.Values)), 0)
 	}
 }
