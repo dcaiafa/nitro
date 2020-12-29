@@ -103,12 +103,14 @@ import (
 
 %%
 
-S: module                             { yylex.(*lex).Module = $1.(*ast.Module) }
+S: module                             { yylex.(*lex).Main = $1.(*ast.Main) }
 
 module: stmts_opt                     
       { 
-        $$ = &ast.Module{Stmts: $1}
-        $$.SetPos($1.Pos())
+        m := &ast.Main{}
+        m.Stmts = $1
+        m.SetPos($1.Pos())
+        $$ = m
       }
 
 stmts_opt: stmts

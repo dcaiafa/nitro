@@ -1,7 +1,6 @@
 package ast
 
 import (
-	"github.com/dcaiafa/nitro/internal/context"
 	"github.com/dcaiafa/nitro/internal/token"
 	"github.com/dcaiafa/nitro/internal/types"
 )
@@ -22,9 +21,17 @@ type Value struct {
 }
 
 type AST interface {
-	context.PassRunner
+	PassRunner
 	Pos() token.Pos
 	SetPos(pos token.Pos)
+}
+
+type Scope interface {
+	Scope() *types.Scope
+}
+
+type Func interface {
+	Func() *types.FuncSymbol
 }
 
 type astBase struct {
@@ -41,7 +48,7 @@ func (b *astBase) SetPos(pos token.Pos) {
 
 type ASTs []AST
 
-func (asts ASTs) RunPass(ctx *context.Context, pass context.Pass) {
+func (asts ASTs) RunPass(ctx *Context, pass Pass) {
 	for _, ast := range asts {
 		ast.RunPass(ctx, pass)
 	}
@@ -68,7 +75,7 @@ type LvalueExpr interface {
 
 type Exprs []Expr
 
-func (exprs Exprs) RunPass(ctx *context.Context, pass context.Pass) {
+func (exprs Exprs) RunPass(ctx *Context, pass Pass) {
 	for _, expr := range exprs {
 		expr.RunPass(ctx, pass)
 	}
@@ -83,21 +90,14 @@ func (exprs Exprs) Pos() token.Pos {
 
 func (exprs Exprs) SetPos(pos token.Pos) {}
 
-type ExprStmt struct {
-	astBase
-	Expr Expr
-}
-
-func (s *ExprStmt) RunPass(ctx *context.Context, pass context.Pass) {
-}
-
 type WhileStmt struct {
 	astBase
 	Predicate Expr
 	Stmts     ASTs
 }
 
-func (s *WhileStmt) RunPass(ctx *context.Context, pass context.Pass) {
+func (s *WhileStmt) RunPass(ctx *Context, pass Pass) {
+	panic("not implemented")
 }
 
 type FuncParam struct {
@@ -105,7 +105,8 @@ type FuncParam struct {
 	Name token.Token
 }
 
-func (s *FuncParam) RunPass(ctx *context.Context, pass context.Pass) {
+func (s *FuncParam) RunPass(ctx *Context, pass Pass) {
+	panic("not implemented")
 }
 
 type IfStmt struct {
@@ -113,7 +114,7 @@ type IfStmt struct {
 	Blocks ASTs
 }
 
-func (s *IfStmt) RunPass(ctx *context.Context, pass context.Pass) {
+func (s *IfStmt) RunPass(ctx *Context, pass Pass) {
 	for _, block := range s.Blocks {
 		block.RunPass(ctx, pass)
 	}
@@ -125,7 +126,8 @@ type IfBlock struct {
 	Stmts ASTs
 }
 
-func (s *IfBlock) RunPass(ctx *context.Context, pass context.Pass) {
+func (s *IfBlock) RunPass(ctx *Context, pass Pass) {
+	panic("not implemented")
 }
 
 type ForStmt struct {
@@ -135,7 +137,8 @@ type ForStmt struct {
 	Stmts    ASTs
 }
 
-func (s *ForStmt) RunPass(ctx *context.Context, pass context.Pass) {
+func (s *ForStmt) RunPass(ctx *Context, pass Pass) {
+	panic("not implemented")
 }
 
 type ForVar struct {
@@ -143,7 +146,8 @@ type ForVar struct {
 	VarName token.Token
 }
 
-func (s *ForVar) RunPass(ctx *context.Context, pass context.Pass) {
+func (s *ForVar) RunPass(ctx *Context, pass Pass) {
+	panic("not implemented")
 }
 
 type Operator int
@@ -173,7 +177,8 @@ type BinaryExpr struct {
 
 func (s *BinaryExpr) isExpr() {}
 
-func (s *BinaryExpr) RunPass(ctx *context.Context, pass context.Pass) {
+func (s *BinaryExpr) RunPass(ctx *Context, pass Pass) {
+	panic("not implemented")
 }
 
 type UnaryExpr struct {
@@ -184,17 +189,8 @@ type UnaryExpr struct {
 
 func (s *UnaryExpr) isExpr() {}
 
-func (s *UnaryExpr) RunPass(ctx *context.Context, pass context.Pass) {
-}
-
-type LiteralExpr struct {
-	astBase
-	Val token.Token
-}
-
-func (s *LiteralExpr) isExpr() {}
-
-func (s *LiteralExpr) RunPass(ctx *context.Context, pass context.Pass) {
+func (s *UnaryExpr) RunPass(ctx *Context, pass Pass) {
+	panic("not implemented")
 }
 
 type IndexExpr struct {
@@ -205,7 +201,8 @@ type IndexExpr struct {
 
 func (s *IndexExpr) isExpr() {}
 
-func (s *IndexExpr) RunPass(ctx *context.Context, pass context.Pass) {
+func (s *IndexExpr) RunPass(ctx *Context, pass Pass) {
+	panic("not implemented")
 }
 
 type MemberAccess struct {
@@ -216,18 +213,8 @@ type MemberAccess struct {
 
 func (s *MemberAccess) isExpr() {}
 
-func (s *MemberAccess) RunPass(ctx *context.Context, pass context.Pass) {
-}
-
-type FuncCall struct {
-	astBase
-	Target Expr
-	Args   Exprs
-}
-
-func (s *FuncCall) isExpr() {}
-
-func (s *FuncCall) RunPass(ctx *context.Context, pass context.Pass) {
+func (s *MemberAccess) RunPass(ctx *Context, pass Pass) {
+	panic("not implemented")
 }
 
 type LambdaExpr struct {
@@ -238,7 +225,8 @@ type LambdaExpr struct {
 
 func (s *LambdaExpr) isExpr() {}
 
-func (s *LambdaExpr) RunPass(ctx *context.Context, pass context.Pass) {
+func (s *LambdaExpr) RunPass(ctx *Context, pass Pass) {
+	panic("not implemented")
 }
 
 type ObjectLiteral struct {
@@ -248,7 +236,8 @@ type ObjectLiteral struct {
 
 func (s *ObjectLiteral) isExpr() {}
 
-func (s *ObjectLiteral) RunPass(ctx *context.Context, pass context.Pass) {
+func (s *ObjectLiteral) RunPass(ctx *Context, pass Pass) {
+	panic("not implemented")
 }
 
 type ObjectField struct {
@@ -258,7 +247,8 @@ type ObjectField struct {
 	Val      Expr
 }
 
-func (s *ObjectField) RunPass(ctx *context.Context, pass context.Pass) {
+func (s *ObjectField) RunPass(ctx *Context, pass Pass) {
+	panic("not implemented")
 }
 
 type ArrayLiteral struct {
@@ -268,7 +258,8 @@ type ArrayLiteral struct {
 
 func (s *ArrayLiteral) isExpr() {}
 
-func (s *ArrayLiteral) RunPass(ctx *context.Context, pass context.Pass) {
+func (s *ArrayLiteral) RunPass(ctx *Context, pass Pass) {
+	panic("not implemented")
 }
 
 type ArrayElement struct {
@@ -276,13 +267,6 @@ type ArrayElement struct {
 	Val Expr
 }
 
-func (s *ArrayElement) RunPass(ctx *context.Context, pass context.Pass) {
-}
-
-type ReturnStmt struct {
-	astBase
-	Values Exprs
-}
-
-func (s *ReturnStmt) RunPass(ctx *context.Context, pass context.Pass) {
+func (s *ArrayElement) RunPass(ctx *Context, pass Pass) {
+	panic("not implemented")
 }

@@ -69,6 +69,21 @@ func TestParserProg(t *testing.T) {
 	require.NoError(t, err)
 }
 
+func TestParserProg2(t *testing.T) {
+	err := parse(`
+		var a = 1
+		fn Dwit(x)
+			var a = 0
+			fn()
+				var t = a
+				a = a + 1
+				return t
+			end
+		end
+`)
+	require.NoError(t, err)
+}
+
 func TestParserLvalue(t *testing.T) {
 	err := parse(`
 	a.b.c = 123

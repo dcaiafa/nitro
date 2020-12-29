@@ -1,17 +1,18 @@
 package ast
 
-import "github.com/dcaiafa/nitro/internal/context"
-
 type AssignStmt struct {
 	astBase
 	Lvalue Expr
 	Rvalue Expr
 }
 
-func (s *AssignStmt) RunPass(ctx *context.Context, pass context.Pass) {
-	s.runPassChildren(ctx, pass)
+func (s *AssignStmt) RunPass(ctx *Context, pass Pass) {
+	ctx.Push(s)
+	s.Lvalue.RunPass(ctx, pass)
+	s.Rvalue.RunPass(ctx, pass)
+	ctx.Pop()
 
-	if pass == context.CreateAndResolveNames {
+	if pass == CreateAndResolveNames {
 		if _, ok := s.Lvalue.(LvalueExpr); !ok {
 			ctx.Failf(
 				s.Pos(),
@@ -21,9 +22,4 @@ func (s *AssignStmt) RunPass(ctx *context.Context, pass context.Pass) {
 			return
 		}
 	}
-}
-
-func (s *AssignStmt) runPassChildren(ctx *context.Context, pass context.Pass) {
-	s.Lvalue.RunPass(ctx, pass)
-	s.Rvalue.RunPass(ctx, pass)
 }

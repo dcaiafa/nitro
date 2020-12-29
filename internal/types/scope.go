@@ -3,22 +3,24 @@ package types
 import "log"
 
 type Scope struct {
-	symbols map[string]*Symbol
+	symbols map[string]Symbol
 }
 
 func NewScope() *Scope {
-	return &Scope{}
+	return &Scope{
+		symbols: make(map[string]Symbol),
+	}
 }
 
-func (s *Scope) GetSymbol(name string) *Symbol {
+func (s *Scope) GetSymbol(name string) Symbol {
 	return s.symbols[name]
 }
 
-func (s *Scope) PutSymbol(sym *Symbol) {
-	if s.symbols[sym.Name] != nil {
-		log.Panicf("Symbol with name %v already exists", sym.Name)
+func (s *Scope) PutSymbol(sym Symbol) {
+	if s.symbols[sym.Name()] != nil {
+		log.Panicf("Symbol with name %v already exists", sym.Name())
 	}
-	s.symbols[sym.Name] = sym
+	s.symbols[sym.Name()] = sym
 }
 
 type ScopeStack struct {
@@ -44,7 +46,7 @@ func (s *ScopeStack) Current() *Scope {
 	return s.scopes[0]
 }
 
-func (s *ScopeStack) FindSymbol(name string) (*Symbol, *Scope) {
+func (s *ScopeStack) FindSymbol(name string) (Symbol, *Scope) {
 	for i := len(s.scopes) - 1; i >= 0; i-- {
 		scope := s.scopes[i]
 		sym := scope.GetSymbol(name)

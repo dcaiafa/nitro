@@ -1,7 +1,6 @@
 package ast
 
 import (
-	"github.com/dcaiafa/nitro/internal/context"
 	"github.com/dcaiafa/nitro/internal/token"
 	"github.com/dcaiafa/nitro/internal/types"
 )
@@ -10,35 +9,41 @@ type VarDeclStmt struct {
 	astBase
 	VarName   token.Token
 	InitValue Expr
+
+	sym *types.LocalVarSymbol
 }
 
-func (s *VarDeclStmt) RunPass(ctx *context.Context, pass context.Pass) {
-	s.runPassChildren(ctx, pass)
+func (s *VarDeclStmt) RunPass(ctx *Context, pass Pass) {
+	if s.InitValue != nil {
+		ctx.Push(s)
+		s.InitValue.RunPass(ctx, pass)
+		ctx.Pop()
+	}
 
-	// Create the symbol *after* running the pass on the right to prevent the
-	// right side from being able to reference it. E.g. var a = a + 1.
-	if pass == context.CreateAndResolveNames {
+	owner := ctx.CurrentFunc()
+
+	switch pass {
+	case CreateAndResolveNames:
 		symName := s.VarName.Str
 
-		existingSym := ctx.Scopes().Current().GetSymbol(symName)
+		currentScope := ctx.CurrentScope()
+		existingSym := currentScope.GetSymbol(symName)
 		if existingSym != nil {
 			ctx.Failf(
 				s.Pos(),
-				"There is already something named %q in the current scope. "+
-					"Declared right here: %v",
-				symName, existingSym.Pos)
+				"There is already something named %q in the current scope.",
+				symName)
+			ctx.Failf(s.Pos(), "%q was previously declared here.", symName)
 			return
 		}
 
-		sym := types.NewSymbol(symName)
-		sym.Pos = s.Pos()
-		sym.Type = types.Dynamic
-		ctx.Scopes().Current().PutSymbol(sym)
-	}
-}
+		s.sym = &types.LocalVarSymbol{}
+		s.sym.SetName(symName)
+		s.sym.SetOwner(owner)
+		s.sym.SetPos(s.Pos())
+		currentScope.PutSymbol(s.sym)
+		owner.Locals = append(owner.Locals, s.sym)
 
-func (s *VarDeclStmt) runPassChildren(ctx *context.Context, pass context.Pass) {
-	if s.InitValue != nil {
-		s.InitValue.RunPass(ctx, pass)
+	case Emit:
 	}
 }
