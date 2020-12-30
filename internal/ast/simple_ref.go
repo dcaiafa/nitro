@@ -39,8 +39,8 @@ func (s *SimpleRef) RunPass(ctx *Context, pass Pass) {
 
 	case Emit:
 		emit := emitSymbolPush
-		_, isRValue := ctx.Parent().(*RValue)
-		if isRValue {
+		_, isLValue := ctx.Parent().(*LValue)
+		if isLValue {
 			emit = emitSymbolRefPush
 		}
 		emit(ctx.Emitter(), s.sym)

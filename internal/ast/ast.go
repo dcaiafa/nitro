@@ -68,11 +68,6 @@ type Expr interface {
 	isExpr()
 }
 
-type LvalueExpr interface {
-	Expr
-	Symbol() *types.Symbol
-}
-
 type Exprs []Expr
 
 func (exprs Exprs) RunPass(ctx *Context, pass Pass) {

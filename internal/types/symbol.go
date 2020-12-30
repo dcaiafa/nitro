@@ -48,7 +48,7 @@ type FuncSymbol struct {
 
 	Captures []Symbol
 	Params   []Symbol
-	Locals   []Symbol
+	Locals   []*LocalVarSymbol
 	External bool
 	Fn       int
 

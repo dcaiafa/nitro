@@ -243,7 +243,9 @@ for_vars: for_vars ',' ID
 
 assignment_stmt: expr '=' expr
                  {
-                   $$ = &ast.AssignStmt{Lvalue:$1, Rvalue:$3}
+                   lvalue := &ast.LValue{Expr:$1}
+                   lvalue.SetPos($1.Pos())
+                   $$ = &ast.AssignStmt{Lvalue:lvalue, Rvalue:$3}
                    $$.SetPos($1.Pos())
                  }
 

@@ -1,8 +1,10 @@
 package ast
 
+import "github.com/dcaiafa/nitro/internal/runtime"
+
 type AssignStmt struct {
 	astBase
-	Lvalue Expr
+	Lvalue *LValue
 	Rvalue Expr
 }
 
@@ -12,14 +14,9 @@ func (s *AssignStmt) RunPass(ctx *Context, pass Pass) {
 	s.Rvalue.RunPass(ctx, pass)
 	ctx.Pop()
 
-	if pass == CreateAndResolveNames {
-		if _, ok := s.Lvalue.(LvalueExpr); !ok {
-			ctx.Failf(
-				s.Pos(),
-				"Left side expression of assignment is not assignable. "+
-					"The only assignable expression types are simple reference "+
-					"(e.g. a = 1), and member access (e.g. a.b = 1)")
-			return
-		}
+	switch pass {
+	case Emit:
+		emitter := ctx.Emitter()
+		emitter.Emit(runtime.OpStore, 0, 0)
 	}
 }

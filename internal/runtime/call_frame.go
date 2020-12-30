@@ -1,5 +1,7 @@
 package runtime
 
+// TODO: reuse callframes, consider pre-allocate Locals, Args, Stack
+
 type CallFrameFactory struct {
 }
 

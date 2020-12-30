@@ -31,6 +31,11 @@ func (a *funcBase) RunPass(ctx *Context, pass Pass) {
 	ctx.Pop()
 
 	switch pass {
+	case CreateAndResolveNames:
+		for i, local := range a.sym.Locals {
+			local.Local = i
+		}
+
 	case Emit:
 		synthRet := len(a.Stmts) == 0
 		if !synthRet {
