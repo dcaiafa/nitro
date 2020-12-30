@@ -17,17 +17,17 @@ type FileSystem interface {
 
 type Compiler struct {
 	fileSystem  FileSystem
-	externalFns map[string]runtime.ExternalFunc
+	externalFns map[string]runtime.ExternFn
 }
 
 func NewCompiler(fileSystem FileSystem) *Compiler {
 	return &Compiler{
 		fileSystem:  fileSystem,
-		externalFns: make(map[string]runtime.ExternalFunc),
+		externalFns: make(map[string]runtime.ExternFn),
 	}
 }
 
-func (c *Compiler) RegisterExternalFn(name string, fn runtime.ExternalFunc) {
+func (c *Compiler) RegisterExternalFn(name string, fn runtime.ExternFn) {
 	c.externalFns[name] = fn
 }
 

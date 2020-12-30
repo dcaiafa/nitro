@@ -5,18 +5,30 @@ import (
 	"fmt"
 )
 
-type CallFrame struct {
-	Closure *Closure
-	ExpRetN int
-	Args    []Value
-	Locals  []Value
-	Stack   []Value
-	IP      int
+type OpCode byte
+
+const (
+	OpNop OpCode = iota
+	OpCall
+	OpMakeClosure
+	OpPushInt
+	OpPushLocal
+	OpPushLocalRef
+	OpRet
+	OpStore
+	OpInitCallFrame
+)
+
+type Instr struct {
+	Op       OpCode
+	Operand2 byte
+	Operand1 uint16
 }
 
 type Machine struct {
-	callStack []*CallFrame
-	program   *Program
+	callFrameFactory CallFrameFactory
+	callStack        []*CallFrame
+	program          *Program
 }
 
 func NewMachine() *Machine {
@@ -32,7 +44,7 @@ func (m *Machine) run(ctx context.Context) error {
 	var (
 		ip     = 0
 		instrs = m.program.fns[0].instrs
-		f      = &CallFrame{}
+		f      = m.callFrameFactory.NewCallFrame()
 	)
 
 	push := func(v Value) {
@@ -138,9 +150,14 @@ func (m *Machine) run(ctx context.Context) error {
 			rval := pop().(*Value)
 			*rval = val
 
+		case OpInitCallFrame:
+			localN := instr.Operand1
+			f.Init(int(localN))
+
 		default:
 			panic("invalid instruction")
 		}
+
 		ip++
 	}
 }

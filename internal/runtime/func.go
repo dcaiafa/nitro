@@ -2,12 +2,12 @@ package runtime
 
 import "context"
 
-type ExternalFunc func(
+type ExternFn func(
 	ctx context.Context, args []Value) ([]Value, error)
 
 type Emitter struct {
 	fns     []Fn
-	extFns  []ExternalFunc
+	extFns  []ExternFn
 	fnStack []*Fn
 }
 
@@ -45,7 +45,7 @@ func (e *Emitter) Emit(op OpCode, operand1 uint16, operand2 byte) {
 	})
 }
 
-func (e *Emitter) AddExternalFunc(fn ExternalFunc) int {
+func (e *Emitter) AddExternalFunc(fn ExternFn) int {
 	e.extFns = append(e.extFns, fn)
 	return len(e.extFns) - 1
 }

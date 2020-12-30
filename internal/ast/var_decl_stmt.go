@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"github.com/dcaiafa/nitro/internal/runtime"
 	"github.com/dcaiafa/nitro/internal/token"
 	"github.com/dcaiafa/nitro/internal/types"
 )
@@ -14,14 +15,6 @@ type VarDeclStmt struct {
 }
 
 func (s *VarDeclStmt) RunPass(ctx *Context, pass Pass) {
-	if s.InitValue != nil {
-		ctx.Push(s)
-		s.InitValue.RunPass(ctx, pass)
-		ctx.Pop()
-	}
-
-	owner := ctx.CurrentFunc()
-
 	switch pass {
 	case CreateAndResolveNames:
 		symName := s.VarName.Str
@@ -37,6 +30,7 @@ func (s *VarDeclStmt) RunPass(ctx *Context, pass Pass) {
 			return
 		}
 
+		owner := ctx.CurrentFunc()
 		s.sym = &types.LocalVarSymbol{}
 		s.sym.SetName(symName)
 		s.sym.SetOwner(owner)
@@ -45,5 +39,23 @@ func (s *VarDeclStmt) RunPass(ctx *Context, pass Pass) {
 		owner.Locals = append(owner.Locals, s.sym)
 
 	case Emit:
+		if s.InitValue != nil {
+			emitter := ctx.Emitter()
+			emitter.Emit(runtime.OpPushLocalRef, uint16(s.sym.Local), 0)
+		}
+	}
+
+	if s.InitValue != nil {
+		ctx.Push(s)
+		s.InitValue.RunPass(ctx, pass)
+		ctx.Pop()
+	}
+
+	switch pass {
+	case Emit:
+		if s.InitValue != nil {
+			emitter := ctx.Emitter()
+			emitter.Emit(runtime.OpStore, uint16(s.sym.Local), 0)
+		}
 	}
 }

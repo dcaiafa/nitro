@@ -12,11 +12,13 @@ type Main struct {
 	externalFns ASTs
 }
 
-func (m *Main) AddExternalFn(name string, extFn runtime.ExternalFunc) {
-	m.externalFns = append(m.externalFns, &ExternalFunc{
-		Name:         name,
-		ExternalFunc: extFn,
-	})
+func (m *Main) AddExternalFn(name string, extFn runtime.ExternFn) {
+	m.externalFns = append(
+		m.externalFns,
+		&ExternFn{
+			Name:     name,
+			ExternFn: extFn,
+		})
 }
 
 func (m *Main) Scope() *types.Scope {

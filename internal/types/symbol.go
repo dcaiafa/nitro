@@ -9,17 +9,14 @@ type Symbol interface {
 	SetName(name string)
 	Owner() *FuncSymbol
 	SetOwner(owner *FuncSymbol)
-	StorageIndex() int
-	SetStorageIndex(ndx int)
 	Pos() token.Pos
 	SetPos(pos token.Pos)
 }
 
 type baseSymbol struct {
-	name         string
-	owner        *FuncSymbol
-	storageIndex int
-	pos          token.Pos
+	name  string
+	owner *FuncSymbol
+	pos   token.Pos
 }
 
 func (b *baseSymbol) Name() string {
@@ -36,14 +33,6 @@ func (b *baseSymbol) Owner() *FuncSymbol {
 
 func (b *baseSymbol) SetOwner(owner *FuncSymbol) {
 	b.owner = owner
-}
-
-func (b *baseSymbol) StorageIndex() int {
-	return b.storageIndex
-}
-
-func (b *baseSymbol) SetStorageIndex(ndx int) {
-	b.storageIndex = ndx
 }
 
 func (b *baseSymbol) Pos() token.Pos {
@@ -74,6 +63,8 @@ type ExternalFuncSymbol struct {
 
 type LocalVarSymbol struct {
 	baseSymbol
+
+	Local int
 }
 
 type CaptureSymbol struct {

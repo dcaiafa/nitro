@@ -50,7 +50,7 @@ func (s *SimpleRef) RunPass(ctx *Context, pass Pass) {
 func emitSymbolPush(emitter *runtime.Emitter, sym types.Symbol) {
 	switch sym := sym.(type) {
 	case *types.LocalVarSymbol:
-		emitter.Emit(runtime.OpPushLocal, uint16(sym.StorageIndex()), 0)
+		emitter.Emit(runtime.OpPushLocal, uint16(sym.Local), 0)
 
 	//case *types.CaptureSymbol:
 	//case *types.ParamSymbol:
@@ -74,7 +74,7 @@ func emitSymbolPush(emitter *runtime.Emitter, sym types.Symbol) {
 func emitSymbolRefPush(emitter *runtime.Emitter, sym types.Symbol) {
 	switch sym := sym.(type) {
 	case *types.LocalVarSymbol:
-		emitter.Emit(runtime.OpPushLocalRef, uint16(sym.StorageIndex()), 0)
+		emitter.Emit(runtime.OpPushLocalRef, uint16(sym.Local), 0)
 
 	//case *types.CaptureSymbol:
 	//case *types.ParamSymbol:

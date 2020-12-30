@@ -5,22 +5,22 @@ import (
 	"github.com/dcaiafa/nitro/internal/types"
 )
 
-type ExternalFunc struct {
+type ExternFn struct {
 	astBase
 
 	Name         string
-	ExternalFunc runtime.ExternalFunc
+	ExternFn runtime.ExternFn
 
 	sym *types.FuncSymbol
 }
 
-func (f *ExternalFunc) RunPass(ctx *Context, pass Pass) {
+func (f *ExternFn) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case CreateAndResolveNames:
 		f.sym = &types.FuncSymbol{}
 		f.sym.SetName(f.Name)
 		f.sym.External = true
-		f.sym.Fn = ctx.Emitter().AddExternalFunc(f.ExternalFunc)
+		f.sym.Fn = ctx.Emitter().AddExternalFunc(f.ExternFn)
 		ctx.CurrentScope().PutSymbol(f.sym)
 	}
 }

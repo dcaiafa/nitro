@@ -21,7 +21,9 @@ func (a *funcBase) RunPass(ctx *Context, pass Pass) {
 		a.sym.Fn = ctx.Emitter().NewFn()
 
 	case Emit:
-		ctx.Emitter().PushFn(a.sym.Fn)
+		emitter := ctx.Emitter()
+		emitter.PushFn(a.sym.Fn)
+		emitter.Emit(runtime.OpInitCallFrame, uint16(len(a.sym.Locals)), 0)
 	}
 
 	ctx.Push(a)

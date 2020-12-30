@@ -42,6 +42,14 @@ func Run(t *testing.T, prog string) {
 	}
 }
 
-func TestTestTest(t *testing.T) {
+func Test1(t *testing.T) {
 	Run(t, "print(1, 2, 3)")
+}
+
+func Test2(t *testing.T) {
+	Run(t, `
+	var a = 1
+	print(a)
+`)
+
 }
