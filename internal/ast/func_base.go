@@ -7,6 +7,7 @@ import (
 
 type funcBase struct {
 	astBase
+
 	Name  string
 	Stmts ASTs
 
@@ -17,8 +18,13 @@ func (a *funcBase) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case CreateAndResolveNames:
 		a.sym = &types.FuncSymbol{}
+		a.sym.SetName(a.Name)
+		a.sym.SetPos(a.Pos())
 		a.sym.Scope = types.NewScope()
 		a.sym.Fn = ctx.Emitter().NewFn()
+		if !ctx.CurrentScope().PutSymbol(ctx, a.sym) {
+			return
+		}
 
 	case Emit:
 		emitter := ctx.Emitter()

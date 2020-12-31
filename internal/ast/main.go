@@ -27,7 +27,6 @@ func (m *Main) Scope() *types.Scope {
 
 func (m *Main) RunPass(ctx *Context, pass Pass) {
 	if pass == CreateAndResolveNames {
-		m.Name = "$main"
 		m.globalScope = types.NewScope()
 	}
 

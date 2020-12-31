@@ -290,7 +290,7 @@ state 20
 state 21
 	expr:  unary_expr.    (38)
 
-	.  reduce 38 (src line 263)
+	.  reduce 38 (src line 266)
 
 
 state 22
@@ -371,37 +371,37 @@ state 25
 	'('  shift 68
 	'['  shift 66
 	'.'  shift 67
-	.  reduce 54 (src line 340)
+	.  reduce 54 (src line 343)
 
 
 state 26
 	primary_expr:  STRING.    (55)
 
-	.  reduce 55 (src line 342)
+	.  reduce 55 (src line 345)
 
 
 state 27
 	primary_expr:  NUMBER.    (56)
 
-	.  reduce 56 (src line 347)
+	.  reduce 56 (src line 350)
 
 
 state 28
 	primary_expr:  ID.    (57)
 
-	.  reduce 57 (src line 352)
+	.  reduce 57 (src line 355)
 
 
 state 29
 	primary_expr:  kTRUE.    (58)
 
-	.  reduce 58 (src line 357)
+	.  reduce 58 (src line 360)
 
 
 state 30
 	primary_expr:  kFALSE.    (59)
 
-	.  reduce 59 (src line 362)
+	.  reduce 59 (src line 365)
 
 
 state 31
@@ -431,19 +431,19 @@ state 31
 state 32
 	primary_expr:  lambda_expr.    (64)
 
-	.  reduce 64 (src line 386)
+	.  reduce 64 (src line 389)
 
 
 state 33
 	primary_expr:  array_literal.    (65)
 
-	.  reduce 65 (src line 387)
+	.  reduce 65 (src line 390)
 
 
 state 34
 	primary_expr:  object_literal.    (66)
 
-	.  reduce 66 (src line 388)
+	.  reduce 66 (src line 391)
 
 
 state 35
@@ -464,7 +464,7 @@ state 35
 	'('  shift 31
 	'['  shift 35
 	'{'  shift 36
-	.  reduce 98 (src line 534)
+	.  reduce 98 (src line 537)
 
 	expr  goto 73
 	unary_expr  goto 21
@@ -486,7 +486,7 @@ state 36
 	kIF  shift 85
 	ID  shift 81
 	'['  shift 82
-	.  reduce 78 (src line 438)
+	.  reduce 78 (src line 441)
 
 	object_fields_opt  goto 78
 	object_fields  goto 79
@@ -830,7 +830,7 @@ state 53
 	var_decl_stmt:  kVAR ID.'=' expr 
 
 	'='  shift 101
-	.  reduce 36 (src line 252)
+	.  reduce 36 (src line 255)
 
 
 state 54
@@ -845,7 +845,7 @@ state 54
 state 55
 	for_vars:  ID.    (34)
 
-	.  reduce 34 (src line 238)
+	.  reduce 34 (src line 241)
 
 
 state 56
@@ -898,7 +898,7 @@ state 59
 	param_list_opt: .    (69)
 
 	ID  shift 108
-	.  reduce 69 (src line 399)
+	.  reduce 69 (src line 402)
 
 	param_list_opt  goto 106
 	param_list  goto 107
@@ -975,19 +975,19 @@ state 62
 state 63
 	unary_expr:  kNOT unary_expr.    (51)
 
-	.  reduce 51 (src line 325)
+	.  reduce 51 (src line 328)
 
 
 state 64
 	unary_expr:  '+' unary_expr.    (52)
 
-	.  reduce 52 (src line 330)
+	.  reduce 52 (src line 333)
 
 
 state 65
 	unary_expr:  '-' unary_expr.    (53)
 
-	.  reduce 53 (src line 335)
+	.  reduce 53 (src line 338)
 
 
 state 66
@@ -1037,7 +1037,7 @@ state 68
 	'('  shift 31
 	'['  shift 35
 	'{'  shift 36
-	.  reduce 73 (src line 417)
+	.  reduce 73 (src line 420)
 
 	expr  goto 115
 	unary_expr  goto 21
@@ -1094,7 +1094,7 @@ state 71
 
 	';'  shift 120
 	','  shift 119
-	.  reduce 116 (src line 621)
+	.  reduce 116 (src line 624)
 
 	trailing_seps  goto 118
 	trailing_seps1  goto 121
@@ -1102,7 +1102,7 @@ state 71
 state 72
 	array_elems:  array_elem.    (101)
 
-	.  reduce 101 (src line 547)
+	.  reduce 101 (src line 550)
 
 
 state 73
@@ -1132,19 +1132,19 @@ state 73
 	'-'  shift 42
 	'*'  shift 43
 	'/'  shift 44
-	.  reduce 102 (src line 552)
+	.  reduce 102 (src line 555)
 
 
 state 74
 	array_elem:  array_if.    (103)
 
-	.  reduce 103 (src line 557)
+	.  reduce 103 (src line 560)
 
 
 state 75
 	array_elem:  array_for.    (104)
 
-	.  reduce 104 (src line 558)
+	.  reduce 104 (src line 561)
 
 
 state 76
@@ -1194,7 +1194,7 @@ state 79
 
 	';'  shift 127
 	','  shift 126
-	.  reduce 116 (src line 621)
+	.  reduce 116 (src line 624)
 
 	trailing_seps  goto 125
 	trailing_seps1  goto 121
@@ -1202,7 +1202,7 @@ state 79
 state 80
 	object_fields:  object_field.    (81)
 
-	.  reduce 81 (src line 451)
+	.  reduce 81 (src line 454)
 
 
 state 81
@@ -1239,13 +1239,13 @@ state 82
 state 83
 	object_field:  object_if.    (84)
 
-	.  reduce 84 (src line 464)
+	.  reduce 84 (src line 467)
 
 
 state 84
 	object_field:  object_for.    (85)
 
-	.  reduce 85 (src line 465)
+	.  reduce 85 (src line 468)
 
 
 state 85
@@ -1313,7 +1313,7 @@ state 88
 	'-'  shift 42
 	'*'  shift 43
 	'/'  shift 44
-	.  reduce 35 (src line 244)
+	.  reduce 35 (src line 247)
 
 
 state 89
@@ -1333,7 +1333,7 @@ state 89
 
 	'*'  shift 43
 	'/'  shift 44
-	.  reduce 39 (src line 264)
+	.  reduce 39 (src line 267)
 
 
 state 90
@@ -1353,7 +1353,7 @@ state 90
 
 	'*'  shift 43
 	'/'  shift 44
-	.  reduce 40 (src line 269)
+	.  reduce 40 (src line 272)
 
 
 state 91
@@ -1371,7 +1371,7 @@ state 91
 	expr:  expr.kAND expr 
 	expr:  expr.kOR expr 
 
-	.  reduce 41 (src line 274)
+	.  reduce 41 (src line 277)
 
 
 state 92
@@ -1389,7 +1389,7 @@ state 92
 	expr:  expr.kAND expr 
 	expr:  expr.kOR expr 
 
-	.  reduce 42 (src line 279)
+	.  reduce 42 (src line 282)
 
 
 state 93
@@ -1417,7 +1417,7 @@ state 93
 	'-'  shift 42
 	'*'  shift 43
 	'/'  shift 44
-	.  reduce 43 (src line 284)
+	.  reduce 43 (src line 287)
 
 
 state 94
@@ -1445,7 +1445,7 @@ state 94
 	'-'  shift 42
 	'*'  shift 43
 	'/'  shift 44
-	.  reduce 44 (src line 289)
+	.  reduce 44 (src line 292)
 
 
 state 95
@@ -1473,7 +1473,7 @@ state 95
 	'-'  shift 42
 	'*'  shift 43
 	'/'  shift 44
-	.  reduce 45 (src line 294)
+	.  reduce 45 (src line 297)
 
 
 state 96
@@ -1501,7 +1501,7 @@ state 96
 	'-'  shift 42
 	'*'  shift 43
 	'/'  shift 44
-	.  reduce 46 (src line 299)
+	.  reduce 46 (src line 302)
 
 
 state 97
@@ -1529,7 +1529,7 @@ state 97
 	'-'  shift 42
 	'*'  shift 43
 	'/'  shift 44
-	.  reduce 47 (src line 304)
+	.  reduce 47 (src line 307)
 
 
 state 98
@@ -1557,7 +1557,7 @@ state 98
 	'-'  shift 42
 	'*'  shift 43
 	'/'  shift 44
-	.  reduce 48 (src line 309)
+	.  reduce 48 (src line 312)
 
 
 state 99
@@ -1585,7 +1585,7 @@ state 99
 	'-'  shift 42
 	'*'  shift 43
 	'/'  shift 44
-	.  reduce 49 (src line 314)
+	.  reduce 49 (src line 317)
 
 
 state 100
@@ -1614,7 +1614,7 @@ state 100
 	'-'  shift 42
 	'*'  shift 43
 	'/'  shift 44
-	.  reduce 50 (src line 319)
+	.  reduce 50 (src line 322)
 
 
 state 101
@@ -1718,7 +1718,7 @@ state 105
 	param_list_opt: .    (69)
 
 	ID  shift 108
-	.  reduce 69 (src line 399)
+	.  reduce 69 (src line 402)
 
 	param_list_opt  goto 136
 	param_list  goto 107
@@ -1735,13 +1735,13 @@ state 107
 	param_list:  param_list.',' ID 
 
 	','  shift 138
-	.  reduce 68 (src line 398)
+	.  reduce 68 (src line 401)
 
 
 state 108
 	param_list:  ID.    (71)
 
-	.  reduce 71 (src line 410)
+	.  reduce 71 (src line 413)
 
 
 state 109
@@ -1843,7 +1843,7 @@ state 111
 state 112
 	primary_expr:  primary_expr '.' ID.    (61)
 
-	.  reduce 61 (src line 372)
+	.  reduce 61 (src line 375)
 
 
 state 113
@@ -1859,7 +1859,7 @@ state 114
 	trailing_comma: .    (122)
 
 	','  shift 144
-	.  reduce 122 (src line 628)
+	.  reduce 122 (src line 631)
 
 	trailing_comma  goto 143
 
@@ -1890,25 +1890,25 @@ state 115
 	'-'  shift 42
 	'*'  shift 43
 	'/'  shift 44
-	.  reduce 75 (src line 426)
+	.  reduce 75 (src line 429)
 
 
 state 116
 	primary_expr:  '(' expr ')'.    (63)
 
-	.  reduce 63 (src line 382)
+	.  reduce 63 (src line 385)
 
 
 state 117
 	array_literal:  '[' array_elems_opt ']'.    (96)
 
-	.  reduce 96 (src line 528)
+	.  reduce 96 (src line 531)
 
 
 state 118
 	array_elems_opt:  array_elems trailing_seps.    (97)
 
-	.  reduce 97 (src line 533)
+	.  reduce 97 (src line 536)
 
 
 state 119
@@ -1929,7 +1929,7 @@ state 119
 	'('  shift 31
 	'['  shift 35
 	'{'  shift 36
-	.  reduce 120 (src line 626)
+	.  reduce 120 (src line 629)
 
 	expr  goto 73
 	unary_expr  goto 21
@@ -1959,7 +1959,7 @@ state 120
 	'('  shift 31
 	'['  shift 35
 	'{'  shift 36
-	.  reduce 119 (src line 625)
+	.  reduce 119 (src line 628)
 
 	expr  goto 73
 	unary_expr  goto 21
@@ -1978,7 +1978,7 @@ state 121
 
 	';'  shift 147
 	','  shift 148
-	.  reduce 115 (src line 621)
+	.  reduce 115 (src line 624)
 
 
 state 122
@@ -2024,13 +2024,13 @@ state 123
 state 124
 	object_literal:  '{' object_fields_opt '}'.    (76)
 
-	.  reduce 76 (src line 431)
+	.  reduce 76 (src line 434)
 
 
 state 125
 	object_fields_opt:  object_fields trailing_seps.    (77)
 
-	.  reduce 77 (src line 437)
+	.  reduce 77 (src line 440)
 
 
 state 126
@@ -2041,7 +2041,7 @@ state 126
 	kIF  shift 85
 	ID  shift 81
 	'['  shift 82
-	.  reduce 120 (src line 626)
+	.  reduce 120 (src line 629)
 
 	object_field  goto 151
 	object_if  goto 83
@@ -2055,7 +2055,7 @@ state 127
 	kIF  shift 85
 	ID  shift 81
 	'['  shift 82
-	.  reduce 119 (src line 625)
+	.  reduce 119 (src line 628)
 
 	object_field  goto 152
 	object_if  goto 83
@@ -2183,7 +2183,7 @@ state 132
 	'-'  shift 42
 	'*'  shift 43
 	'/'  shift 44
-	.  reduce 37 (src line 257)
+	.  reduce 37 (src line 260)
 
 
 state 133
@@ -2220,7 +2220,7 @@ state 133
 state 134
 	for_vars:  for_vars ',' ID.    (33)
 
-	.  reduce 33 (src line 234)
+	.  reduce 33 (src line 237)
 
 
 state 135
@@ -2228,7 +2228,7 @@ state 135
 	elifs_opt: .    (25)
 
 	kELIF  shift 161
-	.  reduce 25 (src line 191)
+	.  reduce 25 (src line 194)
 
 	elifs_opt  goto 158
 	elifs  goto 159
@@ -2329,19 +2329,19 @@ state 140
 state 141
 	primary_expr:  primary_expr '[' expr ']'.    (60)
 
-	.  reduce 60 (src line 367)
+	.  reduce 60 (src line 370)
 
 
 state 142
 	primary_expr:  primary_expr '(' arg_list_opt ')'.    (62)
 
-	.  reduce 62 (src line 377)
+	.  reduce 62 (src line 380)
 
 
 state 143
 	arg_list_opt:  arg_list trailing_comma.    (72)
 
-	.  reduce 72 (src line 416)
+	.  reduce 72 (src line 419)
 
 
 state 144
@@ -2360,7 +2360,7 @@ state 144
 	'('  shift 31
 	'['  shift 35
 	'{'  shift 36
-	.  reduce 121 (src line 628)
+	.  reduce 121 (src line 631)
 
 	expr  goto 166
 	unary_expr  goto 21
@@ -2372,25 +2372,25 @@ state 144
 state 145
 	array_elems:  array_elems ',' array_elem.    (99)
 
-	.  reduce 99 (src line 539)
+	.  reduce 99 (src line 542)
 
 
 state 146
 	array_elems:  array_elems ';' array_elem.    (100)
 
-	.  reduce 100 (src line 543)
+	.  reduce 100 (src line 546)
 
 
 state 147
 	trailing_seps1:  trailing_seps1 ';'.    (117)
 
-	.  reduce 117 (src line 623)
+	.  reduce 117 (src line 626)
 
 
 state 148
 	trailing_seps1:  trailing_seps1 ','.    (118)
 
-	.  reduce 118 (src line 624)
+	.  reduce 118 (src line 627)
 
 
 state 149
@@ -2411,7 +2411,7 @@ state 149
 	'('  shift 31
 	'['  shift 35
 	'{'  shift 36
-	.  reduce 98 (src line 534)
+	.  reduce 98 (src line 537)
 
 	expr  goto 73
 	unary_expr  goto 21
@@ -2452,13 +2452,13 @@ state 150
 state 151
 	object_fields:  object_fields ',' object_field.    (79)
 
-	.  reduce 79 (src line 443)
+	.  reduce 79 (src line 446)
 
 
 state 152
 	object_fields:  object_fields ';' object_field.    (80)
 
-	.  reduce 80 (src line 447)
+	.  reduce 80 (src line 450)
 
 
 state 153
@@ -2488,7 +2488,7 @@ state 153
 	'-'  shift 42
 	'*'  shift 43
 	'/'  shift 44
-	.  reduce 82 (src line 456)
+	.  reduce 82 (src line 459)
 
 
 state 154
@@ -2506,7 +2506,7 @@ state 155
 	kIF  shift 85
 	ID  shift 81
 	'['  shift 82
-	.  reduce 78 (src line 438)
+	.  reduce 78 (src line 441)
 
 	object_fields_opt  goto 170
 	object_fields  goto 79
@@ -2584,7 +2584,7 @@ state 158
 	else_opt: .    (30)
 
 	kELSE  shift 175
-	.  reduce 30 (src line 214)
+	.  reduce 30 (src line 217)
 
 	else_opt  goto 173
 	else  goto 174
@@ -2594,14 +2594,14 @@ state 159
 	elifs:  elifs.elif 
 
 	kELIF  shift 161
-	.  reduce 24 (src line 190)
+	.  reduce 24 (src line 193)
 
 	elif  goto 176
 
 state 160
 	elifs:  elif.    (27)
 
-	.  reduce 27 (src line 201)
+	.  reduce 27 (src line 204)
 
 
 state 161
@@ -2679,7 +2679,7 @@ state 163
 state 164
 	param_list:  param_list ',' ID.    (70)
 
-	.  reduce 70 (src line 404)
+	.  reduce 70 (src line 407)
 
 
 state 165
@@ -2715,7 +2715,7 @@ state 166
 	'-'  shift 42
 	'*'  shift 43
 	'/'  shift 44
-	.  reduce 74 (src line 422)
+	.  reduce 74 (src line 425)
 
 
 state 167
@@ -2723,7 +2723,7 @@ state 167
 	array_elifs_opt: .    (108)
 
 	kELIF  shift 183
-	.  reduce 108 (src line 587)
+	.  reduce 108 (src line 590)
 
 	array_elifs_opt  goto 180
 	array_elifs  goto 181
@@ -2789,7 +2789,7 @@ state 170
 	object_elifs_opt: .    (89)
 
 	kELIF  shift 189
-	.  reduce 89 (src line 494)
+	.  reduce 89 (src line 497)
 
 	object_elifs_opt  goto 186
 	object_elifs  goto 187
@@ -2843,7 +2843,7 @@ state 173
 state 174
 	else_opt:  else.    (29)
 
-	.  reduce 29 (src line 213)
+	.  reduce 29 (src line 216)
 
 
 state 175
@@ -2890,7 +2890,7 @@ state 175
 state 176
 	elifs:  elifs elif.    (26)
 
-	.  reduce 26 (src line 196)
+	.  reduce 26 (src line 199)
 
 
 state 177
@@ -2934,7 +2934,7 @@ state 178
 state 179
 	lambda_expr:  kFN '(' param_list_opt ')' stmts_opt kEND.    (67)
 
-	.  reduce 67 (src line 390)
+	.  reduce 67 (src line 393)
 
 
 state 180
@@ -2942,7 +2942,7 @@ state 180
 	array_else_opt: .    (113)
 
 	kELSE  shift 198
-	.  reduce 113 (src line 609)
+	.  reduce 113 (src line 612)
 
 	array_else_opt  goto 196
 	array_else  goto 197
@@ -2952,14 +2952,14 @@ state 181
 	array_elifs:  array_elifs.array_elif 
 
 	kELIF  shift 183
-	.  reduce 107 (src line 586)
+	.  reduce 107 (src line 589)
 
 	array_elif  goto 199
 
 state 182
 	array_elifs:  array_elif.    (110)
 
-	.  reduce 110 (src line 596)
+	.  reduce 110 (src line 599)
 
 
 state 183
@@ -3004,7 +3004,7 @@ state 184
 	'('  shift 31
 	'['  shift 35
 	'{'  shift 36
-	.  reduce 98 (src line 534)
+	.  reduce 98 (src line 537)
 
 	expr  goto 73
 	unary_expr  goto 21
@@ -3045,7 +3045,7 @@ state 185
 	'-'  shift 42
 	'*'  shift 43
 	'/'  shift 44
-	.  reduce 83 (src line 460)
+	.  reduce 83 (src line 463)
 
 
 state 186
@@ -3053,7 +3053,7 @@ state 186
 	object_else_opt: .    (94)
 
 	kELSE  shift 204
-	.  reduce 94 (src line 516)
+	.  reduce 94 (src line 519)
 
 	object_else_opt  goto 202
 	object_else  goto 203
@@ -3063,14 +3063,14 @@ state 187
 	object_elifs:  object_elifs.object_elif 
 
 	kELIF  shift 189
-	.  reduce 88 (src line 493)
+	.  reduce 88 (src line 496)
 
 	object_elif  goto 205
 
 state 188
 	object_elifs:  object_elif.    (91)
 
-	.  reduce 91 (src line 503)
+	.  reduce 91 (src line 506)
 
 
 state 189
@@ -3105,7 +3105,7 @@ state 190
 	kIF  shift 85
 	ID  shift 81
 	'['  shift 82
-	.  reduce 78 (src line 438)
+	.  reduce 78 (src line 441)
 
 	object_fields_opt  goto 207
 	object_fields  goto 79
@@ -3116,19 +3116,19 @@ state 190
 state 191
 	for_stmt:  kFOR for_vars kIN expr kDO stmts_opt kEND.    (32)
 
-	.  reduce 32 (src line 226)
+	.  reduce 32 (src line 229)
 
 
 state 192
 	if_stmt:  kIF expr kTHEN stmts_opt elifs_opt else_opt kEND.    (23)
 
-	.  reduce 23 (src line 172)
+	.  reduce 23 (src line 175)
 
 
 state 193
 	else:  kELSE stmts_opt.    (31)
 
-	.  reduce 31 (src line 219)
+	.  reduce 31 (src line 222)
 
 
 state 194
@@ -3188,7 +3188,7 @@ state 196
 state 197
 	array_else_opt:  array_else.    (112)
 
-	.  reduce 112 (src line 608)
+	.  reduce 112 (src line 611)
 
 
 state 198
@@ -3209,7 +3209,7 @@ state 198
 	'('  shift 31
 	'['  shift 35
 	'{'  shift 36
-	.  reduce 98 (src line 534)
+	.  reduce 98 (src line 537)
 
 	expr  goto 73
 	unary_expr  goto 21
@@ -3226,7 +3226,7 @@ state 198
 state 199
 	array_elifs:  array_elifs array_elif.    (109)
 
-	.  reduce 109 (src line 592)
+	.  reduce 109 (src line 595)
 
 
 state 200
@@ -3277,7 +3277,7 @@ state 202
 state 203
 	object_else_opt:  object_else.    (93)
 
-	.  reduce 93 (src line 515)
+	.  reduce 93 (src line 518)
 
 
 state 204
@@ -3288,7 +3288,7 @@ state 204
 	kIF  shift 85
 	ID  shift 81
 	'['  shift 82
-	.  reduce 78 (src line 438)
+	.  reduce 78 (src line 441)
 
 	object_fields_opt  goto 214
 	object_fields  goto 79
@@ -3299,7 +3299,7 @@ state 204
 state 205
 	object_elifs:  object_elifs object_elif.    (90)
 
-	.  reduce 90 (src line 499)
+	.  reduce 90 (src line 502)
 
 
 state 206
@@ -3343,19 +3343,19 @@ state 207
 state 208
 	elif:  kELIF expr kTHEN stmts_opt.    (28)
 
-	.  reduce 28 (src line 206)
+	.  reduce 28 (src line 209)
 
 
 state 209
 	array_if:  kIF expr kTHEN array_elems_opt array_elifs_opt array_else_opt kEND.    (105)
 
-	.  reduce 105 (src line 560)
+	.  reduce 105 (src line 563)
 
 
 state 210
 	array_else:  kELSE array_elems_opt.    (114)
 
-	.  reduce 114 (src line 614)
+	.  reduce 114 (src line 617)
 
 
 state 211
@@ -3376,7 +3376,7 @@ state 211
 	'('  shift 31
 	'['  shift 35
 	'{'  shift 36
-	.  reduce 98 (src line 534)
+	.  reduce 98 (src line 537)
 
 	expr  goto 73
 	unary_expr  goto 21
@@ -3393,19 +3393,19 @@ state 211
 state 212
 	array_for:  kFOR for_vars kIN expr kDO array_elems_opt kEND.    (106)
 
-	.  reduce 106 (src line 578)
+	.  reduce 106 (src line 581)
 
 
 state 213
 	object_if:  kIF expr kTHEN object_fields_opt object_elifs_opt object_else_opt kEND.    (86)
 
-	.  reduce 86 (src line 467)
+	.  reduce 86 (src line 470)
 
 
 state 214
 	object_else:  kELSE object_fields_opt.    (95)
 
-	.  reduce 95 (src line 521)
+	.  reduce 95 (src line 524)
 
 
 state 215
@@ -3416,7 +3416,7 @@ state 215
 	kIF  shift 85
 	ID  shift 81
 	'['  shift 82
-	.  reduce 78 (src line 438)
+	.  reduce 78 (src line 441)
 
 	object_fields_opt  goto 218
 	object_fields  goto 79
@@ -3427,19 +3427,19 @@ state 215
 state 216
 	object_for:  kFOR for_vars kIN expr kDO object_fields_opt kEND.    (87)
 
-	.  reduce 87 (src line 485)
+	.  reduce 87 (src line 488)
 
 
 state 217
 	array_elif:  kELIF expr kTHEN array_elems_opt.    (111)
 
-	.  reduce 111 (src line 601)
+	.  reduce 111 (src line 604)
 
 
 state 218
 	object_elif:  kELIF expr kTHEN object_fields_opt.    (92)
 
-	.  reduce 92 (src line 508)
+	.  reduce 92 (src line 511)
 
 
 47 terminals, 53 nonterminals

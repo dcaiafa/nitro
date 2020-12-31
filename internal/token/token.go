@@ -1,5 +1,7 @@
 package token
 
+import "fmt"
+
 type Type int
 
 const (
@@ -14,6 +16,10 @@ type Pos struct {
 	Filename string
 	Line     int
 	Col      int
+}
+
+func (p *Pos) String() string {
+	return fmt.Sprintf("%v:%v:%v", p.Filename, p.Line, p.Col)
 }
 
 type Token struct {

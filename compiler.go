@@ -3,13 +3,28 @@ package nitro
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/dcaiafa/nitro/internal/ast"
+	"github.com/dcaiafa/nitro/internal/errlogger"
 	"github.com/dcaiafa/nitro/internal/parser"
 	"github.com/dcaiafa/nitro/internal/runtime"
+	"github.com/dcaiafa/nitro/internal/token"
 )
 
 type Value = runtime.Value
+type ErrLogger = errlogger.ErrLogger
+type Pos = token.Pos
+
+type DefaultErrLogger struct{}
+
+func (l *DefaultErrLogger) Failf(pos Pos, msg string, args ...interface{}) {
+	fmt.Fprintf(os.Stderr, pos.String()+": "+msg, args...)
+}
+
+func (l *DefaultErrLogger) Detailf(pos Pos, msg string, args ...interface{}) {
+	fmt.Fprintf(os.Stderr, pos.String()+": "+msg, args...)
+}
 
 type FileSystem interface {
 	ReadFile(name string) ([]byte, error)
@@ -48,14 +63,14 @@ func (c *Compiler) Compile(filename string) (*runtime.Program, error) {
 		main.AddExternalFn(name, extFn)
 	}
 
-	ctx := ast.NewContext()
+	ctx := ast.NewContext(&DefaultErrLogger{})
 	main.RunPass(ctx, ast.CreateAndResolveNames)
-	if ctx.HasErrors() {
-		return nil, ctx.Errors()[0]
+	if ctx.Error() != nil {
+		return nil, ctx.Error()
 	}
 	main.RunPass(ctx, ast.Emit)
-	if ctx.HasErrors() {
-		return nil, ctx.Errors()[0]
+	if ctx.Error() != nil {
+		return nil, ctx.Error()
 	}
 
 	return ctx.Emitter().ToProgram(), nil

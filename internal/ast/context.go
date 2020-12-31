@@ -1,11 +1,10 @@
 package ast
 
 import (
-	"fmt"
 	"reflect"
 
+	"github.com/dcaiafa/nitro/internal/errlogger"
 	"github.com/dcaiafa/nitro/internal/runtime"
-	"github.com/dcaiafa/nitro/internal/token"
 	"github.com/dcaiafa/nitro/internal/types"
 )
 
@@ -20,14 +19,15 @@ const (
 
 type Context struct {
 	Stack
+	*errlogger.ErrLoggerBase
 
 	emitter *runtime.Emitter
-	errors  []error
 }
 
-func NewContext() *Context {
+func NewContext(l errlogger.ErrLogger) *Context {
 	return &Context{
-		emitter: runtime.NewEmitter(),
+		ErrLoggerBase: errlogger.NewErrLoggerBase(l),
+		emitter:       runtime.NewEmitter(),
 	}
 }
 
@@ -82,18 +82,6 @@ func (s *Context) CurrentScope() *types.Scope {
 
 func (c *Context) Emitter() *runtime.Emitter {
 	return c.emitter
-}
-
-func (c *Context) HasErrors() bool {
-	return len(c.errors) != 0
-}
-
-func (c *Context) Failf(pos token.Pos, msg string, args ...interface{}) {
-	c.errors = append(c.errors, fmt.Errorf(msg, args...))
-}
-
-func (c *Context) Errors() []error {
-	return c.errors
 }
 
 type PassRunner interface {

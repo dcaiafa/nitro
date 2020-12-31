@@ -164,9 +164,12 @@ func_stmt: kFN ID '(' param_list_opt ')'
              stmts_opt
            kEND
            { 
-             fn := &ast.LambdaExpr{FuncParams:$4, Stmts:$6}
-             $$ = &ast.VarDeclStmt{VarName:$2, InitValue:fn}
-             $$.SetPos($1.Pos)
+             fn := &ast.FuncStmt{}
+             fn.Name = $2.Str
+             fn.Params = $4
+             fn.Stmts = $6
+             fn.SetPos($1.Pos)
+             $$ = fn
            }
 
 if_stmt: kIF expr kTHEN

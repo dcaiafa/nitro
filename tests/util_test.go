@@ -51,7 +51,10 @@ func Test2(t *testing.T) {
 	var a = 1
 	a = 2
 	var b = 3
-	print(a, b, a)
+	var c = b
+	var d
+	d = a
+	print(a, b, c, d, a)
 `)
 
 }

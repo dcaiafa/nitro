@@ -1,6 +1,8 @@
 package types
 
-import "log"
+import (
+	"github.com/dcaiafa/nitro/internal/errlogger"
+)
 
 type Scope struct {
 	symbols map[string]Symbol
@@ -16,11 +18,17 @@ func (s *Scope) GetSymbol(name string) Symbol {
 	return s.symbols[name]
 }
 
-func (s *Scope) PutSymbol(sym Symbol) {
+func (s *Scope) PutSymbol(l errlogger.ErrLogger, sym Symbol) bool {
 	if s.symbols[sym.Name()] != nil {
-		log.Panicf("Symbol with name %v already exists", sym.Name())
+		l.Failf(
+			sym.Pos(),
+			"There is already something named %q in the current scope.",
+			sym.Name())
+		l.Detailf(sym.Pos(), "%q was previously declared here.", sym.Name())
+		return false
 	}
 	s.symbols[sym.Name()] = sym
+	return true
 }
 
 type ScopeStack struct {

@@ -8,7 +8,7 @@ import (
 type ExternFn struct {
 	astBase
 
-	Name         string
+	Name     string
 	ExternFn runtime.ExternFn
 
 	sym *types.FuncSymbol
@@ -21,6 +21,8 @@ func (f *ExternFn) RunPass(ctx *Context, pass Pass) {
 		f.sym.SetName(f.Name)
 		f.sym.External = true
 		f.sym.Fn = ctx.Emitter().AddExternalFunc(f.ExternFn)
-		ctx.CurrentScope().PutSymbol(f.sym)
+		if !ctx.CurrentScope().PutSymbol(ctx, f.sym) {
+			return
+		}
 	}
 }
