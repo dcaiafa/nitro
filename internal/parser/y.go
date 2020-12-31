@@ -1084,7 +1084,7 @@ yydefault:
 		yyDollar = yyS[yypt-3 : yypt+1]
 //line parser.y:408
 		{
-			param := &ast.FuncParam{Name: yyDollar[3].tok}
+			param := &ast.FuncParam{Name: yyDollar[3].tok.Str}
 			param.SetPos(yyDollar[3].tok.Pos)
 			yyVAL.asts = append(yyDollar[1].asts, param)
 		}
@@ -1092,7 +1092,7 @@ yydefault:
 		yyDollar = yyS[yypt-1 : yypt+1]
 //line parser.y:414
 		{
-			yyVAL.asts = ast.ASTs{&ast.FuncParam{Name: yyDollar[1].tok}}
+			yyVAL.asts = ast.ASTs{&ast.FuncParam{Name: yyDollar[1].tok.Str}}
 			yyVAL.asts.SetPos(yyDollar[1].tok.Pos)
 		}
 	case 73:

@@ -23,18 +23,9 @@ func (s *SimpleRef) RunPass(ctx *Context, pass Pass) {
 		sym := ctx.FindSymbol(symName)
 		if sym == nil {
 			ctx.Failf(s.Pos(), "Symbol %q not found.", symName)
+			return
 		}
 
-		currentFunc := ctx.CurrentFunc()
-		if sym.Owner() != nil && sym.Owner() != currentFunc {
-			capture := &types.LocalVarSymbol{}
-			capture.SetName(sym.Name())
-			capture.SetOwner(currentFunc)
-			capture.SetPos(sym.Pos())
-
-			currentFunc.Captures = append(currentFunc.Captures, capture)
-			sym = capture
-		}
 		s.sym = sym
 
 	case Emit:

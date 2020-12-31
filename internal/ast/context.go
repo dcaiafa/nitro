@@ -1,8 +1,6 @@
 package ast
 
 import (
-	"reflect"
-
 	"github.com/dcaiafa/nitro/internal/errlogger"
 	"github.com/dcaiafa/nitro/internal/runtime"
 	"github.com/dcaiafa/nitro/internal/types"
@@ -31,18 +29,6 @@ func NewContext(l errlogger.ErrLogger) *Context {
 	}
 }
 
-func (s *Context) Get(outAST *AST) bool {
-	outType := reflect.TypeOf(*outAST)
-	for i := len(s.stack) - 1; i >= 0; i-- {
-		ast := s.stack[i]
-		if reflect.TypeOf(ast).AssignableTo(outType) {
-			*outAST = ast
-			return true
-		}
-	}
-	return false
-}
-
 func (s *Context) Parent() AST {
 	return s.stack[len(s.stack)-1]
 }
@@ -60,11 +46,11 @@ func (s *Context) FindSymbol(symName string) types.Symbol {
 	return nil
 }
 
-func (s *Context) CurrentFunc() *types.FuncSymbol {
+func (s *Context) CurrentFunc() *Func {
 	for i := len(s.stack) - 1; i >= 0; i-- {
 		ast := s.stack[i]
-		if funcAST, ok := ast.(Func); ok {
-			return funcAST.Func()
+		if funcAST, ok := ast.(*Func); ok {
+			return funcAST
 		}
 	}
 	return nil

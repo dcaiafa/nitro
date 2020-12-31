@@ -7,16 +7,13 @@ import (
 type Symbol interface {
 	Name() string
 	SetName(name string)
-	Owner() *FuncSymbol
-	SetOwner(owner *FuncSymbol)
 	Pos() token.Pos
 	SetPos(pos token.Pos)
 }
 
 type baseSymbol struct {
-	name  string
-	owner *FuncSymbol
-	pos   token.Pos
+	name string
+	pos  token.Pos
 }
 
 func (b *baseSymbol) Name() string {
@@ -25,14 +22,6 @@ func (b *baseSymbol) Name() string {
 
 func (b *baseSymbol) SetName(name string) {
 	b.name = name
-}
-
-func (b *baseSymbol) Owner() *FuncSymbol {
-	return b.owner
-}
-
-func (b *baseSymbol) SetOwner(owner *FuncSymbol) {
-	b.owner = owner
 }
 
 func (b *baseSymbol) Pos() token.Pos {

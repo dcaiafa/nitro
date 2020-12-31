@@ -30,10 +30,6 @@ type Scope interface {
 	Scope() *types.Scope
 }
 
-type Func interface {
-	Func() *types.FuncSymbol
-}
-
 type astBase struct {
 	pos token.Pos
 }
@@ -92,15 +88,6 @@ type WhileStmt struct {
 }
 
 func (s *WhileStmt) RunPass(ctx *Context, pass Pass) {
-	panic("not implemented")
-}
-
-type FuncParam struct {
-	astBase
-	Name token.Token
-}
-
-func (s *FuncParam) RunPass(ctx *Context, pass Pass) {
 	panic("not implemented")
 }
 

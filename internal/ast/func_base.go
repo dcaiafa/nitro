@@ -5,40 +5,42 @@ import (
 	"github.com/dcaiafa/nitro/internal/types"
 )
 
-type funcBase struct {
+type Func struct {
 	astBase
 
-	Name  string
-	Stmts ASTs
+	Name   string
+	Params ASTs
+	Stmts  ASTs
 
-	sym *types.FuncSymbol
+	Sym *types.FuncSymbol
 }
 
-func (a *funcBase) RunPass(ctx *Context, pass Pass) {
+func (a *Func) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case CreateAndResolveNames:
-		a.sym = &types.FuncSymbol{}
-		a.sym.SetName(a.Name)
-		a.sym.SetPos(a.Pos())
-		a.sym.Scope = types.NewScope()
-		a.sym.Fn = ctx.Emitter().NewFn()
-		if !ctx.CurrentScope().PutSymbol(ctx, a.sym) {
+		a.Sym = &types.FuncSymbol{}
+		a.Sym.SetName(a.Name)
+		a.Sym.SetPos(a.Pos())
+		a.Sym.Scope = types.NewScope()
+		a.Sym.Fn = ctx.Emitter().NewFn()
+		if !ctx.CurrentScope().PutSymbol(ctx, a.Sym) {
 			return
 		}
 
 	case Emit:
 		emitter := ctx.Emitter()
-		emitter.PushFn(a.sym.Fn)
-		emitter.Emit(runtime.OpInitCallFrame, uint16(len(a.sym.Locals)), 0)
+		emitter.PushFn(a.Sym.Fn)
+		emitter.Emit(runtime.OpInitCallFrame, uint16(len(a.Sym.Locals)), 0)
 	}
 
 	ctx.Push(a)
+	a.Params.RunPass(ctx, pass)
 	a.Stmts.RunPass(ctx, pass)
 	ctx.Pop()
 
 	switch pass {
 	case CreateAndResolveNames:
-		for i, local := range a.sym.Locals {
+		for i, local := range a.Sym.Locals {
 			local.Local = i
 		}
 
@@ -56,10 +58,10 @@ func (a *funcBase) RunPass(ctx *Context, pass Pass) {
 	}
 }
 
-func (a *funcBase) Scope() *types.Scope {
-	return a.sym.Scope
+func (a *Func) Scope() *types.Scope {
+	return a.Sym.Scope
 }
 
-func (a *funcBase) Func() *types.FuncSymbol {
-	return a.sym
+func (a *Func) Func() *types.FuncSymbol {
+	return a.Sym
 }

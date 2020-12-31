@@ -1,13 +1,8 @@
 package ast
 
 type FuncStmt struct {
-	funcBase
-
-	Name   string
-	Params ASTs
-	Stmts  ASTs
+	Func
 }
 
 func (a *FuncStmt) RunPass(ctx *Context, pass Pass) {
-
 }

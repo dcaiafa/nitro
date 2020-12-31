@@ -11,7 +11,7 @@ type VarDeclStmt struct {
 	VarName   token.Token
 	InitValue Expr
 
-	sym *types.LocalVarSymbol
+	Sym *types.LocalVarSymbol
 }
 
 func (s *VarDeclStmt) RunPass(ctx *Context, pass Pass) {
@@ -19,20 +19,20 @@ func (s *VarDeclStmt) RunPass(ctx *Context, pass Pass) {
 	case CreateAndResolveNames:
 		symName := s.VarName.Str
 
-		owner := ctx.CurrentFunc()
-		s.sym = &types.LocalVarSymbol{}
-		s.sym.SetName(symName)
-		s.sym.SetOwner(owner)
-		s.sym.SetPos(s.Pos())
-		if !ctx.CurrentScope().PutSymbol(ctx, s.sym) {
+		s.Sym = &types.LocalVarSymbol{}
+		s.Sym.SetName(symName)
+		s.Sym.SetPos(s.Pos())
+		if !ctx.CurrentScope().PutSymbol(ctx, s.Sym) {
 			return
 		}
-		owner.Locals = append(owner.Locals, s.sym)
+
+		fn := ctx.CurrentFunc().Sym
+		fn.Locals = append(fn.Locals, s.Sym)
 
 	case Emit:
 		if s.InitValue != nil {
 			emitter := ctx.Emitter()
-			emitter.Emit(runtime.OpPushLocalRef, uint16(s.sym.Local), 0)
+			emitter.Emit(runtime.OpPushLocalRef, uint16(s.Sym.Local), 0)
 		}
 	}
 
@@ -46,7 +46,7 @@ func (s *VarDeclStmt) RunPass(ctx *Context, pass Pass) {
 	case Emit:
 		if s.InitValue != nil {
 			emitter := ctx.Emitter()
-			emitter.Emit(runtime.OpStore, uint16(s.sym.Local), 0)
+			emitter.Emit(runtime.OpStore, uint16(s.Sym.Local), 0)
 		}
 	}
 }

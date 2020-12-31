@@ -6,7 +6,7 @@ import (
 )
 
 type Main struct {
-	funcBase
+	Func
 
 	globalScope *types.Scope
 	externalFns ASTs
@@ -32,6 +32,6 @@ func (m *Main) RunPass(ctx *Context, pass Pass) {
 
 	ctx.Push(m)
 	m.externalFns.RunPass(ctx, pass)
-	m.funcBase.RunPass(ctx, pass)
+	m.Func.RunPass(ctx, pass)
 	ctx.Pop()
 }

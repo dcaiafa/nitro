@@ -406,13 +406,13 @@ param_list_opt: param_list
 
 param_list: param_list ',' ID
             {
-              param := &ast.FuncParam{Name:$3}
+              param := &ast.FuncParam{Name:$3.Str}
               param.SetPos($3.Pos)
               $$ = append($1, param)
             }
           | ID
             {
-              $$ = ast.ASTs{&ast.FuncParam{Name:$1}}
+              $$ = ast.ASTs{&ast.FuncParam{Name:$1.Str}}
               $$.SetPos($1.Pos)
             }
 
