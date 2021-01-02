@@ -19,11 +19,11 @@ type Pos = token.Pos
 type DefaultErrLogger struct{}
 
 func (l *DefaultErrLogger) Failf(pos Pos, msg string, args ...interface{}) {
-	fmt.Fprintf(os.Stderr, pos.String()+": "+msg, args...)
+	fmt.Fprintf(os.Stderr, pos.String()+": "+msg+"\n", args...)
 }
 
 func (l *DefaultErrLogger) Detailf(pos Pos, msg string, args ...interface{}) {
-	fmt.Fprintf(os.Stderr, pos.String()+": "+msg, args...)
+	fmt.Fprintf(os.Stderr, pos.String()+": "+msg+"\n", args...)
 }
 
 type FileSystem interface {

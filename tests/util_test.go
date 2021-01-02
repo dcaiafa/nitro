@@ -33,12 +33,12 @@ func Run(t *testing.T, prog string) {
 
 	compiled, err := compiler.Compile("main")
 	if err != nil {
-		t.Error(err.Error())
+		t.Fatal(err.Error())
 	}
 
 	err = nitro.Run(context.Background(), compiled)
 	if err != nil {
-		t.Error(err.Error())
+		t.Fatal(err.Error())
 	}
 }
 
@@ -72,6 +72,16 @@ func Test4(t *testing.T) {
 	Run(t, `
 		fn foo(a, b) 
 			print(b, a)
+		end
+		var a = 2
+		foo(1, a)
+`)
+}
+
+func Test5(t *testing.T) {
+	Run(t, `
+		fn foo(a, b) 
+			print(c, a)
 		end
 		var a = 2
 		foo(1, a)

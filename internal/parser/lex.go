@@ -70,7 +70,6 @@ func (l *lex) scan(lval *yySymType) int {
 		if r == 0 {
 			return 0
 		}
-		l.col++
 		if isSpace(r) {
 			continue
 		}
@@ -259,11 +258,13 @@ func (l *lex) read() rune {
 	if err != nil {
 		return 0
 	}
+	l.col++
 	return r
 }
 
 func (l *lex) unread() {
 	l.input.UnreadRune()
+	l.col--
 }
 
 func (l *lex) Error(s string) {
