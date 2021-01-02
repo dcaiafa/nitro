@@ -24,11 +24,11 @@ func (l *ErrLoggerBase) Failf(pos token.Pos, msg string, args ...interface{}) {
 	if l.err == nil {
 		l.err = fmt.Errorf(pos.String()+": "+msg, args...)
 	}
-	l.Failf(pos, msg, args...)
+	l.l.Failf(pos, msg, args...)
 }
 
 func (l *ErrLoggerBase) Detailf(pos token.Pos, msg string, args ...interface{}) {
-	l.Detailf(pos, msg, args...)
+	l.l.Detailf(pos, msg, args...)
 }
 
 func (l *ErrLoggerBase) Error() error {

@@ -17,6 +17,12 @@ func (a *FuncCall) RunPass(ctx *Context, pass Pass) {
 	ctx.Pop()
 
 	if pass == Emit {
-		ctx.Emitter().Emit(runtime.OpCall, uint16(len(a.Args)), 0)
+		retN := 0
+		switch ctx.Parent().(type) {
+		case Expr:
+			retN = 1
+		}
+
+		ctx.Emitter().Emit(runtime.OpCall, uint16(len(a.Args)), byte(retN))
 	}
 }

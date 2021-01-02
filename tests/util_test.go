@@ -56,5 +56,24 @@ func Test2(t *testing.T) {
 	d = a
 	print(a, b, c, d, a)
 `)
+}
 
+func Test3(t *testing.T) {
+	Run(t, `
+		fn foo(a) 
+		  var b = a
+    	return b
+		end
+		print(foo(1))
+`)
+}
+
+func Test4(t *testing.T) {
+	Run(t, `
+		fn foo(a, b) 
+			print(b, a)
+		end
+		var a = 2
+		foo(1, a)
+`)
 }

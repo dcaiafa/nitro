@@ -36,8 +36,9 @@ type FuncSymbol struct {
 	baseSymbol
 
 	Captures []Symbol
-	Params   []Symbol
+	Params   []*ParamSymbol
 	Locals   []*LocalVarSymbol
+	ClosureN int
 	External bool
 	Fn       int
 
@@ -63,4 +64,6 @@ type CaptureSymbol struct {
 
 type ParamSymbol struct {
 	baseSymbol
+
+	Arg int
 }

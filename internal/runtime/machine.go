@@ -14,6 +14,8 @@ const (
 	OpPushInt
 	OpPushLocal
 	OpPushLocalRef
+	OpPushArg
+	OpPushArgRef
 	OpRet
 	OpStore
 	OpInitCallFrame
@@ -42,10 +44,11 @@ func (m *Machine) Run(ctx context.Context, p *Program) error {
 
 func (m *Machine) run(ctx context.Context) error {
 	var (
-		ip     = 0
-		instrs = m.program.fns[0].instrs
-		f      = m.callFrameFactory.NewCallFrame()
+		ip = 0
+		f  = m.callFrameFactory.NewCallFrame()
 	)
+
+	f.Instrs = m.program.fns[0].instrs
 
 	push := func(v Value) {
 		f.Stack = append(f.Stack, v)
@@ -70,10 +73,8 @@ func (m *Machine) run(ctx context.Context) error {
 		return r
 	}
 
-	m.callStack = append(m.callStack, f)
-
 	for {
-		instr := instrs[ip]
+		instr := f.Instrs[ip]
 		switch instr.Op {
 		case OpNop:
 
@@ -97,14 +98,13 @@ func (m *Machine) run(ctx context.Context) error {
 				f.IP = ip
 				m.callStack = append(m.callStack, f)
 
-				f = &CallFrame{
-					Closure: closure,
-					ExpRetN: expRetN,
-					Args:    args,
-				}
+				f = m.callFrameFactory.NewCallFrame()
+				f.Instrs = m.program.fns[closure.Fn].instrs
+				f.ExpRetN = expRetN
+				f.Args = args
 
-				instrs = m.program.fns[closure.Fn].instrs
-				ip = 0
+				// ip will be 0 after incrementing.
+				ip = -1
 			}
 
 		case OpMakeClosure:
@@ -131,17 +131,23 @@ func (m *Machine) run(ctx context.Context) error {
 		case OpPushLocalRef:
 			push(&f.Locals[int(instr.Operand1)])
 
+		case OpPushArg:
+			push(f.Args[int(instr.Operand1)])
+
+		case OpPushArgRef:
+			push(&f.Args[int(instr.Operand1)])
+
 		case OpRet:
 			if f.ExpRetN > len(f.Stack) {
 				return fmt.Errorf("error")
 			}
 			rets := f.Stack[:f.ExpRetN]
-			top := len(m.callStack) - 1
-			m.callStack = m.callStack[:top]
-			if top == 0 {
+			if len(m.callStack) == 0 {
 				return nil
 			}
-			f = m.callStack[top]
+
+			f = m.callStack[len(m.callStack)-1]
+			m.callStack = m.callStack[:len(m.callStack)-1]
 			f.Stack = append(f.Stack, rets...)
 			ip = f.IP
 

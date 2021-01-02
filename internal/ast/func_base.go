@@ -43,6 +43,9 @@ func (a *Func) RunPass(ctx *Context, pass Pass) {
 		for i, local := range a.Sym.Locals {
 			local.Local = i
 		}
+		for i, param := range a.Sym.Params {
+			param.Arg = i
+		}
 
 	case Emit:
 		synthRet := len(a.Stmts) == 0

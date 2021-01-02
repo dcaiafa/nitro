@@ -10,8 +10,8 @@ func (f *CallFrameFactory) NewCallFrame() *CallFrame {
 }
 
 type CallFrame struct {
-	Closure *Closure
 	ExpRetN int
+	Instrs  []Instr
 	Args    []Value
 	Locals  []Value
 	Stack   []Value

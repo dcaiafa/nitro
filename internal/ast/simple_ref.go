@@ -44,7 +44,9 @@ func emitSymbolPush(emitter *runtime.Emitter, sym types.Symbol) {
 		emitter.Emit(runtime.OpPushLocal, uint16(sym.Local), 0)
 
 	//case *types.CaptureSymbol:
-	//case *types.ParamSymbol:
+	case *types.ParamSymbol:
+		emitter.Emit(runtime.OpPushArg, uint16(sym.Arg), 0)
+
 	case *types.FuncSymbol:
 		for _, capture := range sym.Captures {
 			emitSymbolPush(emitter, capture)
@@ -68,7 +70,9 @@ func emitSymbolRefPush(emitter *runtime.Emitter, sym types.Symbol) {
 		emitter.Emit(runtime.OpPushLocalRef, uint16(sym.Local), 0)
 
 	//case *types.CaptureSymbol:
-	//case *types.ParamSymbol:
+	case *types.ParamSymbol:
+		emitter.Emit(runtime.OpPushArgRef, uint16(sym.Arg), 0)
+
 	default:
 		panic("not implemented")
 	}

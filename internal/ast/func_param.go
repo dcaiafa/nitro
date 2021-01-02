@@ -17,6 +17,8 @@ func (a *FuncParam) RunPass(ctx *Context, pass Pass) {
 		a.sym.SetName(a.Name)
 		a.sym.SetPos(a.Pos())
 
-		_ = ctx.CurrentFunc().Sym
+		ownerFn := ctx.CurrentFunc()
+		ownerFn.Scope().PutSymbol(ctx, a.sym)
+		ownerFn.Sym.Params = append(ownerFn.Sym.Params, a.sym)
 	}
 }

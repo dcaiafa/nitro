@@ -28,6 +28,7 @@ func (m *Main) Scope() *types.Scope {
 func (m *Main) RunPass(ctx *Context, pass Pass) {
 	if pass == CreateAndResolveNames {
 		m.globalScope = types.NewScope()
+		m.Func.Name = "$main"
 	}
 
 	ctx.Push(m)
