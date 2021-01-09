@@ -3,6 +3,7 @@ package runtime
 import (
 	"context"
 	"fmt"
+	"reflect"
 )
 
 type OpCode byte
@@ -16,6 +17,7 @@ const (
 	OpPushLocalRef
 	OpPushArg
 	OpPushArgRef
+	OpPushExternFn
 	OpRet
 	OpStore
 	OpInitCallFrame
@@ -82,11 +84,34 @@ func (m *Machine) run(ctx context.Context) error {
 			expRetN := int(instr.Operand2)
 			argN := int(instr.Operand1)
 			args := popN(argN)
-			closure := pop().(*Closure)
 
-			if closure.External {
-				extFn := m.program.extFns[closure.Fn]
-				rets, err := extFn(ctx, args)
+			switch callable := pop().(type) {
+			case *Closure:
+				f.IP = ip
+				m.callStack = append(m.callStack, f)
+
+				f = m.callFrameFactory.NewCallFrame()
+				f.Instrs = callable.Fn.instrs
+				f.ExpRetN = expRetN
+				f.Args = args
+
+				// ip will be 0 after incrementing.
+				ip = -1
+
+			case *Fn:
+				f.IP = ip
+				m.callStack = append(m.callStack, f)
+
+				f = m.callFrameFactory.NewCallFrame()
+				f.Instrs = callable.instrs
+				f.ExpRetN = expRetN
+				f.Args = args
+
+				// ip will be 0 after incrementing.
+				ip = -1
+
+			case ExternFn:
+				rets, err := callable(ctx, args)
 				if err != nil {
 					return err
 				}
@@ -94,30 +119,17 @@ func (m *Machine) run(ctx context.Context) error {
 					return fmt.Errorf("expected at least %v returned values", expRetN)
 				}
 				f.Stack = append(f.Stack, rets[:expRetN]...)
-			} else {
-				f.IP = ip
-				m.callStack = append(m.callStack, f)
 
-				f = m.callFrameFactory.NewCallFrame()
-				f.Instrs = m.program.fns[closure.Fn].instrs
-				f.ExpRetN = expRetN
-				f.Args = args
-
-				// ip will be 0 after incrementing.
-				ip = -1
+			default:
+				return fmt.Errorf("cannot call type %q", reflect.TypeOf(callable))
 			}
 
 		case OpMakeClosure:
 			capN := int(instr.Operand2)
 			fn := int(instr.Operand1)
-			external := fn&0x8000 != 0
-			if external {
-				fn &= 0x7FFF
-			}
 			caps := vcopy(popN(capN))
 			closure := &Closure{
-				External: external,
-				Fn:       int(fn),
+				Fn:       &m.program.fns[fn],
 				Captures: caps,
 			}
 			push(closure)
@@ -136,6 +148,9 @@ func (m *Machine) run(ctx context.Context) error {
 
 		case OpPushArgRef:
 			push(&f.Args[int(instr.Operand1)])
+
+		case OpPushExternFn:
+			push(m.program.extFns[int(instr.Operand1)])
 
 		case OpRet:
 			if f.ExpRetN > len(f.Stack) {

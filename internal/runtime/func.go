@@ -1,18 +1,9 @@
 package runtime
 
-import "context"
-
-type ExternFn func(
-	ctx context.Context, args []Value) ([]Value, error)
-
 type Emitter struct {
 	fns     []Fn
 	extFns  []ExternFn
 	fnStack []*Fn
-}
-
-type Fn struct {
-	instrs []Instr
 }
 
 func NewEmitter() *Emitter {

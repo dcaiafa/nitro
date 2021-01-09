@@ -77,13 +77,3 @@ func Test4(t *testing.T) {
 		foo(1, a)
 `)
 }
-
-func Test5(t *testing.T) {
-	Run(t, `
-		fn foo(a, b) 
-			print(c, a)
-		end
-		var a = 2
-		foo(1, a)
-`)
-}

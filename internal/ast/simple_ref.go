@@ -48,16 +48,11 @@ func emitSymbolPush(emitter *runtime.Emitter, sym types.Symbol) {
 		emitter.Emit(runtime.OpPushArg, uint16(sym.Arg), 0)
 
 	case *types.FuncSymbol:
-		for _, capture := range sym.Captures {
-			emitSymbolPush(emitter, capture)
-		}
-
-		capN := byte(len(sym.Captures))
-		fn := uint16(sym.Fn)
 		if sym.External {
-			fn |= 1 << 15
+			emitter.Emit(runtime.OpPushExternFn, uint16(sym.Fn), 0)
+		} else {
+			panic("not implemented")
 		}
-		emitter.Emit(runtime.OpMakeClosure, fn, capN)
 
 	default:
 		panic("not implemented")
