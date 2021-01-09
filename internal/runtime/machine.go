@@ -18,6 +18,7 @@ const (
 	OpPushArg
 	OpPushArgRef
 	OpPushExternFn
+	OpPushLiteral
 	OpRet
 	OpStore
 	OpInitCallFrame
@@ -151,6 +152,9 @@ func (m *Machine) run(ctx context.Context) error {
 
 		case OpPushExternFn:
 			push(m.program.extFns[int(instr.Operand1)])
+
+		case OpPushLiteral:
+			push(m.program.literals[int(instr.Operand1)])
 
 		case OpRet:
 			if f.ExpRetN > len(f.Stack) {

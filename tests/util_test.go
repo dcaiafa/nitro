@@ -50,11 +50,11 @@ func Test2(t *testing.T) {
 	Run(t, `
 	var a = 1
 	a = 2
-	var b = 3
+	var b = "foobar"
 	var c = b
 	var d
-	d = a
-	print(a, b, c, d, a)
+	d = "foobar"
+	print(a, b, c, d, a, "blah")
 `)
 }
 

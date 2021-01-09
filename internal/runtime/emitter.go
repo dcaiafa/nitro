@@ -1,13 +1,18 @@
 package runtime
 
 type Emitter struct {
-	fns     []Fn
-	extFns  []ExternFn
-	fnStack []*Fn
+	fnStack   []*Fn
+	stringMap map[string]int
+
+	fns      []Fn
+	extFns   []ExternFn
+	literals []Value
 }
 
 func NewEmitter() *Emitter {
-	return &Emitter{}
+	return &Emitter{
+		stringMap: make(map[string]int),
+	}
 }
 
 func (e *Emitter) NewFn() int {
@@ -41,9 +46,24 @@ func (e *Emitter) AddExternalFunc(fn ExternFn) int {
 	return len(e.extFns) - 1
 }
 
+func (e *Emitter) AddString(s string) int {
+	n, ok := e.stringMap[s]
+	if !ok {
+		n = e.AddLiteral(s)
+		e.stringMap[s] = n
+	}
+	return n
+}
+
+func (e *Emitter) AddLiteral(v Value) int {
+	e.literals = append(e.literals, v)
+	return len(e.literals) - 1
+}
+
 func (e *Emitter) ToProgram() *Program {
 	return &Program{
-		fns:    e.fns,
-		extFns: e.extFns,
+		fns:      e.fns,
+		extFns:   e.extFns,
+		literals: e.literals,
 	}
 }
