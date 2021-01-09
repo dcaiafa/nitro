@@ -51,7 +51,8 @@ func NewLocations(strings *Strings) *Locations {
 }
 
 type Program struct {
-	fns     []Fn
-	strings []string
-	extFns  []ExternFn
+	fns      []Fn
+	strings  []string
+	literals []Value
+	extFns   []ExternFn
 }
