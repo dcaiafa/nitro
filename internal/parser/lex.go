@@ -211,6 +211,8 @@ func (l *lex) scanQuotedString(lval *yySymType) int {
 }
 
 func (l *lex) scanNumber(lval *yySymType) int {
+	isFloat := false
+
 	l.buf.Reset()
 	l.buf.WriteRune(l.read())
 
@@ -224,6 +226,7 @@ func (l *lex) scanNumber(lval *yySymType) int {
 	}
 
 	if r == '.' {
+		isFloat = true
 		l.buf.WriteRune(r)
 		r = l.read()
 		if !isNumber(r) {
@@ -242,13 +245,21 @@ func (l *lex) scanNumber(lval *yySymType) int {
 
 	l.unread()
 
-	var err error
-	lval.tok.Num, err = strconv.ParseFloat(l.buf.String(), 64)
-	if err != nil {
-		return LEXERR
+	if isFloat {
+		var err error
+		lval.tok.Float, err = strconv.ParseFloat(l.buf.String(), 64)
+		if err != nil {
+			return LEXERR
+		}
+		lval.tok.Type = token.Float
+	} else {
+		var err error
+		lval.tok.Int, err = strconv.ParseInt(l.buf.String(), 10, 64)
+		if err != nil {
+			return LEXERR
+		}
+		lval.tok.Type = token.Int
 	}
-
-	lval.tok.Type = token.Number
 
 	return NUMBER
 }

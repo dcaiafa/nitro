@@ -5,7 +5,8 @@ import "fmt"
 type Type int
 
 const (
-	Number Type = iota
+	Int Type = iota
+	Float
 	String
 	Bool
 	Keyword
@@ -23,9 +24,10 @@ func (p *Pos) String() string {
 }
 
 type Token struct {
-	Pos  Pos
-	Type Type
-	Str  string
-	Num  float64
-	Bool bool
+	Pos   Pos
+	Type  Type
+	Str   string
+	Int   int64
+	Float float64
+	Bool  bool
 }
