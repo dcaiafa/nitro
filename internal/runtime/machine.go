@@ -6,6 +6,19 @@ import (
 	"reflect"
 )
 
+type BinOp byte
+
+const (
+	BinAdd BinOp = iota
+	BinSub
+	BinMult
+	BinDiv
+	BinLT
+	BinLE
+	BinGT
+	BinGE
+)
+
 type OpCode byte
 
 const (
@@ -19,6 +32,7 @@ const (
 	OpPushArgRef
 	OpPushExternFn
 	OpPushLiteral
+	OpBinOp
 	OpRet
 	OpStore
 	OpInitCallFrame
@@ -156,6 +170,16 @@ func (m *Machine) run(ctx context.Context) error {
 		case OpPushLiteral:
 			push(m.program.literals[int(instr.Operand1)])
 
+		case OpBinOp:
+			operand2 := pop()
+			operand1 := pop()
+			op := BinOp(instr.Operand1)
+			res, err := EvalBinOp(op, operand1, operand2)
+			if err != nil {
+				return err
+			}
+			push(res)
+
 		case OpRet:
 			if f.ExpRetN > len(f.Stack) {
 				return fmt.Errorf("error")
@@ -184,5 +208,69 @@ func (m *Machine) run(ctx context.Context) error {
 		}
 
 		ip++
+	}
+}
+
+func EvalBinOp(op BinOp, operand1, operand2 Value) (Value, error) {
+	switch operand1 := operand1.(type) {
+	case int64:
+		switch operand2 := operand2.(type) {
+		case int64:
+			return evalBinOpInt(op, operand1, operand2)
+		case float64:
+			return evalBinOpFloat(op, float64(operand1), operand2)
+		}
+		//case float64:
+		//case string:
+	}
+
+	return nil, fmt.Errorf(
+		"could not evaluate binary expression: type %v is incompatible with type %v",
+		reflect.TypeOf(operand1), reflect.TypeOf(operand2))
+}
+
+func evalBinOpInt(op BinOp, operand1, operand2 int64) (Value, error) {
+	switch op {
+	case BinAdd:
+		return operand1 + operand2, nil
+	case BinSub:
+		return operand1 - operand2, nil
+	case BinMult:
+		return operand1 * operand2, nil
+	case BinDiv:
+		return operand1 / operand2, nil
+	case BinLT:
+		return operand1 < operand2, nil
+	case BinLE:
+		return operand1 <= operand2, nil
+	case BinGT:
+		return operand1 > operand2, nil
+	case BinGE:
+		return operand1 >= operand2, nil
+	default:
+		panic("invalid BinOp")
+	}
+}
+
+func evalBinOpFloat(op BinOp, operand1, operand2 float64) (Value, error) {
+	switch op {
+	case BinAdd:
+		return operand1 + operand2, nil
+	case BinSub:
+		return operand1 - operand2, nil
+	case BinMult:
+		return operand1 * operand2, nil
+	case BinDiv:
+		return operand1 / operand2, nil
+	case BinLT:
+		return operand1 < operand2, nil
+	case BinLE:
+		return operand1 <= operand2, nil
+	case BinGT:
+		return operand1 > operand2, nil
+	case BinGE:
+		return operand1 >= operand2, nil
+	default:
+		panic("invalid BinOp")
 	}
 }

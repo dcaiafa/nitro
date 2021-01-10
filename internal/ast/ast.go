@@ -132,37 +132,6 @@ func (s *ForVar) RunPass(ctx *Context, pass Pass) {
 	panic("not implemented")
 }
 
-type Operator int
-
-const (
-	OpPlus Operator = iota
-	OpMinus
-	OpMult
-	OpDiv
-	OpLT
-	OpLE
-	OpGT
-	OpGE
-	OpEq
-	OpNE
-	OpAnd
-	OpOr
-	OpNot
-)
-
-type BinaryExpr struct {
-	astBase
-	Left  Expr
-	Op    Operator
-	Right Expr
-}
-
-func (s *BinaryExpr) isExpr() {}
-
-func (s *BinaryExpr) RunPass(ctx *Context, pass Pass) {
-	panic("not implemented")
-}
-
 type UnaryExpr struct {
 	astBase
 	Term Expr

@@ -77,3 +77,12 @@ func Test4(t *testing.T) {
 		foo(1, a)
 `)
 }
+
+func Test5(t *testing.T) {
+	Run(t, `
+		print(1 + 2)
+		print(1 < 2)
+		print(1000000 < 1000000)
+		print(1000000 <= 1000000)
+		`)
+}
