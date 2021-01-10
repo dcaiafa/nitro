@@ -24,7 +24,7 @@ func (a *LiteralExpr) RunPass(ctx *Context, pass Pass) {
 			if 0 <= a.Val.Num && a.Val.Num <= math.MaxUint16 {
 				emitter.Emit(runtime.OpPushInt, uint16(a.Val.Num), 0)
 			} else {
-				literal := emitter.AddLiteral(int64(a.Val.Num))
+				literal := emitter.AddLiteral(runtime.Int(a.Val.Num))
 				emitter.Emit(runtime.OpPushLiteral, uint16(literal), 0)
 			}
 

@@ -150,19 +150,19 @@ func (m *Machine) run(ctx context.Context) error {
 			push(closure)
 
 		case OpPushInt:
-			push(int64(instr.Operand1))
+			push(Int(instr.Operand1))
 
 		case OpPushLocal:
 			push(f.Locals[int(instr.Operand1)])
 
 		case OpPushLocalRef:
-			push(&f.Locals[int(instr.Operand1)])
+			push(ValueRef{&f.Locals[int(instr.Operand1)]})
 
 		case OpPushArg:
 			push(f.Args[int(instr.Operand1)])
 
 		case OpPushArgRef:
-			push(&f.Args[int(instr.Operand1)])
+			push(ValueRef{&f.Args[int(instr.Operand1)]})
 
 		case OpPushExternFn:
 			push(m.program.extFns[int(instr.Operand1)])
@@ -196,8 +196,8 @@ func (m *Machine) run(ctx context.Context) error {
 
 		case OpStore:
 			val := pop()
-			rval := pop().(*Value)
-			*rval = val
+			rval := pop().(ValueRef)
+			*rval.Ref = val
 
 		case OpInitCallFrame:
 			localN := instr.Operand1
@@ -213,12 +213,12 @@ func (m *Machine) run(ctx context.Context) error {
 
 func EvalBinOp(op BinOp, operand1, operand2 Value) (Value, error) {
 	switch operand1 := operand1.(type) {
-	case int64:
+	case Int:
 		switch operand2 := operand2.(type) {
-		case int64:
+		case Int:
 			return evalBinOpInt(op, operand1, operand2)
-		case float64:
-			return evalBinOpFloat(op, float64(operand1), operand2)
+		case Float:
+			return evalBinOpFloat(op, Float(operand1), operand2)
 		}
 		//case float64:
 		//case string:
@@ -229,7 +229,7 @@ func EvalBinOp(op BinOp, operand1, operand2 Value) (Value, error) {
 		reflect.TypeOf(operand1), reflect.TypeOf(operand2))
 }
 
-func evalBinOpInt(op BinOp, operand1, operand2 int64) (Value, error) {
+func evalBinOpInt(op BinOp, operand1, operand2 Int) (Value, error) {
 	switch op {
 	case BinAdd:
 		return operand1 + operand2, nil
@@ -240,19 +240,19 @@ func evalBinOpInt(op BinOp, operand1, operand2 int64) (Value, error) {
 	case BinDiv:
 		return operand1 / operand2, nil
 	case BinLT:
-		return operand1 < operand2, nil
+		return Bool(operand1 < operand2), nil
 	case BinLE:
-		return operand1 <= operand2, nil
+		return Bool(operand1 <= operand2), nil
 	case BinGT:
-		return operand1 > operand2, nil
+		return Bool(operand1 > operand2), nil
 	case BinGE:
-		return operand1 >= operand2, nil
+		return Bool(operand1 >= operand2), nil
 	default:
 		panic("invalid BinOp")
 	}
 }
 
-func evalBinOpFloat(op BinOp, operand1, operand2 float64) (Value, error) {
+func evalBinOpFloat(op BinOp, operand1, operand2 Float) (Value, error) {
 	switch op {
 	case BinAdd:
 		return operand1 + operand2, nil
@@ -263,13 +263,13 @@ func evalBinOpFloat(op BinOp, operand1, operand2 float64) (Value, error) {
 	case BinDiv:
 		return operand1 / operand2, nil
 	case BinLT:
-		return operand1 < operand2, nil
+		return Bool(operand1 < operand2), nil
 	case BinLE:
-		return operand1 <= operand2, nil
+		return Bool(operand1 <= operand2), nil
 	case BinGT:
-		return operand1 > operand2, nil
+		return Bool(operand1 > operand2), nil
 	case BinGE:
-		return operand1 >= operand2, nil
+		return Bool(operand1 >= operand2), nil
 	default:
 		panic("invalid BinOp")
 	}
