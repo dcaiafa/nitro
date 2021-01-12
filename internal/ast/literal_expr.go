@@ -28,6 +28,10 @@ func (a *LiteralExpr) RunPass(ctx *Context, pass Pass) {
 				emitter.Emit(runtime.OpPushLiteral, uint16(literal), 0)
 			}
 
+		case token.Float:
+			literal := emitter.AddLiteral(runtime.Float(a.Val.Float))
+			emitter.Emit(runtime.OpPushLiteral, uint16(literal), 0)
+
 		case token.String:
 			str := emitter.AddString(a.Val.Str)
 			emitter.Emit(runtime.OpPushLiteral, uint16(str), 0)

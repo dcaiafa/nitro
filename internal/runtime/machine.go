@@ -220,7 +220,13 @@ func EvalBinOp(op BinOp, operand1, operand2 Value) (Value, error) {
 		case Float:
 			return evalBinOpFloat(op, Float(operand1), operand2)
 		}
-		//case float64:
+	case Float:
+		switch operand2 := operand2.(type) {
+		case Int:
+			return evalBinOpFloat(op, operand1, Float(operand2))
+		case Float:
+			return evalBinOpFloat(op, operand1, operand2)
+		}
 		//case string:
 	}
 

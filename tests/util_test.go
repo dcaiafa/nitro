@@ -86,3 +86,13 @@ func Test5(t *testing.T) {
 		print(1000000 <= 1000000)
 		`)
 }
+
+func Test6(t *testing.T) {
+	Run(t, `
+		fn add(a, b)
+			return a + b
+		end
+		var a = add(2, 3 * 6)
+		print("hello world", a)
+		`)
+}
