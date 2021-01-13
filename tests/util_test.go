@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/dcaiafa/nitro"
@@ -19,80 +20,68 @@ func (fs MemoryFileSystem) ReadFile(name string) ([]byte, error) {
 	return []byte(data), nil
 }
 
-func Run(t *testing.T, prog string) {
+func valuesToInterface(values []nitro.Value) []interface{} {
+	ivalues := make([]interface{}, len(values))
+	for i, v := range values {
+		ivalues[i] = v
+	}
+	return ivalues
+}
+
+func run(prog string) (output string, err error) {
 	fs := make(MemoryFileSystem)
 	fs["main"] = prog
 
+	outBuilder := &strings.Builder{}
+
 	compiler := nitro.NewCompiler(fs)
+
 	compiler.RegisterExternalFn(
 		"print",
 		func(ctx context.Context, args []nitro.Value) ([]nitro.Value, error) {
-			fmt.Println(args)
+			iargs := valuesToInterface(args)
+			fmt.Fprintln(outBuilder, iargs...)
+			return nil, nil
+		})
+
+	compiler.RegisterExternalFn(
+		"printf",
+		func(ctx context.Context, args []nitro.Value) ([]nitro.Value, error) {
+			msg := args[0].(nitro.String)
+			iargs := valuesToInterface(args[1:])
+			fmt.Fprintf(outBuilder, string(msg)+"\n", iargs...)
 			return nil, nil
 		})
 
 	compiled, err := compiler.Compile("main")
 	if err != nil {
-		t.Fatal(err.Error())
+		return "", err
 	}
 
 	err = nitro.Run(context.Background(), compiled)
 	if err != nil {
-		t.Fatal(err.Error())
+		return "", err
+	}
+
+	output = strings.Trim(outBuilder.String(), "\r\n\t ")
+	return output, nil
+}
+
+func RunO(t *testing.T, prog string, expectedOutput string) {
+	t.Helper()
+	output, err := run(prog)
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
+
+	if output != expectedOutput {
+		t.Fatalf("Expected output:\n%v\nActual:\n%v", expectedOutput, output)
 	}
 }
 
-func Test1(t *testing.T) {
-	Run(t, "print(1, 2, 3)")
-}
-
-func Test2(t *testing.T) {
-	Run(t, `
-	var a = 1
-	a = 2
-	var b = "foobar"
-	var c = b
-	var d
-	d = "foobar"
-	print(a, b, c, d, a, "blah")
-`)
-}
-
-func Test3(t *testing.T) {
-	Run(t, `
-		fn foo(a) 
-		  var b = a
-    	return b
-		end
-		print(foo(1))
-`)
-}
-
-func Test4(t *testing.T) {
-	Run(t, `
-		fn foo(a, b) 
-			print(b, a)
-		end
-		var a = 2
-		foo(1, a)
-`)
-}
-
-func Test5(t *testing.T) {
-	Run(t, `
-		print(1 + 2)
-		print(1 < 2)
-		print(1000000 < 1000000)
-		print(1000000 <= 1000000)
-		`)
-}
-
-func Test6(t *testing.T) {
-	Run(t, `
-		fn add(a, b)
-			return a + b
-		end
-		var a = add(2, 3 * 6)
-		print("hello world", a)
-		`)
+func RunSubO(t *testing.T, name string, prog string, expectedOutput string) {
+	t.Run(name, func(t *testing.T) {
+		t.Helper()
+		RunO(t, prog, expectedOutput)
+	})
 }

@@ -12,9 +12,16 @@ import (
 	"github.com/dcaiafa/nitro/internal/token"
 )
 
-type Value = runtime.Value
-type ErrLogger = errlogger.ErrLogger
-type Pos = token.Pos
+type (
+	Value  = runtime.Value
+	String = runtime.String
+	Int    = runtime.Int
+	Float  = runtime.Float
+	Bool   = runtime.Bool
+
+	ErrLogger = errlogger.ErrLogger
+	Pos       = token.Pos
+)
 
 type DefaultErrLogger struct{}
 
