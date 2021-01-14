@@ -28,9 +28,9 @@ func (m *Main) AddModule(module *Module) {
 	m.modules = append(m.modules, module)
 }
 
-func (m *Main) NewGlobal() *types.GlobalSymbol {
-	g := &types.GlobalSymbol{}
-	g.Global = m.globals
+func (m *Main) NewGlobal() *types.GlobalVarSymbol {
+	g := &types.GlobalVarSymbol{}
+	g.GlobalNdx = m.globals
 	m.globals++
 	return g
 }

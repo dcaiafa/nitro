@@ -17,10 +17,10 @@ func (a *FuncCall) RunPass(ctx *Context, pass Pass) {
 	ctx.Pop()
 
 	if pass == Emit {
-		retN := 0
+		retN := 1
 		switch ctx.Parent().(type) {
-		case Expr:
-			retN = 1
+		case *ExprStmt:
+			retN = 0
 		case *VarDeclStmt, *AssignStmt:
 			// TODO: support multi-value assignments.
 			retN = 1

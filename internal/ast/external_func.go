@@ -20,7 +20,7 @@ func (f *ExternFn) RunPass(ctx *Context, pass Pass) {
 		f.sym = &types.FuncSymbol{}
 		f.sym.SetName(f.Name)
 		f.sym.External = true
-		f.sym.Fn = ctx.Emitter().AddExternalFunc(f.ExternFn)
+		f.sym.FnNdx = ctx.Emitter().AddExternalFunc(f.ExternFn)
 		if !ctx.CurrentScope().PutSymbol(ctx, f.sym) {
 			return
 		}

@@ -52,4 +52,14 @@ func TestFn(t *testing.T) {
 		end
 		print(func(1, 2))
 `, `4`)
+
+	RunSubO(t, "sub_func", `
+		fn X(a, b) 
+			fn Y(x, y)
+      	return x + y
+			end
+			return Y(a+1, b+1)
+		end
+		print(X(1, 2))
+`, `5`)
 }

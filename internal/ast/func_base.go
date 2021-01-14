@@ -53,7 +53,7 @@ func (a *Func) RunPass(ctx *Context, pass Pass) {
 
 func (a *Func) NewLocal() *types.LocalVarSymbol {
 	s := &types.LocalVarSymbol{}
-	s.Local = a.localCount
+	s.LocalNdx = a.localCount
 	a.localCount++
 	return s
 }

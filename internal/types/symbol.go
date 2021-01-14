@@ -34,29 +34,18 @@ func (b *baseSymbol) SetPos(pos token.Pos) {
 
 type FuncSymbol struct {
 	baseSymbol
-
 	External bool
-	Fn       int
-
-	Scope *Scope
+	FnNdx    int
 }
 
-type ExternalFuncSymbol struct {
+type GlobalVarSymbol struct {
 	baseSymbol
-
-	FuncIndex int
-}
-
-type GlobalSymbol struct {
-	baseSymbol
-
-	Global int
+	GlobalNdx int
 }
 
 type LocalVarSymbol struct {
 	baseSymbol
-
-	Local int
+	LocalNdx int
 }
 
 type CaptureSymbol struct {
@@ -66,6 +55,5 @@ type CaptureSymbol struct {
 
 type ParamSymbol struct {
 	baseSymbol
-
 	ParamNdx int
 }
