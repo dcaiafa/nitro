@@ -61,10 +61,13 @@ func (c *Compiler) Compile(filename string) (*runtime.Program, error) {
 		return nil, fmt.Errorf("failed to load %q: %w", filename, err)
 	}
 
-	main, err := parser.Parse(filename, data)
+	module, err := parser.Parse(filename, data)
 	if err != nil {
 		return nil, err
 	}
+
+	main := &ast.Main{}
+	main.AddModule(module)
 
 	for name, extFn := range c.externalFns {
 		main.AddExternalFn(name, extFn)

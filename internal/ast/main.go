@@ -6,10 +6,13 @@ import (
 )
 
 type Main struct {
-	Func
+	astBase
 
-	globalScope *types.Scope
 	externalFns ASTs
+	modules     ASTs
+
+	rootScope *types.Scope
+	globals   int
 }
 
 func (m *Main) AddExternalFn(name string, extFn runtime.ExternFn) {
@@ -21,18 +24,32 @@ func (m *Main) AddExternalFn(name string, extFn runtime.ExternFn) {
 		})
 }
 
+func (m *Main) AddModule(module *Module) {
+	m.modules = append(m.modules, module)
+}
+
+func (m *Main) NewGlobal() *types.GlobalSymbol {
+	g := &types.GlobalSymbol{}
+	g.Global = m.globals
+	m.globals++
+	return g
+}
+
 func (m *Main) Scope() *types.Scope {
-	return m.globalScope
+	return m.rootScope
 }
 
 func (m *Main) RunPass(ctx *Context, pass Pass) {
-	if pass == CreateAndResolveNames {
-		m.globalScope = types.NewScope()
-		m.Func.Name = "$main"
+	switch pass {
+	case CreateAndResolveNames:
+		m.rootScope = types.NewScope()
+
+	case Emit:
+		ctx.Emitter().SetGlobalCount(m.globals)
 	}
 
 	ctx.Push(m)
 	m.externalFns.RunPass(ctx, pass)
-	m.Func.RunPass(ctx, pass)
+	m.modules.RunPass(ctx, pass)
 	ctx.Pop()
 }

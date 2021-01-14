@@ -44,4 +44,12 @@ func TestFn(t *testing.T) {
 		x = func(1, 2)
 		print(x)
 `, `3`)
+
+	RunSubO(t, "local_vars", `
+		fn func(a, b) 
+			var x = a + b
+			return x + 1
+		end
+		print(func(1, 2))
+`, `4`)
 }

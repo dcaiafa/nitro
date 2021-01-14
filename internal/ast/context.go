@@ -56,6 +56,16 @@ func (s *Context) CurrentFunc() *Func {
 	return nil
 }
 
+func (c *Context) Main() *Main {
+	for i := len(c.stack) - 1; i >= 0; i-- {
+		ast := c.stack[i]
+		if mainAST, ok := ast.(*Main); ok {
+			return mainAST
+		}
+	}
+	return nil
+}
+
 func (s *Context) CurrentScope() *types.Scope {
 	for i := len(s.stack) - 1; i >= 0; i-- {
 		ast := s.stack[i]

@@ -40,18 +40,21 @@ func (s *SimpleRef) RunPass(ctx *Context, pass Pass) {
 
 func emitSymbolPush(emitter *runtime.Emitter, sym types.Symbol) {
 	switch sym := sym.(type) {
+	case *types.GlobalSymbol:
+		emitter.Emit(runtime.OpPushGlobal, uint16(sym.Global), 0)
+
 	case *types.LocalVarSymbol:
 		emitter.Emit(runtime.OpPushLocal, uint16(sym.Local), 0)
 
 	//case *types.CaptureSymbol:
 	case *types.ParamSymbol:
-		emitter.Emit(runtime.OpPushArg, uint16(sym.Arg), 0)
+		emitter.Emit(runtime.OpPushArg, uint16(sym.ParamNdx), 0)
 
 	case *types.FuncSymbol:
 		if sym.External {
 			emitter.Emit(runtime.OpPushExternFn, uint16(sym.Fn), 0)
 		} else {
-			panic("not implemented")
+			emitter.Emit(runtime.OpPushFn, uint16(sym.Fn), 0)
 		}
 
 	default:
@@ -61,12 +64,15 @@ func emitSymbolPush(emitter *runtime.Emitter, sym types.Symbol) {
 
 func emitSymbolRefPush(emitter *runtime.Emitter, sym types.Symbol) {
 	switch sym := sym.(type) {
+	case *types.GlobalSymbol:
+		emitter.Emit(runtime.OpPushGlobalRef, uint16(sym.Global), 0)
+
 	case *types.LocalVarSymbol:
 		emitter.Emit(runtime.OpPushLocalRef, uint16(sym.Local), 0)
 
 	//case *types.CaptureSymbol:
 	case *types.ParamSymbol:
-		emitter.Emit(runtime.OpPushArgRef, uint16(sym.Arg), 0)
+		emitter.Emit(runtime.OpPushArgRef, uint16(sym.ParamNdx), 0)
 
 	default:
 		panic("not implemented")

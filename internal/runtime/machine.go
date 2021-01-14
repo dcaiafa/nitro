@@ -26,10 +26,13 @@ const (
 	OpCall
 	OpMakeClosure
 	OpPushInt
+	OpPushGlobal
+	OpPushGlobalRef
 	OpPushLocal
 	OpPushLocalRef
 	OpPushArg
 	OpPushArgRef
+	OpPushFn
 	OpPushExternFn
 	OpPushLiteral
 	OpBinOp
@@ -48,6 +51,7 @@ type Machine struct {
 	callFrameFactory CallFrameFactory
 	callStack        []*CallFrame
 	program          *Program
+	globals          []Value
 }
 
 func NewMachine() *Machine {
@@ -56,6 +60,7 @@ func NewMachine() *Machine {
 
 func (m *Machine) Run(ctx context.Context, p *Program) error {
 	m.program = p
+	m.globals = make([]Value, p.globals)
 	return m.run(ctx)
 }
 
@@ -152,6 +157,12 @@ func (m *Machine) run(ctx context.Context) error {
 		case OpPushInt:
 			push(Int(instr.Operand1))
 
+		case OpPushGlobal:
+			push(m.globals[int(instr.Operand1)])
+
+		case OpPushGlobalRef:
+			push(ValueRef{&m.globals[int(instr.Operand1)]})
+
 		case OpPushLocal:
 			push(f.Locals[int(instr.Operand1)])
 
@@ -163,6 +174,9 @@ func (m *Machine) run(ctx context.Context) error {
 
 		case OpPushArgRef:
 			push(ValueRef{&f.Args[int(instr.Operand1)]})
+
+		case OpPushFn:
+			push(&m.program.fns[int(instr.Operand1)])
 
 		case OpPushExternFn:
 			push(m.program.extFns[int(instr.Operand1)])

@@ -30,7 +30,7 @@ var keywords = map[string]int{
 }
 
 type lex struct {
-	Main *ast.Main
+	Module *ast.Module
 
 	input      *bytes.Reader
 	buf        bytes.Buffer

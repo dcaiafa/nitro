@@ -4,6 +4,7 @@ type Emitter struct {
 	fnStack   []*Fn
 	stringMap map[string]int
 
+	globals  int
 	fns      []Fn
 	extFns   []ExternFn
 	literals []Value
@@ -60,8 +61,13 @@ func (e *Emitter) AddLiteral(v Value) int {
 	return len(e.literals) - 1
 }
 
+func (e *Emitter) SetGlobalCount(n int) {
+	e.globals = n
+}
+
 func (e *Emitter) ToProgram() *Program {
 	return &Program{
+		globals:  e.globals,
 		fns:      e.fns,
 		extFns:   e.extFns,
 		literals: e.literals,

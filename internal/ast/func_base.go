@@ -12,25 +12,23 @@ type Func struct {
 	Params ASTs
 	Stmts  ASTs
 
-	Sym *types.FuncSymbol
+	FnNdx int
+
+	scope      *types.Scope
+	paramCount int
+	localCount int
 }
 
 func (a *Func) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case CreateAndResolveNames:
-		a.Sym = &types.FuncSymbol{}
-		a.Sym.SetName(a.Name)
-		a.Sym.SetPos(a.Pos())
-		a.Sym.Scope = types.NewScope()
-		a.Sym.Fn = ctx.Emitter().NewFn()
-		if !ctx.CurrentScope().PutSymbol(ctx, a.Sym) {
-			return
-		}
+		a.scope = types.NewScope()
+		a.FnNdx = ctx.Emitter().NewFn()
 
 	case Emit:
 		emitter := ctx.Emitter()
-		emitter.PushFn(a.Sym.Fn)
-		emitter.Emit(runtime.OpInitCallFrame, uint16(len(a.Sym.Locals)), 0)
+		emitter.PushFn(a.FnNdx)
+		emitter.Emit(runtime.OpInitCallFrame, uint16(a.localCount), 0)
 	}
 
 	ctx.Push(a)
@@ -39,14 +37,6 @@ func (a *Func) RunPass(ctx *Context, pass Pass) {
 	ctx.Pop()
 
 	switch pass {
-	case CreateAndResolveNames:
-		for i, local := range a.Sym.Locals {
-			local.Local = i
-		}
-		for i, param := range a.Sym.Params {
-			param.Arg = i
-		}
-
 	case Emit:
 		synthRet := len(a.Stmts) == 0
 		if !synthRet {
@@ -61,10 +51,20 @@ func (a *Func) RunPass(ctx *Context, pass Pass) {
 	}
 }
 
-func (a *Func) Scope() *types.Scope {
-	return a.Sym.Scope
+func (a *Func) NewLocal() *types.LocalVarSymbol {
+	s := &types.LocalVarSymbol{}
+	s.Local = a.localCount
+	a.localCount++
+	return s
 }
 
-func (a *Func) Func() *types.FuncSymbol {
-	return a.Sym
+func (a *Func) NewParam() *types.ParamSymbol {
+	s := &types.ParamSymbol{}
+	s.ParamNdx = a.paramCount
+	a.paramCount++
+	return s
+}
+
+func (a *Func) Scope() *types.Scope {
+	return a.scope
 }

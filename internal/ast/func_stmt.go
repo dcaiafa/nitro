@@ -1,8 +1,6 @@
 package ast
 
 import (
-	"fmt"
-
 	"github.com/dcaiafa/nitro/internal/runtime"
 	"github.com/dcaiafa/nitro/internal/types"
 )
@@ -12,25 +10,26 @@ type FuncStmt struct {
 
 	Name string
 
-	Sym *types.LocalVarSymbol
+	Sym types.Symbol
 }
 
 func (a *FuncStmt) RunPass(ctx *Context, pass Pass) {
+	var funcSym *types.FuncSymbol
+
 	switch pass {
 	case CreateAndResolveNames:
-		a.Sym = &types.LocalVarSymbol{}
-		a.Sym.SetName(a.Name)
-		a.Sym.SetPos(a.Pos())
+		parentFn := ctx.CurrentFunc()
 
-		fn := ctx.CurrentFunc().Sym
-		fn.ClosureN++
-		a.Func.Name = fmt.Sprintf("$func%d", fn.ClosureN)
-
-		if !ctx.CurrentScope().PutSymbol(ctx, a.Sym) {
-			return
+		if parentFn != nil {
+			a.Sym = parentFn.NewLocal()
+		} else {
+			funcSym = &types.FuncSymbol{}
+			funcSym.SetName(a.Name)
+			funcSym.SetPos(a.Pos())
+			if !ctx.CurrentScope().PutSymbol(ctx, funcSym) {
+				return
+			}
 		}
-
-		fn.Locals = append(fn.Locals, a.Sym)
 	}
 
 	ctx.Push(a)
@@ -38,10 +37,17 @@ func (a *FuncStmt) RunPass(ctx *Context, pass Pass) {
 	ctx.Pop()
 
 	switch pass {
+	case CreateAndResolveNames:
+		if funcSym != nil {
+			funcSym.Fn = a.Func.FnNdx
+		}
+
 	case Emit:
-		emitter := ctx.Emitter()
-		emitter.Emit(runtime.OpPushLocalRef, uint16(a.Sym.Local), 0)
-		emitter.Emit(runtime.OpMakeClosure, uint16(a.Func.Sym.Fn), 0)
-		emitter.Emit(runtime.OpStore, 0, 0)
+		if localSym, ok := a.Sym.(*types.LocalVarSymbol); ok {
+			emitter := ctx.Emitter()
+			emitter.Emit(runtime.OpPushLocalRef, uint16(localSym.Local), 0)
+			emitter.Emit(runtime.OpMakeClosure, uint16(a.Func.FnNdx), 0)
+			emitter.Emit(runtime.OpStore, 0, 0)
+		}
 	}
 }

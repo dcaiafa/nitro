@@ -11,28 +11,28 @@ type VarDeclStmt struct {
 	VarName   token.Token
 	InitValue Expr
 
-	Sym *types.LocalVarSymbol
+	Sym types.Symbol
 }
 
 func (s *VarDeclStmt) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case CreateAndResolveNames:
-		symName := s.VarName.Str
-
-		s.Sym = &types.LocalVarSymbol{}
-		s.Sym.SetName(symName)
-		s.Sym.SetPos(s.Pos())
-		if !ctx.CurrentScope().PutSymbol(ctx, s.Sym) {
+		s.Sym = AddVariable(ctx, s.VarName.Str, s.Pos())
+		if s.Sym == nil {
 			return
 		}
-
-		fn := ctx.CurrentFunc().Sym
-		fn.Locals = append(fn.Locals, s.Sym)
 
 	case Emit:
 		if s.InitValue != nil {
 			emitter := ctx.Emitter()
-			emitter.Emit(runtime.OpPushLocalRef, uint16(s.Sym.Local), 0)
+
+			switch sym := s.Sym.(type) {
+			case *types.LocalVarSymbol:
+				emitter.Emit(runtime.OpPushLocalRef, uint16(sym.Local), 0)
+
+			case *types.GlobalSymbol:
+				emitter.Emit(runtime.OpPushGlobalRef, uint16(sym.Global), 0)
+			}
 		}
 	}
 
@@ -46,7 +46,7 @@ func (s *VarDeclStmt) RunPass(ctx *Context, pass Pass) {
 	case Emit:
 		if s.InitValue != nil {
 			emitter := ctx.Emitter()
-			emitter.Emit(runtime.OpStore, uint16(s.Sym.Local), 0)
+			emitter.Emit(runtime.OpStore, 0, 0)
 		}
 	}
 }

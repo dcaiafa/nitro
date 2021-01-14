@@ -51,6 +51,7 @@ func NewLocations(strings *Strings) *Locations {
 }
 
 type Program struct {
+	globals  int
 	fns      []Fn
 	extFns   []ExternFn
 	literals []Value

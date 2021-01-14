@@ -13,12 +13,14 @@ type FuncParam struct {
 func (a *FuncParam) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case CreateAndResolveNames:
-		a.sym = &types.ParamSymbol{}
+		parentFn := ctx.CurrentFunc()
+
+		a.sym = parentFn.NewParam()
 		a.sym.SetName(a.Name)
 		a.sym.SetPos(a.Pos())
 
-		ownerFn := ctx.CurrentFunc()
-		ownerFn.Scope().PutSymbol(ctx, a.sym)
-		ownerFn.Sym.Params = append(ownerFn.Sym.Params, a.sym)
+		if !parentFn.Scope().PutSymbol(ctx, a.sym) {
+			return
+		}
 	}
 }
