@@ -73,8 +73,10 @@ func operatorToRuntime(op Operator) runtime.BinOp {
 		return runtime.BinGT
 	case OpGE:
 		return runtime.BinGE
-	//case OpEq:
-	//case OpNE:
+	case OpEq:
+		return runtime.BinEq
+	case OpNE:
+		return runtime.BinNE
 	//case OpAnd:
 	//case OpOr:
 	default:

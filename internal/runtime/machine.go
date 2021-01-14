@@ -17,6 +17,8 @@ const (
 	BinLE
 	BinGT
 	BinGE
+	BinEq
+	BinNE
 )
 
 type OpCode byte
@@ -267,6 +269,10 @@ func evalBinOpInt(op BinOp, operand1, operand2 Int) (Value, error) {
 		return Bool(operand1 > operand2), nil
 	case BinGE:
 		return Bool(operand1 >= operand2), nil
+	case BinEq:
+		return Bool(operand1 == operand2), nil
+	case BinNE:
+		return Bool(operand1 != operand2), nil
 	default:
 		panic("invalid BinOp")
 	}
@@ -290,6 +296,10 @@ func evalBinOpFloat(op BinOp, operand1, operand2 Float) (Value, error) {
 		return Bool(operand1 > operand2), nil
 	case BinGE:
 		return Bool(operand1 >= operand2), nil
+	case BinEq:
+		return Bool(operand1 == operand2), nil
+	case BinNE:
+		return Bool(operand1 != operand2), nil
 	default:
 		panic("invalid BinOp")
 	}
