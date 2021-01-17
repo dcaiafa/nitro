@@ -29,6 +29,12 @@ func NewContext(l errlogger.ErrLogger) *Context {
 	}
 }
 
+func (c *Context) RunPassChild(parent AST, child AST, pass Pass) {
+	c.Push(parent)
+	child.RunPass(c, pass)
+	c.Pop()
+}
+
 func (s *Context) Parent() AST {
 	return s.stack[len(s.stack)-1]
 }

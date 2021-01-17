@@ -815,7 +815,7 @@ yydefault:
 			if yyDollar[6].ast != nil {
 				ifStmt.Blocks = append(ifStmt.Blocks, yyDollar[6].ast)
 			}
-			yyVAL.ast = ifBlock
+			yyVAL.ast = ifStmt
 			yyVAL.ast.SetPos(yyDollar[1].tok.Pos)
 		}
 	case 25:

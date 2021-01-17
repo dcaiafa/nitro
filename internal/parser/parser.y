@@ -186,7 +186,7 @@ if_stmt: kIF expr kTHEN
            if $6 != nil {
              ifStmt.Blocks = append(ifStmt.Blocks, $6)
            }
-           $$ = ifBlock
+           $$ = ifStmt
            $$.SetPos($1.Pos)
          }
 

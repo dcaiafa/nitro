@@ -36,6 +36,13 @@ func (a *LiteralExpr) RunPass(ctx *Context, pass Pass) {
 			str := emitter.AddString(a.Val.Str)
 			emitter.Emit(runtime.OpPushLiteral, uint16(str), 0)
 
+		case token.Bool:
+			var v uint16 = 0
+			if a.Val.Bool {
+				v = 1
+			}
+			emitter.Emit(runtime.OpPushBool, uint16(v), 0)
+
 		default:
 			panic("not implemented")
 		}

@@ -25,9 +25,13 @@ type OpCode byte
 
 const (
 	OpNop OpCode = iota
+	OpJump
+	OpJumpIfTrue
+	OpJumpIfFalse
 	OpCall
 	OpMakeClosure
 	OpPushInt
+	OpPushBool
 	OpPushGlobal
 	OpPushGlobalRef
 	OpPushLocal
@@ -47,6 +51,16 @@ type Instr struct {
 	Op       OpCode
 	Operand2 byte
 	Operand1 uint16
+}
+
+func operandsToWord24(operand1 uint16, operand2 byte) uint32 {
+	return uint32(operand1) | (uint32(operand2) << 16)
+}
+
+func word24ToOperands(word24 uint32) (operand1 uint16, operand2 byte) {
+	operand1 = uint16(word24 & 0xFFFF)
+	operand2 = byte((word24 >> 16) & 0xFF)
+	return operand1, operand2
 }
 
 type Machine struct {
@@ -101,6 +115,21 @@ func (m *Machine) run(ctx context.Context) error {
 		instr := f.Instrs[ip]
 		switch instr.Op {
 		case OpNop:
+
+		case OpJump:
+			ip = int(operandsToWord24(instr.Operand1, instr.Operand2)) - 1
+
+		case OpJumpIfTrue:
+			v := coerceToBool(pop())
+			if v {
+				ip = int(operandsToWord24(instr.Operand1, instr.Operand2)) - 1
+			}
+
+		case OpJumpIfFalse:
+			v := coerceToBool(pop())
+			if !v {
+				ip = int(operandsToWord24(instr.Operand1, instr.Operand2)) - 1
+			}
 
 		case OpCall:
 			expRetN := int(instr.Operand2)
@@ -158,6 +187,9 @@ func (m *Machine) run(ctx context.Context) error {
 
 		case OpPushInt:
 			push(Int(instr.Operand1))
+
+		case OpPushBool:
+			push(Bool(instr.Operand1 != 0))
 
 		case OpPushGlobal:
 			push(m.globals[int(instr.Operand1)])
@@ -302,5 +334,27 @@ func evalBinOpFloat(op BinOp, operand1, operand2 Float) (Value, error) {
 		return Bool(operand1 != operand2), nil
 	default:
 		panic("invalid BinOp")
+	}
+}
+
+func coerceToBool(v Value) bool {
+	if v == nil {
+		return false
+	}
+	switch v := v.(type) {
+	case Bool:
+		return bool(v)
+
+	case Int:
+		return v != 0
+
+	case Float:
+		return v != 0
+
+	case String:
+		return len(v) != 0
+
+	default:
+		return true
 	}
 }

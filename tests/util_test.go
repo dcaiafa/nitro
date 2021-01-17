@@ -69,6 +69,9 @@ func run(prog string) (output string, err error) {
 
 func RunO(t *testing.T, prog string, expectedOutput string) {
 	t.Helper()
+
+	expectedOutput = strings.Trim(expectedOutput, "\r\n\t ")
+
 	output, err := run(prog)
 	if err != nil {
 		t.Fatalf("Unexpected error: %v", err)

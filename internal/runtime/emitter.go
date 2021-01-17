@@ -1,5 +1,11 @@
 package runtime
 
+type Label struct {
+	fn   *Fn
+	addr int
+	refs []int
+}
+
 type Emitter struct {
 	fnStack   []*Fn
 	stringMap map[string]int
@@ -29,6 +35,26 @@ func (e *Emitter) PopFn() {
 	e.fnStack = e.fnStack[:len(e.fnStack)-1]
 }
 
+func (e *Emitter) NewLabel() *Label {
+	return &Label{
+		fn:   e.curFn(),
+		addr: -1,
+	}
+}
+
+func (e *Emitter) AssignLabel(label *Label) {
+	if label.addr != -1 {
+		panic("label already attached")
+	}
+	// The label is placed *after* the last instruction.
+	instrs := e.curFn().instrs
+	label.addr = len(instrs)
+	for _, ref := range label.refs {
+		instr := &instrs[ref]
+		instr.Operand1, instr.Operand2 = word24ToOperands(uint32(label.addr))
+	}
+}
+
 func (e *Emitter) curFn() *Fn {
 	return e.fnStack[len(e.fnStack)-1]
 }
@@ -40,6 +66,22 @@ func (e *Emitter) Emit(op OpCode, operand1 uint16, operand2 byte) {
 		Operand2: operand2,
 		Operand1: operand1,
 	})
+}
+
+func (e *Emitter) EmitJump(op OpCode, label *Label) {
+	if label.addr == -1 {
+		if e.curFn() != label.fn {
+			panic("cannot jump across fns")
+		}
+		e.Emit(op, 0, 0)
+		instrs := e.curFn().instrs
+		lastEmittedInstr := len(instrs) - 1
+		label.refs = append(label.refs, lastEmittedInstr)
+	} else {
+		// TODO: Check that fns are no longer than 2^24-1.
+		operand1, operand2 := word24ToOperands(uint32(label.addr))
+		e.Emit(op, operand1, operand2)
+	}
 }
 
 func (e *Emitter) AddExternalFunc(fn ExternFn) int {
