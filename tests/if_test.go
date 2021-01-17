@@ -94,4 +94,18 @@ after`)
 before
 else
 after`)
+
+	RunSubO(t, "fn", `
+		fn evenOdd(n)
+			if n % 2 == 0 then
+				return "even"
+			else
+				return "odd"
+			end
+		end
+		print(evenOdd(10))
+		print(evenOdd(13))
+`, `
+even
+odd`)
 }

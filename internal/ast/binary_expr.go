@@ -9,6 +9,7 @@ const (
 	OpMinus
 	OpMult
 	OpDiv
+	OpMod
 	OpLT
 	OpLE
 	OpGT
@@ -43,7 +44,7 @@ func (a *BinaryExpr) RunPass(ctx *Context, pass Pass) {
 func (a *BinaryExpr) emit(ctx *Context) {
 	emitter := ctx.Emitter()
 	switch a.Op {
-	case OpPlus, OpMinus, OpMult, OpDiv, OpLT, OpLE, OpGT, OpGE:
+	case OpPlus, OpMinus, OpMult, OpDiv, OpMod, OpLT, OpLE, OpGT, OpGE, OpEq, OpNE:
 		a.Left.RunPass(ctx, Emit)
 		a.Right.RunPass(ctx, Emit)
 		emitter.Emit(runtime.OpBinOp, uint16(operatorToRuntime(a.Op)), 0)
@@ -65,6 +66,8 @@ func operatorToRuntime(op Operator) runtime.BinOp {
 		return runtime.BinMult
 	case OpDiv:
 		return runtime.BinDiv
+	case OpMod:
+		return runtime.BinMod
 	case OpLT:
 		return runtime.BinLT
 	case OpLE:

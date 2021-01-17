@@ -113,7 +113,7 @@ func (l *lex) scan(lval *yySymType) int {
 			l.unread()
 			eolToken = true
 			return l.scanQuotedString(lval)
-		case '|', '+', '-', '*', '/', ';', '(', ',', '[', ':', '.', '{':
+		case '|', '+', '-', '*', '/', '%', ';', '(', ',', '[', ':', '.', '{':
 			return int(r)
 		case ')', ']', '}':
 			eolToken = true

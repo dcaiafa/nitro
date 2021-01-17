@@ -2,6 +2,7 @@ package runtime
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"reflect"
 )
@@ -13,6 +14,7 @@ const (
 	BinSub
 	BinMult
 	BinDiv
+	BinMod
 	BinLT
 	BinLE
 	BinGT
@@ -293,6 +295,8 @@ func evalBinOpInt(op BinOp, operand1, operand2 Int) (Value, error) {
 		return operand1 * operand2, nil
 	case BinDiv:
 		return operand1 / operand2, nil
+	case BinMod:
+		return operand1 % operand2, nil
 	case BinLT:
 		return Bool(operand1 < operand2), nil
 	case BinLE:
@@ -320,6 +324,8 @@ func evalBinOpFloat(op BinOp, operand1, operand2 Float) (Value, error) {
 		return operand1 * operand2, nil
 	case BinDiv:
 		return operand1 / operand2, nil
+	case BinMod:
+		return nil, errors.New("modulo operation not permitted with Float")
 	case BinLT:
 		return Bool(operand1 < operand2), nil
 	case BinLE:

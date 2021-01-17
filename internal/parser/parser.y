@@ -48,7 +48,7 @@ import (
 %left kAND
 %nonassoc '<' LE '>' GE EQ NE
 %left '+' '-'
-%left '*' '/'
+%left '*' '/' '%'
 
 %type <ast> module
 %type <asts> stmts_opt
@@ -282,6 +282,11 @@ expr: unary_expr
     | expr '/' expr
       {
         $$ = &ast.BinaryExpr{Left:$1, Right:$3, Op:ast.OpDiv}
+        $$.SetPos($1.Pos())
+      }
+    | expr '%' expr
+      {
+        $$ = &ast.BinaryExpr{Left:$1, Right:$3, Op:ast.OpMod}
         $$.SetPos($1.Pos())
       }
     | expr '<' expr
