@@ -10,16 +10,16 @@ type FuncParam struct {
 	sym *types.ParamSymbol
 }
 
-func (a *FuncParam) RunPass(ctx *Context, pass Pass) {
+func (p *FuncParam) RunPass(ctx *Context, pass Pass) {
 	switch pass {
-	case CreateAndResolveNames:
+	case Check:
 		parentFn := ctx.CurrentFunc()
 
-		a.sym = parentFn.NewParam()
-		a.sym.SetName(a.Name)
-		a.sym.SetPos(a.Pos())
+		p.sym = parentFn.NewParam()
+		p.sym.SetName(p.Name)
+		p.sym.SetPos(p.Pos())
 
-		if !parentFn.Scope().PutSymbol(ctx, a.sym) {
+		if !parentFn.Scope().PutSymbol(ctx, p.sym) {
 			return
 		}
 	}

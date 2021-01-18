@@ -8,12 +8,12 @@ type FuncCall struct {
 	Args   Exprs
 }
 
-func (s *FuncCall) isExpr() {}
+func (c *FuncCall) isExpr() {}
 
-func (a *FuncCall) RunPass(ctx *Context, pass Pass) {
-	ctx.Push(a)
-	a.Target.RunPass(ctx, pass)
-	a.Args.RunPass(ctx, pass)
+func (c *FuncCall) RunPass(ctx *Context, pass Pass) {
+	ctx.Push(c)
+	c.Target.RunPass(ctx, pass)
+	c.Args.RunPass(ctx, pass)
 	ctx.Pop()
 
 	if pass == Emit {
@@ -26,6 +26,6 @@ func (a *FuncCall) RunPass(ctx *Context, pass Pass) {
 			retN = 1
 		}
 
-		ctx.Emitter().Emit(runtime.OpCall, uint16(len(a.Args)), byte(retN))
+		ctx.Emitter().Emit(runtime.OpCall, uint16(len(c.Args)), byte(retN))
 	}
 }

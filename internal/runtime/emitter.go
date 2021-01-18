@@ -42,7 +42,7 @@ func (e *Emitter) NewLabel() *Label {
 	}
 }
 
-func (e *Emitter) AssignLabel(label *Label) {
+func (e *Emitter) ResolveLabel(label *Label) {
 	if label.addr != -1 {
 		panic("label already attached")
 	}

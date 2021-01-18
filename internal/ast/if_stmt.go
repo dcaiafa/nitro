@@ -19,7 +19,7 @@ func (s *IfStmt) RunPass(ctx *Context, pass Pass) {
 
 	switch pass {
 	case Emit:
-		ctx.Emitter().AssignLabel(s.end)
+		ctx.Emitter().ResolveLabel(s.end)
 	}
 }
 
@@ -55,6 +55,6 @@ func (b *IfBlock) RunPass(ctx *Context, pass Pass) {
 	case Emit:
 		ifStmtEnd := ctx.Parent().(*IfStmt).end
 		ctx.Emitter().EmitJump(runtime.OpJump, ifStmtEnd)
-		ctx.Emitter().AssignLabel(b.end)
+		ctx.Emitter().ResolveLabel(b.end)
 	}
 }

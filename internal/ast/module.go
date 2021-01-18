@@ -20,7 +20,7 @@ func (m *Module) Scope() *types.Scope {
 
 func (m *Module) RunPass(ctx *Context, pass Pass) {
 	switch pass {
-	case CreateAndResolveNames:
+	case Check:
 		m.scope = types.NewScope()
 		m.fn = ctx.Emitter().NewFn()
 

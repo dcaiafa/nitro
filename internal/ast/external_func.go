@@ -16,7 +16,7 @@ type ExternFn struct {
 
 func (f *ExternFn) RunPass(ctx *Context, pass Pass) {
 	switch pass {
-	case CreateAndResolveNames:
+	case Check:
 		f.sym = &types.FuncSymbol{}
 		f.sym.SetName(f.Name)
 		f.sym.External = true

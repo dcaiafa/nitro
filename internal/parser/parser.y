@@ -266,83 +266,83 @@ var_decl_stmt: kVAR ID
 expr: unary_expr
     | expr '+' expr 
       {
-        $$ = &ast.BinaryExpr{Left:$1, Right:$3, Op:ast.OpPlus}
+        $$ = &ast.BinaryExpr{Left:$1, Right:$3, Op:ast.BinOpPlus}
         $$.SetPos($1.Pos())
       }
     | expr '-' expr
       {
-        $$ = &ast.BinaryExpr{Left:$1, Right:$3, Op:ast.OpMinus}
+        $$ = &ast.BinaryExpr{Left:$1, Right:$3, Op:ast.BinOpMinus}
         $$.SetPos($1.Pos())
       }
     | expr '*' expr
       {
-        $$ = &ast.BinaryExpr{Left:$1, Right:$3, Op:ast.OpMult}
+        $$ = &ast.BinaryExpr{Left:$1, Right:$3, Op:ast.BinOpMult}
         $$.SetPos($1.Pos())
       }
     | expr '/' expr
       {
-        $$ = &ast.BinaryExpr{Left:$1, Right:$3, Op:ast.OpDiv}
+        $$ = &ast.BinaryExpr{Left:$1, Right:$3, Op:ast.BinOpDiv}
         $$.SetPos($1.Pos())
       }
     | expr '%' expr
       {
-        $$ = &ast.BinaryExpr{Left:$1, Right:$3, Op:ast.OpMod}
+        $$ = &ast.BinaryExpr{Left:$1, Right:$3, Op:ast.BinOpMod}
         $$.SetPos($1.Pos())
       }
     | expr '<' expr
       {
-        $$ = &ast.BinaryExpr{Left:$1, Right:$3, Op:ast.OpLT}
+        $$ = &ast.BinaryExpr{Left:$1, Right:$3, Op:ast.BinOpLT}
         $$.SetPos($1.Pos())
       }
     | expr LE expr
       {
-        $$ = &ast.BinaryExpr{Left:$1, Right:$3, Op:ast.OpLE}
+        $$ = &ast.BinaryExpr{Left:$1, Right:$3, Op:ast.BinOpLE}
         $$.SetPos($1.Pos())
       }
     | expr '>' expr
       {
-        $$ = &ast.BinaryExpr{Left:$1, Right:$3, Op:ast.OpGT}
+        $$ = &ast.BinaryExpr{Left:$1, Right:$3, Op:ast.BinOpGT}
         $$.SetPos($1.Pos())
       }
     | expr GE expr
       {
-        $$ = &ast.BinaryExpr{Left:$1, Right:$3, Op:ast.OpGE}
+        $$ = &ast.BinaryExpr{Left:$1, Right:$3, Op:ast.BinOpGE}
         $$.SetPos($1.Pos())
       }
     | expr EQ expr
       {
-        $$ = &ast.BinaryExpr{Left:$1, Right:$3, Op:ast.OpEq}
+        $$ = &ast.BinaryExpr{Left:$1, Right:$3, Op:ast.BinOpEq}
         $$.SetPos($1.Pos())
       }
     | expr NE expr
       {
-        $$ = &ast.BinaryExpr{Left:$1, Right:$3, Op:ast.OpNE}
+        $$ = &ast.BinaryExpr{Left:$1, Right:$3, Op:ast.BinOpNE}
         $$.SetPos($1.Pos())
       }
     | expr kAND expr
       {
-        $$ = &ast.AndExpr{Left:$1, Right:$3, Op:ast.OpAnd}
+        $$ = &ast.AndExpr{Left:$1, Right:$3}
         $$.SetPos($1.Pos())
       }
     | expr kOR expr
       {
-        $$ = &ast.OrExpr{Left:$1, Right:$3, Op:ast.OpOr}
+        $$ = &ast.OrExpr{Left:$1, Right:$3}
         $$.SetPos($1.Pos())
       }
 
 unary_expr: kNOT unary_expr
             {
-              $$ = &ast.UnaryExpr{Term:$2, Op:ast.OpNot}
+              $$ = &ast.UnaryExpr{Term:$2, Op:ast.UnaryOpNot}
               $$.SetPos($1.Pos)
             }
           | '+' unary_expr
             {
-              $$ = &ast.UnaryExpr{Term:$2, Op:ast.OpPlus}
+              $$ = &ast.UnaryExpr{Term:$2, Op:ast.UnaryOpPlus}
               $$.SetPos($1.Pos)
             }
           | '-' unary_expr
             {
-              $$ = &ast.UnaryExpr{Term:$2, Op:ast.OpMinus}
+              $$ = &ast.UnaryExpr{Term:$2, Op:ast.UnaryOpMinus}
               $$.SetPos($1.Pos)
             }
           | primary_expr

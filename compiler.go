@@ -74,7 +74,7 @@ func (c *Compiler) Compile(filename string) (*runtime.Program, error) {
 	}
 
 	ctx := ast.NewContext(&DefaultErrLogger{})
-	main.RunPass(ctx, ast.CreateAndResolveNames)
+	main.RunPass(ctx, ast.Check)
 	if ctx.Error() != nil {
 		return nil, ctx.Error()
 	}

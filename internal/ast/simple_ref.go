@@ -13,20 +13,20 @@ type SimpleRef struct {
 	sym types.Symbol
 }
 
-func (s *SimpleRef) isExpr() {}
+func (r *SimpleRef) isExpr() {}
 
-func (s *SimpleRef) RunPass(ctx *Context, pass Pass) {
+func (r *SimpleRef) RunPass(ctx *Context, pass Pass) {
 	switch pass {
-	case CreateAndResolveNames:
-		symName := s.ID.Str
+	case Check:
+		symName := r.ID.Str
 
 		sym := ctx.FindSymbol(symName)
 		if sym == nil {
-			ctx.Failf(s.Pos(), "Symbol %q not found.", symName)
+			ctx.Failf(r.Pos(), "Symbol %q not found.", symName)
 			return
 		}
 
-		s.sym = sym
+		r.sym = sym
 
 	case Emit:
 		emit := emitSymbolPush
@@ -34,7 +34,7 @@ func (s *SimpleRef) RunPass(ctx *Context, pass Pass) {
 		if isLValue {
 			emit = emitSymbolRefPush
 		}
-		emit(ctx.Emitter(), s.sym)
+		emit(ctx.Emitter(), r.sym)
 	}
 }
 

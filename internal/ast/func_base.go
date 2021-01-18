@@ -8,7 +8,6 @@ import (
 type Func struct {
 	astBase
 
-	Name   string
 	Params ASTs
 	Stmts  ASTs
 
@@ -19,28 +18,28 @@ type Func struct {
 	localCount int
 }
 
-func (a *Func) RunPass(ctx *Context, pass Pass) {
+func (f *Func) RunPass(ctx *Context, pass Pass) {
 	switch pass {
-	case CreateAndResolveNames:
-		a.scope = types.NewScope()
-		a.FnNdx = ctx.Emitter().NewFn()
+	case Check:
+		f.scope = types.NewScope()
+		f.FnNdx = ctx.Emitter().NewFn()
 
 	case Emit:
 		emitter := ctx.Emitter()
-		emitter.PushFn(a.FnNdx)
-		emitter.Emit(runtime.OpInitCallFrame, uint16(a.localCount), 0)
+		emitter.PushFn(f.FnNdx)
+		emitter.Emit(runtime.OpInitCallFrame, uint16(f.localCount), 0)
 	}
 
-	ctx.Push(a)
-	a.Params.RunPass(ctx, pass)
-	a.Stmts.RunPass(ctx, pass)
+	ctx.Push(f)
+	f.Params.RunPass(ctx, pass)
+	f.Stmts.RunPass(ctx, pass)
 	ctx.Pop()
 
 	switch pass {
 	case Emit:
-		synthRet := len(a.Stmts) == 0
+		synthRet := len(f.Stmts) == 0
 		if !synthRet {
-			_, hasReturnStmt := a.Stmts[len(a.Stmts)-1].(*ReturnStmt)
+			_, hasReturnStmt := f.Stmts[len(f.Stmts)-1].(*ReturnStmt)
 			synthRet = !hasReturnStmt
 		}
 		if synthRet {
@@ -51,20 +50,20 @@ func (a *Func) RunPass(ctx *Context, pass Pass) {
 	}
 }
 
-func (a *Func) NewLocal() *types.LocalVarSymbol {
+func (f *Func) NewLocal() *types.LocalVarSymbol {
 	s := &types.LocalVarSymbol{}
-	s.LocalNdx = a.localCount
-	a.localCount++
+	s.LocalNdx = f.localCount
+	f.localCount++
 	return s
 }
 
-func (a *Func) NewParam() *types.ParamSymbol {
+func (f *Func) NewParam() *types.ParamSymbol {
 	s := &types.ParamSymbol{}
-	s.ParamNdx = a.paramCount
-	a.paramCount++
+	s.ParamNdx = f.paramCount
+	f.paramCount++
 	return s
 }
 
-func (a *Func) Scope() *types.Scope {
-	return a.scope
+func (f *Func) Scope() *types.Scope {
+	return f.scope
 }

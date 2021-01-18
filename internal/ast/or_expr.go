@@ -5,18 +5,17 @@ import "github.com/dcaiafa/nitro/internal/runtime"
 type OrExpr struct {
 	astBase
 	Left  Expr
-	Op    Operator
 	Right Expr
 }
 
-func (a *OrExpr) isExpr() {}
+func (e *OrExpr) isExpr() {}
 
-func (a *OrExpr) RunPass(ctx *Context, pass Pass) {
+func (e *OrExpr) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Emit:
 	}
 
-	ctx.RunPassChild(a, a.Left, pass)
+	ctx.RunPassChild(e, e.Left, pass)
 
 	var skipLabel *runtime.Label
 	switch pass {
@@ -28,10 +27,10 @@ func (a *OrExpr) RunPass(ctx *Context, pass Pass) {
 		emitter.Emit(runtime.OpPop, 0, 0)
 	}
 
-	ctx.RunPassChild(a, a.Right, pass)
+	ctx.RunPassChild(e, e.Right, pass)
 
 	switch pass {
 	case Emit:
-		ctx.Emitter().AssignLabel(skipLabel)
+		ctx.Emitter().ResolveLabel(skipLabel)
 	}
 }

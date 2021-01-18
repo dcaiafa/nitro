@@ -11,7 +11,7 @@ type Pass int
 const (
 	Print Pass = iota
 
-	CreateAndResolveNames
+	Check
 	Emit
 )
 
@@ -35,13 +35,13 @@ func (c *Context) RunPassChild(parent AST, child AST, pass Pass) {
 	c.Pop()
 }
 
-func (s *Context) Parent() AST {
-	return s.stack[len(s.stack)-1]
+func (c *Context) Parent() AST {
+	return c.stack[len(c.stack)-1]
 }
 
-func (s *Context) FindSymbol(symName string) types.Symbol {
-	for i := len(s.stack) - 1; i >= 0; i-- {
-		ast := s.stack[i]
+func (c *Context) FindSymbol(symName string) types.Symbol {
+	for i := len(c.stack) - 1; i >= 0; i-- {
+		ast := c.stack[i]
 		if scope, ok := ast.(Scope); ok {
 			sym := scope.Scope().GetSymbol(symName)
 			if sym != nil {
@@ -52,9 +52,9 @@ func (s *Context) FindSymbol(symName string) types.Symbol {
 	return nil
 }
 
-func (s *Context) CurrentFunc() *Func {
-	for i := len(s.stack) - 1; i >= 0; i-- {
-		ast := s.stack[i]
+func (c *Context) CurrentFunc() *Func {
+	for i := len(c.stack) - 1; i >= 0; i-- {
+		ast := c.stack[i]
 		if funcAST, ok := ast.(*Func); ok {
 			return funcAST
 		}
@@ -72,9 +72,9 @@ func (c *Context) Main() *Main {
 	return nil
 }
 
-func (s *Context) CurrentScope() *types.Scope {
-	for i := len(s.stack) - 1; i >= 0; i-- {
-		ast := s.stack[i]
+func (c *Context) CurrentScope() *types.Scope {
+	for i := len(c.stack) - 1; i >= 0; i-- {
+		ast := c.stack[i]
 		if scopeAST, ok := ast.(Scope); ok {
 			return scopeAST.Scope()
 		}

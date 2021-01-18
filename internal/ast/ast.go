@@ -111,10 +111,18 @@ func (s *ForVar) RunPass(ctx *Context, pass Pass) {
 	panic("not implemented")
 }
 
+type UnaryOp int
+
+const (
+	UnaryOpNot UnaryOp = iota
+	UnaryOpPlus
+	UnaryOpMinus
+)
+
 type UnaryExpr struct {
 	astBase
 	Term Expr
-	Op   Operator
+	Op   UnaryOp
 }
 
 func (s *UnaryExpr) isExpr() {}

@@ -6,22 +6,20 @@ type LValue struct {
 	Expr Expr
 }
 
-func (a *LValue) isExpr() {}
+func (v *LValue) isExpr() {}
 
-func (a *LValue) RunPass(ctx *Context, pass Pass) {
+func (v *LValue) RunPass(ctx *Context, pass Pass) {
 	switch pass {
-	case CreateAndResolveNames:
-		switch a.Expr.(type) {
+	case Check:
+		switch v.Expr.(type) {
 		case *SimpleRef:
 		case *MemberAccess:
 		case *IndexExpr:
 		default:
-			ctx.Failf(a.Expr.Pos(), "Expression is not lvalue")
+			ctx.Failf(v.Expr.Pos(), "Expression is not lvalue")
 			return
 		}
 	}
 
-	ctx.Push(a)
-	a.Expr.RunPass(ctx, pass)
-	ctx.Pop()
+	ctx.RunPassChild(v, v.Expr, pass)
 }

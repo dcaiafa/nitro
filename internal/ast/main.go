@@ -41,7 +41,7 @@ func (m *Main) Scope() *types.Scope {
 
 func (m *Main) RunPass(ctx *Context, pass Pass) {
 	switch pass {
-	case CreateAndResolveNames:
+	case Check:
 		m.rootScope = types.NewScope()
 
 	case Emit:

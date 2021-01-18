@@ -912,112 +912,112 @@ yydefault:
 		yyDollar = yyS[yypt-3 : yypt+1]
 //line parser.y:268
 		{
-			yyVAL.expr = &ast.BinaryExpr{Left: yyDollar[1].expr, Right: yyDollar[3].expr, Op: ast.OpPlus}
+			yyVAL.expr = &ast.BinaryExpr{Left: yyDollar[1].expr, Right: yyDollar[3].expr, Op: ast.BinOpPlus}
 			yyVAL.expr.SetPos(yyDollar[1].expr.Pos())
 		}
 	case 40:
 		yyDollar = yyS[yypt-3 : yypt+1]
 //line parser.y:273
 		{
-			yyVAL.expr = &ast.BinaryExpr{Left: yyDollar[1].expr, Right: yyDollar[3].expr, Op: ast.OpMinus}
+			yyVAL.expr = &ast.BinaryExpr{Left: yyDollar[1].expr, Right: yyDollar[3].expr, Op: ast.BinOpMinus}
 			yyVAL.expr.SetPos(yyDollar[1].expr.Pos())
 		}
 	case 41:
 		yyDollar = yyS[yypt-3 : yypt+1]
 //line parser.y:278
 		{
-			yyVAL.expr = &ast.BinaryExpr{Left: yyDollar[1].expr, Right: yyDollar[3].expr, Op: ast.OpMult}
+			yyVAL.expr = &ast.BinaryExpr{Left: yyDollar[1].expr, Right: yyDollar[3].expr, Op: ast.BinOpMult}
 			yyVAL.expr.SetPos(yyDollar[1].expr.Pos())
 		}
 	case 42:
 		yyDollar = yyS[yypt-3 : yypt+1]
 //line parser.y:283
 		{
-			yyVAL.expr = &ast.BinaryExpr{Left: yyDollar[1].expr, Right: yyDollar[3].expr, Op: ast.OpDiv}
+			yyVAL.expr = &ast.BinaryExpr{Left: yyDollar[1].expr, Right: yyDollar[3].expr, Op: ast.BinOpDiv}
 			yyVAL.expr.SetPos(yyDollar[1].expr.Pos())
 		}
 	case 43:
 		yyDollar = yyS[yypt-3 : yypt+1]
 //line parser.y:288
 		{
-			yyVAL.expr = &ast.BinaryExpr{Left: yyDollar[1].expr, Right: yyDollar[3].expr, Op: ast.OpMod}
+			yyVAL.expr = &ast.BinaryExpr{Left: yyDollar[1].expr, Right: yyDollar[3].expr, Op: ast.BinOpMod}
 			yyVAL.expr.SetPos(yyDollar[1].expr.Pos())
 		}
 	case 44:
 		yyDollar = yyS[yypt-3 : yypt+1]
 //line parser.y:293
 		{
-			yyVAL.expr = &ast.BinaryExpr{Left: yyDollar[1].expr, Right: yyDollar[3].expr, Op: ast.OpLT}
+			yyVAL.expr = &ast.BinaryExpr{Left: yyDollar[1].expr, Right: yyDollar[3].expr, Op: ast.BinOpLT}
 			yyVAL.expr.SetPos(yyDollar[1].expr.Pos())
 		}
 	case 45:
 		yyDollar = yyS[yypt-3 : yypt+1]
 //line parser.y:298
 		{
-			yyVAL.expr = &ast.BinaryExpr{Left: yyDollar[1].expr, Right: yyDollar[3].expr, Op: ast.OpLE}
+			yyVAL.expr = &ast.BinaryExpr{Left: yyDollar[1].expr, Right: yyDollar[3].expr, Op: ast.BinOpLE}
 			yyVAL.expr.SetPos(yyDollar[1].expr.Pos())
 		}
 	case 46:
 		yyDollar = yyS[yypt-3 : yypt+1]
 //line parser.y:303
 		{
-			yyVAL.expr = &ast.BinaryExpr{Left: yyDollar[1].expr, Right: yyDollar[3].expr, Op: ast.OpGT}
+			yyVAL.expr = &ast.BinaryExpr{Left: yyDollar[1].expr, Right: yyDollar[3].expr, Op: ast.BinOpGT}
 			yyVAL.expr.SetPos(yyDollar[1].expr.Pos())
 		}
 	case 47:
 		yyDollar = yyS[yypt-3 : yypt+1]
 //line parser.y:308
 		{
-			yyVAL.expr = &ast.BinaryExpr{Left: yyDollar[1].expr, Right: yyDollar[3].expr, Op: ast.OpGE}
+			yyVAL.expr = &ast.BinaryExpr{Left: yyDollar[1].expr, Right: yyDollar[3].expr, Op: ast.BinOpGE}
 			yyVAL.expr.SetPos(yyDollar[1].expr.Pos())
 		}
 	case 48:
 		yyDollar = yyS[yypt-3 : yypt+1]
 //line parser.y:313
 		{
-			yyVAL.expr = &ast.BinaryExpr{Left: yyDollar[1].expr, Right: yyDollar[3].expr, Op: ast.OpEq}
+			yyVAL.expr = &ast.BinaryExpr{Left: yyDollar[1].expr, Right: yyDollar[3].expr, Op: ast.BinOpEq}
 			yyVAL.expr.SetPos(yyDollar[1].expr.Pos())
 		}
 	case 49:
 		yyDollar = yyS[yypt-3 : yypt+1]
 //line parser.y:318
 		{
-			yyVAL.expr = &ast.BinaryExpr{Left: yyDollar[1].expr, Right: yyDollar[3].expr, Op: ast.OpNE}
+			yyVAL.expr = &ast.BinaryExpr{Left: yyDollar[1].expr, Right: yyDollar[3].expr, Op: ast.BinOpNE}
 			yyVAL.expr.SetPos(yyDollar[1].expr.Pos())
 		}
 	case 50:
 		yyDollar = yyS[yypt-3 : yypt+1]
 //line parser.y:323
 		{
-			yyVAL.expr = &ast.AndExpr{Left: yyDollar[1].expr, Right: yyDollar[3].expr, Op: ast.OpAnd}
+			yyVAL.expr = &ast.AndExpr{Left: yyDollar[1].expr, Right: yyDollar[3].expr}
 			yyVAL.expr.SetPos(yyDollar[1].expr.Pos())
 		}
 	case 51:
 		yyDollar = yyS[yypt-3 : yypt+1]
 //line parser.y:328
 		{
-			yyVAL.expr = &ast.OrExpr{Left: yyDollar[1].expr, Right: yyDollar[3].expr, Op: ast.OpOr}
+			yyVAL.expr = &ast.OrExpr{Left: yyDollar[1].expr, Right: yyDollar[3].expr}
 			yyVAL.expr.SetPos(yyDollar[1].expr.Pos())
 		}
 	case 52:
 		yyDollar = yyS[yypt-2 : yypt+1]
 //line parser.y:334
 		{
-			yyVAL.expr = &ast.UnaryExpr{Term: yyDollar[2].expr, Op: ast.OpNot}
+			yyVAL.expr = &ast.UnaryExpr{Term: yyDollar[2].expr, Op: ast.UnaryOpNot}
 			yyVAL.expr.SetPos(yyDollar[1].tok.Pos)
 		}
 	case 53:
 		yyDollar = yyS[yypt-2 : yypt+1]
 //line parser.y:339
 		{
-			yyVAL.expr = &ast.UnaryExpr{Term: yyDollar[2].expr, Op: ast.OpPlus}
+			yyVAL.expr = &ast.UnaryExpr{Term: yyDollar[2].expr, Op: ast.UnaryOpPlus}
 			yyVAL.expr.SetPos(yyDollar[1].tok.Pos)
 		}
 	case 54:
 		yyDollar = yyS[yypt-2 : yypt+1]
 //line parser.y:344
 		{
-			yyVAL.expr = &ast.UnaryExpr{Term: yyDollar[2].expr, Op: ast.OpMinus}
+			yyVAL.expr = &ast.UnaryExpr{Term: yyDollar[2].expr, Op: ast.UnaryOpMinus}
 			yyVAL.expr.SetPos(yyDollar[1].tok.Pos)
 		}
 	case 56:

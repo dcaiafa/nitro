@@ -12,33 +12,33 @@ type LiteralExpr struct {
 	Val token.Token
 }
 
-func (a *LiteralExpr) isExpr() {}
+func (e *LiteralExpr) isExpr() {}
 
-func (a *LiteralExpr) RunPass(ctx *Context, pass Pass) {
+func (e *LiteralExpr) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Emit:
 		emitter := ctx.Emitter()
 
-		switch a.Val.Type {
+		switch e.Val.Type {
 		case token.Int:
-			if 0 <= a.Val.Int && a.Val.Int <= math.MaxUint16 {
-				emitter.Emit(runtime.OpPushInt, uint16(a.Val.Int), 0)
+			if 0 <= e.Val.Int && e.Val.Int <= math.MaxUint16 {
+				emitter.Emit(runtime.OpPushInt, uint16(e.Val.Int), 0)
 			} else {
-				literal := emitter.AddLiteral(runtime.Int(a.Val.Int))
+				literal := emitter.AddLiteral(runtime.Int(e.Val.Int))
 				emitter.Emit(runtime.OpPushLiteral, uint16(literal), 0)
 			}
 
 		case token.Float:
-			literal := emitter.AddLiteral(runtime.Float(a.Val.Float))
+			literal := emitter.AddLiteral(runtime.Float(e.Val.Float))
 			emitter.Emit(runtime.OpPushLiteral, uint16(literal), 0)
 
 		case token.String:
-			str := emitter.AddString(a.Val.Str)
+			str := emitter.AddString(e.Val.Str)
 			emitter.Emit(runtime.OpPushLiteral, uint16(str), 0)
 
 		case token.Bool:
 			var v uint16 = 0
-			if a.Val.Bool {
+			if e.Val.Bool {
 				v = 1
 			}
 			emitter.Emit(runtime.OpPushBool, uint16(v), 0)

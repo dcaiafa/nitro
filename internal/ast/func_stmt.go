@@ -13,39 +13,37 @@ type FuncStmt struct {
 	sym types.Symbol
 }
 
-func (a *FuncStmt) RunPass(ctx *Context, pass Pass) {
+func (s *FuncStmt) RunPass(ctx *Context, pass Pass) {
 	switch pass {
-	case CreateAndResolveNames:
+	case Check:
 		parentFn := ctx.CurrentFunc()
 
 		if parentFn != nil {
-			a.sym = parentFn.NewLocal()
+			s.sym = parentFn.NewLocal()
 		} else {
-			a.sym = &types.FuncSymbol{}
+			s.sym = &types.FuncSymbol{}
 		}
 
-		a.sym.SetName(a.Name)
-		a.sym.SetPos(a.Pos())
-		if !ctx.CurrentScope().PutSymbol(ctx, a.sym) {
+		s.sym.SetName(s.Name)
+		s.sym.SetPos(s.Pos())
+		if !ctx.CurrentScope().PutSymbol(ctx, s.sym) {
 			return
 		}
 	}
 
-	ctx.Push(a)
-	a.Func.RunPass(ctx, pass)
-	ctx.Pop()
+	ctx.RunPassChild(s, &s.Func, pass)
 
 	switch pass {
-	case CreateAndResolveNames:
-		if fnSym, ok := a.sym.(*types.FuncSymbol); ok {
-			fnSym.FnNdx = a.Func.FnNdx
+	case Check:
+		if fnSym, ok := s.sym.(*types.FuncSymbol); ok {
+			fnSym.FnNdx = s.Func.FnNdx
 		}
 
 	case Emit:
-		if localSym, ok := a.sym.(*types.LocalVarSymbol); ok {
+		if localSym, ok := s.sym.(*types.LocalVarSymbol); ok {
 			emitter := ctx.Emitter()
 			emitter.Emit(runtime.OpPushLocalRef, uint16(localSym.LocalNdx), 0)
-			emitter.Emit(runtime.OpMakeClosure, uint16(a.Func.FnNdx), 0)
+			emitter.Emit(runtime.OpMakeClosure, uint16(s.Func.FnNdx), 0)
 			emitter.Emit(runtime.OpStore, 0, 0)
 		}
 	}

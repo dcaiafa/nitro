@@ -16,7 +16,7 @@ type VarDeclStmt struct {
 
 func (s *VarDeclStmt) RunPass(ctx *Context, pass Pass) {
 	switch pass {
-	case CreateAndResolveNames:
+	case Check:
 		s.Sym = AddVariable(ctx, s.VarName.Str, s.Pos())
 		if s.Sym == nil {
 			return
@@ -37,9 +37,7 @@ func (s *VarDeclStmt) RunPass(ctx *Context, pass Pass) {
 	}
 
 	if s.InitValue != nil {
-		ctx.Push(s)
-		s.InitValue.RunPass(ctx, pass)
-		ctx.Pop()
+		ctx.RunPassChild(s, s.InitValue, pass)
 	}
 
 	switch pass {

@@ -5,20 +5,17 @@ import "github.com/dcaiafa/nitro/internal/runtime"
 type Operator int
 
 const (
-	OpPlus Operator = iota
-	OpMinus
-	OpMult
-	OpDiv
-	OpMod
-	OpLT
-	OpLE
-	OpGT
-	OpGE
-	OpEq
-	OpNE
-	OpAnd
-	OpOr
-	OpNot
+	BinOpPlus Operator = iota
+	BinOpMinus
+	BinOpMult
+	BinOpDiv
+	BinOpMod
+	BinOpLT
+	BinOpLE
+	BinOpGT
+	BinOpGE
+	BinOpEq
+	BinOpNE
 )
 
 type BinaryExpr struct {
@@ -28,60 +25,42 @@ type BinaryExpr struct {
 	Right Expr
 }
 
-func (a *BinaryExpr) isExpr() {}
+func (e *BinaryExpr) isExpr() {}
 
-func (a *BinaryExpr) RunPass(ctx *Context, pass Pass) {
+func (e *BinaryExpr) RunPass(ctx *Context, pass Pass) {
+	ctx.RunPassChild(e, e.Left, pass)
+	ctx.RunPassChild(e, e.Right, pass)
+
 	switch pass {
 	case Emit:
-		a.emit(ctx)
-
-	default:
-		a.Left.RunPass(ctx, pass)
-		a.Right.RunPass(ctx, pass)
+		ctx.Emitter().Emit(runtime.OpBinOp, uint16(binOpAstToRuntime(e.Op)), 0)
 	}
 }
 
-func (a *BinaryExpr) emit(ctx *Context) {
-	emitter := ctx.Emitter()
-	switch a.Op {
-	case OpPlus, OpMinus, OpMult, OpDiv, OpMod, OpLT, OpLE, OpGT, OpGE, OpEq, OpNE:
-		a.Left.RunPass(ctx, Emit)
-		a.Right.RunPass(ctx, Emit)
-		emitter.Emit(runtime.OpBinOp, uint16(operatorToRuntime(a.Op)), 0)
-
-	case OpAnd, OpOr:
-
-	default:
-		panic("invalid op")
-	}
-}
-
-func operatorToRuntime(op Operator) runtime.BinOp {
+func binOpAstToRuntime(op Operator) runtime.BinOp {
 	switch op {
-	case OpPlus:
+	case BinOpPlus:
 		return runtime.BinAdd
-	case OpMinus:
+	case BinOpMinus:
 		return runtime.BinSub
-	case OpMult:
+	case BinOpMult:
 		return runtime.BinMult
-	case OpDiv:
+	case BinOpDiv:
 		return runtime.BinDiv
-	case OpMod:
+	case BinOpMod:
 		return runtime.BinMod
-	case OpLT:
+	case BinOpLT:
 		return runtime.BinLT
-	case OpLE:
+	case BinOpLE:
 		return runtime.BinLE
-	case OpGT:
+	case BinOpGT:
 		return runtime.BinGT
-	case OpGE:
+	case BinOpGE:
 		return runtime.BinGE
-	case OpEq:
+	case BinOpEq:
 		return runtime.BinEq
-	case OpNE:
+	case BinOpNE:
 		return runtime.BinNE
-	//case OpAnd:
-	//case OpOr:
 	default:
 		panic("invalid operator")
 	}
