@@ -989,14 +989,14 @@ yydefault:
 		yyDollar = yyS[yypt-3 : yypt+1]
 //line parser.y:323
 		{
-			yyVAL.expr = &ast.BinaryExpr{Left: yyDollar[1].expr, Right: yyDollar[3].expr, Op: ast.OpAnd}
+			yyVAL.expr = &ast.AndExpr{Left: yyDollar[1].expr, Right: yyDollar[3].expr, Op: ast.OpAnd}
 			yyVAL.expr.SetPos(yyDollar[1].expr.Pos())
 		}
 	case 51:
 		yyDollar = yyS[yypt-3 : yypt+1]
 //line parser.y:328
 		{
-			yyVAL.expr = &ast.BinaryExpr{Left: yyDollar[1].expr, Right: yyDollar[3].expr, Op: ast.OpOr}
+			yyVAL.expr = &ast.OrExpr{Left: yyDollar[1].expr, Right: yyDollar[3].expr, Op: ast.OpOr}
 			yyVAL.expr.SetPos(yyDollar[1].expr.Pos())
 		}
 	case 52:

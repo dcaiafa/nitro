@@ -321,12 +321,12 @@ expr: unary_expr
       }
     | expr kAND expr
       {
-        $$ = &ast.BinaryExpr{Left:$1, Right:$3, Op:ast.OpAnd}
+        $$ = &ast.AndExpr{Left:$1, Right:$3, Op:ast.OpAnd}
         $$.SetPos($1.Pos())
       }
     | expr kOR expr
       {
-        $$ = &ast.BinaryExpr{Left:$1, Right:$3, Op:ast.OpOr}
+        $$ = &ast.OrExpr{Left:$1, Right:$3, Op:ast.OpOr}
         $$.SetPos($1.Pos())
       }
 

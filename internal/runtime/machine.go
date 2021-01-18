@@ -30,6 +30,8 @@ const (
 	OpJump
 	OpJumpIfTrue
 	OpJumpIfFalse
+	OpDup
+	OpPop
 	OpCall
 	OpMakeClosure
 	OpPushInt
@@ -101,6 +103,10 @@ func (m *Machine) run(ctx context.Context) error {
 		return r
 	}
 
+	peek := func() Value {
+		return f.Stack[len(f.Stack)-1]
+	}
+
 	popN := func(n int) []Value {
 		r := f.Stack[len(f.Stack)-n:]
 		f.Stack = f.Stack[:len(f.Stack)-n]
@@ -132,6 +138,13 @@ func (m *Machine) run(ctx context.Context) error {
 			if !v {
 				ip = int(operandsToWord24(instr.Operand1, instr.Operand2)) - 1
 			}
+
+		case OpDup:
+			v := peek()
+			push(v)
+
+		case OpPop:
+			pop()
 
 		case OpCall:
 			expRetN := int(instr.Operand2)
