@@ -80,17 +80,17 @@ func TestFn(t *testing.T) {
 	RunSubO(t, "sub_func_multi", `
 		fn x() 
 			var a = 0
-			fn y() 
-				fn z()
+			var f = fn() 
+				return fn()
         	a = a + 1
 					return a
 				end
-				return z
 			end
-			return y
+			a = 10
+			return f
 		end
 		var f1 = x()()
 		var f2 = x()()
 		print(f1(), f2(), f1(), f2())
-`, `1 1 2 2`)
+`, `11 11 12 12`)
 }

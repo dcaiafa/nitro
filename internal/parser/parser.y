@@ -399,8 +399,11 @@ lambda_expr: kFN '(' param_list_opt ')'
                stmts_opt
              kEND
              { 
-               $$ = &ast.LambdaExpr{FuncParams:$3, Stmts:$5}
-               $$.SetPos($1.Pos)
+               l := &ast.LambdaExpr{}
+               l.Params = $3
+               l.Stmts = $5
+               l.SetPos($1.Pos)
+               $$ = l
              }
 
 param_list_opt: param_list

@@ -155,18 +155,6 @@ func (s *MemberAccess) RunPass(ctx *Context, pass Pass) {
 	panic("not implemented")
 }
 
-type LambdaExpr struct {
-	astBase
-	FuncParams ASTs
-	Stmts      ASTs
-}
-
-func (s *LambdaExpr) isExpr() {}
-
-func (s *LambdaExpr) RunPass(ctx *Context, pass Pass) {
-	panic("not implemented")
-}
-
 type ObjectLiteral struct {
 	astBase
 	Fields ASTs
