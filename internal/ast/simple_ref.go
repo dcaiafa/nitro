@@ -20,10 +20,22 @@ func (r *SimpleRef) RunPass(ctx *Context, pass Pass) {
 	case Check:
 		symName := r.ID.Str
 
-		sym := ctx.FindSymbol(symName)
+		sym, isExternal := ctx.FindSymbol(symName)
 		if sym == nil {
 			ctx.Failf(r.Pos(), "Symbol %q not found.", symName)
 			return
+		}
+
+		if isExternal {
+			if _, ok := sym.(types.Capturable); ok {
+				fn := ctx.CurrentFunc()
+				sym = fn.NewCapture(sym)
+				if !ctx.CurrentScope().PutSymbol(ctx, sym) {
+					// PutSymbol cannot fail because a symbol with the captured symbol
+					// was found outside the current function.
+					panic("unreachable")
+				}
+			}
 		}
 
 		r.sym = sym
@@ -46,7 +58,9 @@ func emitSymbolPush(emitter *runtime.Emitter, sym types.Symbol) {
 	case *types.LocalVarSymbol:
 		emitter.Emit(runtime.OpPushLocal, uint16(sym.LocalNdx), 0)
 
-	//case *types.CaptureSymbol:
+	case *types.CaptureSymbol:
+		emitter.Emit(runtime.OpPushCapture, uint16(sym.CaptureNdx), 0)
+
 	case *types.ParamSymbol:
 		emitter.Emit(runtime.OpPushArg, uint16(sym.ParamNdx), 0)
 
@@ -70,7 +84,9 @@ func emitSymbolRefPush(emitter *runtime.Emitter, sym types.Symbol) {
 	case *types.LocalVarSymbol:
 		emitter.Emit(runtime.OpPushLocalRef, uint16(sym.LocalNdx), 0)
 
-	//case *types.CaptureSymbol:
+	case *types.CaptureSymbol:
+		emitter.Emit(runtime.OpPushCaptureRef, uint16(sym.CaptureNdx), 0)
+
 	case *types.ParamSymbol:
 		emitter.Emit(runtime.OpPushArgRef, uint16(sym.ParamNdx), 0)
 

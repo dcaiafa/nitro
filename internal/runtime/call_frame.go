@@ -10,12 +10,13 @@ func (f *CallFrameFactory) NewCallFrame() *CallFrame {
 }
 
 type CallFrame struct {
-	ExpRetN int
-	Instrs  []Instr
-	Args    []Value
-	Locals  []Value
-	Stack   []Value
-	IP      int
+	ExpRetN  int
+	Instrs   []Instr
+	Args     []Value
+	Captures []ValueRef
+	Locals   []Value
+	Stack    []Value
+	IP       int
 }
 
 func (f *CallFrame) Init(localN int) {

@@ -20,6 +20,7 @@ func (s *FuncStmt) RunPass(ctx *Context, pass Pass) {
 
 		if parentFn != nil {
 			s.sym = parentFn.NewLocal()
+			s.Func.IsClosure = true
 		} else {
 			s.sym = &types.FuncSymbol{}
 		}
@@ -28,6 +29,11 @@ func (s *FuncStmt) RunPass(ctx *Context, pass Pass) {
 		s.sym.SetPos(s.Pos())
 		if !ctx.CurrentScope().PutSymbol(ctx, s.sym) {
 			return
+		}
+
+	case Emit:
+		if localSym, ok := s.sym.(*types.LocalVarSymbol); ok {
+			ctx.Emitter().Emit(runtime.OpPushLocalRef, uint16(localSym.LocalNdx), 0)
 		}
 	}
 
@@ -40,11 +46,10 @@ func (s *FuncStmt) RunPass(ctx *Context, pass Pass) {
 		}
 
 	case Emit:
-		if localSym, ok := s.sym.(*types.LocalVarSymbol); ok {
-			emitter := ctx.Emitter()
-			emitter.Emit(runtime.OpPushLocalRef, uint16(localSym.LocalNdx), 0)
-			emitter.Emit(runtime.OpMakeClosure, uint16(s.Func.FnNdx), 0)
-			emitter.Emit(runtime.OpStore, 0, 0)
+		if _, ok := s.sym.(*types.LocalVarSymbol); ok {
+			// The prefix emitted the PushLocalRef. `Func` emitted the closure. Now
+			// emit the `Store` to place the closure into the local var.
+			ctx.Emitter().Emit(runtime.OpStore, 0, 0)
 		}
 	}
 }

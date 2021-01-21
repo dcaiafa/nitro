@@ -42,6 +42,8 @@ const (
 	OpPushLocalRef
 	OpPushArg
 	OpPushArgRef
+	OpPushCapture
+	OpPushCaptureRef
 	OpPushFn
 	OpPushExternFn
 	OpPushLiteral
@@ -85,11 +87,8 @@ func (m *Machine) Run(ctx context.Context, p *Program) error {
 }
 
 func (m *Machine) run(ctx context.Context) error {
-	var (
-		ip = 0
-		f  = m.callFrameFactory.NewCallFrame()
-	)
-
+	ip := 0
+	f := m.callFrameFactory.NewCallFrame()
 	f.Instrs = m.program.fns[0].instrs
 
 	push := func(v Value) {
@@ -110,12 +109,6 @@ func (m *Machine) run(ctx context.Context) error {
 	popN := func(n int) []Value {
 		r := f.Stack[len(f.Stack)-n:]
 		f.Stack = f.Stack[:len(f.Stack)-n]
-		return r
-	}
-
-	vcopy := func(v []Value) []Value {
-		r := make([]Value, len(v))
-		copy(r, v)
 		return r
 	}
 
@@ -160,6 +153,7 @@ func (m *Machine) run(ctx context.Context) error {
 				f.Instrs = callable.Fn.instrs
 				f.ExpRetN = expRetN
 				f.Args = args
+				f.Captures = callable.Captures
 
 				// ip will be 0 after incrementing.
 				ip = -1
@@ -193,7 +187,10 @@ func (m *Machine) run(ctx context.Context) error {
 		case OpMakeClosure:
 			capN := int(instr.Operand2)
 			fn := int(instr.Operand1)
-			caps := vcopy(popN(capN))
+			caps := make([]ValueRef, capN)
+			for i, capture := range popN(capN) {
+				caps[i] = capture.(ValueRef)
+			}
 			closure := &Closure{
 				Fn:       &m.program.fns[fn],
 				Captures: caps,
@@ -223,6 +220,12 @@ func (m *Machine) run(ctx context.Context) error {
 
 		case OpPushArgRef:
 			push(ValueRef{&f.Args[int(instr.Operand1)]})
+
+		case OpPushCapture:
+			push(*f.Captures[int(instr.Operand1)].Ref)
+
+		case OpPushCaptureRef:
+			push(f.Captures[int(instr.Operand1)])
 
 		case OpPushFn:
 			push(&m.program.fns[int(instr.Operand1)])

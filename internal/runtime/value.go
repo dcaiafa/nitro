@@ -30,7 +30,7 @@ func (r ValueRef) isValue() {}
 
 type Closure struct {
 	Fn       *Fn
-	Captures []Value
+	Captures []ValueRef
 }
 
 func (c *Closure) isValue() {}

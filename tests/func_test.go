@@ -62,4 +62,18 @@ func TestFn(t *testing.T) {
 		end
 		print(X(1, 2))
 `, `5`)
+
+	RunSubO(t, "sub_func_cap", `
+		fn X() 
+			var a = 0
+			fn y() 
+      	a = a + 1
+				return a
+			end
+			return y
+		end
+		var f1 = X()
+		var f2 = X()
+		print(f1(), f2(), f1(), f2())
+`, `1 1 2 2`)
 }

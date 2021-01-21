@@ -43,17 +43,29 @@ type GlobalVarSymbol struct {
 	GlobalNdx int
 }
 
-type LocalVarSymbol struct {
-	baseSymbol
-	LocalNdx int
+type Capturable interface {
+	isCapturable()
 }
 
 type CaptureSymbol struct {
 	baseSymbol
-	Captured Symbol
+
+	Captured   Symbol
+	CaptureNdx int
 }
+
+func (s *CaptureSymbol) isCapturable() {}
 
 type ParamSymbol struct {
 	baseSymbol
 	ParamNdx int
 }
+
+func (s *ParamSymbol) isCapturable() {}
+
+type LocalVarSymbol struct {
+	baseSymbol
+	LocalNdx int
+}
+
+func (s *LocalVarSymbol) isCapturable() {}
