@@ -39,21 +39,32 @@ func (c *Context) Parent() AST {
 	return c.stack[len(c.stack)-1]
 }
 
-func (c *Context) FindSymbol(symName string) (sym types.Symbol, external bool) {
+func (c *Context) FindSymbol(symName string) types.Symbol {
+	var fns []*Func
+	var sym types.Symbol
 	for i := len(c.stack) - 1; i >= 0; i-- {
 		ast := c.stack[i]
 		if scope, ok := ast.(Scope); ok {
 			sym = scope.Scope().GetSymbol(symName)
 			if sym != nil {
-				return sym, external
+				break
 			}
 		}
-		if _, ok := ast.(*Func); ok {
-			// The symbol was found outside the function that referenced it.
-			external = true
+		if fn, ok := ast.(*Func); ok {
+			fns = append(fns, fn)
 		}
 	}
-	return nil, false
+	if sym == nil {
+		return nil
+	}
+	if len(fns) != 0 {
+		if _, ok := sym.(types.Capturable); ok {
+			for i := len(fns) - 1; i >= 0; i-- {
+				sym = fns[i].NewCapture(sym)
+			}
+		}
+	}
+	return sym
 }
 
 func (c *Context) CurrentFunc() *Func {

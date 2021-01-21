@@ -20,25 +20,11 @@ func (r *SimpleRef) RunPass(ctx *Context, pass Pass) {
 	case Check:
 		symName := r.ID.Str
 
-		sym, isExternal := ctx.FindSymbol(symName)
-		if sym == nil {
+		r.sym = ctx.FindSymbol(symName)
+		if r.sym == nil {
 			ctx.Failf(r.Pos(), "Symbol %q not found.", symName)
 			return
 		}
-
-		if isExternal {
-			if _, ok := sym.(types.Capturable); ok {
-				fn := ctx.CurrentFunc()
-				sym = fn.NewCapture(sym)
-				if !ctx.CurrentScope().PutSymbol(ctx, sym) {
-					// PutSymbol cannot fail because a symbol with the captured symbol
-					// was found outside the current function.
-					panic("unreachable")
-				}
-			}
-		}
-
-		r.sym = sym
 
 	case Emit:
 		emit := emitSymbolPush

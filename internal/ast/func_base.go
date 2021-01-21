@@ -81,6 +81,11 @@ func (f *Func) NewCapture(sym types.Symbol) *types.CaptureSymbol {
 	c.SetName(sym.Name())
 	c.SetPos(sym.Pos())
 	f.captures = append(f.captures, c)
+	if !f.scope.PutSymbol(nil, c) {
+		// This cannot happen because the caller should have already ensured that
+		// the symbol to be captured is external to this fn.
+		panic("assert failed")
+	}
 	return c
 }
 
