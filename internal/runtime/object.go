@@ -1,24 +1,21 @@
 package runtime
 
 type Object struct {
-	fallback func(key interface{}) (interface{}, bool)
-	data     map[interface{}]interface{}
+	data map[Value]Value
 }
 
 func NewObject() *Object {
 	return &Object{
-		data: make(map[interface{}]interface{}),
+		data: make(map[Value]Value),
 	}
 }
 
-func (o *Object) Get(key interface{}) (interface{}, bool) {
-	v, ok := o.data[key]
-	if !ok && o.fallback != nil {
-		return o.fallback(key)
-	}
-	return v, ok
+func (o *Object) isValue() {}
+
+func (o *Object) Put(k, v Value) {
+	o.data[k] = v
 }
 
-func (o *Object) Put(key, value interface{}) {
-	o.data[key] = value
+func (o *Object) Get(k Value) Value {
+	return o.data[k]
 }
