@@ -55,7 +55,7 @@ func (f *Func) RunPass(ctx *Context, pass Pass) {
 			for _, capture := range f.captures {
 				emitSymbolRefPush(emitter, capture.Captured)
 			}
-			emitter.Emit(runtime.OpMakeClosure, uint16(f.FnNdx), byte(len(f.captures)))
+			emitter.Emit(runtime.OpNewClosure, uint16(f.FnNdx), byte(len(f.captures)))
 		}
 	}
 }

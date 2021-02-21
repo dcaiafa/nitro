@@ -28,10 +28,10 @@ func (s *VarDeclStmt) RunPass(ctx *Context, pass Pass) {
 
 			switch sym := s.Sym.(type) {
 			case *types.LocalVarSymbol:
-				emitter.Emit(runtime.OpPushLocalRef, uint16(sym.LocalNdx), 0)
+				emitter.Emit(runtime.OpLoadLocalRef, uint16(sym.LocalNdx), 0)
 
 			case *types.GlobalVarSymbol:
-				emitter.Emit(runtime.OpPushGlobalRef, uint16(sym.GlobalNdx), 0)
+				emitter.Emit(runtime.OpLoadGlobalRef, uint16(sym.GlobalNdx), 0)
 			}
 		}
 	}

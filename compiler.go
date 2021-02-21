@@ -18,6 +18,7 @@ type (
 	Int    = runtime.Int
 	Float  = runtime.Float
 	Bool   = runtime.Bool
+	Object = runtime.Object
 
 	ErrLogger = errlogger.ErrLogger
 	Pos       = token.Pos

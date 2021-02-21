@@ -466,7 +466,7 @@ object_fields: object_fields ',' object_field
 
 object_field: ID ':' expr
               {
-                $$ = &ast.ObjectField{NameID:$1, Val:$3}
+                $$ = &ast.ObjectField{NameID:$1.Str, Val:$3}
               }
             | '[' expr ']' ':' expr
               {

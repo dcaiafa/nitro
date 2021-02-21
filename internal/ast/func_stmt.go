@@ -33,7 +33,7 @@ func (s *FuncStmt) RunPass(ctx *Context, pass Pass) {
 
 	case Emit:
 		if localSym, ok := s.sym.(*types.LocalVarSymbol); ok {
-			ctx.Emitter().Emit(runtime.OpPushLocalRef, uint16(localSym.LocalNdx), 0)
+			ctx.Emitter().Emit(runtime.OpLoadLocalRef, uint16(localSym.LocalNdx), 0)
 		}
 	}
 

@@ -33,7 +33,7 @@ func (e *BinaryExpr) RunPass(ctx *Context, pass Pass) {
 
 	switch pass {
 	case Emit:
-		ctx.Emitter().Emit(runtime.OpBinOp, uint16(binOpAstToRuntime(e.Op)), 0)
+		ctx.Emitter().Emit(runtime.OpEvalBinOp, uint16(binOpAstToRuntime(e.Op)), 0)
 	}
 }
 

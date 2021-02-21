@@ -33,21 +33,23 @@ const (
 	OpDup
 	OpPop
 	OpCall
-	OpMakeClosure
-	OpPushInt
-	OpPushBool
-	OpPushGlobal
-	OpPushGlobalRef
-	OpPushLocal
-	OpPushLocalRef
-	OpPushArg
-	OpPushArgRef
-	OpPushCapture
-	OpPushCaptureRef
-	OpPushFn
-	OpPushExternFn
-	OpPushLiteral
-	OpBinOp
+	OpNewClosure
+	OpNewInt
+	OpNewBool
+	OpNewObject
+	OpLoadGlobal
+	OpLoadGlobalRef
+	OpLoadLocal
+	OpLoadLocalRef
+	OpLoadArg
+	OpLoadArgRef
+	OpLoadCapture
+	OpLoadCaptureRef
+	OpLoadFn
+	OpLoadExternFn
+	OpLoadLiteral
+	OpEvalBinOp
+	OpObjectPutNoPop
 	OpRet
 	OpStore
 	OpInitCallFrame
@@ -184,7 +186,7 @@ func (m *Machine) run(ctx context.Context) error {
 				return fmt.Errorf("cannot call type %q", reflect.TypeOf(callable))
 			}
 
-		case OpMakeClosure:
+		case OpNewClosure:
 			capN := int(instr.Operand2)
 			fn := int(instr.Operand1)
 			caps := make([]ValueRef, capN)
@@ -197,46 +199,49 @@ func (m *Machine) run(ctx context.Context) error {
 			}
 			push(closure)
 
-		case OpPushInt:
+		case OpNewInt:
 			push(Int(instr.Operand1))
 
-		case OpPushBool:
+		case OpNewBool:
 			push(Bool(instr.Operand1 != 0))
 
-		case OpPushGlobal:
+		case OpNewObject:
+			push(NewObject())
+
+		case OpLoadGlobal:
 			push(m.globals[int(instr.Operand1)])
 
-		case OpPushGlobalRef:
+		case OpLoadGlobalRef:
 			push(ValueRef{&m.globals[int(instr.Operand1)]})
 
-		case OpPushLocal:
+		case OpLoadLocal:
 			push(f.Locals[int(instr.Operand1)])
 
-		case OpPushLocalRef:
+		case OpLoadLocalRef:
 			push(ValueRef{&f.Locals[int(instr.Operand1)]})
 
-		case OpPushArg:
+		case OpLoadArg:
 			push(f.Args[int(instr.Operand1)])
 
-		case OpPushArgRef:
+		case OpLoadArgRef:
 			push(ValueRef{&f.Args[int(instr.Operand1)]})
 
-		case OpPushCapture:
+		case OpLoadCapture:
 			push(*f.Captures[int(instr.Operand1)].Ref)
 
-		case OpPushCaptureRef:
+		case OpLoadCaptureRef:
 			push(f.Captures[int(instr.Operand1)])
 
-		case OpPushFn:
+		case OpLoadFn:
 			push(&m.program.fns[int(instr.Operand1)])
 
-		case OpPushExternFn:
+		case OpLoadExternFn:
 			push(m.program.extFns[int(instr.Operand1)])
 
-		case OpPushLiteral:
+		case OpLoadLiteral:
 			push(m.program.literals[int(instr.Operand1)])
 
-		case OpBinOp:
+		case OpEvalBinOp:
 			operand2 := pop()
 			operand1 := pop()
 			op := BinOp(instr.Operand1)
@@ -245,6 +250,12 @@ func (m *Machine) run(ctx context.Context) error {
 				return err
 			}
 			push(res)
+
+		case OpObjectPutNoPop:
+			val := pop()
+			key := pop()
+			obj := peek().(*Object)
+			obj.Put(key, val)
 
 		case OpRet:
 			if f.ExpRetN > len(f.Stack) {

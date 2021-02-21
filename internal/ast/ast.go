@@ -155,28 +155,6 @@ func (s *MemberAccess) RunPass(ctx *Context, pass Pass) {
 	panic("not implemented")
 }
 
-type ObjectLiteral struct {
-	astBase
-	Fields ASTs
-}
-
-func (s *ObjectLiteral) isExpr() {}
-
-func (s *ObjectLiteral) RunPass(ctx *Context, pass Pass) {
-	panic("not implemented")
-}
-
-type ObjectField struct {
-	astBase
-	NameID   token.Token
-	NameExpr Expr
-	Val      Expr
-}
-
-func (s *ObjectField) RunPass(ctx *Context, pass Pass) {
-	panic("not implemented")
-}
-
 type ArrayLiteral struct {
 	astBase
 	Elements ASTs

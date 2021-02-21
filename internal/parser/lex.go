@@ -68,6 +68,9 @@ func (l *lex) scan(lval *yySymType) int {
 	for {
 		r := l.read()
 		if r == 0 {
+			if l.synthSemicol {
+				return ';'
+			}
 			return 0
 		}
 		if isSpace(r) {
