@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/dcaiafa/nitro"
-	"github.com/dcaiafa/nitro/std"
 )
 
 type MemoryFileSystem map[string]string
@@ -36,9 +35,6 @@ func run(prog string) (output string, err error) {
 	outBuilder := &strings.Builder{}
 
 	compiler := nitro.NewCompiler(fs)
-
-	compiler.RegisterExternalFn(
-		"tostring", std.ToString)
 
 	compiler.RegisterExternalFn(
 		"print",

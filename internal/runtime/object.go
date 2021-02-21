@@ -1,5 +1,11 @@
 package runtime
 
+import (
+	"reflect"
+	"strconv"
+	"strings"
+)
+
 type objectNode struct {
 	next, prev *objectNode
 	key        Value
@@ -65,4 +71,77 @@ func (o *Object) ForEach(f func(k, v Value) bool) {
 			return
 		}
 	}
+}
+
+func (o *Object) String() string {
+	of := &objectFormatter{
+		visited: make(map[Value]bool),
+		w:       &strings.Builder{},
+	}
+	of.format(o)
+	return of.w.String()
+}
+
+type objectFormatter struct {
+	visited map[Value]bool
+	w       *strings.Builder
+}
+
+func formatObject(o *Object) (string, error) {
+	of := &objectFormatter{
+		visited: make(map[Value]bool),
+		w:       &strings.Builder{},
+	}
+	of.format(o)
+	return of.w.String(), nil
+}
+
+func (of *objectFormatter) format(v Value) {
+	switch v := v.(type) {
+	case String:
+		// TODO: escape special characters.
+		of.str(`"` + string(v) + `"`)
+	case Int:
+		of.str(strconv.FormatInt(int64(v), 10))
+	case Float:
+		of.str(strconv.FormatFloat(float64(v), 'g', -1, 64))
+	case Bool:
+		if bool(v) {
+			of.str("true")
+		} else {
+			of.str("false")
+		}
+	case *Object:
+		if of.visited[v] {
+			of.str("<cycle>")
+			return
+		}
+		of.visited[v] = true
+		of.str("{")
+		first := true
+		v.ForEach(func(k, v Value) bool {
+			if !first {
+				of.str(", ")
+			}
+			first = false
+			if ks, ok := k.(String); ok {
+				of.str(string(ks))
+			} else {
+				of.str("[")
+				of.format(k)
+				of.str("]")
+			}
+			of.str(": ")
+			of.format(v)
+			return true
+		})
+		of.str("}")
+
+	default:
+		of.str("<" + reflect.TypeOf(v).String() + ">")
+	}
+}
+
+func (of *objectFormatter) str(s string) {
+	of.w.WriteString(s)
 }

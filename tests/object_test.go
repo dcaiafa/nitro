@@ -12,7 +12,7 @@ func TestObjectLiteral(t *testing.T) {
 				[ "y" ]: false 
 			}
 		}
-		print(tostring(a))
+		print(a)
 `, `{foo: "bar", other: 123, sub: {x: true, y: false}}`)
 
 	RunSubO(t, "expr_value", `
@@ -26,7 +26,7 @@ func TestObjectLiteral(t *testing.T) {
 				}
 			}
 		end
-		print(tostring(f(12)))
+		print(f(12))
 `, `{foo: "bar", other: 12, sub: {x: true, y: false}}`)
 
 	RunSubO(t, "expr_key", `
@@ -40,7 +40,7 @@ func TestObjectLiteral(t *testing.T) {
 				}
 			}
 		end
-		print(tostring(f("other")))
+		print(f("other"))
 `, `{foo: "bar", other: 123, sub: {x: true, y: false}}`)
 
 	RunSubO(t, "if", `
@@ -58,10 +58,10 @@ func TestObjectLiteral(t *testing.T) {
 			end
 			}
     end
-		print(tostring(f(false, false)))
-		print(tostring(f(false, true)))
-		print(tostring(f(true, false)))
-		print(tostring(f(true, true)))
+		print(f(false, false))
+		print(f(false, true))
+		print(f(true, false))
+		print(f(true, true))
 		`, `
 {foo: "bar"}
 {foo: "bar"}
