@@ -143,18 +143,6 @@ func (s *IndexExpr) RunPass(ctx *Context, pass Pass) {
 	panic("not implemented")
 }
 
-type MemberAccess struct {
-	astBase
-	Target Expr
-	Member token.Token
-}
-
-func (s *MemberAccess) isExpr() {}
-
-func (s *MemberAccess) RunPass(ctx *Context, pass Pass) {
-	panic("not implemented")
-}
-
 type ArrayLiteral struct {
 	astBase
 	Elements ASTs

@@ -68,5 +68,33 @@ func TestObjectLiteral(t *testing.T) {
 {foo: "bar", other: 123, sub: {y: false}}
 {foo: "bar", other: 123, sub: {x: true, y: false}}
 `)
+}
 
+func TestObjectMemberAccess(t *testing.T) {
+	RunSubO(t, "rvalue", `
+		var a = {
+			foo: "bar"
+			other: 123
+			sub: {
+      	x: true
+				[ "y" ]: false 
+			}
+		}
+		print(a.foo, a.invalid.reference, a.sub.y)
+`, `bar <nil> false`)
+
+	RunSubO(t, "lvalue", `
+		var a = {
+			foo: "bar"
+			other: 123
+			sub: {
+      	x: true
+				[ "y" ]: false 
+			}
+		}
+		a.foo = "barr"
+		a.sub.z = 123
+		a.extra = { yay: "yo" }
+		print(a)
+`, `{foo: "barr", other: 123, sub: {x: true, y: false, z: 123}, extra: {yay: "yo"}}`)
 }

@@ -65,6 +65,16 @@ func (o *Object) Get(k Value) Value {
 	return n.value
 }
 
+func (o *Object) GetRef(k Value) *Value {
+	n := o.data[k]
+	if n == nil {
+		n = &objectNode{key: k}
+		n.InsertAfter(o.list.prev)
+		o.data[k] = n
+	}
+	return &n.value
+}
+
 func (o *Object) ForEach(f func(k, v Value) bool) {
 	for n := o.list.next; n != o.list; n = n.next {
 		if !f(n.key, n.value) {

@@ -50,6 +50,8 @@ const (
 	OpLoadLiteral
 	OpEvalBinOp
 	OpObjectPutNoPop
+	OpObjectGet
+	OpObjectGetRef
 	OpRet
 	OpStore
 	OpInitCallFrame
@@ -256,6 +258,33 @@ func (m *Machine) run(ctx context.Context) error {
 			key := pop()
 			obj := peek().(*Object)
 			obj.Put(key, val)
+
+		case OpObjectGet:
+			member := pop()
+			objRaw := pop()
+			if objRaw == nil {
+				push(nil)
+			} else {
+				obj, ok := objRaw.(*Object)
+				if !ok {
+					return errors.New("not an object")
+				}
+				val := obj.Get(member)
+				push(val)
+			}
+
+		case OpObjectGetRef:
+			member := pop()
+			objRaw := pop()
+			if objRaw == nil {
+				return errors.New("cannot access object member: value is nil")
+			}
+			obj, ok := objRaw.(*Object)
+			if !ok {
+				return errors.New("not an object")
+			}
+			valRef := obj.GetRef(member)
+			push(ValueRef{valRef})
 
 		case OpRet:
 			if f.ExpRetN > len(f.Stack) {
