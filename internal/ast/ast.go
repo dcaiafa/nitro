@@ -111,26 +111,6 @@ func (s *ForVar) RunPass(ctx *Context, pass Pass) {
 	panic("not implemented")
 }
 
-type UnaryOp int
-
-const (
-	UnaryOpNot UnaryOp = iota
-	UnaryOpPlus
-	UnaryOpMinus
-)
-
-type UnaryExpr struct {
-	astBase
-	Term Expr
-	Op   UnaryOp
-}
-
-func (s *UnaryExpr) isExpr() {}
-
-func (s *UnaryExpr) RunPass(ctx *Context, pass Pass) {
-	panic("not implemented")
-}
-
 type IndexExpr struct {
 	astBase
 	Target Expr
@@ -140,25 +120,5 @@ type IndexExpr struct {
 func (s *IndexExpr) isExpr() {}
 
 func (s *IndexExpr) RunPass(ctx *Context, pass Pass) {
-	panic("not implemented")
-}
-
-type ArrayLiteral struct {
-	astBase
-	Elements ASTs
-}
-
-func (s *ArrayLiteral) isExpr() {}
-
-func (s *ArrayLiteral) RunPass(ctx *Context, pass Pass) {
-	panic("not implemented")
-}
-
-type ArrayElement struct {
-	astBase
-	Val Expr
-}
-
-func (s *ArrayElement) RunPass(ctx *Context, pass Pass) {
 	panic("not implemented")
 }

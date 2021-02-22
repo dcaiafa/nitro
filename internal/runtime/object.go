@@ -47,6 +47,10 @@ func NewObject() *Object {
 
 func (o *Object) isValue() {}
 
+func (o *Object) Len() int {
+	return len(o.data)
+}
+
 func (o *Object) Put(k, v Value) {
 	n := o.data[k]
 	if n == nil {
@@ -84,12 +88,7 @@ func (o *Object) ForEach(f func(k, v Value) bool) {
 }
 
 func (o *Object) String() string {
-	of := &objectFormatter{
-		visited: make(map[Value]bool),
-		w:       &strings.Builder{},
-	}
-	of.format(o)
-	return of.w.String()
+	return formatObject(o)
 }
 
 type objectFormatter struct {
@@ -97,13 +96,13 @@ type objectFormatter struct {
 	w       *strings.Builder
 }
 
-func formatObject(o *Object) (string, error) {
+func formatObject(v Value) string {
 	of := &objectFormatter{
 		visited: make(map[Value]bool),
 		w:       &strings.Builder{},
 	}
-	of.format(o)
-	return of.w.String(), nil
+	of.format(v)
+	return of.w.String()
 }
 
 func (of *objectFormatter) format(v Value) {
@@ -132,8 +131,9 @@ func (of *objectFormatter) format(v Value) {
 		v.ForEach(func(k, v Value) bool {
 			if !first {
 				of.str(", ")
+			} else {
+				first = false
 			}
-			first = false
 			if ks, ok := k.(String); ok {
 				of.str(string(ks))
 			} else {
@@ -146,6 +146,18 @@ func (of *objectFormatter) format(v Value) {
 			return true
 		})
 		of.str("}")
+	case *Array:
+		of.str("[")
+		first := true
+		for i := 0; i < v.Len(); i++ {
+			if !first {
+				of.str(" ")
+			} else {
+				first = false
+			}
+			of.str(v.Get(i).String())
+		}
+		of.str("]")
 
 	default:
 		of.str("<" + reflect.TypeOf(v).String() + ">")

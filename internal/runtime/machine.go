@@ -37,6 +37,7 @@ const (
 	OpNewInt
 	OpNewBool
 	OpNewObject
+	OpNewArray
 	OpLoadGlobal
 	OpLoadGlobalRef
 	OpLoadLocal
@@ -49,9 +50,12 @@ const (
 	OpLoadExternFn
 	OpLoadLiteral
 	OpEvalBinOp
+	OpNot
+	OpUnaryMinus
 	OpObjectPutNoPop
 	OpObjectGet
 	OpObjectGetRef
+	OpArrayAppendNoPop
 	OpRet
 	OpStore
 	OpInitCallFrame
@@ -210,6 +214,9 @@ func (m *Machine) run(ctx context.Context) error {
 		case OpNewObject:
 			push(NewObject())
 
+		case OpNewArray:
+			push(NewArray())
+
 		case OpLoadGlobal:
 			push(m.globals[int(instr.Operand1)])
 
@@ -253,6 +260,23 @@ func (m *Machine) run(ctx context.Context) error {
 			}
 			push(res)
 
+		case OpNot:
+			term := pop()
+			push(Bool(!coerceToBool(term)))
+
+		case OpUnaryMinus:
+			term := pop()
+			if term == nil {
+				return errors.New("value is nil")
+			}
+			switch term := term.(type) {
+			case Int:
+				push(-term)
+			case Float:
+				push(-term)
+			default:
+			}
+
 		case OpObjectPutNoPop:
 			val := pop()
 			key := pop()
@@ -285,6 +309,11 @@ func (m *Machine) run(ctx context.Context) error {
 			}
 			valRef := obj.GetRef(member)
 			push(ValueRef{valRef})
+
+		case OpArrayAppendNoPop:
+			value := pop()
+			array := peek().(*Array)
+			array.Append(value)
 
 		case OpRet:
 			if f.ExpRetN > len(f.Stack) {
@@ -406,16 +435,16 @@ func coerceToBool(v Value) bool {
 	switch v := v.(type) {
 	case Bool:
 		return bool(v)
-
 	case Int:
 		return v != 0
-
 	case Float:
 		return v != 0
-
 	case String:
 		return len(v) != 0
-
+	case *Object:
+		return v.Len() != 0
+	case *Array:
+		return v.Len() != 0
 	default:
 		return true
 	}

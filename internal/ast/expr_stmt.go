@@ -1,6 +1,6 @@
 package ast
 
-// TODO: the only valid expressions are object literal and func call.
+// TODO: the only valid statement expressions are object literal and func call.
 // Narrowing this in the parser might simplify things.
 type ExprStmt struct {
 	astBase
