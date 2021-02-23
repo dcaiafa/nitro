@@ -67,7 +67,8 @@ import (
 %type <ast> for_stmt
 %type <asts> for_vars
 %type <ast> assignment_stmt
-%type <asts> assignees
+%type <asts> assignment_lvalues
+%type <exprs> assignment_rvalues
 %type <ast> var_decl_stmt
 %type <expr> expr
 %type <expr> unary_expr
@@ -254,20 +255,29 @@ for_vars: for_vars ',' ID
             $$.SetPos($1.Pos)
           }
 
-assignees: assignees ',' lvalue_expr
-           {
-             $$ = append($1, &ast.LValue{Expr:$3})
-           }
-         | lvalue_expr
-           {
-             lvalue := &ast.LValue{Expr:$1}
-             lvalue.SetPos($1.Pos())
-             $$ = ast.ASTs{lvalue}
-           }
+assignment_lvalues: assignment_lvalues ',' lvalue_expr
+                    {
+                      $$ = append($1, &ast.LValue{Expr:$3})
+                    }
+                  | lvalue_expr
+                    {
+                      lvalue := &ast.LValue{Expr:$1}
+                      lvalue.SetPos($1.Pos())
+                      $$ = ast.ASTs{lvalue}
+                    }
 
-assignment_stmt: assignees '=' expr
+assignment_rvalues: assignment_rvalues ',' expr
+                    {
+                      $$ = append($1, $3)
+                    }
+                  | expr
+                    {
+                      $$ = ast.Exprs{$1}
+                    }
+
+assignment_stmt: assignment_lvalues '=' assignment_rvalues
                  {
-                   $$ = &ast.AssignStmt{Lvalues:$1, Rvalue:$3}
+                   $$ = &ast.AssignStmt{Lvalues:$1, Rvalues:$3}
                    $$.SetPos($1.Pos())
                  }
 
