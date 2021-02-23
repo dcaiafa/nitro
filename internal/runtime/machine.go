@@ -429,9 +429,6 @@ func evalBinOpFloat(op BinOp, operand1, operand2 Float) (Value, error) {
 }
 
 func coerceToBool(v Value) bool {
-	if v == nil {
-		return false
-	}
 	switch v := v.(type) {
 	case Bool:
 		return bool(v)
@@ -446,6 +443,6 @@ func coerceToBool(v Value) bool {
 	case *Array:
 		return v.Len() != 0
 	default:
-		return true
+		return v != nil
 	}
 }

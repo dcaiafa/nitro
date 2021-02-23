@@ -66,8 +66,7 @@ func TestObjectLiteral(t *testing.T) {
 {foo: "bar"}
 {foo: "bar"}
 {foo: "bar", other: 123, sub: {y: false}}
-{foo: "bar", other: 123, sub: {x: true, y: false}}
-`)
+{foo: "bar", other: 123, sub: {x: true, y: false}}`)
 }
 
 func TestObjectMemberAccess(t *testing.T) {

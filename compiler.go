@@ -9,16 +9,19 @@ import (
 	"github.com/dcaiafa/nitro/internal/errlogger"
 	"github.com/dcaiafa/nitro/internal/parser"
 	"github.com/dcaiafa/nitro/internal/runtime"
+	"github.com/dcaiafa/nitro/internal/std"
 	"github.com/dcaiafa/nitro/internal/token"
 )
 
 type (
-	Value  = runtime.Value
-	String = runtime.String
-	Int    = runtime.Int
-	Float  = runtime.Float
-	Bool   = runtime.Bool
-	Object = runtime.Object
+	Value    = runtime.Value
+	String   = runtime.String
+	Int      = runtime.Int
+	Float    = runtime.Float
+	Bool     = runtime.Bool
+	Object   = runtime.Object
+	Array    = runtime.Array
+	ExternFn = runtime.ExternFn
 
 	ErrLogger = errlogger.ErrLogger
 	Pos       = token.Pos
@@ -44,10 +47,12 @@ type Compiler struct {
 }
 
 func NewCompiler(fileSystem FileSystem) *Compiler {
-	return &Compiler{
+	c := &Compiler{
 		fileSystem:  fileSystem,
 		externalFns: make(map[string]runtime.ExternFn),
 	}
+	std.Register(c)
+	return c
 }
 
 func (c *Compiler) RegisterExternalFn(name string, fn runtime.ExternFn) {

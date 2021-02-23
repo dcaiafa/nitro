@@ -45,7 +45,7 @@ func NewObject() *Object {
 	}
 }
 
-func (o *Object) isValue() {}
+func (o *Object) ValueType() string { return "Object" }
 
 func (o *Object) Len() int {
 	return len(o.data)

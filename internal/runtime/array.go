@@ -8,7 +8,7 @@ func NewArray() *Array {
 	return &Array{}
 }
 
-func (a *Array) isValue() {}
+func (a *Array) ValueType() string { return "Array" }
 
 func (a *Array) Append(v Value) {
 	a.array = append(a.array, v)
