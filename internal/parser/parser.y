@@ -72,7 +72,10 @@ import (
 %type <expr> unary_expr
 %type <expr> primary_expr
 %type <expr> lambda_expr
+%type <expr> simple_ref_expr
+%type <expr> member_access_expr
 %type <expr> index_expr
+%type <expr> slice_expr
 %type <asts> param_list_opt
 %type <asts> param_list
 %type <exprs> arg_list_opt
@@ -99,6 +102,7 @@ import (
 %type <ast> array_elif
 %type <ast> array_else_opt
 %type <ast> array_else
+%type <expr> lvalue_expr
 
 %start S
 
@@ -245,7 +249,7 @@ for_vars: for_vars ',' ID
             $$.SetPos($1.Pos)
           }
 
-assignment_stmt: expr '=' expr
+assignment_stmt: lvalue_expr '=' expr
                  {
                    lvalue := &ast.LValue{Expr:$1}
                    lvalue.SetPos($1.Pos())
@@ -358,11 +362,6 @@ primary_expr: STRING
                 $$ = &ast.LiteralExpr{Val:$1}
                 $$.SetPos($1.Pos)
               }
-            | ID
-              {
-                $$ = &ast.SimpleRef{ID:$1}
-                $$.SetPos($1.Pos)
-              }
             | kTRUE
               {
                 $$ = &ast.LiteralExpr{Val:$1}
@@ -373,11 +372,6 @@ primary_expr: STRING
                 $$ = &ast.LiteralExpr{Val:$1}
                 $$.SetPos($1.Pos)
               }
-            | primary_expr '.' ID
-              {
-                $$ = &ast.MemberAccess{Target:$1, Member:$3 }
-                $$.SetPos($1.Pos())
-              }
             | primary_expr '(' arg_list_opt ')'
               {
                 $$ = &ast.FuncCall{Target:$1, Args:$3}
@@ -387,17 +381,37 @@ primary_expr: STRING
               {
                 $$ = $2
               }
+            | simple_ref_expr
+            | member_access_expr
             | index_expr
+            | slice_expr
             | lambda_expr
             | array_literal
             | object_literal
+
+lvalue_expr: simple_ref_expr
+           | member_access_expr
+           | index_expr
+
+simple_ref_expr: ID
+                 {
+                   $$ = &ast.SimpleRef{ID:$1}
+                   $$.SetPos($1.Pos)
+                 }
+
+member_access_expr: primary_expr '.' ID
+                    {
+                      $$ = &ast.MemberAccess{Target:$1, Member:$3 }
+                      $$.SetPos($1.Pos())
+                    }
 
 index_expr: primary_expr '[' expr ']'
             {
               $$ = &ast.IndexExpr{Target:$1, Index:$3}
               $$.SetPos($1.Pos())
             }
-          | primary_expr '[' expr ':' ']'
+
+slice_expr: primary_expr '[' expr ':' ']'
             {
               $$ = &ast.SliceExpr{Target:$1, Begin:$3}
               $$.SetPos($1.Pos())
