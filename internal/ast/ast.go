@@ -122,3 +122,16 @@ func (s *IndexExpr) isExpr() {}
 func (s *IndexExpr) RunPass(ctx *Context, pass Pass) {
 	panic("not implemented")
 }
+
+type SliceExpr struct {
+	astBase
+	Target Expr
+	Begin  Expr
+	End    Expr
+}
+
+func (e *SliceExpr) isExpr() {}
+
+func (e *SliceExpr) RunPass(ctx *Context, pass Pass) {
+	panic("not implemented")
+}

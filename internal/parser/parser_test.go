@@ -144,6 +144,8 @@ func TestParserArray(t *testing.T) {
 	]
 
 	a = [ { name: "alice" }, { name: "bob" } ]
+
+	print(a[0], a[1:3], a[:3], a[2:len(a)-3])
 `)
 	require.NoError(t, err)
 }

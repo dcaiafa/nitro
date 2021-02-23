@@ -72,6 +72,7 @@ import (
 %type <expr> unary_expr
 %type <expr> primary_expr
 %type <expr> lambda_expr
+%type <expr> index_expr
 %type <asts> param_list_opt
 %type <asts> param_list
 %type <exprs> arg_list_opt
@@ -372,11 +373,6 @@ primary_expr: STRING
                 $$ = &ast.LiteralExpr{Val:$1}
                 $$.SetPos($1.Pos)
               }
-            | primary_expr '[' expr ']'
-              {
-                $$ = &ast.IndexExpr{Target:$1, Index:$3}
-                $$.SetPos($1.Pos())
-              }
             | primary_expr '.' ID
               {
                 $$ = &ast.MemberAccess{Target:$1, Member:$3 }
@@ -391,9 +387,31 @@ primary_expr: STRING
               {
                 $$ = $2
               }
+            | index_expr
             | lambda_expr
             | array_literal
             | object_literal
+
+index_expr: primary_expr '[' expr ']'
+            {
+              $$ = &ast.IndexExpr{Target:$1, Index:$3}
+              $$.SetPos($1.Pos())
+            }
+          | primary_expr '[' expr ':' ']'
+            {
+              $$ = &ast.SliceExpr{Target:$1, Begin:$3}
+              $$.SetPos($1.Pos())
+            }
+          | primary_expr '[' ':' expr ']'
+            {
+              $$ = &ast.SliceExpr{Target:$1, End:$4}
+              $$.SetPos($1.Pos())
+            }
+          | primary_expr '[' expr ':' expr ']'
+            {
+              $$ = &ast.SliceExpr{Target:$1, Begin:$3, End:$5}
+              $$.SetPos($1.Pos())
+            }
 
 lambda_expr: kFN '(' param_list_opt ')'
                stmts_opt
