@@ -39,7 +39,6 @@ func TestFn(t *testing.T) {
 		fn func(a, b) 
 			return a + b
 		end
-		func
 		var x
 		x = func(1, 2)
 		print(x)

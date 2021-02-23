@@ -44,7 +44,7 @@ func (s *VarDeclStmt) RunPass(ctx *Context, pass Pass) {
 	case Emit:
 		if s.InitValue != nil {
 			emitter := ctx.Emitter()
-			emitter.Emit(runtime.OpStore, 0, 0)
+			emitter.Emit(runtime.OpStore, 1, 0)
 		}
 	}
 }

@@ -67,6 +67,7 @@ import (
 %type <ast> for_stmt
 %type <asts> for_vars
 %type <ast> assignment_stmt
+%type <asts> assignees
 %type <ast> var_decl_stmt
 %type <expr> expr
 %type <expr> unary_expr
@@ -103,6 +104,8 @@ import (
 %type <ast> array_else_opt
 %type <ast> array_else
 %type <expr> lvalue_expr
+%type <ast> func_call_stmt
+%type <expr> func_call_expr
 
 %start S
 
@@ -132,13 +135,15 @@ stmt: assignment_stmt
     | for_stmt
     | if_stmt
     | func_stmt
+    | func_call_stmt
     | return_stmt
     | while_stmt
-    | expr                             
-      { 
-        $$ = &ast.ExprStmt{Expr:$1}
-        $$.SetPos($1.Pos())
-      }
+
+func_call_stmt: primary_expr '(' arg_list_opt ')'
+                {
+                  $$ = &ast.FuncCallStmt{Target:$1, Args:$3}
+                  $$.SetPos($1.Pos())
+                }
 
 while_stmt: kWHILE expr kDO 
               stmts_opt
@@ -249,11 +254,20 @@ for_vars: for_vars ',' ID
             $$.SetPos($1.Pos)
           }
 
-assignment_stmt: lvalue_expr '=' expr
+assignees: assignees ',' lvalue_expr
+           {
+             $$ = append($1, &ast.LValue{Expr:$3})
+           }
+         | lvalue_expr
+           {
+             lvalue := &ast.LValue{Expr:$1}
+             lvalue.SetPos($1.Pos())
+             $$ = ast.ASTs{lvalue}
+           }
+
+assignment_stmt: assignees '=' expr
                  {
-                   lvalue := &ast.LValue{Expr:$1}
-                   lvalue.SetPos($1.Pos())
-                   $$ = &ast.AssignStmt{Lvalue:lvalue, Rvalue:$3}
+                   $$ = &ast.AssignStmt{Lvalues:$1, Rvalue:$3}
                    $$.SetPos($1.Pos())
                  }
 
@@ -372,15 +386,11 @@ primary_expr: STRING
                 $$ = &ast.LiteralExpr{Val:$1}
                 $$.SetPos($1.Pos)
               }
-            | primary_expr '(' arg_list_opt ')'
-              {
-                $$ = &ast.FuncCall{Target:$1, Args:$3}
-                $$.SetPos($1.Pos())
-              }
             | '(' expr ')'
               {
                 $$ = $2
               }
+            | func_call_expr
             | simple_ref_expr
             | member_access_expr
             | index_expr
@@ -388,6 +398,12 @@ primary_expr: STRING
             | lambda_expr
             | array_literal
             | object_literal
+
+func_call_expr: primary_expr '(' arg_list_opt ')'
+                {
+                  $$ = &ast.FuncCallExpr{Target:$1, Args:$3, RetN:1}
+                  $$.SetPos($1.Pos())
+                }
 
 lvalue_expr: simple_ref_expr
            | member_access_expr

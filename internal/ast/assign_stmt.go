@@ -4,19 +4,17 @@ import "github.com/dcaiafa/nitro/internal/runtime"
 
 type AssignStmt struct {
 	astBase
-	Lvalue *LValue
-	Rvalue Expr
+	Lvalues ASTs
+	Rvalue  Expr
 }
 
 func (s *AssignStmt) RunPass(ctx *Context, pass Pass) {
-	ctx.Push(s)
-	s.Lvalue.RunPass(ctx, pass)
-	s.Rvalue.RunPass(ctx, pass)
-	ctx.Pop()
+	ctx.RunPassChild(s, s.Lvalues, pass)
+	ctx.RunPassChild(s, s.Rvalue, pass)
 
 	switch pass {
 	case Emit:
 		emitter := ctx.Emitter()
-		emitter.Emit(runtime.OpStore, 0, 0)
+		emitter.Emit(runtime.OpStore, uint16(len(s.Lvalues)), 0)
 	}
 }

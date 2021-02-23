@@ -26,12 +26,14 @@ func TestParserProg(t *testing.T) {
 	end
 
 	var less = fn(x,y)
-		x < y
+		return x < y
 	end
 
-  var someMult2 = [ 1, 2, 3 ].map(fn(x) x*2 end)
+  var someMult2 = [ 1, 2, 3 ].map(fn(x) return x*2 end)
 
-	{
+	x, y, z = f(1, 2, 3)
+
+	return {
 		id: {
 			customer: customer
 			name: id
@@ -74,7 +76,7 @@ func TestParserProg2(t *testing.T) {
 		var a = 1
 		fn Dwit(x)
 			var a = 0
-			fn()
+			return fn()
 				var t = a
 				a = a + 1
 				return t

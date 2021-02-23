@@ -49,7 +49,7 @@ func (s *FuncStmt) RunPass(ctx *Context, pass Pass) {
 		if _, ok := s.sym.(*types.LocalVarSymbol); ok {
 			// The prefix emitted the PushLocalRef. `Func` emitted the closure. Now
 			// emit the `Store` to place the closure into the local var.
-			ctx.Emitter().Emit(runtime.OpStore, 0, 0)
+			ctx.Emitter().Emit(runtime.OpStore, 1, 0)
 		}
 	}
 }

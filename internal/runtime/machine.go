@@ -110,14 +110,18 @@ func (m *Machine) run(ctx context.Context) error {
 		return r
 	}
 
-	peek := func() Value {
-		return f.Stack[len(f.Stack)-1]
+	peek := func(n int) Value {
+		return f.Stack[len(f.Stack)-1-n]
 	}
 
 	popN := func(n int) []Value {
 		r := f.Stack[len(f.Stack)-n:]
 		f.Stack = f.Stack[:len(f.Stack)-n]
 		return r
+	}
+
+	discardN := func(n int) {
+		f.Stack = f.Stack[:len(f.Stack)-n]
 	}
 
 	for {
@@ -141,7 +145,7 @@ func (m *Machine) run(ctx context.Context) error {
 			}
 
 		case OpDup:
-			v := peek()
+			v := peek(0)
 			push(v)
 
 		case OpPop:
@@ -280,7 +284,7 @@ func (m *Machine) run(ctx context.Context) error {
 		case OpObjectPutNoPop:
 			val := pop()
 			key := pop()
-			obj := peek().(*Object)
+			obj := peek(0).(*Object)
 			obj.Put(key, val)
 
 		case OpObjectGet:
@@ -312,7 +316,7 @@ func (m *Machine) run(ctx context.Context) error {
 
 		case OpArrayAppendNoPop:
 			value := pop()
-			array := peek().(*Array)
+			array := peek(0).(*Array)
 			array.Append(value)
 
 		case OpRet:
@@ -330,9 +334,13 @@ func (m *Machine) run(ctx context.Context) error {
 			ip = f.IP
 
 		case OpStore:
-			val := pop()
-			rval := pop().(ValueRef)
-			*rval.Ref = val
+			count := int(instr.Operand1)
+			for i := 0; i < count; i++ {
+				rval := peek(count*2 - 1 - i).(ValueRef)
+				val := peek(count - 1 - i)
+				*rval.Ref = val
+			}
+			discardN(count * 2)
 
 		case OpInitCallFrame:
 			localN := instr.Operand1
