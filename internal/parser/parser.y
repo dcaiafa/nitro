@@ -70,6 +70,7 @@ import (
 %type <asts> assignment_lvalues
 %type <exprs> assignment_rvalues
 %type <ast> var_decl_stmt
+%type <other> var_decl_vars
 %type <expr> expr
 %type <expr> unary_expr
 %type <expr> primary_expr
@@ -281,14 +282,23 @@ assignment_stmt: assignment_lvalues '=' assignment_rvalues
                    $$.SetPos($1.Pos())
                  }
 
-var_decl_stmt: kVAR ID
+var_decl_vars: var_decl_vars ',' ID
                {
-                 $$ = &ast.VarDeclStmt{VarName: $2, InitValue:nil}
+                 $$ = append($1.([]token.Token), $3)
+               }
+             | ID
+               {
+                 $$ = []token.Token{$1}
+               }
+
+var_decl_stmt: kVAR var_decl_vars
+               {
+                 $$ = &ast.VarDeclStmt{Vars: $2.([]token.Token), InitValues:nil}
                  $$.SetPos($1.Pos)
                }
-             | kVAR ID '=' expr
+             | kVAR var_decl_vars '=' assignment_rvalues
                {
-                 $$ = &ast.VarDeclStmt{VarName: $2, InitValue:$4}
+                 $$ = &ast.VarDeclStmt{Vars: $2.([]token.Token), InitValues:$4}
                  $$.SetPos($1.Pos)
                }
 

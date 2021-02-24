@@ -29,4 +29,36 @@ func VarDeclTest(t *testing.T) {
 		end
 		print(f(), a)
 `, `2 1`)
+
+	RunSubO(t, "init_multi", `
+		fn foo(x)
+			return x + 1
+		end
+  	var a, b, c  = 1, foo(1), 3
+		print(a, b, c)
+	`, `1 2 3`)
+
+	RunSubO(t, "init_func_single", `
+		fn foo(x)
+			return x + 1
+		end
+  	var a = foo(1)
+		print(a)
+	`, `2`)
+
+	RunSubO(t, "init_func_multi", `
+		fn foo(x)
+			return x, x+1, x+2
+		end
+  	var a, b, c = foo(1)
+		print(a, b, c)
+	`, `1 2 3`)
+
+	RunSubO(t, "init_func_multi_discard", `
+		fn foo(x)
+			return x, x+1, x+2
+		end
+  	var a = foo(1)
+		print(a)
+	`, `1`)
 }

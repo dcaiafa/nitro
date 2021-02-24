@@ -13,9 +13,7 @@ func TestAssignment(t *testing.T) {
 		fn f(x) 
 			return x - 2
 		end
-		var a
-		var b
-		var c
+		var a, b, c
 		a, b, c = 1, 1+1, f(5)
 		print(a, b, c)`,
 		`1 2 3`)
@@ -33,10 +31,17 @@ func TestAssignment(t *testing.T) {
   	fn foo(x) 
 			return x, x+1, x+2
 		end
-		var a
-		var b
-		var c
+		var a, b, c
 		a, b, c = foo(1)
 		print(a, b, c)
 	`, `1 2 3`)
+
+	RunSubO(t, "func_multi_discard", `
+  	fn foo(x) 
+			return x, x+1, x+2
+		end
+		var a, b, c
+		a = foo(1)
+		print(a)
+	`, `1`)
 }

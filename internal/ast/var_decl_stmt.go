@@ -8,43 +8,56 @@ import (
 
 type VarDeclStmt struct {
 	astBase
-	VarName   token.Token
-	InitValue Expr
+	Vars       []token.Token
+	InitValues Exprs
 
-	Sym types.Symbol
+	syms []types.Symbol
 }
 
 func (s *VarDeclStmt) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Check:
-		s.Sym = AddVariable(ctx, s.VarName.Str, s.Pos())
-		if s.Sym == nil {
-			return
+		s.syms = make([]types.Symbol, len(s.Vars))
+		for i, v := range s.Vars {
+			s.syms[i] = AddVariable(ctx, v.Str, v.Pos)
+			if s.syms[i] == nil {
+				return
+			}
+		}
+		if len(s.InitValues) != 0 {
+			if len(s.Vars) != len(s.InitValues) {
+				if funcCall, ok := s.InitValues[0].(*FuncCallExpr); ok && len(s.InitValues) == 1 {
+					funcCall.RetN = len(s.InitValues)
+				} else {
+					ctx.Failf(s.Pos(), "assigment mismatch: %v variables but %v values",
+						len(s.Vars), len(s.InitValues))
+				}
+			}
 		}
 
 	case Emit:
-		if s.InitValue != nil {
+		if s.InitValues != nil {
 			emitter := ctx.Emitter()
-
-			switch sym := s.Sym.(type) {
-			case *types.LocalVarSymbol:
-				emitter.Emit(runtime.OpLoadLocalRef, uint16(sym.LocalNdx), 0)
-
-			case *types.GlobalVarSymbol:
-				emitter.Emit(runtime.OpLoadGlobalRef, uint16(sym.GlobalNdx), 0)
+			for _, sym := range s.syms {
+				switch sym := sym.(type) {
+				case *types.LocalVarSymbol:
+					emitter.Emit(runtime.OpLoadLocalRef, uint16(sym.LocalNdx), 0)
+				case *types.GlobalVarSymbol:
+					emitter.Emit(runtime.OpLoadGlobalRef, uint16(sym.GlobalNdx), 0)
+				}
 			}
 		}
 	}
 
-	if s.InitValue != nil {
-		ctx.RunPassChild(s, s.InitValue, pass)
+	if s.InitValues != nil {
+		ctx.RunPassChild(s, s.InitValues, pass)
 	}
 
 	switch pass {
 	case Emit:
-		if s.InitValue != nil {
+		if s.InitValues != nil {
 			emitter := ctx.Emitter()
-			emitter.Emit(runtime.OpStore, 1, 0)
+			emitter.Emit(runtime.OpStore, uint16(len(s.syms)), 0)
 		}
 	}
 }
