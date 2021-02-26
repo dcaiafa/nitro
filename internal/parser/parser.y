@@ -29,6 +29,7 @@ import (
 %token <tok> kFOR
 %token <tok> kIF 
 %token <tok> kIN 
+%token <tok> kMETA
 %token <tok> kNOT 
 %token <tok> kOR 
 %token <tok> kRETURN
@@ -109,26 +110,62 @@ import (
 %type <ast> func_call_stmt
 %type <expr> func_call_expr
 
+%type <ast> meta_section_opt
+%type <ast> meta_section
+%type <asts> meta_entries
+%type <ast> meta_entry
+%type <ast> meta_object
+%type <asts> meta_fields_opt
+%type <asts> meta_fields
+%type <ast> meta_field
+
 %start S
 
 %%
 
 S: module                             { yylex.(*lex).Module = $1.(*ast.Module) }
 
-module: stmts_opt                     
+module: meta_section_opt stmts_opt                     
       { 
         m := &ast.Module{}
-        m.Stmts = $1
+        m.Stmts = $2
         m.SetPos($1.Pos())
         $$ = m
       }
+
+meta_section_opt: meta_section
+                | /* empty */               { $$ = ast.ASTs{} }
+
+meta_section: kMETA meta_entries kEND       { $$ = $2; $$.SetPos($1.Pos) }
+            
+meta_entries: meta_entries meta_entry ';'   { l := $1; $$ = append(l, $2) }
+            | meta_entries ';'              { $$ = $1 }
+            | meta_entry ';'                { $$ = ast.ASTs{$1} }
+            | ';'                           { $$ = ast.ASTs{} }
+
+meta_entry: ID meta_object                  { $$ = nil }
+
+meta_object: '{' meta_fields_opt '}'        { $$ = nil }
+
+meta_fields_opt: meta_fields                { $$ = nil }
+               | /* empty */                { $$ = nil }
+
+meta_fields: meta_fields ',' meta_field     { $$ = nil }
+           | meta_fields ';' meta_field     { $$ = nil }
+           | meta_field                     { $$ = nil }
+
+meta_field: STRING                          { $$ = nil }
+          | NUMBER                          { $$ = nil }
+          | kTRUE                           { $$ = nil }
+          | kFALSE                          { $$ = nil }
+          | meta_object                     { $$ = nil }
 
 stmts_opt: stmts
          | stmt                        { $$ = ast.ASTs{$1}; }
          | /*empty*/                   { $$ = ast.ASTs{} }
 
 stmts: stmts stmt ';'                  { l := $1; $$ = append(l, $2) }
-     | stmts ';'
+     | stmts ';'                       { $$ = $1 }
      | stmt ';'                        { $$ = ast.ASTs{$1} }
      | ';'                             { $$ = ast.ASTs{} }
 

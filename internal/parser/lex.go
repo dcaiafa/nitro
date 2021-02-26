@@ -20,6 +20,7 @@ var keywords = map[string]int{
 	"for":    kFOR,
 	"if":     kIF,
 	"in":     kIN,
+	"meta":   kMETA,
 	"not":    kNOT,
 	"or":     kOR,
 	"return": kRETURN,
