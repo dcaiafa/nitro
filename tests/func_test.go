@@ -92,4 +92,20 @@ func TestFn(t *testing.T) {
 		var f2 = x()()
 		print(f1(), f2(), f1(), f2())
 `, `11 11 12 12`)
+
+	RunSubO(t, "stmt_obj_literal", `
+		fn x(o)
+			o.stuff = "yay"
+			print(o)
+		end
+		x{other: 123}`,
+		`{other: 123, stuff: "yay"}`)
+
+	RunSubO(t, "expr_obj_literal", `
+		fn x(o)
+			o.stuff = "yay"
+			return o
+		end
+		print(x{other: 123})`,
+		`{other: 123, stuff: "yay"}`)
 }

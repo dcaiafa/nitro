@@ -33,6 +33,8 @@ func TestParserProg(t *testing.T) {
 
 	x, y, z = f(1, 2, 3)
 
+	someFunc{bob: "is your uncle"}
+
 	return {
 		id: {
 			customer: customer

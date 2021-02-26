@@ -146,6 +146,11 @@ func_call_stmt: primary_expr '(' arg_list_opt ')'
                   $$ = &ast.FuncCallStmt{Target:$1, Args:$3}
                   $$.SetPos($1.Pos())
                 }
+              | primary_expr object_literal
+                {
+                  $$ = &ast.FuncCallStmt{Target:$1, Args:ast.Exprs{$2}}
+                  $$.SetPos($1.Pos())
+                } 
 
 while_stmt: kWHILE expr kDO 
               stmts_opt
@@ -422,6 +427,11 @@ primary_expr: STRING
 func_call_expr: primary_expr '(' arg_list_opt ')'
                 {
                   $$ = &ast.FuncCallExpr{Target:$1, Args:$3, RetN:1}
+                  $$.SetPos($1.Pos())
+                }
+              | primary_expr object_literal
+                {
+                  $$ = &ast.FuncCallExpr{Target:$1, Args:ast.Exprs{$2}, RetN:1}
                   $$.SetPos($1.Pos())
                 }
 
