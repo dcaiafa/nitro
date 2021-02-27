@@ -1,11 +1,11 @@
 package ast
 
 import (
+	"github.com/dcaiafa/nitro/internal/symbol"
 	"github.com/dcaiafa/nitro/internal/token"
-	"github.com/dcaiafa/nitro/internal/types"
 )
 
-func AddVariable(ctx *Context, name string, pos token.Pos) types.Symbol {
+func AddVariable(ctx *Context, name string, pos token.Pos) symbol.Symbol {
 	fn := ctx.CurrentFunc()
 	if fn != nil {
 		l := fn.NewLocal()

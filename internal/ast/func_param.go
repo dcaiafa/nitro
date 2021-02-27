@@ -1,13 +1,13 @@
 package ast
 
-import "github.com/dcaiafa/nitro/internal/types"
+import "github.com/dcaiafa/nitro/internal/symbol"
 
 type FuncParam struct {
 	astBase
 
 	Name string
 
-	sym *types.ParamSymbol
+	sym *symbol.ParamSymbol
 }
 
 func (p *FuncParam) RunPass(ctx *Context, pass Pass) {

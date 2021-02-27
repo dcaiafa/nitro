@@ -1,4 +1,4 @@
-package types
+package symbol
 
 import (
 	"github.com/dcaiafa/nitro/internal/errlogger"

@@ -2,7 +2,7 @@ package ast
 
 import (
 	"github.com/dcaiafa/nitro/internal/runtime"
-	"github.com/dcaiafa/nitro/internal/types"
+	"github.com/dcaiafa/nitro/internal/symbol"
 )
 
 type FuncStmt struct {
@@ -10,7 +10,7 @@ type FuncStmt struct {
 
 	Name string
 
-	sym types.Symbol
+	sym symbol.Symbol
 }
 
 func (s *FuncStmt) RunPass(ctx *Context, pass Pass) {
@@ -22,7 +22,7 @@ func (s *FuncStmt) RunPass(ctx *Context, pass Pass) {
 			s.sym = parentFn.NewLocal()
 			s.Func.IsClosure = true
 		} else {
-			s.sym = &types.FuncSymbol{}
+			s.sym = &symbol.FuncSymbol{}
 		}
 
 		s.sym.SetName(s.Name)
@@ -32,7 +32,7 @@ func (s *FuncStmt) RunPass(ctx *Context, pass Pass) {
 		}
 
 	case Emit:
-		if localSym, ok := s.sym.(*types.LocalVarSymbol); ok {
+		if localSym, ok := s.sym.(*symbol.LocalVarSymbol); ok {
 			ctx.Emitter().Emit(runtime.OpLoadLocalRef, uint16(localSym.LocalNdx), 0)
 		}
 	}
@@ -41,12 +41,12 @@ func (s *FuncStmt) RunPass(ctx *Context, pass Pass) {
 
 	switch pass {
 	case Check:
-		if fnSym, ok := s.sym.(*types.FuncSymbol); ok {
+		if fnSym, ok := s.sym.(*symbol.FuncSymbol); ok {
 			fnSym.FnNdx = s.Func.FnNdx
 		}
 
 	case Emit:
-		if _, ok := s.sym.(*types.LocalVarSymbol); ok {
+		if _, ok := s.sym.(*symbol.LocalVarSymbol); ok {
 			// The prefix emitted the PushLocalRef. `Func` emitted the closure. Now
 			// emit the `Store` to place the closure into the local var.
 			ctx.Emitter().Emit(runtime.OpStore, 1, 0)

@@ -2,7 +2,7 @@ package ast
 
 import (
 	"github.com/dcaiafa/nitro/internal/runtime"
-	"github.com/dcaiafa/nitro/internal/types"
+	"github.com/dcaiafa/nitro/internal/symbol"
 )
 
 type Module struct {
@@ -10,18 +10,18 @@ type Module struct {
 
 	Stmts ASTs
 
-	scope *types.Scope
+	scope *symbol.Scope
 	fn    int
 }
 
-func (m *Module) Scope() *types.Scope {
+func (m *Module) Scope() *symbol.Scope {
 	return m.scope
 }
 
 func (m *Module) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Check:
-		m.scope = types.NewScope()
+		m.scope = symbol.NewScope()
 		m.fn = ctx.Emitter().NewFn()
 
 	case Emit:

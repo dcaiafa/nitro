@@ -3,7 +3,7 @@ package ast
 import (
 	"github.com/dcaiafa/nitro/internal/errlogger"
 	"github.com/dcaiafa/nitro/internal/runtime"
-	"github.com/dcaiafa/nitro/internal/types"
+	"github.com/dcaiafa/nitro/internal/symbol"
 )
 
 type Pass int
@@ -43,9 +43,9 @@ func (c *Context) Parent() AST {
 	return c.stack[len(c.stack)-1]
 }
 
-func (c *Context) FindSymbol(symName string) types.Symbol {
+func (c *Context) FindSymbol(symName string) symbol.Symbol {
 	var fns []*Func
-	var sym types.Symbol
+	var sym symbol.Symbol
 	for i := len(c.stack) - 1; i >= 0; i-- {
 		ast := c.stack[i]
 		if scope, ok := ast.(Scope); ok {
@@ -62,7 +62,7 @@ func (c *Context) FindSymbol(symName string) types.Symbol {
 		return nil
 	}
 	if len(fns) != 0 {
-		if _, ok := sym.(types.Capturable); ok {
+		if _, ok := sym.(symbol.Capturable); ok {
 			for i := len(fns) - 1; i >= 0; i-- {
 				sym = fns[i].NewCapture(sym)
 			}
@@ -91,7 +91,7 @@ func (c *Context) Main() *Main {
 	return nil
 }
 
-func (c *Context) CurrentScope() *types.Scope {
+func (c *Context) CurrentScope() *symbol.Scope {
 	for i := len(c.stack) - 1; i >= 0; i-- {
 		ast := c.stack[i]
 		if scopeAST, ok := ast.(Scope); ok {

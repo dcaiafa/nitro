@@ -2,7 +2,7 @@ package ast
 
 import (
 	"github.com/dcaiafa/nitro/internal/runtime"
-	"github.com/dcaiafa/nitro/internal/types"
+	"github.com/dcaiafa/nitro/internal/symbol"
 )
 
 type Func struct {
@@ -14,16 +14,16 @@ type Func struct {
 	IsClosure bool
 	FnNdx     int
 
-	scope      *types.Scope
+	scope      *symbol.Scope
 	paramCount int
 	localCount int
-	captures   []*types.CaptureSymbol
+	captures   []*symbol.CaptureSymbol
 }
 
 func (f *Func) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Check:
-		f.scope = types.NewScope()
+		f.scope = symbol.NewScope()
 		f.FnNdx = ctx.Emitter().NewFn()
 
 	case Emit:
@@ -60,22 +60,22 @@ func (f *Func) RunPass(ctx *Context, pass Pass) {
 	}
 }
 
-func (f *Func) NewLocal() *types.LocalVarSymbol {
-	s := &types.LocalVarSymbol{}
+func (f *Func) NewLocal() *symbol.LocalVarSymbol {
+	s := &symbol.LocalVarSymbol{}
 	s.LocalNdx = f.localCount
 	f.localCount++
 	return s
 }
 
-func (f *Func) NewParam() *types.ParamSymbol {
-	s := &types.ParamSymbol{}
+func (f *Func) NewParam() *symbol.ParamSymbol {
+	s := &symbol.ParamSymbol{}
 	s.ParamNdx = f.paramCount
 	f.paramCount++
 	return s
 }
 
-func (f *Func) NewCapture(sym types.Symbol) *types.CaptureSymbol {
-	c := &types.CaptureSymbol{
+func (f *Func) NewCapture(sym symbol.Symbol) *symbol.CaptureSymbol {
+	c := &symbol.CaptureSymbol{
 		Captured: sym,
 	}
 	c.SetName(sym.Name())
@@ -89,6 +89,6 @@ func (f *Func) NewCapture(sym types.Symbol) *types.CaptureSymbol {
 	return c
 }
 
-func (f *Func) Scope() *types.Scope {
+func (f *Func) Scope() *symbol.Scope {
 	return f.scope
 }

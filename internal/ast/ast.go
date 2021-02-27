@@ -1,8 +1,8 @@
 package ast
 
 import (
+	"github.com/dcaiafa/nitro/internal/symbol"
 	"github.com/dcaiafa/nitro/internal/token"
-	"github.com/dcaiafa/nitro/internal/types"
 )
 
 type Type int
@@ -27,7 +27,7 @@ type AST interface {
 }
 
 type Scope interface {
-	Scope() *types.Scope
+	Scope() *symbol.Scope
 }
 
 type astBase struct {

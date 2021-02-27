@@ -2,8 +2,8 @@ package ast
 
 import (
 	"github.com/dcaiafa/nitro/internal/runtime"
+	"github.com/dcaiafa/nitro/internal/symbol"
 	"github.com/dcaiafa/nitro/internal/token"
-	"github.com/dcaiafa/nitro/internal/types"
 )
 
 type VarDeclStmt struct {
@@ -11,13 +11,13 @@ type VarDeclStmt struct {
 	Vars       []token.Token
 	InitValues Exprs
 
-	syms []types.Symbol
+	syms []symbol.Symbol
 }
 
 func (s *VarDeclStmt) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Check:
-		s.syms = make([]types.Symbol, len(s.Vars))
+		s.syms = make([]symbol.Symbol, len(s.Vars))
 		for i, v := range s.Vars {
 			s.syms[i] = AddVariable(ctx, v.Str, v.Pos)
 			if s.syms[i] == nil {
@@ -40,9 +40,9 @@ func (s *VarDeclStmt) RunPass(ctx *Context, pass Pass) {
 			emitter := ctx.Emitter()
 			for _, sym := range s.syms {
 				switch sym := sym.(type) {
-				case *types.LocalVarSymbol:
+				case *symbol.LocalVarSymbol:
 					emitter.Emit(runtime.OpLoadLocalRef, uint16(sym.LocalNdx), 0)
-				case *types.GlobalVarSymbol:
+				case *symbol.GlobalVarSymbol:
 					emitter.Emit(runtime.OpLoadGlobalRef, uint16(sym.GlobalNdx), 0)
 				}
 			}
