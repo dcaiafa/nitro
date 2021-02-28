@@ -119,6 +119,8 @@ import (
 %type <asts> meta_fields
 %type <ast> meta_field
 
+%type <tok> keyword_or_id
+
 %start S
 
 %%
@@ -579,7 +581,7 @@ object_fields: object_fields ',' object_field
                  $$ = ast.ASTs{$1}
                }
 
-object_field: ID ':' expr
+object_field: keyword_or_id ':' expr
               {
                 $$ = &ast.ObjectField{NameID:$1.Str, Val:$3}
               }
@@ -752,3 +754,19 @@ trailing_seps1: trailing_seps1 ';'
               | ','
 
 trailing_comma: ',' | /*empty*/
+
+keyword_or_id: ID
+             | kAND   
+             | kDO    
+             | kFALSE 
+             | kFN    
+             | kFOR   
+             | kIN    
+             | kMETA  
+             | kNOT   
+             | kOR    
+             | kRETURN
+             | kTHEN  
+             | kTRUE  
+             | kVAR   
+             | kWHILE 

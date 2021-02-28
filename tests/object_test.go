@@ -67,6 +67,26 @@ func TestObjectLiteral(t *testing.T) {
 {foo: "bar"}
 {foo: "bar", other: 123, sub: {y: false}}
 {foo: "bar", other: 123, sub: {x: true, y: false}}`)
+
+	RunSubO(t, "keyword_keys", `
+		var a = {
+			and: 1
+			do: 1
+			false: 1
+			fn: 1
+			for: 1
+			in: 1
+			meta: 1
+			not: 1
+			or: 1
+			return: 1
+			then: 1
+			true: 1
+			var: 1
+			while: 1
+		}
+		print(a)
+	`, `{and: 1, do: 1, false: 1, fn: 1, for: 1, in: 1, meta: 1, not: 1, or: 1, return: 1, then: 1, true: 1, var: 1, while: 1}`)
 }
 
 func TestObjectMemberAccess(t *testing.T) {
