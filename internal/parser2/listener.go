@@ -11,7 +11,23 @@ import (
 	"github.com/dcaiafa/nitro/internal/token"
 )
 
-func antlrTokenToNitro(at antlr.Token) token.Token {
+type listener struct {
+	parser.BaseNitroListener
+
+	Module *ast.Module
+
+	filename string
+	values   map[antlr.RuleContext]interface{}
+}
+
+func newListener(filename string) *listener {
+	return &listener{
+		filename: filename,
+		values:   make(map[antlr.RuleContext]interface{}),
+	}
+}
+
+func (l *listener) tokenToNitro(at antlr.Token) token.Token {
 	t := token.Token{}
 	switch at.GetTokenType() {
 	case parser.NitroLexerNUMBER:
@@ -32,28 +48,15 @@ func antlrTokenToNitro(at antlr.Token) token.Token {
 		t.Type = token.String
 		t.Str = at.GetText()
 	}
-	t.Pos = antlrTokenToPos(at)
+	t.Pos = l.tokenToPos(at)
 	return t
 }
 
-func antlrTokenToPos(at antlr.Token) token.Pos {
+func (l *listener) tokenToPos(at antlr.Token) token.Pos {
 	return token.Pos{
-		Col:  at.GetColumn(),
-		Line: at.GetLine(),
-	}
-	// TODO: filename
-}
-
-type listener struct {
-	parser.BaseNitroListener
-
-	values map[antlr.RuleContext]interface{}
-	module *ast.Module
-}
-
-func newListener() *listener {
-	return &listener{
-		values: make(map[antlr.RuleContext]interface{}),
+		Col:      at.GetColumn(),
+		Line:     at.GetLine(),
+		Filename: l.filename,
 	}
 }
 
@@ -114,12 +117,12 @@ func (l *listener) ExitEveryRule(ctx antlr.ParserRuleContext) {
 	if !ok {
 		return
 	}
-	ast.SetPos(antlrTokenToPos(ctx.GetStart()))
+	ast.SetPos(l.tokenToPos(ctx.GetStart()))
 }
 
 // start: module;
 func (l *listener) ExitStart(ctx *parser.StartContext) {
-	l.module = l.takeAST(ctx.Module()).(*ast.Module)
+	l.Module = l.takeAST(ctx.Module()).(*ast.Module)
 }
 
 // module: meta_section? stmts;
@@ -226,7 +229,7 @@ func (l *listener) ExitVar_decl_vars(ctx *parser.Var_decl_varsContext) {
 	all := ctx.AllID()
 	ids := make([]token.Token, len(all))
 	for i, child := range all {
-		ids[i] = antlrTokenToNitro(child.GetSymbol())
+		ids[i] = l.tokenToNitro(child.GetSymbol())
 	}
 	l.put(ctx, ids)
 }
@@ -245,7 +248,7 @@ func (l *listener) ExitFor_vars(ctx *parser.For_varsContext) {
 	all := ctx.AllID()
 	vars := make(ast.ASTs, len(all))
 	for i, child := range all {
-		vars[i] = &ast.ForVar{VarName: antlrTokenToNitro(child.GetSymbol())}
+		vars[i] = &ast.ForVar{VarName: l.tokenToNitro(child.GetSymbol())}
 	}
 	l.put(ctx, vars)
 }
@@ -312,7 +315,7 @@ func (l *listener) ExitParam_list(ctx *parser.Param_listContext) {
 		params[i] = &ast.FuncParam{
 			Name: child.GetText(),
 		}
-		params[i].SetPos(antlrTokenToPos(child.GetSymbol()))
+		params[i].SetPos(l.tokenToPos(child.GetSymbol()))
 	}
 	l.put(ctx, params)
 }
@@ -418,38 +421,273 @@ func (l *listener) ExitUnary_expr(ctx *parser.Unary_exprContext) {
 	})
 }
 
-func (l *listener) ExitPrimary_expr(ctx *parser.Primary_exprContext) {}
+// primary_expr: ID                                       # primary_expr_simple_ref
+//             | primary_expr '.' ID                      # primary_expr_member_access
+//             | primary_expr '[' expr ']'                # primary_expr_index
+//             | primary_expr '[' expr? ':' expr? ']'     # primary_expr_slice
+//             | primary_expr '(' arg_list? ')'           # primary_expr_call
+//             | object_literal                           # primary_expr_object
+//             | simple_literal                           # primary_expr_literal
+//             | '(' expr ')'                             # primary_expr_parenthesis
+//             ;
 
-func (l *listener) ExitArg_list(ctx *parser.Arg_listContext) {}
+func (l *listener) ExitPrimary_expr_simple_ref(ctx *parser.Primary_expr_simple_refContext) {
+	l.put(ctx, &ast.SimpleRef{
+		ID: l.tokenToNitro(ctx.ID().GetSymbol()),
+	})
+}
+func (l *listener) ExitPrimary_expr_member_access(ctx *parser.Primary_expr_member_accessContext) {
+	l.put(ctx, &ast.MemberAccess{
+		Target: l.takeExpr(ctx.Primary_expr()),
+		Member: l.tokenToNitro(ctx.ID().GetSymbol()),
+	})
+}
 
-func (l *listener) ExitLvalue_expr(ctx *parser.Lvalue_exprContext) {}
+func (l *listener) ExitPrimary_expr_index(ctx *parser.Primary_expr_indexContext) {
+	l.put(ctx, &ast.IndexExpr{
+		Target: l.takeExpr(ctx.Primary_expr()),
+		Index:  l.takeExpr(ctx.Expr()),
+	})
+}
 
-func (l *listener) ExitObject_literal(ctx *parser.Object_literalContext) {}
+func (l *listener) ExitPrimary_expr_slice(ctx *parser.Primary_expr_sliceContext) {
+	l.put(ctx, &ast.SliceExpr{
+		Target: l.takeExpr(ctx.Primary_expr()),
+		Begin:  l.takeExpr(ctx.GetB()),
+		End:    l.takeExpr(ctx.GetE()),
+	})
+}
 
-func (l *listener) ExitObject_fields(ctx *parser.Object_fieldsContext) {}
+func (l *listener) ExitPrimary_expr_call(ctx *parser.Primary_expr_callContext) {
+	l.put(ctx, &ast.FuncCallExpr{
+		Target: l.takeExpr(ctx.Primary_expr()),
+		Args:   l.takeExprs(ctx.Arg_list()),
+		RetN:   1,
+	})
+}
 
-func (l *listener) ExitObject_field(ctx *parser.Object_fieldContext) {}
+func (l *listener) ExitPrimary_expr_object(ctx *parser.Primary_expr_objectContext) {
+	l.put(ctx, l.takeExpr(ctx.Object_literal()))
+}
 
-func (l *listener) ExitObject_if(ctx *parser.Object_ifContext) {}
+func (l *listener) ExitPrimary_expr_literal(ctx *parser.Primary_expr_literalContext) {
+	l.put(ctx, l.takeExpr(ctx.Simple_literal()))
+}
 
-func (l *listener) ExitObject_elif(ctx *parser.Object_elifContext) {}
+func (l *listener) ExitPrimary_expr_parenthesis(ctx *parser.Primary_expr_parenthesisContext) {
+	l.put(ctx, l.takeExpr(ctx.Expr()))
+}
 
-func (l *listener) ExitObject_else(ctx *parser.Object_elseContext) {}
+// simple_literal: val=(STRING | NUMBER | TRUE | FALSE);
+func (l *listener) ExitSimple_literal(ctx *parser.Simple_literalContext) {
+	l.put(ctx, &ast.LiteralExpr{
+		Val: l.tokenToNitro(ctx.GetVal()),
+	})
+}
 
-func (l *listener) ExitObject_for(ctx *parser.Object_forContext) {}
+// arg_list: expr (',' expr)*;
+func (l *listener) ExitArg_list(ctx *parser.Arg_listContext) {
+	all := ctx.AllExpr()
+	exprs := make(ast.Exprs, len(all))
+	for i, child := range all {
+		exprs[i] = l.takeExpr(child)
+	}
+	l.put(ctx, exprs)
+}
 
-func (l *listener) ExitArray_literal(ctx *parser.Array_literalContext) {}
+// lvalue_expr: ID                          # lvalue_expr_simple_ref
+//            | primary_expr '.' ID         # lvalue_expr_member_access
+//            | primary_expr '[' expr ']'   # lvalue_expr_index
+//            ;
 
-func (l *listener) ExitArray_elems(ctx *parser.Array_elemsContext) {}
+func (l *listener) ExitLvalue_expr_simple_ref(ctx *parser.Lvalue_expr_simple_refContext) {
+	l.put(ctx, &ast.SimpleRef{
+		ID: l.tokenToNitro(ctx.ID().GetSymbol()),
+	})
+}
 
-func (l *listener) ExitArray_elem(ctx *parser.Array_elemContext) {}
+func (l *listener) ExitLvalue_expr_member_access(ctx *parser.Lvalue_expr_member_accessContext) {
+	l.put(ctx, &ast.MemberAccess{
+		Target: l.takeExpr(ctx.Primary_expr()),
+		Member: l.tokenToNitro(ctx.ID().GetSymbol()),
+	})
+}
 
-func (l *listener) ExitArray_if(ctx *parser.Array_ifContext) {}
+func (l *listener) ExitLvalue_expr_index(ctx *parser.Lvalue_expr_indexContext) {
+	l.put(ctx, &ast.IndexExpr{
+		Target: l.takeExpr(ctx.Primary_expr()),
+		Index:  l.takeExpr(ctx.Expr()),
+	})
+}
 
-func (l *listener) ExitArray_elif(ctx *parser.Array_elifContext) {}
+// object_literal: '{' object_fields? '}';
+func (l *listener) ExitObject_literal(ctx *parser.Object_literalContext) {
+	l.put(ctx, &ast.ObjectLiteral{
+		Fields: l.takeASTs(ctx.Object_fields()),
+	})
+}
 
-func (l *listener) ExitArray_else(ctx *parser.Array_elseContext) {}
+// object_fields: object_field ((','|';') object_field)* (','|';')*;
+func (l *listener) ExitObject_fields(ctx *parser.Object_fieldsContext) {
+	allFields := ctx.AllObject_field()
+	fields := make(ast.ASTs, len(allFields))
+	for i, entry := range allFields {
+		fields[i] = l.takeAST(entry)
+	}
+	l.put(ctx, fields)
+}
 
-func (l *listener) ExitArray_for(ctx *parser.Array_forContext) {}
+// object_field: id_or_keyword ':' expr     # object_field_id_key
+//             | '[' expr ']' ':' expr      # object_field_expr_key
+//             | object_if                  # object_field_if
+//             | object_for                 # object_field_for
+//             ;
 
-func (l *listener) ExitId_or_keyword(ctx *parser.Id_or_keywordContext) {}
+func (l *listener) ExitObject_field_id_key(ctx *parser.Object_field_id_keyContext) {
+	idOrKeyw, _ := l.take(ctx.Id_or_keyword())
+	l.put(ctx, &ast.ObjectField{
+		NameID: idOrKeyw.(token.Token).Str,
+		Val:    l.takeExpr(ctx.Expr()),
+	})
+}
+
+func (l *listener) ExitObject_field_expr_key(ctx *parser.Object_field_expr_keyContext) {
+	l.put(ctx, &ast.ObjectField{
+		NameExpr: l.takeExpr(ctx.Expr(0)),
+		Val:      l.takeExpr(ctx.Expr(1)),
+	})
+}
+
+func (l *listener) ExitObject_field_if(ctx *parser.Object_field_ifContext) {
+	l.put(ctx, l.takeAST(ctx.Object_if()))
+}
+
+func (l *listener) ExitObject_field_for(ctx *parser.Object_field_forContext) {
+	l.put(ctx, l.takeAST(ctx.Object_for()))
+}
+
+// object_if: IF expr THEN object_fields? object_elif* object_else? END;
+func (l *listener) ExitObject_if(ctx *parser.Object_ifContext) {
+	ifBlock := &ast.IfBlock{
+		Pred:  l.takeExpr(ctx.Expr()),
+		Stmts: l.takeASTs(ctx.Object_fields()),
+	}
+
+	allElifs := ctx.AllObject_elif()
+	blocks := make(ast.ASTs, 0, len(allElifs)+2)
+	blocks = append(blocks, ifBlock)
+	for _, elif := range allElifs {
+		blocks = append(blocks, l.takeAST(elif))
+	}
+	if ctx.Object_else() != nil {
+		blocks = append(blocks, l.takeAST(ctx.Object_else()))
+	}
+
+	l.put(ctx, &ast.IfStmt{
+		Blocks: blocks,
+	})
+}
+
+// object_elif: ELIF expr THEN object_fields?;
+func (l *listener) ExitObject_elif(ctx *parser.Object_elifContext) {
+	l.put(ctx, &ast.IfBlock{
+		Pred:  l.takeExpr(ctx.Expr()),
+		Stmts: l.takeASTs(ctx.Object_fields()),
+	})
+}
+
+// object_else: ELSE object_fields?;
+func (l *listener) ExitObject_else(ctx *parser.Object_elseContext) {
+	l.put(ctx, &ast.IfBlock{
+		Stmts: l.takeASTs(ctx.Object_fields()),
+	})
+}
+
+// object_for: FOR for_vars IN expr DO object_fields? END;
+func (l *listener) ExitObject_for(ctx *parser.Object_forContext) {
+	l.put(ctx, &ast.ForStmt{
+		ForVars:  l.takeASTs(ctx.For_vars()),
+		IterExpr: l.takeExpr(ctx.Expr()),
+		Stmts:    l.takeASTs(ctx.Object_fields()),
+	})
+}
+
+// array_literal: '[' array_elems? ']';
+func (l *listener) ExitArray_literal(ctx *parser.Array_literalContext) {
+	l.put(ctx, &ast.ArrayLiteral{
+		Elements: l.takeASTs(ctx.Array_elems()),
+	})
+}
+
+// array_elems: array_elem ((','|';') array_elem)* (','|';')*;
+func (l *listener) ExitArray_elems(ctx *parser.Array_elemsContext) {
+	all := ctx.AllArray_elem()
+	elems := make(ast.ASTs, len(all))
+	for i, entry := range all {
+		elems[i] = l.takeAST(entry)
+	}
+	l.put(ctx, elems)
+}
+
+// array_elem: expr | array_if | array_for;
+func (l *listener) ExitArray_elem(ctx *parser.Array_elemContext) {
+	switch {
+	case ctx.Expr() != nil:
+		l.put(ctx, &ast.ArrayElement{Val: l.takeExpr(ctx.Expr())})
+	case ctx.Array_if() != nil:
+		l.put(ctx, l.takeAST(ctx.Array_if()))
+	case ctx.Array_for() != nil:
+		l.put(ctx, l.takeAST(ctx.Array_for()))
+	default:
+		panic("unreachable")
+	}
+}
+
+// array_if: IF expr THEN array_elems? array_elif* array_else? END;
+func (l *listener) ExitArray_if(ctx *parser.Array_ifContext) {
+	ifBlock := &ast.IfBlock{
+		Pred:  l.takeExpr(ctx.Expr()),
+		Stmts: l.takeASTs(ctx.Array_elems()),
+	}
+
+	allElifs := ctx.AllArray_elif()
+	blocks := make(ast.ASTs, 0, len(allElifs)+2)
+	blocks = append(blocks, ifBlock)
+	for _, elif := range allElifs {
+		blocks = append(blocks, l.takeAST(elif))
+	}
+	if ctx.Array_else() != nil {
+		blocks = append(blocks, l.takeAST(ctx.Array_else()))
+	}
+	l.put(ctx, &ast.IfStmt{
+		Blocks: blocks,
+	})
+}
+
+// array_elif: ELIF expr THEN array_elems?;
+func (l *listener) ExitArray_elif(ctx *parser.Array_elifContext) {
+	l.put(ctx, &ast.IfBlock{
+		Pred:  l.takeExpr(ctx.Expr()),
+		Stmts: l.takeASTs(ctx.Array_elems()),
+	})
+}
+
+// array_else: ELSE array_elems?;
+func (l *listener) ExitArray_else(ctx *parser.Array_elseContext) {
+	l.put(ctx, &ast.IfBlock{
+		Stmts: l.takeASTs(ctx.Array_elems()),
+	})
+}
+
+// array_for: FOR for_vars IN expr DO array_elems? END;
+func (l *listener) ExitArray_for(ctx *parser.Array_forContext) {
+	l.put(ctx, &ast.ForStmt{
+		ForVars:  l.takeASTs(ctx.For_vars()),
+		IterExpr: l.takeExpr(ctx.Expr()),
+		Stmts:    l.takeASTs(ctx.Array_elems()),
+	})
+}
+
+func (l *listener) ExitId_or_keyword(ctx *parser.Id_or_keywordContext) {
+	l.put(ctx, l.tokenToNitro(ctx.GetT()))
+}

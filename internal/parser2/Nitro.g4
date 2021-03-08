@@ -72,32 +72,32 @@ unary_expr: op=NOT unary_expr
           | primary_expr
           ;
 
-primary_expr: ID
-            | primary_expr '.' ID
-            | primary_expr '[' expr ']'
-            | primary_expr '[' expr? ':' expr? ']'
-            | primary_expr '(' arg_list? ')'  
-            | object_literal
-            | STRING
-            | NUMBER
-            | TRUE
-            | FALSE
-            | '(' expr ')'
+primary_expr: ID                                       # primary_expr_simple_ref
+            | primary_expr '.' ID                      # primary_expr_member_access
+            | primary_expr '[' expr ']'                # primary_expr_index
+            | primary_expr '[' b=expr? ':' e=expr? ']' # primary_expr_slice
+            | primary_expr '(' arg_list? ')'           # primary_expr_call
+            | object_literal                           # primary_expr_object
+            | simple_literal                           # primary_expr_literal
+            | '(' expr ')'                             # primary_expr_parenthesis
             ;
+
+simple_literal: val=(STRING | NUMBER | TRUE | FALSE);
 
 arg_list: expr (',' expr)*;
 
-lvalue_expr: ID
-           | primary_expr '.' ID
-           | primary_expr '[' expr ']'
+lvalue_expr: ID                          # lvalue_expr_simple_ref
+           | primary_expr '.' ID         # lvalue_expr_member_access
+           | primary_expr '[' expr ']'   # lvalue_expr_index
            ;
 
 object_literal: '{' object_fields? '}';
 object_fields: object_field ((','|';') object_field)* (','|';')*;
-object_field: id_or_keyword ':' expr
-            | '[' expr ']' ':' expr
-            | object_if
-            | object_for
+
+object_field: id_or_keyword ':' expr     # object_field_id_key
+            | '[' expr ']' ':' expr      # object_field_expr_key
+            | object_if                  # object_field_if
+            | object_for                 # object_field_for
             ;
 
 object_if: IF expr THEN object_fields? object_elif* object_else? END;
@@ -116,7 +116,11 @@ array_else: ELSE array_elems?;
 
 array_for: FOR for_vars IN expr DO array_elems? END;
 
-id_or_keyword: ID | AND | DO | ELIF | ELSE | END | FALSE | FN | FOR | IF | IN | META | NOT | OR | RETURN | THEN | TRUE | VAR | WHILE;
+id_or_keyword: 
+    t=(ID | AND | DO | ELIF | ELSE | END | FALSE |
+       FN | FOR | IF | IN | META | NOT | OR | RETURN |
+       THEN | TRUE | VAR | WHILE)
+    ;
 
 AND: 'and';
 DO: 'do';

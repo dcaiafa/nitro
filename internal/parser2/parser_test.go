@@ -3,8 +3,8 @@ package parser2
 import (
 	"testing"
 
-	"github.com/antlr/antlr4/runtime/Go/antlr"
-	"github.com/dcaiafa/nitro/internal/parser2/parser"
+	"github.com/dcaiafa/nitro/internal/errlogger"
+	"github.com/stretchr/testify/require"
 )
 
 func TestHelloWorld(t *testing.T) {
@@ -20,10 +20,8 @@ func TestHelloWorld(t *testing.T) {
 	  d: 123
 	}
 		`
-	s := antlr.NewInputStream(prog)
-	l := newAugmentedLexer(s)
-	p := parser.NewNitroParser(antlr.NewCommonTokenStream(l, antlr.TokenDefaultChannel))
-	p.GetInterpreter().SetPredictionMode(antlr.PredictionModeLLExactAmbigDetection)
-	p.AddErrorListener(antlr.NewDiagnosticErrorListener(true))
-	antlr.ParseTreeWalkerDefault.Walk(newListener(), p.Start())
+
+	module, err := Parse("test.nitro", prog, true, &errlogger.ConsoleErrLogger{})
+	require.NoError(t, err)
+	require.NotNil(t, module)
 }

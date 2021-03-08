@@ -183,11 +183,59 @@ func (s *BaseNitroListener) EnterUnary_expr(ctx *Unary_exprContext) {}
 // ExitUnary_expr is called when production unary_expr is exited.
 func (s *BaseNitroListener) ExitUnary_expr(ctx *Unary_exprContext) {}
 
-// EnterPrimary_expr is called when production primary_expr is entered.
-func (s *BaseNitroListener) EnterPrimary_expr(ctx *Primary_exprContext) {}
+// EnterPrimary_expr_object is called when production primary_expr_object is entered.
+func (s *BaseNitroListener) EnterPrimary_expr_object(ctx *Primary_expr_objectContext) {}
 
-// ExitPrimary_expr is called when production primary_expr is exited.
-func (s *BaseNitroListener) ExitPrimary_expr(ctx *Primary_exprContext) {}
+// ExitPrimary_expr_object is called when production primary_expr_object is exited.
+func (s *BaseNitroListener) ExitPrimary_expr_object(ctx *Primary_expr_objectContext) {}
+
+// EnterPrimary_expr_parenthesis is called when production primary_expr_parenthesis is entered.
+func (s *BaseNitroListener) EnterPrimary_expr_parenthesis(ctx *Primary_expr_parenthesisContext) {}
+
+// ExitPrimary_expr_parenthesis is called when production primary_expr_parenthesis is exited.
+func (s *BaseNitroListener) ExitPrimary_expr_parenthesis(ctx *Primary_expr_parenthesisContext) {}
+
+// EnterPrimary_expr_simple_ref is called when production primary_expr_simple_ref is entered.
+func (s *BaseNitroListener) EnterPrimary_expr_simple_ref(ctx *Primary_expr_simple_refContext) {}
+
+// ExitPrimary_expr_simple_ref is called when production primary_expr_simple_ref is exited.
+func (s *BaseNitroListener) ExitPrimary_expr_simple_ref(ctx *Primary_expr_simple_refContext) {}
+
+// EnterPrimary_expr_index is called when production primary_expr_index is entered.
+func (s *BaseNitroListener) EnterPrimary_expr_index(ctx *Primary_expr_indexContext) {}
+
+// ExitPrimary_expr_index is called when production primary_expr_index is exited.
+func (s *BaseNitroListener) ExitPrimary_expr_index(ctx *Primary_expr_indexContext) {}
+
+// EnterPrimary_expr_literal is called when production primary_expr_literal is entered.
+func (s *BaseNitroListener) EnterPrimary_expr_literal(ctx *Primary_expr_literalContext) {}
+
+// ExitPrimary_expr_literal is called when production primary_expr_literal is exited.
+func (s *BaseNitroListener) ExitPrimary_expr_literal(ctx *Primary_expr_literalContext) {}
+
+// EnterPrimary_expr_member_access is called when production primary_expr_member_access is entered.
+func (s *BaseNitroListener) EnterPrimary_expr_member_access(ctx *Primary_expr_member_accessContext) {}
+
+// ExitPrimary_expr_member_access is called when production primary_expr_member_access is exited.
+func (s *BaseNitroListener) ExitPrimary_expr_member_access(ctx *Primary_expr_member_accessContext) {}
+
+// EnterPrimary_expr_call is called when production primary_expr_call is entered.
+func (s *BaseNitroListener) EnterPrimary_expr_call(ctx *Primary_expr_callContext) {}
+
+// ExitPrimary_expr_call is called when production primary_expr_call is exited.
+func (s *BaseNitroListener) ExitPrimary_expr_call(ctx *Primary_expr_callContext) {}
+
+// EnterPrimary_expr_slice is called when production primary_expr_slice is entered.
+func (s *BaseNitroListener) EnterPrimary_expr_slice(ctx *Primary_expr_sliceContext) {}
+
+// ExitPrimary_expr_slice is called when production primary_expr_slice is exited.
+func (s *BaseNitroListener) ExitPrimary_expr_slice(ctx *Primary_expr_sliceContext) {}
+
+// EnterSimple_literal is called when production simple_literal is entered.
+func (s *BaseNitroListener) EnterSimple_literal(ctx *Simple_literalContext) {}
+
+// ExitSimple_literal is called when production simple_literal is exited.
+func (s *BaseNitroListener) ExitSimple_literal(ctx *Simple_literalContext) {}
 
 // EnterArg_list is called when production arg_list is entered.
 func (s *BaseNitroListener) EnterArg_list(ctx *Arg_listContext) {}
@@ -195,11 +243,23 @@ func (s *BaseNitroListener) EnterArg_list(ctx *Arg_listContext) {}
 // ExitArg_list is called when production arg_list is exited.
 func (s *BaseNitroListener) ExitArg_list(ctx *Arg_listContext) {}
 
-// EnterLvalue_expr is called when production lvalue_expr is entered.
-func (s *BaseNitroListener) EnterLvalue_expr(ctx *Lvalue_exprContext) {}
+// EnterLvalue_expr_simple_ref is called when production lvalue_expr_simple_ref is entered.
+func (s *BaseNitroListener) EnterLvalue_expr_simple_ref(ctx *Lvalue_expr_simple_refContext) {}
 
-// ExitLvalue_expr is called when production lvalue_expr is exited.
-func (s *BaseNitroListener) ExitLvalue_expr(ctx *Lvalue_exprContext) {}
+// ExitLvalue_expr_simple_ref is called when production lvalue_expr_simple_ref is exited.
+func (s *BaseNitroListener) ExitLvalue_expr_simple_ref(ctx *Lvalue_expr_simple_refContext) {}
+
+// EnterLvalue_expr_member_access is called when production lvalue_expr_member_access is entered.
+func (s *BaseNitroListener) EnterLvalue_expr_member_access(ctx *Lvalue_expr_member_accessContext) {}
+
+// ExitLvalue_expr_member_access is called when production lvalue_expr_member_access is exited.
+func (s *BaseNitroListener) ExitLvalue_expr_member_access(ctx *Lvalue_expr_member_accessContext) {}
+
+// EnterLvalue_expr_index is called when production lvalue_expr_index is entered.
+func (s *BaseNitroListener) EnterLvalue_expr_index(ctx *Lvalue_expr_indexContext) {}
+
+// ExitLvalue_expr_index is called when production lvalue_expr_index is exited.
+func (s *BaseNitroListener) ExitLvalue_expr_index(ctx *Lvalue_expr_indexContext) {}
 
 // EnterObject_literal is called when production object_literal is entered.
 func (s *BaseNitroListener) EnterObject_literal(ctx *Object_literalContext) {}
@@ -213,11 +273,29 @@ func (s *BaseNitroListener) EnterObject_fields(ctx *Object_fieldsContext) {}
 // ExitObject_fields is called when production object_fields is exited.
 func (s *BaseNitroListener) ExitObject_fields(ctx *Object_fieldsContext) {}
 
-// EnterObject_field is called when production object_field is entered.
-func (s *BaseNitroListener) EnterObject_field(ctx *Object_fieldContext) {}
+// EnterObject_field_id_key is called when production object_field_id_key is entered.
+func (s *BaseNitroListener) EnterObject_field_id_key(ctx *Object_field_id_keyContext) {}
 
-// ExitObject_field is called when production object_field is exited.
-func (s *BaseNitroListener) ExitObject_field(ctx *Object_fieldContext) {}
+// ExitObject_field_id_key is called when production object_field_id_key is exited.
+func (s *BaseNitroListener) ExitObject_field_id_key(ctx *Object_field_id_keyContext) {}
+
+// EnterObject_field_expr_key is called when production object_field_expr_key is entered.
+func (s *BaseNitroListener) EnterObject_field_expr_key(ctx *Object_field_expr_keyContext) {}
+
+// ExitObject_field_expr_key is called when production object_field_expr_key is exited.
+func (s *BaseNitroListener) ExitObject_field_expr_key(ctx *Object_field_expr_keyContext) {}
+
+// EnterObject_field_if is called when production object_field_if is entered.
+func (s *BaseNitroListener) EnterObject_field_if(ctx *Object_field_ifContext) {}
+
+// ExitObject_field_if is called when production object_field_if is exited.
+func (s *BaseNitroListener) ExitObject_field_if(ctx *Object_field_ifContext) {}
+
+// EnterObject_field_for is called when production object_field_for is entered.
+func (s *BaseNitroListener) EnterObject_field_for(ctx *Object_field_forContext) {}
+
+// ExitObject_field_for is called when production object_field_for is exited.
+func (s *BaseNitroListener) ExitObject_field_for(ctx *Object_field_forContext) {}
 
 // EnterObject_if is called when production object_if is entered.
 func (s *BaseNitroListener) EnterObject_if(ctx *Object_ifContext) {}

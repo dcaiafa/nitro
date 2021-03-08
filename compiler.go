@@ -3,11 +3,10 @@ package nitro
 import (
 	"context"
 	"fmt"
-	"os"
 
 	"github.com/dcaiafa/nitro/internal/ast"
 	"github.com/dcaiafa/nitro/internal/errlogger"
-	"github.com/dcaiafa/nitro/internal/parser"
+	"github.com/dcaiafa/nitro/internal/parser2"
 	"github.com/dcaiafa/nitro/internal/runtime"
 	"github.com/dcaiafa/nitro/internal/std"
 	"github.com/dcaiafa/nitro/internal/token"
@@ -26,16 +25,6 @@ type (
 	ErrLogger = errlogger.ErrLogger
 	Pos       = token.Pos
 )
-
-type DefaultErrLogger struct{}
-
-func (l *DefaultErrLogger) Failf(pos Pos, msg string, args ...interface{}) {
-	fmt.Fprintf(os.Stderr, pos.String()+": "+msg+"\n", args...)
-}
-
-func (l *DefaultErrLogger) Detailf(pos Pos, msg string, args ...interface{}) {
-	fmt.Fprintf(os.Stderr, pos.String()+": "+msg+"\n", args...)
-}
 
 type FileSystem interface {
 	ReadFile(name string) ([]byte, error)
@@ -62,12 +51,14 @@ func (c *Compiler) RegisterExternalFn(name string, fn runtime.ExternFn) {
 func (c *Compiler) Compile(filename string) (*runtime.Program, error) {
 	var err error
 
+	errLogger := &errlogger.ConsoleErrLogger{}
+
 	data, err := c.fileSystem.ReadFile(filename)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load %q: %w", filename, err)
 	}
 
-	module, err := parser.Parse(filename, data)
+	module, err := parser2.Parse(filename, string(data), false, errLogger)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +70,7 @@ func (c *Compiler) Compile(filename string) (*runtime.Program, error) {
 		main.AddExternalFn(name, extFn)
 	}
 
-	ctx := ast.NewContext(&DefaultErrLogger{})
+	ctx := ast.NewContext(errLogger)
 	main.RunPass(ctx, ast.Check)
 	if ctx.Error() != nil {
 		return nil, ctx.Error()

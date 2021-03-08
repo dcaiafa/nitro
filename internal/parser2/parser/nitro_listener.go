@@ -89,14 +89,44 @@ type NitroListener interface {
 	// EnterUnary_expr is called when entering the unary_expr production.
 	EnterUnary_expr(c *Unary_exprContext)
 
-	// EnterPrimary_expr is called when entering the primary_expr production.
-	EnterPrimary_expr(c *Primary_exprContext)
+	// EnterPrimary_expr_object is called when entering the primary_expr_object production.
+	EnterPrimary_expr_object(c *Primary_expr_objectContext)
+
+	// EnterPrimary_expr_parenthesis is called when entering the primary_expr_parenthesis production.
+	EnterPrimary_expr_parenthesis(c *Primary_expr_parenthesisContext)
+
+	// EnterPrimary_expr_simple_ref is called when entering the primary_expr_simple_ref production.
+	EnterPrimary_expr_simple_ref(c *Primary_expr_simple_refContext)
+
+	// EnterPrimary_expr_index is called when entering the primary_expr_index production.
+	EnterPrimary_expr_index(c *Primary_expr_indexContext)
+
+	// EnterPrimary_expr_literal is called when entering the primary_expr_literal production.
+	EnterPrimary_expr_literal(c *Primary_expr_literalContext)
+
+	// EnterPrimary_expr_member_access is called when entering the primary_expr_member_access production.
+	EnterPrimary_expr_member_access(c *Primary_expr_member_accessContext)
+
+	// EnterPrimary_expr_call is called when entering the primary_expr_call production.
+	EnterPrimary_expr_call(c *Primary_expr_callContext)
+
+	// EnterPrimary_expr_slice is called when entering the primary_expr_slice production.
+	EnterPrimary_expr_slice(c *Primary_expr_sliceContext)
+
+	// EnterSimple_literal is called when entering the simple_literal production.
+	EnterSimple_literal(c *Simple_literalContext)
 
 	// EnterArg_list is called when entering the arg_list production.
 	EnterArg_list(c *Arg_listContext)
 
-	// EnterLvalue_expr is called when entering the lvalue_expr production.
-	EnterLvalue_expr(c *Lvalue_exprContext)
+	// EnterLvalue_expr_simple_ref is called when entering the lvalue_expr_simple_ref production.
+	EnterLvalue_expr_simple_ref(c *Lvalue_expr_simple_refContext)
+
+	// EnterLvalue_expr_member_access is called when entering the lvalue_expr_member_access production.
+	EnterLvalue_expr_member_access(c *Lvalue_expr_member_accessContext)
+
+	// EnterLvalue_expr_index is called when entering the lvalue_expr_index production.
+	EnterLvalue_expr_index(c *Lvalue_expr_indexContext)
 
 	// EnterObject_literal is called when entering the object_literal production.
 	EnterObject_literal(c *Object_literalContext)
@@ -104,8 +134,17 @@ type NitroListener interface {
 	// EnterObject_fields is called when entering the object_fields production.
 	EnterObject_fields(c *Object_fieldsContext)
 
-	// EnterObject_field is called when entering the object_field production.
-	EnterObject_field(c *Object_fieldContext)
+	// EnterObject_field_id_key is called when entering the object_field_id_key production.
+	EnterObject_field_id_key(c *Object_field_id_keyContext)
+
+	// EnterObject_field_expr_key is called when entering the object_field_expr_key production.
+	EnterObject_field_expr_key(c *Object_field_expr_keyContext)
+
+	// EnterObject_field_if is called when entering the object_field_if production.
+	EnterObject_field_if(c *Object_field_ifContext)
+
+	// EnterObject_field_for is called when entering the object_field_for production.
+	EnterObject_field_for(c *Object_field_forContext)
 
 	// EnterObject_if is called when entering the object_if production.
 	EnterObject_if(c *Object_ifContext)
@@ -224,14 +263,44 @@ type NitroListener interface {
 	// ExitUnary_expr is called when exiting the unary_expr production.
 	ExitUnary_expr(c *Unary_exprContext)
 
-	// ExitPrimary_expr is called when exiting the primary_expr production.
-	ExitPrimary_expr(c *Primary_exprContext)
+	// ExitPrimary_expr_object is called when exiting the primary_expr_object production.
+	ExitPrimary_expr_object(c *Primary_expr_objectContext)
+
+	// ExitPrimary_expr_parenthesis is called when exiting the primary_expr_parenthesis production.
+	ExitPrimary_expr_parenthesis(c *Primary_expr_parenthesisContext)
+
+	// ExitPrimary_expr_simple_ref is called when exiting the primary_expr_simple_ref production.
+	ExitPrimary_expr_simple_ref(c *Primary_expr_simple_refContext)
+
+	// ExitPrimary_expr_index is called when exiting the primary_expr_index production.
+	ExitPrimary_expr_index(c *Primary_expr_indexContext)
+
+	// ExitPrimary_expr_literal is called when exiting the primary_expr_literal production.
+	ExitPrimary_expr_literal(c *Primary_expr_literalContext)
+
+	// ExitPrimary_expr_member_access is called when exiting the primary_expr_member_access production.
+	ExitPrimary_expr_member_access(c *Primary_expr_member_accessContext)
+
+	// ExitPrimary_expr_call is called when exiting the primary_expr_call production.
+	ExitPrimary_expr_call(c *Primary_expr_callContext)
+
+	// ExitPrimary_expr_slice is called when exiting the primary_expr_slice production.
+	ExitPrimary_expr_slice(c *Primary_expr_sliceContext)
+
+	// ExitSimple_literal is called when exiting the simple_literal production.
+	ExitSimple_literal(c *Simple_literalContext)
 
 	// ExitArg_list is called when exiting the arg_list production.
 	ExitArg_list(c *Arg_listContext)
 
-	// ExitLvalue_expr is called when exiting the lvalue_expr production.
-	ExitLvalue_expr(c *Lvalue_exprContext)
+	// ExitLvalue_expr_simple_ref is called when exiting the lvalue_expr_simple_ref production.
+	ExitLvalue_expr_simple_ref(c *Lvalue_expr_simple_refContext)
+
+	// ExitLvalue_expr_member_access is called when exiting the lvalue_expr_member_access production.
+	ExitLvalue_expr_member_access(c *Lvalue_expr_member_accessContext)
+
+	// ExitLvalue_expr_index is called when exiting the lvalue_expr_index production.
+	ExitLvalue_expr_index(c *Lvalue_expr_indexContext)
 
 	// ExitObject_literal is called when exiting the object_literal production.
 	ExitObject_literal(c *Object_literalContext)
@@ -239,8 +308,17 @@ type NitroListener interface {
 	// ExitObject_fields is called when exiting the object_fields production.
 	ExitObject_fields(c *Object_fieldsContext)
 
-	// ExitObject_field is called when exiting the object_field production.
-	ExitObject_field(c *Object_fieldContext)
+	// ExitObject_field_id_key is called when exiting the object_field_id_key production.
+	ExitObject_field_id_key(c *Object_field_id_keyContext)
+
+	// ExitObject_field_expr_key is called when exiting the object_field_expr_key production.
+	ExitObject_field_expr_key(c *Object_field_expr_keyContext)
+
+	// ExitObject_field_if is called when exiting the object_field_if production.
+	ExitObject_field_if(c *Object_field_ifContext)
+
+	// ExitObject_field_for is called when exiting the object_field_for production.
+	ExitObject_field_for(c *Object_field_forContext)
 
 	// ExitObject_if is called when exiting the object_if production.
 	ExitObject_if(c *Object_ifContext)
