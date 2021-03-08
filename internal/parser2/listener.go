@@ -200,11 +200,11 @@ func (l *listener) ExitStmt(ctx *parser.StmtContext) {
 	}
 }
 
-// assignment_stmt: assignment_lvalues '=' assignment_rvalues;
+// assignment_stmt: assignment_lvalues '=' rvalues;
 func (l *listener) ExitAssignment_stmt(ctx *parser.Assignment_stmtContext) {
 	l.put(ctx, &ast.AssignStmt{
 		Lvalues: l.takeASTs(ctx.Assignment_lvalues()),
-		Rvalues: l.takeExprs(ctx.Assignment_rvalues()),
+		Rvalues: l.takeExprs(ctx.Rvalues()),
 	})
 }
 
@@ -218,8 +218,8 @@ func (l *listener) ExitAssignment_lvalues(ctx *parser.Assignment_lvaluesContext)
 	l.put(ctx, asts)
 }
 
-// assignment_rvalues: expr (',' expr)*;
-func (l *listener) ExitAssignment_rvalues(ctx *parser.Assignment_rvaluesContext) {
+// rvalues: expr (',' expr)*;
+func (l *listener) ExitRvalues(ctx *parser.RvaluesContext) {
 	all := ctx.AllExpr()
 	exprs := make(ast.Exprs, len(all))
 	for i, child := range all {
@@ -228,12 +228,12 @@ func (l *listener) ExitAssignment_rvalues(ctx *parser.Assignment_rvaluesContext)
 	l.put(ctx, exprs)
 }
 
-// var_decl_stmt: VAR var_decl_vars ('=' assignment_rvalues)?;
+// var_decl_stmt: VAR var_decl_vars ('=' rvalues)?;
 func (l *listener) ExitVar_decl_stmt(ctx *parser.Var_decl_stmtContext) {
 	vars, _ := l.take(ctx.Var_decl_vars())
 	s := &ast.VarDeclStmt{
 		Vars:       vars.([]token.Token),
-		InitValues: l.takeExprs(ctx.Assignment_rvalues()),
+		InitValues: l.takeExprs(ctx.Rvalues()),
 	}
 	l.put(ctx, s)
 }
@@ -342,15 +342,10 @@ func (l *listener) ExitFunc_call_stmt(ctx *parser.Func_call_stmtContext) {
 	})
 }
 
-// return_stmt: RETURN expr*;
+// return_stmt: RETURN rvalues?;
 func (l *listener) ExitReturn_stmt(ctx *parser.Return_stmtContext) {
-	all := ctx.AllExpr()
-	exprs := make(ast.Exprs, len(all))
-	for i, child := range all {
-		exprs[i] = l.takeExpr(child)
-	}
 	l.put(ctx, &ast.ReturnStmt{
-		Values: exprs,
+		Values: l.takeExprs(ctx.Rvalues()),
 	})
 }
 
@@ -578,7 +573,7 @@ func (l *listener) ExitObject_fields(ctx *parser.Object_fieldsContext) {
 func (l *listener) ExitObject_field_id_key(ctx *parser.Object_field_id_keyContext) {
 	idOrKeyw, _ := l.take(ctx.Id_or_keyword())
 	l.put(ctx, &ast.ObjectField{
-		NameID: idOrKeyw.(token.Token).Str,
+		NameID: idOrKeyw.(string),
 		Val:    l.takeExpr(ctx.Expr()),
 	})
 }
@@ -721,5 +716,6 @@ func (l *listener) ExitArray_for(ctx *parser.Array_forContext) {
 }
 
 func (l *listener) ExitId_or_keyword(ctx *parser.Id_or_keywordContext) {
-	l.put(ctx, l.tokenToNitro(ctx.GetT()))
+	id := ctx.GetT().GetText()
+	l.put(ctx, id)
 }

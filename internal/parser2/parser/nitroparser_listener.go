@@ -44,8 +44,8 @@ type NitroParserListener interface {
 	// EnterAssignment_lvalues is called when entering the assignment_lvalues production.
 	EnterAssignment_lvalues(c *Assignment_lvaluesContext)
 
-	// EnterAssignment_rvalues is called when entering the assignment_rvalues production.
-	EnterAssignment_rvalues(c *Assignment_rvaluesContext)
+	// EnterRvalues is called when entering the rvalues production.
+	EnterRvalues(c *RvaluesContext)
 
 	// EnterVar_decl_stmt is called when entering the var_decl_stmt production.
 	EnterVar_decl_stmt(c *Var_decl_stmtContext)
@@ -227,8 +227,8 @@ type NitroParserListener interface {
 	// ExitAssignment_lvalues is called when exiting the assignment_lvalues production.
 	ExitAssignment_lvalues(c *Assignment_lvaluesContext)
 
-	// ExitAssignment_rvalues is called when exiting the assignment_rvalues production.
-	ExitAssignment_rvalues(c *Assignment_rvaluesContext)
+	// ExitRvalues is called when exiting the rvalues production.
+	ExitRvalues(c *RvaluesContext)
 
 	// ExitVar_decl_stmt is called when exiting the var_decl_stmt production.
 	ExitVar_decl_stmt(c *Var_decl_stmtContext)

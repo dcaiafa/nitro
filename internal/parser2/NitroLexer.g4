@@ -20,8 +20,8 @@ TRUE: 'true';
 VAR: 'var';
 WHILE: 'while';
 
-EQ: '=';
-DEQ: '==';
+ASSIGN: '=';
+EQ: '==';
 NE: '!=';
 LT: '<';
 LE: '<=';

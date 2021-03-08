@@ -155,16 +155,17 @@ var lexerLiteralNames = []string{
 
 var lexerSymbolicNames = []string{
 	"", "AND", "DO", "ELIF", "ELSE", "END", "FALSE", "FN", "FOR", "IF", "IN",
-	"META", "NOT", "OR", "RETURN", "THEN", "TRUE", "VAR", "WHILE", "EQ", "DEQ",
-	"NE", "LT", "LE", "GT", "GE", "ADD", "SUB", "MUL", "DIV", "MOD", "SEMICOLON",
-	"COMMA", "COLON", "PERIOD", "OPAREN", "CPAREN", "OBRACKET", "CBRACKET",
-	"OCURLY", "CCURLY", "NUMBER", "ID", "WS", "NEWLINE", "STRING", "LQUOTE",
+	"META", "NOT", "OR", "RETURN", "THEN", "TRUE", "VAR", "WHILE", "ASSIGN",
+	"EQ", "NE", "LT", "LE", "GT", "GE", "ADD", "SUB", "MUL", "DIV", "MOD",
+	"SEMICOLON", "COMMA", "COLON", "PERIOD", "OPAREN", "CPAREN", "OBRACKET",
+	"CBRACKET", "OCURLY", "CCURLY", "NUMBER", "ID", "WS", "NEWLINE", "STRING",
+	"LQUOTE",
 }
 
 var lexerRuleNames = []string{
 	"AND", "DO", "ELIF", "ELSE", "END", "FALSE", "FN", "FOR", "IF", "IN", "META",
-	"NOT", "OR", "RETURN", "THEN", "TRUE", "VAR", "WHILE", "EQ", "DEQ", "NE",
-	"LT", "LE", "GT", "GE", "ADD", "SUB", "MUL", "DIV", "MOD", "SEMICOLON",
+	"NOT", "OR", "RETURN", "THEN", "TRUE", "VAR", "WHILE", "ASSIGN", "EQ",
+	"NE", "LT", "LE", "GT", "GE", "ADD", "SUB", "MUL", "DIV", "MOD", "SEMICOLON",
 	"COMMA", "COLON", "PERIOD", "OPAREN", "CPAREN", "OBRACKET", "CBRACKET",
 	"OCURLY", "CCURLY", "NUMBER", "ID", "WS", "NEWLINE", "LQUOTE", "QUOTED_TEXT",
 	"QUOTED_ESCAPE", "STRING",
@@ -225,8 +226,8 @@ const (
 	NitroLexerTRUE      = 16
 	NitroLexerVAR       = 17
 	NitroLexerWHILE     = 18
-	NitroLexerEQ        = 19
-	NitroLexerDEQ       = 20
+	NitroLexerASSIGN    = 19
+	NitroLexerEQ        = 20
 	NitroLexerNE        = 21
 	NitroLexerLT        = 22
 	NitroLexerLE        = 23

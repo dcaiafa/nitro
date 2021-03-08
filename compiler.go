@@ -32,6 +32,7 @@ type FileSystem interface {
 
 type Compiler struct {
 	fileSystem  FileSystem
+	diag        bool
 	externalFns map[string]runtime.ExternFn
 }
 
@@ -42,6 +43,10 @@ func NewCompiler(fileSystem FileSystem) *Compiler {
 	}
 	std.Register(c)
 	return c
+}
+
+func (c *Compiler) SetDiag(diag bool) {
+	c.diag = diag
 }
 
 func (c *Compiler) RegisterExternalFn(name string, fn runtime.ExternFn) {
@@ -58,7 +63,7 @@ func (c *Compiler) Compile(filename string) (*runtime.Program, error) {
 		return nil, fmt.Errorf("failed to load %q: %w", filename, err)
 	}
 
-	module, err := parser2.Parse(filename, string(data), false, errLogger)
+	module, err := parser2.Parse(filename, string(data), c.diag, errLogger)
 	if err != nil {
 		return nil, err
 	}

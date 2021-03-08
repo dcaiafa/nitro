@@ -2,7 +2,7 @@ parser grammar NitroParser;
 
 options { tokenVocab=NitroLexer; }
 
-start: module;
+start: module EOF;
 
 module: meta_section? stmts;
 
@@ -35,11 +35,11 @@ stmt: assignment_stmt ';'
     | ';'
     ;
 
-assignment_stmt: assignment_lvalues '=' assignment_rvalues;
+assignment_stmt: assignment_lvalues '=' rvalues;
 assignment_lvalues: lvalue_expr (',' lvalue_expr)*;
-assignment_rvalues: expr (',' expr)*;
+rvalues: expr (',' expr)*;
 
-var_decl_stmt: VAR var_decl_vars ('=' assignment_rvalues)?;
+var_decl_stmt: VAR var_decl_vars ('=' rvalues)?;
 var_decl_vars: ID (',' ID)*;
 
 for_stmt: FOR for_vars IN expr DO stmts END;
@@ -47,16 +47,16 @@ for_vars: ID (',' ID)*;
 
 while_stmt: WHILE expr DO stmts END;
 
-if_stmt: IF expr THEN stmts if_elif* if_else?;
+if_stmt: IF expr THEN stmts if_elif* if_else? END;
 if_elif: ELIF expr THEN stmts;
-if_else: ELSE stmts END;
+if_else: ELSE stmts;
 
 func_stmt: FN ID '(' param_list? ')' stmts END;
 param_list: ID (',' ID)*;
 
 func_call_stmt: primary_expr '(' arg_list? ')';
 
-return_stmt: RETURN expr*;
+return_stmt: RETURN rvalues?;
 
 // Expressions
 

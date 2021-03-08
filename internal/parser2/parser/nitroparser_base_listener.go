@@ -93,11 +93,11 @@ func (s *BaseNitroParserListener) EnterAssignment_lvalues(ctx *Assignment_lvalue
 // ExitAssignment_lvalues is called when production assignment_lvalues is exited.
 func (s *BaseNitroParserListener) ExitAssignment_lvalues(ctx *Assignment_lvaluesContext) {}
 
-// EnterAssignment_rvalues is called when production assignment_rvalues is entered.
-func (s *BaseNitroParserListener) EnterAssignment_rvalues(ctx *Assignment_rvaluesContext) {}
+// EnterRvalues is called when production rvalues is entered.
+func (s *BaseNitroParserListener) EnterRvalues(ctx *RvaluesContext) {}
 
-// ExitAssignment_rvalues is called when production assignment_rvalues is exited.
-func (s *BaseNitroParserListener) ExitAssignment_rvalues(ctx *Assignment_rvaluesContext) {}
+// ExitRvalues is called when production rvalues is exited.
+func (s *BaseNitroParserListener) ExitRvalues(ctx *RvaluesContext) {}
 
 // EnterVar_decl_stmt is called when production var_decl_stmt is entered.
 func (s *BaseNitroParserListener) EnterVar_decl_stmt(ctx *Var_decl_stmtContext) {}

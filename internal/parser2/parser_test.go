@@ -9,16 +9,7 @@ import (
 
 func TestHelloWorld(t *testing.T) {
 	prog := `
-	var a = {
-	  hello: "world"
-		a: 123
-	if x > 123 then
-	  if: true, end: false,
-		elif: 123
-		else: xxx
-	end
-	  d: 123
-	}
+	print(a)
 		`
 
 	module, err := Parse("test.nitro", prog, true, &errlogger.ConsoleErrLogger{})

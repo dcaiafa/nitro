@@ -35,6 +35,7 @@ func run(prog string) (output string, err error) {
 	outBuilder := &strings.Builder{}
 
 	compiler := nitro.NewCompiler(fs)
+	compiler.SetDiag(false)
 
 	compiler.RegisterExternalFn(
 		"print",
