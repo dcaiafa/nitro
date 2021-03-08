@@ -1,4 +1,6 @@
-grammar Nitro;
+parser grammar NitroParser;
+
+options { tokenVocab=NitroLexer; }
 
 start: module;
 
@@ -49,7 +51,7 @@ if_stmt: IF expr THEN stmts if_elif* if_else?;
 if_elif: ELIF expr THEN stmts;
 if_else: ELSE stmts END;
 
-func_stmt: FN ID '(' param_list ')' stmts END;
+func_stmt: FN ID '(' param_list? ')' stmts END;
 param_list: ID (',' ID)*;
 
 func_call_stmt: primary_expr '(' arg_list? ')';
@@ -77,7 +79,9 @@ primary_expr: ID                                       # primary_expr_simple_ref
             | primary_expr '[' expr ']'                # primary_expr_index
             | primary_expr '[' b=expr? ':' e=expr? ']' # primary_expr_slice
             | primary_expr '(' arg_list? ')'           # primary_expr_call
+            | lambda_expr                              # primary_expr_lambda
             | object_literal                           # primary_expr_object
+            | array_literal                            # primary_expr_array
             | simple_literal                           # primary_expr_literal
             | '(' expr ')'                             # primary_expr_parenthesis
             ;
@@ -90,6 +94,8 @@ lvalue_expr: ID                          # lvalue_expr_simple_ref
            | primary_expr '.' ID         # lvalue_expr_member_access
            | primary_expr '[' expr ']'   # lvalue_expr_index
            ;
+
+lambda_expr: FN '(' param_list? ')' stmts END;
 
 object_literal: '{' object_fields? '}';
 object_fields: object_field ((','|';') object_field)* (','|';')*;
@@ -121,53 +127,3 @@ id_or_keyword:
        FN | FOR | IF | IN | META | NOT | OR | RETURN |
        THEN | TRUE | VAR | WHILE)
     ;
-
-AND: 'and';
-DO: 'do';
-ELIF: 'elif';
-ELSE: 'else';
-END: 'end';
-FALSE: 'false';
-FN: 'fn';
-FOR: 'for';
-IF: 'if';
-IN: 'in';
-META: 'meta';
-NOT: 'not';
-OR: 'or';
-RETURN: 'return';
-THEN: 'then';
-TRUE: 'true';
-VAR: 'var';
-WHILE: 'while';
-
-EQ: '=';
-DEQ: '==';
-NE: '!=';
-LT: '<';
-LE: '<=';
-GT: '>';
-GE: '>=';
-ADD: '+';
-SUB: '-';
-MUL: '*';
-DIV: '/';
-MOD: '%';
-SEMICOLON: ';';
-DQUOTE: '"';
-COMMA: ',';
-COLON: ':';
-PERIOD: '.';
-OPAREN: '(';
-CPAREN: ')';
-OBRACKET: '[';
-CBRACKET: ']';
-OCURLY: '{';
-CCURLY: '}';
-
-NUMBER: [0-9]+ ('.' [0-9]+)?;
-STRING: '"' ~["\r\n]* '"';
-ID: [a-zA-Z_] [a-zA-Z0-9_]*;
-
-WS: [ \t]+ -> skip;
-NEWLINE: '\r'? '\n';

@@ -1,11 +1,11 @@
-// Code generated from Nitro.g4 by ANTLR 4.9.1. DO NOT EDIT.
+// Code generated from NitroParser.g4 by ANTLR 4.9.1. DO NOT EDIT.
 
-package parser // Nitro
+package parser // NitroParser
 
 import "github.com/antlr/antlr4/runtime/Go/antlr"
 
-// NitroListener is a complete listener for a parse tree produced by NitroParser.
-type NitroListener interface {
+// NitroParserListener is a complete listener for a parse tree produced by NitroParser.
+type NitroParserListener interface {
 	antlr.ParseTreeListener
 
 	// EnterStart is called when entering the start production.
@@ -98,6 +98,9 @@ type NitroListener interface {
 	// EnterPrimary_expr_simple_ref is called when entering the primary_expr_simple_ref production.
 	EnterPrimary_expr_simple_ref(c *Primary_expr_simple_refContext)
 
+	// EnterPrimary_expr_lambda is called when entering the primary_expr_lambda production.
+	EnterPrimary_expr_lambda(c *Primary_expr_lambdaContext)
+
 	// EnterPrimary_expr_index is called when entering the primary_expr_index production.
 	EnterPrimary_expr_index(c *Primary_expr_indexContext)
 
@@ -106,6 +109,9 @@ type NitroListener interface {
 
 	// EnterPrimary_expr_member_access is called when entering the primary_expr_member_access production.
 	EnterPrimary_expr_member_access(c *Primary_expr_member_accessContext)
+
+	// EnterPrimary_expr_array is called when entering the primary_expr_array production.
+	EnterPrimary_expr_array(c *Primary_expr_arrayContext)
 
 	// EnterPrimary_expr_call is called when entering the primary_expr_call production.
 	EnterPrimary_expr_call(c *Primary_expr_callContext)
@@ -127,6 +133,9 @@ type NitroListener interface {
 
 	// EnterLvalue_expr_index is called when entering the lvalue_expr_index production.
 	EnterLvalue_expr_index(c *Lvalue_expr_indexContext)
+
+	// EnterLambda_expr is called when entering the lambda_expr production.
+	EnterLambda_expr(c *Lambda_exprContext)
 
 	// EnterObject_literal is called when entering the object_literal production.
 	EnterObject_literal(c *Object_literalContext)
@@ -272,6 +281,9 @@ type NitroListener interface {
 	// ExitPrimary_expr_simple_ref is called when exiting the primary_expr_simple_ref production.
 	ExitPrimary_expr_simple_ref(c *Primary_expr_simple_refContext)
 
+	// ExitPrimary_expr_lambda is called when exiting the primary_expr_lambda production.
+	ExitPrimary_expr_lambda(c *Primary_expr_lambdaContext)
+
 	// ExitPrimary_expr_index is called when exiting the primary_expr_index production.
 	ExitPrimary_expr_index(c *Primary_expr_indexContext)
 
@@ -280,6 +292,9 @@ type NitroListener interface {
 
 	// ExitPrimary_expr_member_access is called when exiting the primary_expr_member_access production.
 	ExitPrimary_expr_member_access(c *Primary_expr_member_accessContext)
+
+	// ExitPrimary_expr_array is called when exiting the primary_expr_array production.
+	ExitPrimary_expr_array(c *Primary_expr_arrayContext)
 
 	// ExitPrimary_expr_call is called when exiting the primary_expr_call production.
 	ExitPrimary_expr_call(c *Primary_expr_callContext)
@@ -301,6 +316,9 @@ type NitroListener interface {
 
 	// ExitLvalue_expr_index is called when exiting the lvalue_expr_index production.
 	ExitLvalue_expr_index(c *Lvalue_expr_indexContext)
+
+	// ExitLambda_expr is called when exiting the lambda_expr production.
+	ExitLambda_expr(c *Lambda_exprContext)
 
 	// ExitObject_literal is called when exiting the object_literal production.
 	ExitObject_literal(c *Object_literalContext)

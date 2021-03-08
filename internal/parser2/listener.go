@@ -12,7 +12,7 @@ import (
 )
 
 type listener struct {
-	parser.BaseNitroListener
+	parser.BaseNitroParserListener
 
 	Module *ast.Module
 
@@ -30,6 +30,14 @@ func newListener(filename string) *listener {
 func (l *listener) tokenToNitro(at antlr.Token) token.Token {
 	t := token.Token{}
 	switch at.GetTokenType() {
+	case parser.NitroLexerSTRING:
+		s := at.GetText()
+		// Remove quotes.
+		s = s[1 : len(s)-1]
+		t.Type = token.String
+		t.Str = s
+		// TODO: expand escaped sequences.
+
 	case parser.NitroLexerNUMBER:
 		if strings.IndexByte(at.GetText(), '.') == -1 {
 			t.Type = token.Int
@@ -68,10 +76,11 @@ func (l *listener) take(k antlr.RuleContext) (interface{}, bool) {
 	if k == nil {
 		return nil, false
 	}
-	v := l.values[k]
-	if v != nil {
-		delete(l.values, k)
+	v, ok := l.values[k]
+	if !ok {
+		return nil, false
 	}
+	delete(l.values, k)
 	return v, true
 }
 
@@ -153,9 +162,14 @@ func (l *listener) ExitMeta_field_value(ctx *parser.Meta_field_valueContext) {}
 // stmts: stmt*;
 func (l *listener) ExitStmts(ctx *parser.StmtsContext) {
 	allStmt := ctx.AllStmt()
-	stmts := make(ast.ASTs, len(allStmt))
-	for i, stmtCtx := range allStmt {
-		stmts[i] = l.takeAST(stmtCtx)
+	stmts := make(ast.ASTs, 0, len(allStmt))
+	for _, stmtCtx := range allStmt {
+		stmt := l.takeAST(stmtCtx)
+		// `stmt` can be the empty statement. In this case it will have a parser
+		// tree node, but the `stmt` rule will not have a value produced for it.
+		if stmt != nil {
+			stmts = append(stmts, stmt)
+		}
 	}
 	l.put(ctx, stmts)
 }
@@ -426,7 +440,9 @@ func (l *listener) ExitUnary_expr(ctx *parser.Unary_exprContext) {
 //             | primary_expr '[' expr ']'                # primary_expr_index
 //             | primary_expr '[' expr? ':' expr? ']'     # primary_expr_slice
 //             | primary_expr '(' arg_list? ')'           # primary_expr_call
+//             | lambda_expr                              # primary_expr_lambda
 //             | object_literal                           # primary_expr_object
+//             | array_literal                            # primary_expr_array
 //             | simple_literal                           # primary_expr_literal
 //             | '(' expr ')'                             # primary_expr_parenthesis
 //             ;
@@ -466,8 +482,16 @@ func (l *listener) ExitPrimary_expr_call(ctx *parser.Primary_expr_callContext) {
 	})
 }
 
+func (l *listener) ExitPrimary_expr_lambda(ctx *parser.Primary_expr_lambdaContext) {
+	l.put(ctx, l.takeExpr(ctx.Lambda_expr()))
+}
+
 func (l *listener) ExitPrimary_expr_object(ctx *parser.Primary_expr_objectContext) {
 	l.put(ctx, l.takeExpr(ctx.Object_literal()))
+}
+
+func (l *listener) ExitPrimary_expr_array(ctx *parser.Primary_expr_arrayContext) {
+	l.put(ctx, l.takeExpr(ctx.Array_literal()))
 }
 
 func (l *listener) ExitPrimary_expr_literal(ctx *parser.Primary_expr_literalContext) {
@@ -518,6 +542,14 @@ func (l *listener) ExitLvalue_expr_index(ctx *parser.Lvalue_expr_indexContext) {
 		Target: l.takeExpr(ctx.Primary_expr()),
 		Index:  l.takeExpr(ctx.Expr()),
 	})
+}
+
+// lambda_expr: FN '(' param_list? ')' stmts END;
+func (l *listener) ExitLambda_expr(ctx *parser.Lambda_exprContext) {
+	lambda := &ast.LambdaExpr{}
+	lambda.Params = l.takeASTs(ctx.Param_list())
+	lambda.Stmts = l.takeASTs(ctx.Stmts())
+	l.put(ctx, lambda)
 }
 
 // object_literal: '{' object_fields? '}';

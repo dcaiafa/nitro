@@ -1,2 +1,4 @@
 #!/bin/sh
-antlr -Dlanguage=Go -o parser Nitro.g4
+rm -rf parser/
+antlr -Dlanguage=Go -o parser NitroLexer.g4
+antlr -Dlanguage=Go -o parser NitroParser.g4
