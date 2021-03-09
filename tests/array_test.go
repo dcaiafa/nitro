@@ -43,4 +43,19 @@ func TestArrayLiteral(t *testing.T) {
 [2 4]
 [3 5]
 `)
+
+	RunSubO(t, "if_else", `
+		fn f(x)
+			return [
+				if x == "odd"
+					1, 3, 5
+				else if x == "even"
+					2, 4, 8
+				else
+					0
+				end
+			]
+		end
+		print(f("odd"), f("even"), f("other"))
+		`, `[1 3 5] [2 4 8] [0]`)
 }

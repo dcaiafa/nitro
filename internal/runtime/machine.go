@@ -370,7 +370,11 @@ func EvalBinOp(op BinOp, operand1, operand2 Value) (Value, error) {
 		case Float:
 			return evalBinOpFloat(op, operand1, operand2)
 		}
-		//case string:
+
+	case String:
+		if operand2, ok := operand2.(String); ok {
+			return evalBinOpString(op, operand1, operand2)
+		}
 	}
 
 	return nil, fmt.Errorf(
@@ -433,6 +437,27 @@ func evalBinOpFloat(op BinOp, operand1, operand2 Float) (Value, error) {
 		return Bool(operand1 != operand2), nil
 	default:
 		panic("invalid BinOp")
+	}
+}
+
+func evalBinOpString(op BinOp, operand1, operand2 String) (Value, error) {
+	switch op {
+	case BinAdd:
+		return operand1 + operand2, nil
+	case BinLT:
+		return Bool(operand1 < operand2), nil
+	case BinLE:
+		return Bool(operand1 <= operand2), nil
+	case BinGT:
+		return Bool(operand1 > operand2), nil
+	case BinGE:
+		return Bool(operand1 >= operand2), nil
+	case BinEq:
+		return Bool(operand1 == operand2), nil
+	case BinNE:
+		return Bool(operand1 != operand2), nil
+	default:
+		return nil, fmt.Errorf("cannot use this operator with string operands")
 	}
 }
 

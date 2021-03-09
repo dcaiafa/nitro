@@ -21,6 +21,12 @@ func TestBinaryExpr(t *testing.T) {
 	RunSubO(t, "float/lt", `print(2<3, 3<2, 3<3)`, `true false false`)
 	RunSubO(t, "float/le", `print(2<=3, 3<=2, 3<=3)`, `true false true`)
 
+	RunSubO(t, "string/add", `print("abc" + "de")`, `abcde`)
+	RunSubO(t, "string/gt", `print("a">"b", "b">"a", "a">"a")`, `false true false`)
+	RunSubO(t, "string/ge", `print("a">="b", "b">="a", "a">="a")`, `false true true`)
+	RunSubO(t, "string/lt", `print("a"<"b", "b"<"a", "a"<"a")`, `true false false`)
+	RunSubO(t, "string/le", `print("a"<="b", "b"<="a", "a"<="a")`, `true false true`)
+
 	RunSubO(t, "int2float_coercion", `print(1+1.1, 1.1+1, 3/2, 3.0/2)`, `2.1 2.1 1 1.5`)
 	RunSubO(t, "precedence", `print(6/2 + 2*3, 6/(2+2)*3) `, `9 3`)
 }
