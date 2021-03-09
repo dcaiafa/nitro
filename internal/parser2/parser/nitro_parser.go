@@ -16,7 +16,7 @@ var _ = reflect.Copy
 var _ = strconv.Itoa
 
 var parserATN = []uint16{
-	3, 24715, 42794, 33075, 47597, 16764, 15335, 30598, 22884, 3, 48, 516,
+	3, 24715, 42794, 33075, 47597, 16764, 15335, 30598, 22884, 3, 45, 516,
 	4, 2, 9, 2, 4, 3, 9, 3, 4, 4, 9, 4, 4, 5, 9, 5, 4, 6, 9, 6, 4, 7, 9, 7,
 	4, 8, 9, 8, 4, 9, 9, 9, 4, 10, 9, 10, 4, 11, 9, 11, 4, 12, 9, 12, 4, 13,
 	9, 13, 4, 14, 9, 14, 4, 15, 9, 15, 4, 16, 9, 16, 4, 17, 9, 17, 4, 18, 9,
@@ -74,8 +74,8 @@ var parserATN = []uint16{
 	46, 3, 46, 3, 47, 3, 47, 3, 47, 2, 4, 50, 54, 48, 2, 4, 6, 8, 10, 12, 14,
 	16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50,
 	52, 54, 56, 58, 60, 62, 64, 66, 68, 70, 72, 74, 76, 78, 80, 82, 84, 86,
-	88, 90, 92, 2, 8, 3, 2, 33, 34, 3, 2, 30, 32, 3, 2, 28, 29, 3, 2, 22, 27,
-	6, 2, 8, 8, 18, 18, 43, 43, 47, 47, 4, 2, 3, 20, 44, 44, 2, 543, 2, 94,
+	88, 90, 92, 2, 8, 3, 2, 30, 31, 3, 2, 27, 29, 3, 2, 25, 26, 3, 2, 19, 24,
+	6, 2, 6, 6, 15, 15, 40, 40, 44, 44, 4, 2, 3, 17, 41, 41, 2, 543, 2, 94,
 	3, 2, 2, 2, 4, 98, 3, 2, 2, 2, 6, 102, 3, 2, 2, 2, 8, 111, 3, 2, 2, 2,
 	10, 114, 3, 2, 2, 2, 12, 120, 3, 2, 2, 2, 14, 128, 3, 2, 2, 2, 16, 137,
 	3, 2, 2, 2, 18, 142, 3, 2, 2, 2, 20, 170, 3, 2, 2, 2, 22, 172, 3, 2, 2,
@@ -91,176 +91,174 @@ var parserATN = []uint16{
 	3, 2, 2, 2, 88, 499, 3, 2, 2, 2, 90, 503, 3, 2, 2, 2, 92, 513, 3, 2, 2,
 	2, 94, 95, 5, 4, 3, 2, 95, 96, 7, 2, 2, 3, 96, 3, 3, 2, 2, 2, 97, 99, 5,
 	6, 4, 2, 98, 97, 3, 2, 2, 2, 98, 99, 3, 2, 2, 2, 99, 100, 3, 2, 2, 2, 100,
-	101, 5, 18, 10, 2, 101, 5, 3, 2, 2, 2, 102, 106, 7, 13, 2, 2, 103, 105,
+	101, 5, 18, 10, 2, 101, 5, 3, 2, 2, 2, 102, 106, 7, 11, 2, 2, 103, 105,
 	5, 8, 5, 2, 104, 103, 3, 2, 2, 2, 105, 108, 3, 2, 2, 2, 106, 104, 3, 2,
 	2, 2, 106, 107, 3, 2, 2, 2, 107, 109, 3, 2, 2, 2, 108, 106, 3, 2, 2, 2,
-	109, 110, 7, 7, 2, 2, 110, 7, 3, 2, 2, 2, 111, 112, 7, 44, 2, 2, 112, 113,
-	5, 10, 6, 2, 113, 9, 3, 2, 2, 2, 114, 116, 7, 41, 2, 2, 115, 117, 5, 12,
+	109, 110, 7, 5, 2, 2, 110, 7, 3, 2, 2, 2, 111, 112, 7, 41, 2, 2, 112, 113,
+	5, 10, 6, 2, 113, 9, 3, 2, 2, 2, 114, 116, 7, 38, 2, 2, 115, 117, 5, 12,
 	7, 2, 116, 115, 3, 2, 2, 2, 116, 117, 3, 2, 2, 2, 117, 118, 3, 2, 2, 2,
-	118, 119, 7, 42, 2, 2, 119, 11, 3, 2, 2, 2, 120, 125, 5, 14, 8, 2, 121,
+	118, 119, 7, 39, 2, 2, 119, 11, 3, 2, 2, 2, 120, 125, 5, 14, 8, 2, 121,
 	122, 9, 2, 2, 2, 122, 124, 5, 14, 8, 2, 123, 121, 3, 2, 2, 2, 124, 127,
 	3, 2, 2, 2, 125, 123, 3, 2, 2, 2, 125, 126, 3, 2, 2, 2, 126, 13, 3, 2,
-	2, 2, 127, 125, 3, 2, 2, 2, 128, 129, 7, 44, 2, 2, 129, 130, 7, 35, 2,
-	2, 130, 131, 5, 16, 9, 2, 131, 15, 3, 2, 2, 2, 132, 138, 7, 47, 2, 2, 133,
-	138, 7, 43, 2, 2, 134, 138, 7, 18, 2, 2, 135, 138, 7, 8, 2, 2, 136, 138,
+	2, 2, 127, 125, 3, 2, 2, 2, 128, 129, 7, 41, 2, 2, 129, 130, 7, 32, 2,
+	2, 130, 131, 5, 16, 9, 2, 131, 15, 3, 2, 2, 2, 132, 138, 7, 44, 2, 2, 133,
+	138, 7, 40, 2, 2, 134, 138, 7, 15, 2, 2, 135, 138, 7, 6, 2, 2, 136, 138,
 	5, 10, 6, 2, 137, 132, 3, 2, 2, 2, 137, 133, 3, 2, 2, 2, 137, 134, 3, 2,
 	2, 2, 137, 135, 3, 2, 2, 2, 137, 136, 3, 2, 2, 2, 138, 17, 3, 2, 2, 2,
 	139, 141, 5, 20, 11, 2, 140, 139, 3, 2, 2, 2, 141, 144, 3, 2, 2, 2, 142,
 	140, 3, 2, 2, 2, 142, 143, 3, 2, 2, 2, 143, 19, 3, 2, 2, 2, 144, 142, 3,
-	2, 2, 2, 145, 146, 5, 22, 12, 2, 146, 147, 7, 33, 2, 2, 147, 171, 3, 2,
-	2, 2, 148, 149, 5, 28, 15, 2, 149, 150, 7, 33, 2, 2, 150, 171, 3, 2, 2,
-	2, 151, 152, 5, 32, 17, 2, 152, 153, 7, 33, 2, 2, 153, 171, 3, 2, 2, 2,
-	154, 155, 5, 36, 19, 2, 155, 156, 7, 33, 2, 2, 156, 171, 3, 2, 2, 2, 157,
-	158, 5, 38, 20, 2, 158, 159, 7, 33, 2, 2, 159, 171, 3, 2, 2, 2, 160, 161,
-	5, 44, 23, 2, 161, 162, 7, 33, 2, 2, 162, 171, 3, 2, 2, 2, 163, 164, 5,
-	48, 25, 2, 164, 165, 7, 33, 2, 2, 165, 171, 3, 2, 2, 2, 166, 167, 5, 54,
-	28, 2, 167, 168, 7, 33, 2, 2, 168, 171, 3, 2, 2, 2, 169, 171, 7, 33, 2,
+	2, 2, 2, 145, 146, 5, 22, 12, 2, 146, 147, 7, 30, 2, 2, 147, 171, 3, 2,
+	2, 2, 148, 149, 5, 28, 15, 2, 149, 150, 7, 30, 2, 2, 150, 171, 3, 2, 2,
+	2, 151, 152, 5, 32, 17, 2, 152, 153, 7, 30, 2, 2, 153, 171, 3, 2, 2, 2,
+	154, 155, 5, 36, 19, 2, 155, 156, 7, 30, 2, 2, 156, 171, 3, 2, 2, 2, 157,
+	158, 5, 38, 20, 2, 158, 159, 7, 30, 2, 2, 159, 171, 3, 2, 2, 2, 160, 161,
+	5, 44, 23, 2, 161, 162, 7, 30, 2, 2, 162, 171, 3, 2, 2, 2, 163, 164, 5,
+	48, 25, 2, 164, 165, 7, 30, 2, 2, 165, 171, 3, 2, 2, 2, 166, 167, 5, 54,
+	28, 2, 167, 168, 7, 30, 2, 2, 168, 171, 3, 2, 2, 2, 169, 171, 7, 30, 2,
 	2, 170, 145, 3, 2, 2, 2, 170, 148, 3, 2, 2, 2, 170, 151, 3, 2, 2, 2, 170,
 	154, 3, 2, 2, 2, 170, 157, 3, 2, 2, 2, 170, 160, 3, 2, 2, 2, 170, 163,
 	3, 2, 2, 2, 170, 166, 3, 2, 2, 2, 170, 169, 3, 2, 2, 2, 171, 21, 3, 2,
-	2, 2, 172, 173, 5, 24, 13, 2, 173, 174, 7, 21, 2, 2, 174, 175, 5, 26, 14,
-	2, 175, 23, 3, 2, 2, 2, 176, 181, 5, 60, 31, 2, 177, 178, 7, 34, 2, 2,
+	2, 2, 172, 173, 5, 24, 13, 2, 173, 174, 7, 18, 2, 2, 174, 175, 5, 26, 14,
+	2, 175, 23, 3, 2, 2, 2, 176, 181, 5, 60, 31, 2, 177, 178, 7, 31, 2, 2,
 	178, 180, 5, 60, 31, 2, 179, 177, 3, 2, 2, 2, 180, 183, 3, 2, 2, 2, 181,
 	179, 3, 2, 2, 2, 181, 182, 3, 2, 2, 2, 182, 25, 3, 2, 2, 2, 183, 181, 3,
-	2, 2, 2, 184, 189, 5, 50, 26, 2, 185, 186, 7, 34, 2, 2, 186, 188, 5, 50,
+	2, 2, 2, 184, 189, 5, 50, 26, 2, 185, 186, 7, 31, 2, 2, 186, 188, 5, 50,
 	26, 2, 187, 185, 3, 2, 2, 2, 188, 191, 3, 2, 2, 2, 189, 187, 3, 2, 2, 2,
 	189, 190, 3, 2, 2, 2, 190, 27, 3, 2, 2, 2, 191, 189, 3, 2, 2, 2, 192, 193,
-	7, 19, 2, 2, 193, 196, 5, 30, 16, 2, 194, 195, 7, 21, 2, 2, 195, 197, 5,
+	7, 16, 2, 2, 193, 196, 5, 30, 16, 2, 194, 195, 7, 18, 2, 2, 195, 197, 5,
 	26, 14, 2, 196, 194, 3, 2, 2, 2, 196, 197, 3, 2, 2, 2, 197, 29, 3, 2, 2,
-	2, 198, 203, 7, 44, 2, 2, 199, 200, 7, 34, 2, 2, 200, 202, 7, 44, 2, 2,
+	2, 198, 203, 7, 41, 2, 2, 199, 200, 7, 31, 2, 2, 200, 202, 7, 41, 2, 2,
 	201, 199, 3, 2, 2, 2, 202, 205, 3, 2, 2, 2, 203, 201, 3, 2, 2, 2, 203,
 	204, 3, 2, 2, 2, 204, 31, 3, 2, 2, 2, 205, 203, 3, 2, 2, 2, 206, 207, 7,
-	10, 2, 2, 207, 208, 5, 34, 18, 2, 208, 209, 7, 12, 2, 2, 209, 210, 5, 50,
-	26, 2, 210, 211, 7, 33, 2, 2, 211, 212, 5, 18, 10, 2, 212, 213, 7, 7, 2,
-	2, 213, 33, 3, 2, 2, 2, 214, 219, 7, 44, 2, 2, 215, 216, 7, 34, 2, 2, 216,
-	218, 7, 44, 2, 2, 217, 215, 3, 2, 2, 2, 218, 221, 3, 2, 2, 2, 219, 217,
+	8, 2, 2, 207, 208, 5, 34, 18, 2, 208, 209, 7, 10, 2, 2, 209, 210, 5, 50,
+	26, 2, 210, 211, 7, 30, 2, 2, 211, 212, 5, 18, 10, 2, 212, 213, 7, 5, 2,
+	2, 213, 33, 3, 2, 2, 2, 214, 219, 7, 41, 2, 2, 215, 216, 7, 31, 2, 2, 216,
+	218, 7, 41, 2, 2, 217, 215, 3, 2, 2, 2, 218, 221, 3, 2, 2, 2, 219, 217,
 	3, 2, 2, 2, 219, 220, 3, 2, 2, 2, 220, 35, 3, 2, 2, 2, 221, 219, 3, 2,
-	2, 2, 222, 223, 7, 20, 2, 2, 223, 224, 5, 50, 26, 2, 224, 225, 7, 4, 2,
-	2, 225, 226, 5, 18, 10, 2, 226, 227, 7, 7, 2, 2, 227, 37, 3, 2, 2, 2, 228,
-	229, 7, 11, 2, 2, 229, 230, 5, 50, 26, 2, 230, 231, 7, 33, 2, 2, 231, 235,
+	2, 2, 222, 223, 7, 17, 2, 2, 223, 224, 5, 50, 26, 2, 224, 225, 7, 30, 2,
+	2, 225, 226, 5, 18, 10, 2, 226, 227, 7, 5, 2, 2, 227, 37, 3, 2, 2, 2, 228,
+	229, 7, 9, 2, 2, 229, 230, 5, 50, 26, 2, 230, 231, 7, 30, 2, 2, 231, 235,
 	5, 18, 10, 2, 232, 234, 5, 40, 21, 2, 233, 232, 3, 2, 2, 2, 234, 237, 3,
 	2, 2, 2, 235, 233, 3, 2, 2, 2, 235, 236, 3, 2, 2, 2, 236, 239, 3, 2, 2,
 	2, 237, 235, 3, 2, 2, 2, 238, 240, 5, 42, 22, 2, 239, 238, 3, 2, 2, 2,
-	239, 240, 3, 2, 2, 2, 240, 241, 3, 2, 2, 2, 241, 242, 7, 7, 2, 2, 242,
-	39, 3, 2, 2, 2, 243, 244, 7, 6, 2, 2, 244, 245, 7, 11, 2, 2, 245, 246,
-	5, 50, 26, 2, 246, 247, 7, 33, 2, 2, 247, 248, 5, 18, 10, 2, 248, 41, 3,
-	2, 2, 2, 249, 250, 7, 6, 2, 2, 250, 251, 5, 18, 10, 2, 251, 43, 3, 2, 2,
-	2, 252, 253, 7, 9, 2, 2, 253, 254, 7, 44, 2, 2, 254, 256, 7, 37, 2, 2,
-	255, 257, 5, 46, 24, 2, 256, 255, 3, 2, 2, 2, 256, 257, 3, 2, 2, 2, 257,
-	258, 3, 2, 2, 2, 258, 259, 7, 38, 2, 2, 259, 260, 5, 18, 10, 2, 260, 261,
-	7, 7, 2, 2, 261, 45, 3, 2, 2, 2, 262, 267, 7, 44, 2, 2, 263, 264, 7, 34,
-	2, 2, 264, 266, 7, 44, 2, 2, 265, 263, 3, 2, 2, 2, 266, 269, 3, 2, 2, 2,
-	267, 265, 3, 2, 2, 2, 267, 268, 3, 2, 2, 2, 268, 47, 3, 2, 2, 2, 269, 267,
-	3, 2, 2, 2, 270, 272, 7, 16, 2, 2, 271, 273, 5, 26, 14, 2, 272, 271, 3,
-	2, 2, 2, 272, 273, 3, 2, 2, 2, 273, 49, 3, 2, 2, 2, 274, 275, 8, 26, 1,
-	2, 275, 276, 5, 52, 27, 2, 276, 294, 3, 2, 2, 2, 277, 278, 12, 7, 2, 2,
-	278, 279, 9, 3, 2, 2, 279, 293, 5, 50, 26, 8, 280, 281, 12, 6, 2, 2, 281,
-	282, 9, 4, 2, 2, 282, 293, 5, 50, 26, 7, 283, 284, 12, 5, 2, 2, 284, 285,
-	9, 5, 2, 2, 285, 293, 5, 50, 26, 6, 286, 287, 12, 4, 2, 2, 287, 288, 7,
-	3, 2, 2, 288, 293, 5, 50, 26, 5, 289, 290, 12, 3, 2, 2, 290, 291, 7, 15,
-	2, 2, 291, 293, 5, 50, 26, 4, 292, 277, 3, 2, 2, 2, 292, 280, 3, 2, 2,
-	2, 292, 283, 3, 2, 2, 2, 292, 286, 3, 2, 2, 2, 292, 289, 3, 2, 2, 2, 293,
+	239, 240, 3, 2, 2, 2, 240, 241, 3, 2, 2, 2, 241, 242, 7, 5, 2, 2, 242,
+	39, 3, 2, 2, 2, 243, 244, 7, 4, 2, 2, 244, 245, 7, 9, 2, 2, 245, 246, 5,
+	50, 26, 2, 246, 247, 7, 30, 2, 2, 247, 248, 5, 18, 10, 2, 248, 41, 3, 2,
+	2, 2, 249, 250, 7, 4, 2, 2, 250, 251, 5, 18, 10, 2, 251, 43, 3, 2, 2, 2,
+	252, 253, 7, 7, 2, 2, 253, 254, 7, 41, 2, 2, 254, 256, 7, 34, 2, 2, 255,
+	257, 5, 46, 24, 2, 256, 255, 3, 2, 2, 2, 256, 257, 3, 2, 2, 2, 257, 258,
+	3, 2, 2, 2, 258, 259, 7, 35, 2, 2, 259, 260, 5, 18, 10, 2, 260, 261, 7,
+	5, 2, 2, 261, 45, 3, 2, 2, 2, 262, 267, 7, 41, 2, 2, 263, 264, 7, 31, 2,
+	2, 264, 266, 7, 41, 2, 2, 265, 263, 3, 2, 2, 2, 266, 269, 3, 2, 2, 2, 267,
+	265, 3, 2, 2, 2, 267, 268, 3, 2, 2, 2, 268, 47, 3, 2, 2, 2, 269, 267, 3,
+	2, 2, 2, 270, 272, 7, 14, 2, 2, 271, 273, 5, 26, 14, 2, 272, 271, 3, 2,
+	2, 2, 272, 273, 3, 2, 2, 2, 273, 49, 3, 2, 2, 2, 274, 275, 8, 26, 1, 2,
+	275, 276, 5, 52, 27, 2, 276, 294, 3, 2, 2, 2, 277, 278, 12, 7, 2, 2, 278,
+	279, 9, 3, 2, 2, 279, 293, 5, 50, 26, 8, 280, 281, 12, 6, 2, 2, 281, 282,
+	9, 4, 2, 2, 282, 293, 5, 50, 26, 7, 283, 284, 12, 5, 2, 2, 284, 285, 9,
+	5, 2, 2, 285, 293, 5, 50, 26, 6, 286, 287, 12, 4, 2, 2, 287, 288, 7, 3,
+	2, 2, 288, 293, 5, 50, 26, 5, 289, 290, 12, 3, 2, 2, 290, 291, 7, 13, 2,
+	2, 291, 293, 5, 50, 26, 4, 292, 277, 3, 2, 2, 2, 292, 280, 3, 2, 2, 2,
+	292, 283, 3, 2, 2, 2, 292, 286, 3, 2, 2, 2, 292, 289, 3, 2, 2, 2, 293,
 	296, 3, 2, 2, 2, 294, 292, 3, 2, 2, 2, 294, 295, 3, 2, 2, 2, 295, 51, 3,
-	2, 2, 2, 296, 294, 3, 2, 2, 2, 297, 298, 7, 14, 2, 2, 298, 305, 5, 52,
-	27, 2, 299, 300, 7, 28, 2, 2, 300, 305, 5, 52, 27, 2, 301, 302, 7, 29,
+	2, 2, 2, 296, 294, 3, 2, 2, 2, 297, 298, 7, 12, 2, 2, 298, 305, 5, 52,
+	27, 2, 299, 300, 7, 25, 2, 2, 300, 305, 5, 52, 27, 2, 301, 302, 7, 26,
 	2, 2, 302, 305, 5, 52, 27, 2, 303, 305, 5, 54, 28, 2, 304, 297, 3, 2, 2,
 	2, 304, 299, 3, 2, 2, 2, 304, 301, 3, 2, 2, 2, 304, 303, 3, 2, 2, 2, 305,
-	53, 3, 2, 2, 2, 306, 307, 8, 28, 1, 2, 307, 317, 7, 44, 2, 2, 308, 317,
+	53, 3, 2, 2, 2, 306, 307, 8, 28, 1, 2, 307, 317, 7, 41, 2, 2, 308, 317,
 	5, 62, 32, 2, 309, 317, 5, 64, 33, 2, 310, 317, 5, 78, 40, 2, 311, 317,
-	5, 56, 29, 2, 312, 313, 7, 37, 2, 2, 313, 314, 5, 50, 26, 2, 314, 315,
-	7, 38, 2, 2, 315, 317, 3, 2, 2, 2, 316, 306, 3, 2, 2, 2, 316, 308, 3, 2,
+	5, 56, 29, 2, 312, 313, 7, 34, 2, 2, 313, 314, 5, 50, 26, 2, 314, 315,
+	7, 35, 2, 2, 315, 317, 3, 2, 2, 2, 316, 306, 3, 2, 2, 2, 316, 308, 3, 2,
 	2, 2, 316, 309, 3, 2, 2, 2, 316, 310, 3, 2, 2, 2, 316, 311, 3, 2, 2, 2,
 	316, 312, 3, 2, 2, 2, 317, 344, 3, 2, 2, 2, 318, 319, 12, 11, 2, 2, 319,
-	320, 7, 36, 2, 2, 320, 343, 7, 44, 2, 2, 321, 322, 12, 10, 2, 2, 322, 323,
-	7, 39, 2, 2, 323, 324, 5, 50, 26, 2, 324, 325, 7, 40, 2, 2, 325, 343, 3,
-	2, 2, 2, 326, 327, 12, 9, 2, 2, 327, 329, 7, 39, 2, 2, 328, 330, 5, 50,
+	320, 7, 33, 2, 2, 320, 343, 7, 41, 2, 2, 321, 322, 12, 10, 2, 2, 322, 323,
+	7, 36, 2, 2, 323, 324, 5, 50, 26, 2, 324, 325, 7, 37, 2, 2, 325, 343, 3,
+	2, 2, 2, 326, 327, 12, 9, 2, 2, 327, 329, 7, 36, 2, 2, 328, 330, 5, 50,
 	26, 2, 329, 328, 3, 2, 2, 2, 329, 330, 3, 2, 2, 2, 330, 331, 3, 2, 2, 2,
-	331, 333, 7, 35, 2, 2, 332, 334, 5, 50, 26, 2, 333, 332, 3, 2, 2, 2, 333,
-	334, 3, 2, 2, 2, 334, 335, 3, 2, 2, 2, 335, 343, 7, 40, 2, 2, 336, 337,
-	12, 8, 2, 2, 337, 339, 7, 37, 2, 2, 338, 340, 5, 58, 30, 2, 339, 338, 3,
-	2, 2, 2, 339, 340, 3, 2, 2, 2, 340, 341, 3, 2, 2, 2, 341, 343, 7, 38, 2,
+	331, 333, 7, 32, 2, 2, 332, 334, 5, 50, 26, 2, 333, 332, 3, 2, 2, 2, 333,
+	334, 3, 2, 2, 2, 334, 335, 3, 2, 2, 2, 335, 343, 7, 37, 2, 2, 336, 337,
+	12, 8, 2, 2, 337, 339, 7, 34, 2, 2, 338, 340, 5, 58, 30, 2, 339, 338, 3,
+	2, 2, 2, 339, 340, 3, 2, 2, 2, 340, 341, 3, 2, 2, 2, 341, 343, 7, 35, 2,
 	2, 342, 318, 3, 2, 2, 2, 342, 321, 3, 2, 2, 2, 342, 326, 3, 2, 2, 2, 342,
 	336, 3, 2, 2, 2, 343, 346, 3, 2, 2, 2, 344, 342, 3, 2, 2, 2, 344, 345,
 	3, 2, 2, 2, 345, 55, 3, 2, 2, 2, 346, 344, 3, 2, 2, 2, 347, 348, 9, 6,
-	2, 2, 348, 57, 3, 2, 2, 2, 349, 354, 5, 50, 26, 2, 350, 351, 7, 34, 2,
+	2, 2, 348, 57, 3, 2, 2, 2, 349, 354, 5, 50, 26, 2, 350, 351, 7, 31, 2,
 	2, 351, 353, 5, 50, 26, 2, 352, 350, 3, 2, 2, 2, 353, 356, 3, 2, 2, 2,
 	354, 352, 3, 2, 2, 2, 354, 355, 3, 2, 2, 2, 355, 59, 3, 2, 2, 2, 356, 354,
-	3, 2, 2, 2, 357, 368, 7, 44, 2, 2, 358, 359, 5, 54, 28, 2, 359, 360, 7,
-	36, 2, 2, 360, 361, 7, 44, 2, 2, 361, 368, 3, 2, 2, 2, 362, 363, 5, 54,
-	28, 2, 363, 364, 7, 39, 2, 2, 364, 365, 5, 50, 26, 2, 365, 366, 7, 40,
+	3, 2, 2, 2, 357, 368, 7, 41, 2, 2, 358, 359, 5, 54, 28, 2, 359, 360, 7,
+	33, 2, 2, 360, 361, 7, 41, 2, 2, 361, 368, 3, 2, 2, 2, 362, 363, 5, 54,
+	28, 2, 363, 364, 7, 36, 2, 2, 364, 365, 5, 50, 26, 2, 365, 366, 7, 37,
 	2, 2, 366, 368, 3, 2, 2, 2, 367, 357, 3, 2, 2, 2, 367, 358, 3, 2, 2, 2,
-	367, 362, 3, 2, 2, 2, 368, 61, 3, 2, 2, 2, 369, 370, 7, 9, 2, 2, 370, 372,
-	7, 37, 2, 2, 371, 373, 5, 46, 24, 2, 372, 371, 3, 2, 2, 2, 372, 373, 3,
-	2, 2, 2, 373, 374, 3, 2, 2, 2, 374, 375, 7, 38, 2, 2, 375, 376, 5, 18,
-	10, 2, 376, 377, 7, 7, 2, 2, 377, 63, 3, 2, 2, 2, 378, 380, 7, 41, 2, 2,
+	367, 362, 3, 2, 2, 2, 368, 61, 3, 2, 2, 2, 369, 370, 7, 7, 2, 2, 370, 372,
+	7, 34, 2, 2, 371, 373, 5, 46, 24, 2, 372, 371, 3, 2, 2, 2, 372, 373, 3,
+	2, 2, 2, 373, 374, 3, 2, 2, 2, 374, 375, 7, 35, 2, 2, 375, 376, 5, 18,
+	10, 2, 376, 377, 7, 5, 2, 2, 377, 63, 3, 2, 2, 2, 378, 380, 7, 38, 2, 2,
 	379, 381, 5, 66, 34, 2, 380, 379, 3, 2, 2, 2, 380, 381, 3, 2, 2, 2, 381,
-	382, 3, 2, 2, 2, 382, 383, 7, 42, 2, 2, 383, 65, 3, 2, 2, 2, 384, 389,
+	382, 3, 2, 2, 2, 382, 383, 7, 39, 2, 2, 383, 65, 3, 2, 2, 2, 384, 389,
 	5, 68, 35, 2, 385, 386, 9, 2, 2, 2, 386, 388, 5, 68, 35, 2, 387, 385, 3,
 	2, 2, 2, 388, 391, 3, 2, 2, 2, 389, 387, 3, 2, 2, 2, 389, 390, 3, 2, 2,
 	2, 390, 395, 3, 2, 2, 2, 391, 389, 3, 2, 2, 2, 392, 394, 9, 2, 2, 2, 393,
 	392, 3, 2, 2, 2, 394, 397, 3, 2, 2, 2, 395, 393, 3, 2, 2, 2, 395, 396,
 	3, 2, 2, 2, 396, 67, 3, 2, 2, 2, 397, 395, 3, 2, 2, 2, 398, 399, 5, 92,
-	47, 2, 399, 400, 7, 35, 2, 2, 400, 401, 5, 50, 26, 2, 401, 411, 3, 2, 2,
-	2, 402, 403, 7, 39, 2, 2, 403, 404, 5, 50, 26, 2, 404, 405, 7, 40, 2, 2,
-	405, 406, 7, 35, 2, 2, 406, 407, 5, 50, 26, 2, 407, 411, 3, 2, 2, 2, 408,
+	47, 2, 399, 400, 7, 32, 2, 2, 400, 401, 5, 50, 26, 2, 401, 411, 3, 2, 2,
+	2, 402, 403, 7, 36, 2, 2, 403, 404, 5, 50, 26, 2, 404, 405, 7, 37, 2, 2,
+	405, 406, 7, 32, 2, 2, 406, 407, 5, 50, 26, 2, 407, 411, 3, 2, 2, 2, 408,
 	411, 5, 70, 36, 2, 409, 411, 5, 76, 39, 2, 410, 398, 3, 2, 2, 2, 410, 402,
 	3, 2, 2, 2, 410, 408, 3, 2, 2, 2, 410, 409, 3, 2, 2, 2, 411, 69, 3, 2,
-	2, 2, 412, 413, 7, 11, 2, 2, 413, 414, 5, 50, 26, 2, 414, 416, 7, 33, 2,
+	2, 2, 412, 413, 7, 9, 2, 2, 413, 414, 5, 50, 26, 2, 414, 416, 7, 30, 2,
 	2, 415, 417, 5, 66, 34, 2, 416, 415, 3, 2, 2, 2, 416, 417, 3, 2, 2, 2,
 	417, 421, 3, 2, 2, 2, 418, 420, 5, 72, 37, 2, 419, 418, 3, 2, 2, 2, 420,
 	423, 3, 2, 2, 2, 421, 419, 3, 2, 2, 2, 421, 422, 3, 2, 2, 2, 422, 425,
 	3, 2, 2, 2, 423, 421, 3, 2, 2, 2, 424, 426, 5, 74, 38, 2, 425, 424, 3,
-	2, 2, 2, 425, 426, 3, 2, 2, 2, 426, 427, 3, 2, 2, 2, 427, 428, 7, 7, 2,
-	2, 428, 71, 3, 2, 2, 2, 429, 430, 7, 6, 2, 2, 430, 431, 7, 11, 2, 2, 431,
-	432, 5, 50, 26, 2, 432, 434, 7, 33, 2, 2, 433, 435, 5, 66, 34, 2, 434,
+	2, 2, 2, 425, 426, 3, 2, 2, 2, 426, 427, 3, 2, 2, 2, 427, 428, 7, 5, 2,
+	2, 428, 71, 3, 2, 2, 2, 429, 430, 7, 4, 2, 2, 430, 431, 7, 9, 2, 2, 431,
+	432, 5, 50, 26, 2, 432, 434, 7, 30, 2, 2, 433, 435, 5, 66, 34, 2, 434,
 	433, 3, 2, 2, 2, 434, 435, 3, 2, 2, 2, 435, 73, 3, 2, 2, 2, 436, 438, 7,
-	6, 2, 2, 437, 439, 5, 66, 34, 2, 438, 437, 3, 2, 2, 2, 438, 439, 3, 2,
-	2, 2, 439, 75, 3, 2, 2, 2, 440, 441, 7, 10, 2, 2, 441, 442, 5, 34, 18,
-	2, 442, 443, 7, 12, 2, 2, 443, 444, 5, 50, 26, 2, 444, 446, 7, 33, 2, 2,
-	445, 447, 5, 66, 34, 2, 446, 445, 3, 2, 2, 2, 446, 447, 3, 2, 2, 2, 447,
-	448, 3, 2, 2, 2, 448, 449, 7, 7, 2, 2, 449, 77, 3, 2, 2, 2, 450, 452, 7,
-	39, 2, 2, 451, 453, 5, 80, 41, 2, 452, 451, 3, 2, 2, 2, 452, 453, 3, 2,
-	2, 2, 453, 454, 3, 2, 2, 2, 454, 455, 7, 40, 2, 2, 455, 79, 3, 2, 2, 2,
-	456, 461, 5, 82, 42, 2, 457, 458, 9, 2, 2, 2, 458, 460, 5, 82, 42, 2, 459,
-	457, 3, 2, 2, 2, 460, 463, 3, 2, 2, 2, 461, 459, 3, 2, 2, 2, 461, 462,
-	3, 2, 2, 2, 462, 467, 3, 2, 2, 2, 463, 461, 3, 2, 2, 2, 464, 466, 9, 2,
-	2, 2, 465, 464, 3, 2, 2, 2, 466, 469, 3, 2, 2, 2, 467, 465, 3, 2, 2, 2,
-	467, 468, 3, 2, 2, 2, 468, 81, 3, 2, 2, 2, 469, 467, 3, 2, 2, 2, 470, 474,
-	5, 50, 26, 2, 471, 474, 5, 84, 43, 2, 472, 474, 5, 90, 46, 2, 473, 470,
-	3, 2, 2, 2, 473, 471, 3, 2, 2, 2, 473, 472, 3, 2, 2, 2, 474, 83, 3, 2,
-	2, 2, 475, 476, 7, 11, 2, 2, 476, 477, 5, 50, 26, 2, 477, 479, 7, 33, 2,
-	2, 478, 480, 5, 80, 41, 2, 479, 478, 3, 2, 2, 2, 479, 480, 3, 2, 2, 2,
-	480, 484, 3, 2, 2, 2, 481, 483, 5, 86, 44, 2, 482, 481, 3, 2, 2, 2, 483,
-	486, 3, 2, 2, 2, 484, 482, 3, 2, 2, 2, 484, 485, 3, 2, 2, 2, 485, 488,
-	3, 2, 2, 2, 486, 484, 3, 2, 2, 2, 487, 489, 5, 88, 45, 2, 488, 487, 3,
-	2, 2, 2, 488, 489, 3, 2, 2, 2, 489, 490, 3, 2, 2, 2, 490, 491, 7, 7, 2,
-	2, 491, 85, 3, 2, 2, 2, 492, 493, 7, 6, 2, 2, 493, 494, 7, 11, 2, 2, 494,
-	495, 5, 50, 26, 2, 495, 497, 7, 33, 2, 2, 496, 498, 5, 80, 41, 2, 497,
-	496, 3, 2, 2, 2, 497, 498, 3, 2, 2, 2, 498, 87, 3, 2, 2, 2, 499, 501, 7,
-	6, 2, 2, 500, 502, 5, 80, 41, 2, 501, 500, 3, 2, 2, 2, 501, 502, 3, 2,
-	2, 2, 502, 89, 3, 2, 2, 2, 503, 504, 7, 10, 2, 2, 504, 505, 5, 34, 18,
-	2, 505, 506, 7, 12, 2, 2, 506, 507, 5, 50, 26, 2, 507, 509, 7, 33, 2, 2,
-	508, 510, 5, 80, 41, 2, 509, 508, 3, 2, 2, 2, 509, 510, 3, 2, 2, 2, 510,
-	511, 3, 2, 2, 2, 511, 512, 7, 7, 2, 2, 512, 91, 3, 2, 2, 2, 513, 514, 9,
-	7, 2, 2, 514, 93, 3, 2, 2, 2, 51, 98, 106, 116, 125, 137, 142, 170, 181,
-	189, 196, 203, 219, 235, 239, 256, 267, 272, 292, 294, 304, 316, 329, 333,
-	339, 342, 344, 354, 367, 372, 380, 389, 395, 410, 416, 421, 425, 434, 438,
-	446, 452, 461, 467, 473, 479, 484, 488, 497, 501, 509,
+	4, 2, 2, 437, 439, 5, 66, 34, 2, 438, 437, 3, 2, 2, 2, 438, 439, 3, 2,
+	2, 2, 439, 75, 3, 2, 2, 2, 440, 441, 7, 8, 2, 2, 441, 442, 5, 34, 18, 2,
+	442, 443, 7, 10, 2, 2, 443, 444, 5, 50, 26, 2, 444, 446, 7, 30, 2, 2, 445,
+	447, 5, 66, 34, 2, 446, 445, 3, 2, 2, 2, 446, 447, 3, 2, 2, 2, 447, 448,
+	3, 2, 2, 2, 448, 449, 7, 5, 2, 2, 449, 77, 3, 2, 2, 2, 450, 452, 7, 36,
+	2, 2, 451, 453, 5, 80, 41, 2, 452, 451, 3, 2, 2, 2, 452, 453, 3, 2, 2,
+	2, 453, 454, 3, 2, 2, 2, 454, 455, 7, 37, 2, 2, 455, 79, 3, 2, 2, 2, 456,
+	461, 5, 82, 42, 2, 457, 458, 9, 2, 2, 2, 458, 460, 5, 82, 42, 2, 459, 457,
+	3, 2, 2, 2, 460, 463, 3, 2, 2, 2, 461, 459, 3, 2, 2, 2, 461, 462, 3, 2,
+	2, 2, 462, 467, 3, 2, 2, 2, 463, 461, 3, 2, 2, 2, 464, 466, 9, 2, 2, 2,
+	465, 464, 3, 2, 2, 2, 466, 469, 3, 2, 2, 2, 467, 465, 3, 2, 2, 2, 467,
+	468, 3, 2, 2, 2, 468, 81, 3, 2, 2, 2, 469, 467, 3, 2, 2, 2, 470, 474, 5,
+	50, 26, 2, 471, 474, 5, 84, 43, 2, 472, 474, 5, 90, 46, 2, 473, 470, 3,
+	2, 2, 2, 473, 471, 3, 2, 2, 2, 473, 472, 3, 2, 2, 2, 474, 83, 3, 2, 2,
+	2, 475, 476, 7, 9, 2, 2, 476, 477, 5, 50, 26, 2, 477, 479, 7, 30, 2, 2,
+	478, 480, 5, 80, 41, 2, 479, 478, 3, 2, 2, 2, 479, 480, 3, 2, 2, 2, 480,
+	484, 3, 2, 2, 2, 481, 483, 5, 86, 44, 2, 482, 481, 3, 2, 2, 2, 483, 486,
+	3, 2, 2, 2, 484, 482, 3, 2, 2, 2, 484, 485, 3, 2, 2, 2, 485, 488, 3, 2,
+	2, 2, 486, 484, 3, 2, 2, 2, 487, 489, 5, 88, 45, 2, 488, 487, 3, 2, 2,
+	2, 488, 489, 3, 2, 2, 2, 489, 490, 3, 2, 2, 2, 490, 491, 7, 5, 2, 2, 491,
+	85, 3, 2, 2, 2, 492, 493, 7, 4, 2, 2, 493, 494, 7, 9, 2, 2, 494, 495, 5,
+	50, 26, 2, 495, 497, 7, 30, 2, 2, 496, 498, 5, 80, 41, 2, 497, 496, 3,
+	2, 2, 2, 497, 498, 3, 2, 2, 2, 498, 87, 3, 2, 2, 2, 499, 501, 7, 4, 2,
+	2, 500, 502, 5, 80, 41, 2, 501, 500, 3, 2, 2, 2, 501, 502, 3, 2, 2, 2,
+	502, 89, 3, 2, 2, 2, 503, 504, 7, 8, 2, 2, 504, 505, 5, 34, 18, 2, 505,
+	506, 7, 10, 2, 2, 506, 507, 5, 50, 26, 2, 507, 509, 7, 30, 2, 2, 508, 510,
+	5, 80, 41, 2, 509, 508, 3, 2, 2, 2, 509, 510, 3, 2, 2, 2, 510, 511, 3,
+	2, 2, 2, 511, 512, 7, 5, 2, 2, 512, 91, 3, 2, 2, 2, 513, 514, 9, 7, 2,
+	2, 514, 93, 3, 2, 2, 2, 51, 98, 106, 116, 125, 137, 142, 170, 181, 189,
+	196, 203, 219, 235, 239, 256, 267, 272, 292, 294, 304, 316, 329, 333, 339,
+	342, 344, 354, 367, 372, 380, 389, 395, 410, 416, 421, 425, 434, 438, 446,
+	452, 461, 467, 473, 479, 484, 488, 497, 501, 509,
 }
 var literalNames = []string{
-	"", "'and'", "'do'", "'elif'", "'else'", "'end'", "'false'", "'fn'", "'for'",
-	"'if'", "'in'", "'meta'", "'not'", "'or'", "'return'", "'then'", "'true'",
-	"'var'", "'while'", "'='", "'=='", "'!='", "'<'", "'<='", "'>'", "'>='",
-	"'+'", "'-'", "'*'", "'/'", "'%'", "';'", "','", "':'", "'.'", "'('", "')'",
-	"'['", "']'", "'{'", "'}'",
+	"", "'and'", "'else'", "'end'", "'false'", "'fn'", "'for'", "'if'", "'in'",
+	"'meta'", "'not'", "'or'", "'return'", "'true'", "'var'", "'while'", "'='",
+	"'=='", "'!='", "'<'", "'<='", "'>'", "'>='", "'+'", "'-'", "'*'", "'/'",
+	"'%'", "';'", "','", "':'", "'.'", "'('", "')'", "'['", "']'", "'{'", "'}'",
 }
 var symbolicNames = []string{
-	"", "AND", "DO", "ELIF", "ELSE", "END", "FALSE", "FN", "FOR", "IF", "IN",
-	"META", "NOT", "OR", "RETURN", "THEN", "TRUE", "VAR", "WHILE", "ASSIGN",
-	"EQ", "NE", "LT", "LE", "GT", "GE", "ADD", "SUB", "MUL", "DIV", "MOD",
-	"SEMICOLON", "COMMA", "COLON", "PERIOD", "OPAREN", "CPAREN", "OBRACKET",
-	"CBRACKET", "OCURLY", "CCURLY", "NUMBER", "ID", "WS", "NEWLINE", "STRING",
-	"LQUOTE",
+	"", "AND", "ELSE", "END", "FALSE", "FN", "FOR", "IF", "IN", "META", "NOT",
+	"OR", "RETURN", "TRUE", "VAR", "WHILE", "ASSIGN", "EQ", "NE", "LT", "LE",
+	"GT", "GE", "ADD", "SUB", "MUL", "DIV", "MOD", "SEMICOLON", "COMMA", "COLON",
+	"PERIOD", "OPAREN", "CPAREN", "OBRACKET", "CBRACKET", "OCURLY", "CCURLY",
+	"NUMBER", "ID", "WS", "NEWLINE", "STRING", "LQUOTE",
 }
 
 var ruleNames = []string{
@@ -307,51 +305,48 @@ func NewNitroParser(input antlr.TokenStream) *NitroParser {
 const (
 	NitroParserEOF       = antlr.TokenEOF
 	NitroParserAND       = 1
-	NitroParserDO        = 2
-	NitroParserELIF      = 3
-	NitroParserELSE      = 4
-	NitroParserEND       = 5
-	NitroParserFALSE     = 6
-	NitroParserFN        = 7
-	NitroParserFOR       = 8
-	NitroParserIF        = 9
-	NitroParserIN        = 10
-	NitroParserMETA      = 11
-	NitroParserNOT       = 12
-	NitroParserOR        = 13
-	NitroParserRETURN    = 14
-	NitroParserTHEN      = 15
-	NitroParserTRUE      = 16
-	NitroParserVAR       = 17
-	NitroParserWHILE     = 18
-	NitroParserASSIGN    = 19
-	NitroParserEQ        = 20
-	NitroParserNE        = 21
-	NitroParserLT        = 22
-	NitroParserLE        = 23
-	NitroParserGT        = 24
-	NitroParserGE        = 25
-	NitroParserADD       = 26
-	NitroParserSUB       = 27
-	NitroParserMUL       = 28
-	NitroParserDIV       = 29
-	NitroParserMOD       = 30
-	NitroParserSEMICOLON = 31
-	NitroParserCOMMA     = 32
-	NitroParserCOLON     = 33
-	NitroParserPERIOD    = 34
-	NitroParserOPAREN    = 35
-	NitroParserCPAREN    = 36
-	NitroParserOBRACKET  = 37
-	NitroParserCBRACKET  = 38
-	NitroParserOCURLY    = 39
-	NitroParserCCURLY    = 40
-	NitroParserNUMBER    = 41
-	NitroParserID        = 42
-	NitroParserWS        = 43
-	NitroParserNEWLINE   = 44
-	NitroParserSTRING    = 45
-	NitroParserLQUOTE    = 46
+	NitroParserELSE      = 2
+	NitroParserEND       = 3
+	NitroParserFALSE     = 4
+	NitroParserFN        = 5
+	NitroParserFOR       = 6
+	NitroParserIF        = 7
+	NitroParserIN        = 8
+	NitroParserMETA      = 9
+	NitroParserNOT       = 10
+	NitroParserOR        = 11
+	NitroParserRETURN    = 12
+	NitroParserTRUE      = 13
+	NitroParserVAR       = 14
+	NitroParserWHILE     = 15
+	NitroParserASSIGN    = 16
+	NitroParserEQ        = 17
+	NitroParserNE        = 18
+	NitroParserLT        = 19
+	NitroParserLE        = 20
+	NitroParserGT        = 21
+	NitroParserGE        = 22
+	NitroParserADD       = 23
+	NitroParserSUB       = 24
+	NitroParserMUL       = 25
+	NitroParserDIV       = 26
+	NitroParserMOD       = 27
+	NitroParserSEMICOLON = 28
+	NitroParserCOMMA     = 29
+	NitroParserCOLON     = 30
+	NitroParserPERIOD    = 31
+	NitroParserOPAREN    = 32
+	NitroParserCPAREN    = 33
+	NitroParserOBRACKET  = 34
+	NitroParserCBRACKET  = 35
+	NitroParserOCURLY    = 36
+	NitroParserCCURLY    = 37
+	NitroParserNUMBER    = 38
+	NitroParserID        = 39
+	NitroParserWS        = 40
+	NitroParserNEWLINE   = 41
+	NitroParserSTRING    = 42
+	NitroParserLQUOTE    = 43
 )
 
 // NitroParser rules.
@@ -1513,7 +1508,7 @@ func (p *NitroParser) Stmts() (localctx IStmtsContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	for (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserFOR)|(1<<NitroParserIF)|(1<<NitroParserRETURN)|(1<<NitroParserTRUE)|(1<<NitroParserVAR)|(1<<NitroParserWHILE)|(1<<NitroParserSEMICOLON))) != 0) || (((_la-35)&-(0x1f+1)) == 0 && ((1<<uint((_la-35)))&((1<<(NitroParserOPAREN-35))|(1<<(NitroParserOBRACKET-35))|(1<<(NitroParserOCURLY-35))|(1<<(NitroParserNUMBER-35))|(1<<(NitroParserID-35))|(1<<(NitroParserSTRING-35)))) != 0) {
+	for (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserFOR)|(1<<NitroParserIF)|(1<<NitroParserRETURN)|(1<<NitroParserTRUE)|(1<<NitroParserVAR)|(1<<NitroParserWHILE)|(1<<NitroParserSEMICOLON))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(NitroParserOPAREN-32))|(1<<(NitroParserOBRACKET-32))|(1<<(NitroParserOCURLY-32))|(1<<(NitroParserNUMBER-32))|(1<<(NitroParserID-32))|(1<<(NitroParserSTRING-32)))) != 0) {
 		{
 			p.SetState(137)
 			p.Stmt()
@@ -2773,8 +2768,8 @@ func (s *While_stmtContext) Expr() IExprContext {
 	return t.(IExprContext)
 }
 
-func (s *While_stmtContext) DO() antlr.TerminalNode {
-	return s.GetToken(NitroParserDO, 0)
+func (s *While_stmtContext) SEMICOLON() antlr.TerminalNode {
+	return s.GetToken(NitroParserSEMICOLON, 0)
 }
 
 func (s *While_stmtContext) Stmts() IStmtsContext {
@@ -2842,7 +2837,7 @@ func (p *NitroParser) While_stmt() (localctx IWhile_stmtContext) {
 	}
 	{
 		p.SetState(222)
-		p.Match(NitroParserDO)
+		p.Match(NitroParserSEMICOLON)
 	}
 	{
 		p.SetState(223)
@@ -3677,7 +3672,7 @@ func (p *NitroParser) Return_stmt() (localctx IReturn_stmtContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-35)&-(0x1f+1)) == 0 && ((1<<uint((_la-35)))&((1<<(NitroParserOPAREN-35))|(1<<(NitroParserOBRACKET-35))|(1<<(NitroParserOCURLY-35))|(1<<(NitroParserNUMBER-35))|(1<<(NitroParserID-35))|(1<<(NitroParserSTRING-35)))) != 0) {
+	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(NitroParserOPAREN-32))|(1<<(NitroParserOBRACKET-32))|(1<<(NitroParserOCURLY-32))|(1<<(NitroParserNUMBER-32))|(1<<(NitroParserID-32))|(1<<(NitroParserSTRING-32)))) != 0) {
 		{
 			p.SetState(269)
 			p.Rvalues()
@@ -4931,7 +4926,7 @@ func (p *NitroParser) primary_expr(_p int) (localctx IPrimary_exprContext) {
 				p.GetErrorHandler().Sync(p)
 				_la = p.GetTokenStream().LA(1)
 
-				if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-35)&-(0x1f+1)) == 0 && ((1<<uint((_la-35)))&((1<<(NitroParserOPAREN-35))|(1<<(NitroParserOBRACKET-35))|(1<<(NitroParserOCURLY-35))|(1<<(NitroParserNUMBER-35))|(1<<(NitroParserID-35))|(1<<(NitroParserSTRING-35)))) != 0) {
+				if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(NitroParserOPAREN-32))|(1<<(NitroParserOBRACKET-32))|(1<<(NitroParserOCURLY-32))|(1<<(NitroParserNUMBER-32))|(1<<(NitroParserID-32))|(1<<(NitroParserSTRING-32)))) != 0) {
 					{
 						p.SetState(326)
 
@@ -4949,7 +4944,7 @@ func (p *NitroParser) primary_expr(_p int) (localctx IPrimary_exprContext) {
 				p.GetErrorHandler().Sync(p)
 				_la = p.GetTokenStream().LA(1)
 
-				if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-35)&-(0x1f+1)) == 0 && ((1<<uint((_la-35)))&((1<<(NitroParserOPAREN-35))|(1<<(NitroParserOBRACKET-35))|(1<<(NitroParserOCURLY-35))|(1<<(NitroParserNUMBER-35))|(1<<(NitroParserID-35))|(1<<(NitroParserSTRING-35)))) != 0) {
+				if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(NitroParserOPAREN-32))|(1<<(NitroParserOBRACKET-32))|(1<<(NitroParserOCURLY-32))|(1<<(NitroParserNUMBER-32))|(1<<(NitroParserID-32))|(1<<(NitroParserSTRING-32)))) != 0) {
 					{
 						p.SetState(330)
 
@@ -4980,7 +4975,7 @@ func (p *NitroParser) primary_expr(_p int) (localctx IPrimary_exprContext) {
 				p.GetErrorHandler().Sync(p)
 				_la = p.GetTokenStream().LA(1)
 
-				if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-35)&-(0x1f+1)) == 0 && ((1<<uint((_la-35)))&((1<<(NitroParserOPAREN-35))|(1<<(NitroParserOBRACKET-35))|(1<<(NitroParserOCURLY-35))|(1<<(NitroParserNUMBER-35))|(1<<(NitroParserID-35))|(1<<(NitroParserSTRING-35)))) != 0) {
+				if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(NitroParserOPAREN-32))|(1<<(NitroParserOBRACKET-32))|(1<<(NitroParserOCURLY-32))|(1<<(NitroParserNUMBER-32))|(1<<(NitroParserID-32))|(1<<(NitroParserSTRING-32)))) != 0) {
 					{
 						p.SetState(336)
 						p.Arg_list()
@@ -5788,7 +5783,7 @@ func (p *NitroParser) Object_literal() (localctx IObject_literalContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserAND)|(1<<NitroParserDO)|(1<<NitroParserELIF)|(1<<NitroParserELSE)|(1<<NitroParserEND)|(1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserFOR)|(1<<NitroParserIF)|(1<<NitroParserIN)|(1<<NitroParserMETA)|(1<<NitroParserNOT)|(1<<NitroParserOR)|(1<<NitroParserRETURN)|(1<<NitroParserTHEN)|(1<<NitroParserTRUE)|(1<<NitroParserVAR)|(1<<NitroParserWHILE))) != 0) || _la == NitroParserOBRACKET || _la == NitroParserID {
+	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserAND)|(1<<NitroParserELSE)|(1<<NitroParserEND)|(1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserFOR)|(1<<NitroParserIF)|(1<<NitroParserIN)|(1<<NitroParserMETA)|(1<<NitroParserNOT)|(1<<NitroParserOR)|(1<<NitroParserRETURN)|(1<<NitroParserTRUE)|(1<<NitroParserVAR)|(1<<NitroParserWHILE))) != 0) || _la == NitroParserOBRACKET || _la == NitroParserID {
 		{
 			p.SetState(377)
 			p.Object_fields()
@@ -7038,7 +7033,7 @@ func (p *NitroParser) Array_literal() (localctx IArray_literalContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserFOR)|(1<<NitroParserIF)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-35)&-(0x1f+1)) == 0 && ((1<<uint((_la-35)))&((1<<(NitroParserOPAREN-35))|(1<<(NitroParserOBRACKET-35))|(1<<(NitroParserOCURLY-35))|(1<<(NitroParserNUMBER-35))|(1<<(NitroParserID-35))|(1<<(NitroParserSTRING-35)))) != 0) {
+	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserFOR)|(1<<NitroParserIF)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(NitroParserOPAREN-32))|(1<<(NitroParserOBRACKET-32))|(1<<(NitroParserOCURLY-32))|(1<<(NitroParserNUMBER-32))|(1<<(NitroParserID-32))|(1<<(NitroParserSTRING-32)))) != 0) {
 		{
 			p.SetState(449)
 			p.Array_elems()
@@ -7533,7 +7528,7 @@ func (p *NitroParser) Array_if() (localctx IArray_ifContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserFOR)|(1<<NitroParserIF)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-35)&-(0x1f+1)) == 0 && ((1<<uint((_la-35)))&((1<<(NitroParserOPAREN-35))|(1<<(NitroParserOBRACKET-35))|(1<<(NitroParserOCURLY-35))|(1<<(NitroParserNUMBER-35))|(1<<(NitroParserID-35))|(1<<(NitroParserSTRING-35)))) != 0) {
+	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserFOR)|(1<<NitroParserIF)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(NitroParserOPAREN-32))|(1<<(NitroParserOBRACKET-32))|(1<<(NitroParserOCURLY-32))|(1<<(NitroParserNUMBER-32))|(1<<(NitroParserID-32))|(1<<(NitroParserSTRING-32)))) != 0) {
 		{
 			p.SetState(476)
 			p.Array_elems()
@@ -7707,7 +7702,7 @@ func (p *NitroParser) Array_elif() (localctx IArray_elifContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserFOR)|(1<<NitroParserIF)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-35)&-(0x1f+1)) == 0 && ((1<<uint((_la-35)))&((1<<(NitroParserOPAREN-35))|(1<<(NitroParserOBRACKET-35))|(1<<(NitroParserOCURLY-35))|(1<<(NitroParserNUMBER-35))|(1<<(NitroParserID-35))|(1<<(NitroParserSTRING-35)))) != 0) {
+	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserFOR)|(1<<NitroParserIF)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(NitroParserOPAREN-32))|(1<<(NitroParserOBRACKET-32))|(1<<(NitroParserOCURLY-32))|(1<<(NitroParserNUMBER-32))|(1<<(NitroParserID-32))|(1<<(NitroParserSTRING-32)))) != 0) {
 		{
 			p.SetState(494)
 			p.Array_elems()
@@ -7820,7 +7815,7 @@ func (p *NitroParser) Array_else() (localctx IArray_elseContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserFOR)|(1<<NitroParserIF)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-35)&-(0x1f+1)) == 0 && ((1<<uint((_la-35)))&((1<<(NitroParserOPAREN-35))|(1<<(NitroParserOBRACKET-35))|(1<<(NitroParserOCURLY-35))|(1<<(NitroParserNUMBER-35))|(1<<(NitroParserID-35))|(1<<(NitroParserSTRING-35)))) != 0) {
+	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserFOR)|(1<<NitroParserIF)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(NitroParserOPAREN-32))|(1<<(NitroParserOBRACKET-32))|(1<<(NitroParserOCURLY-32))|(1<<(NitroParserNUMBER-32))|(1<<(NitroParserID-32))|(1<<(NitroParserSTRING-32)))) != 0) {
 		{
 			p.SetState(498)
 			p.Array_elems()
@@ -7981,7 +7976,7 @@ func (p *NitroParser) Array_for() (localctx IArray_forContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserFOR)|(1<<NitroParserIF)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-35)&-(0x1f+1)) == 0 && ((1<<uint((_la-35)))&((1<<(NitroParserOPAREN-35))|(1<<(NitroParserOBRACKET-35))|(1<<(NitroParserOCURLY-35))|(1<<(NitroParserNUMBER-35))|(1<<(NitroParserID-35))|(1<<(NitroParserSTRING-35)))) != 0) {
+	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserFOR)|(1<<NitroParserIF)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(NitroParserOPAREN-32))|(1<<(NitroParserOBRACKET-32))|(1<<(NitroParserOCURLY-32))|(1<<(NitroParserNUMBER-32))|(1<<(NitroParserID-32))|(1<<(NitroParserSTRING-32)))) != 0) {
 		{
 			p.SetState(506)
 			p.Array_elems()
@@ -8053,14 +8048,6 @@ func (s *Id_or_keywordContext) AND() antlr.TerminalNode {
 	return s.GetToken(NitroParserAND, 0)
 }
 
-func (s *Id_or_keywordContext) DO() antlr.TerminalNode {
-	return s.GetToken(NitroParserDO, 0)
-}
-
-func (s *Id_or_keywordContext) ELIF() antlr.TerminalNode {
-	return s.GetToken(NitroParserELIF, 0)
-}
-
 func (s *Id_or_keywordContext) ELSE() antlr.TerminalNode {
 	return s.GetToken(NitroParserELSE, 0)
 }
@@ -8103,10 +8090,6 @@ func (s *Id_or_keywordContext) OR() antlr.TerminalNode {
 
 func (s *Id_or_keywordContext) RETURN() antlr.TerminalNode {
 	return s.GetToken(NitroParserRETURN, 0)
-}
-
-func (s *Id_or_keywordContext) THEN() antlr.TerminalNode {
-	return s.GetToken(NitroParserTHEN, 0)
 }
 
 func (s *Id_or_keywordContext) TRUE() antlr.TerminalNode {
@@ -8172,7 +8155,7 @@ func (p *NitroParser) Id_or_keyword() (localctx IId_or_keywordContext) {
 
 		_la = p.GetTokenStream().LA(1)
 
-		if !((((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserAND)|(1<<NitroParserDO)|(1<<NitroParserELIF)|(1<<NitroParserELSE)|(1<<NitroParserEND)|(1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserFOR)|(1<<NitroParserIF)|(1<<NitroParserIN)|(1<<NitroParserMETA)|(1<<NitroParserNOT)|(1<<NitroParserOR)|(1<<NitroParserRETURN)|(1<<NitroParserTHEN)|(1<<NitroParserTRUE)|(1<<NitroParserVAR)|(1<<NitroParserWHILE))) != 0) || _la == NitroParserID) {
+		if !((((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserAND)|(1<<NitroParserELSE)|(1<<NitroParserEND)|(1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserFOR)|(1<<NitroParserIF)|(1<<NitroParserIN)|(1<<NitroParserMETA)|(1<<NitroParserNOT)|(1<<NitroParserOR)|(1<<NitroParserRETURN)|(1<<NitroParserTRUE)|(1<<NitroParserVAR)|(1<<NitroParserWHILE))) != 0) || _la == NitroParserID) {
 			var _ri = p.GetErrorHandler().RecoverInline(p)
 
 			localctx.(*Id_or_keywordContext).t = _ri

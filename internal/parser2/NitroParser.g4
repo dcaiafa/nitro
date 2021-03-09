@@ -45,7 +45,7 @@ var_decl_vars: ID (',' ID)*;
 for_stmt: FOR for_vars IN expr ';' stmts END;
 for_vars: ID (',' ID)*;
 
-while_stmt: WHILE expr DO stmts END;
+while_stmt: WHILE expr ';' stmts END;
 
 if_stmt: IF expr ';' stmts if_elif* if_else? END;
 if_elif: ELSE IF expr ';' stmts;
@@ -121,7 +121,7 @@ array_else: ELSE array_elems?;
 array_for: FOR for_vars IN expr ';' array_elems? END;
 
 id_or_keyword: 
-    t=(ID | AND | DO | ELIF | ELSE | END | FALSE |
+    t=(ID | AND | ELSE | END | FALSE |
        FN | FOR | IF | IN | META | NOT | OR | RETURN |
-       THEN | TRUE | VAR | WHILE)
+       TRUE | VAR | WHILE)
     ;

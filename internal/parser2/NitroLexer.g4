@@ -2,8 +2,6 @@ lexer grammar NitroLexer;
 import Strings;
 
 AND: 'and';
-DO: 'do';
-ELIF: 'elif';
 ELSE: 'else';
 END: 'end';
 FALSE: 'false';
@@ -15,7 +13,6 @@ META: 'meta';
 NOT: 'not';
 OR: 'or';
 RETURN: 'return';
-THEN: 'then';
 TRUE: 'true';
 VAR: 'var';
 WHILE: 'while';
