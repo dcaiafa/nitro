@@ -159,12 +159,6 @@ func (s *BaseNitroParserListener) EnterParam_list(ctx *Param_listContext) {}
 // ExitParam_list is called when production param_list is exited.
 func (s *BaseNitroParserListener) ExitParam_list(ctx *Param_listContext) {}
 
-// EnterFunc_call_stmt is called when production func_call_stmt is entered.
-func (s *BaseNitroParserListener) EnterFunc_call_stmt(ctx *Func_call_stmtContext) {}
-
-// ExitFunc_call_stmt is called when production func_call_stmt is exited.
-func (s *BaseNitroParserListener) ExitFunc_call_stmt(ctx *Func_call_stmtContext) {}
-
 // EnterReturn_stmt is called when production return_stmt is entered.
 func (s *BaseNitroParserListener) EnterReturn_stmt(ctx *Return_stmtContext) {}
 

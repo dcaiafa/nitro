@@ -47,10 +47,10 @@ func TestObjectLiteral(t *testing.T) {
 		fn f(a, b) 
 			return {
 				foo: "bar"
-			if a then
+			if a
 				other: 123
 				sub: {
-				if b then
+				if b
 					x: true
 				end
 					[ "y" ]: false 

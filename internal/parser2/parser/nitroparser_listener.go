@@ -77,9 +77,6 @@ type NitroParserListener interface {
 	// EnterParam_list is called when entering the param_list production.
 	EnterParam_list(c *Param_listContext)
 
-	// EnterFunc_call_stmt is called when entering the func_call_stmt production.
-	EnterFunc_call_stmt(c *Func_call_stmtContext)
-
 	// EnterReturn_stmt is called when entering the return_stmt production.
 	EnterReturn_stmt(c *Return_stmtContext)
 
@@ -259,9 +256,6 @@ type NitroParserListener interface {
 
 	// ExitParam_list is called when exiting the param_list production.
 	ExitParam_list(c *Param_listContext)
-
-	// ExitFunc_call_stmt is called when exiting the func_call_stmt production.
-	ExitFunc_call_stmt(c *Func_call_stmtContext)
 
 	// ExitReturn_stmt is called when exiting the return_stmt production.
 	ExitReturn_stmt(c *Return_stmtContext)

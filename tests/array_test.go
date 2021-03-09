@@ -23,16 +23,16 @@ func TestArrayLiteral(t *testing.T) {
 	RunSubO(t, "if", `
 		fn f(even) 
 			return [
-			if even then
+			if even
 				2
 			end
-			if not even then
+			if not even
 				3
 			end
-			if even then
+			if even
 				4
 			end
-			if not even then
+			if not even
 				5
 			end
 			]

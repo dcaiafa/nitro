@@ -42,13 +42,13 @@ rvalues: expr (',' expr)*;
 var_decl_stmt: VAR var_decl_vars ('=' rvalues)?;
 var_decl_vars: ID (',' ID)*;
 
-for_stmt: FOR for_vars IN expr DO stmts END;
+for_stmt: FOR for_vars IN expr ';' stmts END;
 for_vars: ID (',' ID)*;
 
 while_stmt: WHILE expr DO stmts END;
 
-if_stmt: IF expr THEN stmts if_elif* if_else? END;
-if_elif: ELIF expr THEN stmts;
+if_stmt: IF expr ';' stmts if_elif* if_else? END;
+if_elif: ELSE IF expr ';' stmts;
 if_else: ELSE stmts;
 
 func_stmt: FN ID '(' param_list? ')' stmts END;
@@ -104,21 +104,21 @@ object_field: id_or_keyword ':' expr     # object_field_id_key
             | object_for                 # object_field_for
             ;
 
-object_if: IF expr THEN object_fields? object_elif* object_else? END;
-object_elif: ELIF expr THEN object_fields?;
+object_if: IF expr ';' object_fields? object_elif* object_else? END;
+object_elif: ELSE IF expr ';' object_fields?;
 object_else: ELSE object_fields?;
 
-object_for: FOR for_vars IN expr DO object_fields? END;
+object_for: FOR for_vars IN expr ';' object_fields? END;
 
 array_literal: '[' array_elems? ']';
 array_elems: array_elem ((','|';') array_elem)* (','|';')*;
 array_elem: expr | array_if | array_for;
 
-array_if: IF expr THEN array_elems? array_elif* array_else? END;
-array_elif: ELIF expr THEN array_elems?;
+array_if: IF expr ';' array_elems? array_elif* array_else? END;
+array_elif: ELSE IF expr ';' array_elems?;
 array_else: ELSE array_elems?;
 
-array_for: FOR for_vars IN expr DO array_elems? END;
+array_for: FOR for_vars IN expr ';' array_elems? END;
 
 id_or_keyword: 
     t=(ID | AND | DO | ELIF | ELSE | END | FALSE |

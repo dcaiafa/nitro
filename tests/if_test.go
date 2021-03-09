@@ -5,7 +5,7 @@ import "testing"
 func TestIf(t *testing.T) {
 	RunSubO(t, "if_true", `
 		print("before")
-		if 1 < 2 then
+		if 1 < 2
 			print("block1")
 		end
 		print("after")
@@ -16,7 +16,7 @@ after`)
 
 	RunSubO(t, "if_false", `
 		print("before")
-		if 1 > 2 then
+		if 1 > 2
 			print("block1")
 		end
 		print("after")
@@ -26,7 +26,7 @@ after`)
 
 	RunSubO(t, "if_else_true", `
 		print("before")
-		if 1 < 2 then
+		if 1 < 2
 			print("block1")
 		else
 			print("else")
@@ -39,7 +39,7 @@ after`)
 
 	RunSubO(t, "if_else_false", `
 		print("before")
-		if 1 > 2 then
+		if 1 > 2
 			print("block1")
 		else
 			print("else")
@@ -52,9 +52,9 @@ after`)
 
 	RunSubO(t, "if_elif_else_true_true", `
 		print("before")
-		if true then
+		if true
 			print("block1")
-		elif true then
+		else if true
 			print("block2")
 		else
 			print("else")
@@ -67,9 +67,9 @@ after`)
 
 	RunSubO(t, "if_elif_else_false_true", `
 		print("before")
-		if false then
+		if false
 			print("block1")
-		elif true then
+		else if true
 			print("block2")
 		else
 			print("else")
@@ -82,9 +82,9 @@ after`)
 
 	RunSubO(t, "if_elif_else_false_false", `
 		print("before")
-		if false then
+		if false
 			print("block1")
-		elif false then
+		else if false
 			print("block2")
 		else
 			print("else")
@@ -97,7 +97,7 @@ after`)
 
 	RunSubO(t, "fn", `
 		fn evenOdd(n)
-			if n % 2 == 0 then
+			if n % 2 == 0
 				return "even"
 			else
 				return "odd"
