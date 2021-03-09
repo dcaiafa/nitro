@@ -30,8 +30,8 @@ stmt: assignment_stmt ';'
     | while_stmt ';'
     | if_stmt ';'
     | func_stmt ';'
-    | func_call_stmt ';'
     | return_stmt ';'
+    | primary_expr ';'
     | ';'
     ;
 
@@ -53,8 +53,6 @@ if_else: ELSE stmts;
 
 func_stmt: FN ID '(' param_list? ')' stmts END;
 param_list: ID (',' ID)*;
-
-func_call_stmt: primary_expr '(' arg_list? ')';
 
 return_stmt: RETURN rvalues?;
 

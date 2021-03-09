@@ -180,8 +180,8 @@ func (l *listener) ExitStmts(ctx *parser.StmtsContext) {
 //     | while_stmt ';'
 //     | if_stmt ';'
 //     | func_stmt ';'
-//     | func_call_stmt ';'
 //     | return_stmt ';'
+//     | primary_expr ';'
 //     | ';'
 //     ;
 func (l *listener) ExitStmt(ctx *parser.StmtContext) {
@@ -192,8 +192,9 @@ func (l *listener) ExitStmt(ctx *parser.StmtContext) {
 	} else if s = l.takeAST(ctx.While_stmt()); s != nil {
 	} else if s = l.takeAST(ctx.If_stmt()); s != nil {
 	} else if s = l.takeAST(ctx.Func_stmt()); s != nil {
-	} else if s = l.takeAST(ctx.Func_call_stmt()); s != nil {
 	} else if s = l.takeAST(ctx.Return_stmt()); s != nil {
+	} else if e := l.takeExpr(ctx.Primary_expr()); e != nil {
+		s = &ast.ExprStmt{Expr: e}
 	}
 	if s != nil {
 		l.put(ctx, s)
@@ -332,14 +333,6 @@ func (l *listener) ExitParam_list(ctx *parser.Param_listContext) {
 		params[i].SetPos(l.tokenToPos(child.GetSymbol()))
 	}
 	l.put(ctx, params)
-}
-
-// func_call_stmt: primary_expr '(' arg_list? ')';
-func (l *listener) ExitFunc_call_stmt(ctx *parser.Func_call_stmtContext) {
-	l.put(ctx, &ast.FuncCallStmt{
-		Target: l.takeExpr(ctx.Primary_expr()),
-		Args:   l.takeExprs(ctx.Arg_list()),
-	})
 }
 
 // return_stmt: RETURN rvalues?;

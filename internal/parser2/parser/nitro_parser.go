@@ -114,8 +114,8 @@ var parserATN = []uint16{
 	33, 2, 2, 155, 173, 3, 2, 2, 2, 156, 157, 5, 36, 19, 2, 157, 158, 7, 33,
 	2, 2, 158, 173, 3, 2, 2, 2, 159, 160, 5, 38, 20, 2, 160, 161, 7, 33, 2,
 	2, 161, 173, 3, 2, 2, 2, 162, 163, 5, 44, 23, 2, 163, 164, 7, 33, 2, 2,
-	164, 173, 3, 2, 2, 2, 165, 166, 5, 48, 25, 2, 166, 167, 7, 33, 2, 2, 167,
-	173, 3, 2, 2, 2, 168, 169, 5, 50, 26, 2, 169, 170, 7, 33, 2, 2, 170, 173,
+	164, 173, 3, 2, 2, 2, 165, 166, 5, 50, 26, 2, 166, 167, 7, 33, 2, 2, 167,
+	173, 3, 2, 2, 2, 168, 169, 5, 56, 29, 2, 169, 170, 7, 33, 2, 2, 170, 173,
 	3, 2, 2, 2, 171, 173, 7, 33, 2, 2, 172, 147, 3, 2, 2, 2, 172, 150, 3, 2,
 	2, 2, 172, 153, 3, 2, 2, 2, 172, 156, 3, 2, 2, 2, 172, 159, 3, 2, 2, 2,
 	172, 162, 3, 2, 2, 2, 172, 165, 3, 2, 2, 2, 172, 168, 3, 2, 2, 2, 172,
@@ -1635,16 +1635,6 @@ func (s *StmtContext) Func_stmt() IFunc_stmtContext {
 	return t.(IFunc_stmtContext)
 }
 
-func (s *StmtContext) Func_call_stmt() IFunc_call_stmtContext {
-	var t = s.GetTypedRuleContext(reflect.TypeOf((*IFunc_call_stmtContext)(nil)).Elem(), 0)
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IFunc_call_stmtContext)
-}
-
 func (s *StmtContext) Return_stmt() IReturn_stmtContext {
 	var t = s.GetTypedRuleContext(reflect.TypeOf((*IReturn_stmtContext)(nil)).Elem(), 0)
 
@@ -1653,6 +1643,16 @@ func (s *StmtContext) Return_stmt() IReturn_stmtContext {
 	}
 
 	return t.(IReturn_stmtContext)
+}
+
+func (s *StmtContext) Primary_expr() IPrimary_exprContext {
+	var t = s.GetTypedRuleContext(reflect.TypeOf((*IPrimary_exprContext)(nil)).Elem(), 0)
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IPrimary_exprContext)
 }
 
 func (s *StmtContext) GetRuleContext() antlr.RuleContext {
@@ -1768,7 +1768,7 @@ func (p *NitroParser) Stmt() (localctx IStmtContext) {
 		p.EnterOuterAlt(localctx, 7)
 		{
 			p.SetState(163)
-			p.Func_call_stmt()
+			p.Return_stmt()
 		}
 		{
 			p.SetState(164)
@@ -1779,7 +1779,7 @@ func (p *NitroParser) Stmt() (localctx IStmtContext) {
 		p.EnterOuterAlt(localctx, 8)
 		{
 			p.SetState(166)
-			p.Return_stmt()
+			p.primary_expr(0)
 		}
 		{
 			p.SetState(167)
