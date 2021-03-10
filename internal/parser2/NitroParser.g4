@@ -58,13 +58,17 @@ return_stmt: RETURN rvalues?;
 
 // Expressions
 
-expr: unary_expr
-    | expr op=('*'|'/'|'%') expr
-    | expr op=('+'|'-') expr
-    | expr op=('<'|'<='|'>'|'>='|'=='|'!=') expr
-    | expr op=AND expr
-    | expr op=OR expr
+expr: binary_expr       # expr_binary
+    | short_lambda_expr # expr_short_lambda
     ;
+
+binary_expr: unary_expr
+           | binary_expr op=('*'|'/'|'%') binary_expr
+           | binary_expr op=('+'|'-') binary_expr
+           | binary_expr op=('<'|'<='|'>'|'>='|'=='|'!=') binary_expr
+           | binary_expr op=AND binary_expr
+           | binary_expr op=OR binary_expr
+           ;
 
 unary_expr: op=NOT unary_expr
           | op='+' unary_expr
@@ -94,6 +98,8 @@ lvalue_expr: ID                          # lvalue_expr_simple_ref
            ;
 
 lambda_expr: FN '(' param_list? ')' stmts END;
+
+short_lambda_expr: '&' param_list? '->' binary_expr;
 
 object_literal: '{' object_fields? '}';
 object_fields: object_field ((','|';') object_field)* (','|';')*;

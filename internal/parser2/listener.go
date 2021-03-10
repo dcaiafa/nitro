@@ -342,21 +342,34 @@ func (l *listener) ExitReturn_stmt(ctx *parser.Return_stmtContext) {
 	})
 }
 
-// expr: unary_expr
-//     | expr op=('*'|'/'|'%') expr
-//     | expr op=('+'|'-') expr
-//     | expr op=('<'|'<='|'>'|'>='|'=='|'!=') expr
-//     | expr op=AND expr
-//     | expr op=OR expr
+// expr: binary_expr       # expr_binary
+//     | short_lambda_expr # expr_short_lambda
 //     ;
-func (l *listener) ExitExpr(ctx *parser.ExprContext) {
+
+func (l *listener) ExitExpr_binary(ctx *parser.Expr_binaryContext) {
+	l.put(ctx, l.takeExpr(ctx.Binary_expr()))
+}
+
+func (l *listener) ExitExpr_short_lambda(ctx *parser.Expr_short_lambdaContext) {
+	l.put(ctx, l.takeExpr(ctx.Short_lambda_expr()))
+}
+
+// binary_expr: unary_expr
+//            | short_lambda_expr
+//            | binary_expr op=('*'|'/'|'%') binary_expr
+//            | binary_expr op=('+'|'-') binary_expr
+//            | binary_expr op=('<'|'<='|'>'|'>='|'=='|'!=') binary_expr
+//            | binary_expr op=AND binary_expr
+//            | binary_expr op=OR binary_expr
+//            ;
+func (l *listener) ExitBinary_expr(ctx *parser.Binary_exprContext) {
 	if ctx.Unary_expr() != nil {
 		l.put(ctx, l.takeExpr(ctx.Unary_expr()))
 		return
 	}
 
-	left := l.takeExpr(ctx.Expr(0))
-	right := l.takeExpr(ctx.Expr(1))
+	left := l.takeExpr(ctx.Binary_expr(0))
+	right := l.takeExpr(ctx.Binary_expr(1))
 
 	simpleBinExp := func(op ast.Operator) {
 		l.put(ctx, &ast.BinaryExpr{Left: left, Right: right, Op: op})
@@ -537,6 +550,18 @@ func (l *listener) ExitLambda_expr(ctx *parser.Lambda_exprContext) {
 	lambda := &ast.LambdaExpr{}
 	lambda.Params = l.takeASTs(ctx.Param_list())
 	lambda.Stmts = l.takeASTs(ctx.Stmts())
+	l.put(ctx, lambda)
+}
+
+// short_lambda_expr: '&' param_list? '->' binary_expr;
+func (l *listener) ExitShort_lambda_expr(ctx *parser.Short_lambda_exprContext) {
+	lambda := &ast.LambdaExpr{}
+	lambda.Params = l.takeASTs(ctx.Param_list())
+	lambda.Stmts = ast.ASTs{
+		&ast.ReturnStmt{
+			Values: ast.Exprs{l.takeExpr(ctx.Binary_expr())},
+		},
+	}
 	l.put(ctx, lambda)
 }
 

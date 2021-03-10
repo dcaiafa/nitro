@@ -92,4 +92,32 @@ func TestFn(t *testing.T) {
 		var f2 = x()()
 		print(f1(), f2(), f1(), f2())
 `, `11 11 12 12`)
+
+	RunSubO(t, "lambda_inline_call", `
+		print((&x,y->x+y)(1,2))
+	`, `3`)
+
+	RunSubO(t, "lambda_as_arg", `
+		fn apply(f, v)
+			return f(v)
+		end
+		print(apply(&x->x+1, 10))
+	`, `11`)
+
+	RunSubO(t, "lambda_with_capture", `
+		var n = 3
+		fn apply(f, v)
+			return f(v)
+		end
+		print(apply(&x->x+n, 10))
+		n = 4
+		print(apply(&x->x+n, 10))
+	`, `
+13
+14
+`)
+
+	RunSubO(t, "lambda_return_object", `
+		print((&n->{name: n})("bob"))
+	`, `{name: "bob"}`)
 }

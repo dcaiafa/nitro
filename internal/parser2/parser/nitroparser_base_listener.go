@@ -165,11 +165,23 @@ func (s *BaseNitroParserListener) EnterReturn_stmt(ctx *Return_stmtContext) {}
 // ExitReturn_stmt is called when production return_stmt is exited.
 func (s *BaseNitroParserListener) ExitReturn_stmt(ctx *Return_stmtContext) {}
 
-// EnterExpr is called when production expr is entered.
-func (s *BaseNitroParserListener) EnterExpr(ctx *ExprContext) {}
+// EnterExpr_binary is called when production expr_binary is entered.
+func (s *BaseNitroParserListener) EnterExpr_binary(ctx *Expr_binaryContext) {}
 
-// ExitExpr is called when production expr is exited.
-func (s *BaseNitroParserListener) ExitExpr(ctx *ExprContext) {}
+// ExitExpr_binary is called when production expr_binary is exited.
+func (s *BaseNitroParserListener) ExitExpr_binary(ctx *Expr_binaryContext) {}
+
+// EnterExpr_short_lambda is called when production expr_short_lambda is entered.
+func (s *BaseNitroParserListener) EnterExpr_short_lambda(ctx *Expr_short_lambdaContext) {}
+
+// ExitExpr_short_lambda is called when production expr_short_lambda is exited.
+func (s *BaseNitroParserListener) ExitExpr_short_lambda(ctx *Expr_short_lambdaContext) {}
+
+// EnterBinary_expr is called when production binary_expr is entered.
+func (s *BaseNitroParserListener) EnterBinary_expr(ctx *Binary_exprContext) {}
+
+// ExitBinary_expr is called when production binary_expr is exited.
+func (s *BaseNitroParserListener) ExitBinary_expr(ctx *Binary_exprContext) {}
 
 // EnterUnary_expr is called when production unary_expr is entered.
 func (s *BaseNitroParserListener) EnterUnary_expr(ctx *Unary_exprContext) {}
@@ -278,6 +290,12 @@ func (s *BaseNitroParserListener) EnterLambda_expr(ctx *Lambda_exprContext) {}
 
 // ExitLambda_expr is called when production lambda_expr is exited.
 func (s *BaseNitroParserListener) ExitLambda_expr(ctx *Lambda_exprContext) {}
+
+// EnterShort_lambda_expr is called when production short_lambda_expr is entered.
+func (s *BaseNitroParserListener) EnterShort_lambda_expr(ctx *Short_lambda_exprContext) {}
+
+// ExitShort_lambda_expr is called when production short_lambda_expr is exited.
+func (s *BaseNitroParserListener) ExitShort_lambda_expr(ctx *Short_lambda_exprContext) {}
 
 // EnterObject_literal is called when production object_literal is entered.
 func (s *BaseNitroParserListener) EnterObject_literal(ctx *Object_literalContext) {}

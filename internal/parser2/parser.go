@@ -21,9 +21,9 @@ func Parse(filename string, input string, diagMode bool, errLogger errlogger.Err
 	}
 	listener := newListener(filename)
 	parseTree := nitroParser.Start()
-	antlr.ParseTreeWalkerDefault.Walk(listener, parseTree)
 	if errListener.Error() != nil {
 		return nil, errListener.Error()
 	}
+	antlr.ParseTreeWalkerDefault.Walk(listener, parseTree)
 	return listener.Module, nil
 }

@@ -80,8 +80,14 @@ type NitroParserListener interface {
 	// EnterReturn_stmt is called when entering the return_stmt production.
 	EnterReturn_stmt(c *Return_stmtContext)
 
-	// EnterExpr is called when entering the expr production.
-	EnterExpr(c *ExprContext)
+	// EnterExpr_binary is called when entering the expr_binary production.
+	EnterExpr_binary(c *Expr_binaryContext)
+
+	// EnterExpr_short_lambda is called when entering the expr_short_lambda production.
+	EnterExpr_short_lambda(c *Expr_short_lambdaContext)
+
+	// EnterBinary_expr is called when entering the binary_expr production.
+	EnterBinary_expr(c *Binary_exprContext)
 
 	// EnterUnary_expr is called when entering the unary_expr production.
 	EnterUnary_expr(c *Unary_exprContext)
@@ -133,6 +139,9 @@ type NitroParserListener interface {
 
 	// EnterLambda_expr is called when entering the lambda_expr production.
 	EnterLambda_expr(c *Lambda_exprContext)
+
+	// EnterShort_lambda_expr is called when entering the short_lambda_expr production.
+	EnterShort_lambda_expr(c *Short_lambda_exprContext)
 
 	// EnterObject_literal is called when entering the object_literal production.
 	EnterObject_literal(c *Object_literalContext)
@@ -260,8 +269,14 @@ type NitroParserListener interface {
 	// ExitReturn_stmt is called when exiting the return_stmt production.
 	ExitReturn_stmt(c *Return_stmtContext)
 
-	// ExitExpr is called when exiting the expr production.
-	ExitExpr(c *ExprContext)
+	// ExitExpr_binary is called when exiting the expr_binary production.
+	ExitExpr_binary(c *Expr_binaryContext)
+
+	// ExitExpr_short_lambda is called when exiting the expr_short_lambda production.
+	ExitExpr_short_lambda(c *Expr_short_lambdaContext)
+
+	// ExitBinary_expr is called when exiting the binary_expr production.
+	ExitBinary_expr(c *Binary_exprContext)
 
 	// ExitUnary_expr is called when exiting the unary_expr production.
 	ExitUnary_expr(c *Unary_exprContext)
@@ -313,6 +328,9 @@ type NitroParserListener interface {
 
 	// ExitLambda_expr is called when exiting the lambda_expr production.
 	ExitLambda_expr(c *Lambda_exprContext)
+
+	// ExitShort_lambda_expr is called when exiting the short_lambda_expr production.
+	ExitShort_lambda_expr(c *Short_lambda_exprContext)
 
 	// ExitObject_literal is called when exiting the object_literal production.
 	ExitObject_literal(c *Object_literalContext)

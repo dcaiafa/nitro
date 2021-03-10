@@ -9,7 +9,8 @@ import (
 
 func TestHelloWorld(t *testing.T) {
 	prog := `
-	print(a)
+map(o, &x->1 + 2)
+map(o, &x->{name: x.name})
 		`
 
 	module, err := Parse("test.nitro", prog, true, &errlogger.ConsoleErrLogger{})
