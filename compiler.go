@@ -49,7 +49,7 @@ func (c *Compiler) SetDiag(diag bool) {
 	c.diag = diag
 }
 
-func (c *Compiler) RegisterExternalFn(name string, fn runtime.ExternFn) {
+func (c *Compiler) AddExternalFn(name string, fn runtime.ExternFn) {
 	c.externalFns[name] = fn
 }
 

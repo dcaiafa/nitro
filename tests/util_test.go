@@ -37,7 +37,7 @@ func run(prog string) (output string, err error) {
 	compiler := nitro.NewCompiler(fs)
 	compiler.SetDiag(true)
 
-	compiler.RegisterExternalFn(
+	compiler.AddExternalFn(
 		"print",
 		func(ctx context.Context, args []nitro.Value) ([]nitro.Value, error) {
 			iargs := valuesToInterface(args)
@@ -45,7 +45,7 @@ func run(prog string) (output string, err error) {
 			return nil, nil
 		})
 
-	compiler.RegisterExternalFn(
+	compiler.AddExternalFn(
 		"printf",
 		func(ctx context.Context, args []nitro.Value) ([]nitro.Value, error) {
 			msg := args[0].(nitro.String)

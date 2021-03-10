@@ -8,34 +8,27 @@ type Type interface {
 	isType()
 }
 
-type String struct{}
+type StringType struct{}
 
-func (s *String) String() string { return "String" }
+func (s *StringType) String() string { return "String" }
+func (s *StringType) isType()        {}
 
-type Int struct{}
+type IntType struct{}
 
-func (i *Int) String() string {
-	return "Int"
-}
+func (i *IntType) String() string { return "Int" }
+func (i *IntType) isType()        {}
 
-type Float struct{}
+type FloatType struct{}
 
-func (f *Float) String() string {
-	return "Float"
-}
+func (f *FloatType) String() string { return "Float" }
+func (f *FloatType) isType()        {}
 
-type Bool struct{}
+type BoolType struct{}
 
-func (b *Bool) String() string {
-	return "Bool"
-}
+func (b *BoolType) String() string { return "Bool" }
+func (b *BoolType) isType()        {}
 
-type Any struct{}
+type AnyType struct{}
 
-func (a *Any) String() string {
-	return "Any"
-}
-
-type Metadata struct {
-	Params []Param
-}
+func (a *AnyType) String() string { return "Any" }
+func (a *AnyType) isType()        {}
