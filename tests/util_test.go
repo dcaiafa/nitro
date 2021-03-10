@@ -28,7 +28,7 @@ func valuesToInterface(values []nitro.Value) []interface{} {
 	return ivalues
 }
 
-func run(prog string) (output string, err error) {
+func run(prog string, params map[string]nitro.Value) (output string, err error) {
 	fs := make(MemoryFileSystem)
 	fs["main"] = prog
 
@@ -59,7 +59,7 @@ func run(prog string) (output string, err error) {
 		return "", err
 	}
 
-	err = nitro.Run(context.Background(), compiled)
+	err = nitro.Run(context.Background(), compiled, params)
 	if err != nil {
 		return "", err
 	}
@@ -73,7 +73,7 @@ func RunO(t *testing.T, prog string, expectedOutput string) {
 
 	expectedOutput = strings.Trim(expectedOutput, "\r\n\t ")
 
-	output, err := run(prog)
+	output, err := run(prog, nil)
 	if err != nil {
 		t.Fatalf("Unexpected error: %v", err)
 	}

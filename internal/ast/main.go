@@ -1,8 +1,10 @@
 package ast
 
 import (
+	"github.com/dcaiafa/nitro/internal/meta"
 	"github.com/dcaiafa/nitro/internal/runtime"
 	"github.com/dcaiafa/nitro/internal/symbol"
+	"github.com/dcaiafa/nitro/internal/token"
 )
 
 type Main struct {
@@ -22,6 +24,22 @@ func (m *Main) AddExternalFn(name string, extFn runtime.ExternFn) {
 			Name:     name,
 			ExternFn: extFn,
 		})
+}
+
+func (m *Main) AddParam(ctx *Context, param *meta.Param, pos token.Pos) bool {
+	g := m.NewGlobal()
+	g.SetName(param.Name)
+	g.SetPos(pos)
+	if !m.Scope().PutSymbol(ctx, g) {
+		return false
+	}
+	ctx.Emitter().AddParam(
+		param.Name,
+		g.GlobalNdx,
+		param.Type,
+		param.Required,
+		param.Default)
+	return true
 }
 
 func (m *Main) AddModule(module *Module) {

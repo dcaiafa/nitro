@@ -21,6 +21,7 @@ type (
 	Object   = runtime.Object
 	Array    = runtime.Array
 	ExternFn = runtime.ExternFn
+	Program  = runtime.Program
 
 	ErrLogger = errlogger.ErrLogger
 	Pos       = token.Pos
@@ -88,6 +89,6 @@ func (c *Compiler) Compile(filename string) (*runtime.Program, error) {
 	return ctx.Emitter().ToProgram(), nil
 }
 
-func Run(ctx context.Context, p *runtime.Program) error {
-	return runtime.NewMachine().Run(ctx, p)
+func Run(ctx context.Context, prog *Program, params map[string]Value) error {
+	return runtime.NewMachine(prog).Run(ctx, params)
 }

@@ -1,24 +1,56 @@
 package runtime
 
+import (
+	"github.com/dcaiafa/nitro/internal/symbol"
+)
+
 type Label struct {
 	fn   *Fn
 	addr int
 	refs []int
 }
 
+type Param struct {
+	global       int
+	typ          symbol.Type
+	required     bool
+	defaultValue Value
+}
+
 type Emitter struct {
 	fnStack   []*Fn
 	stringMap map[string]int
 
-	globals  int
-	fns      []Fn
-	extFns   []ExternFn
-	literals []Value
+	globals   int
+	fns       []Fn
+	extFns    []ExternFn
+	literals  []Value
+	params    map[string]*Param
+	reqParamN int
 }
 
 func NewEmitter() *Emitter {
 	return &Emitter{
 		stringMap: make(map[string]int),
+		params:    make(map[string]*Param),
+	}
+}
+
+func (e *Emitter) AddParam(
+	name string,
+	global int,
+	typ symbol.Type,
+	required bool,
+	defaultValue Value,
+) {
+	e.params[name] = &Param{
+		global:       global,
+		typ:          typ,
+		required:     required,
+		defaultValue: defaultValue,
+	}
+	if required {
+		e.reqParamN++
 	}
 }
 
@@ -109,9 +141,11 @@ func (e *Emitter) SetGlobalCount(n int) {
 
 func (e *Emitter) ToProgram() *Program {
 	return &Program{
-		globals:  e.globals,
-		fns:      e.fns,
-		extFns:   e.extFns,
-		literals: e.literals,
+		globals:   e.globals,
+		fns:       e.fns,
+		extFns:    e.extFns,
+		literals:  e.literals,
+		params:    e.params,
+		reqParamN: e.reqParamN,
 	}
 }

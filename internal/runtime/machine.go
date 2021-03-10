@@ -82,19 +82,35 @@ type Machine struct {
 	callStack        []*CallFrame
 	program          *Program
 	globals          []Value
+	reqParamN        int
 }
 
-func NewMachine() *Machine {
-	return &Machine{}
+func NewMachine(prog *Program) *Machine {
+	return &Machine{
+		program:   prog,
+		globals:   make([]Value, prog.globals),
+		reqParamN: prog.reqParamN,
+	}
 }
 
-func (m *Machine) Run(ctx context.Context, p *Program) error {
-	m.program = p
-	m.globals = make([]Value, p.globals)
-	return m.run(ctx)
-}
+func (m *Machine) Run(
+	ctx context.Context,
+	params map[string]Value,
+) error {
+	for paramName, paramValue := range params {
+		param := m.program.params[paramName]
+		if param == nil {
+			return fmt.Errorf("invalid parameter: %s", paramName)
+		}
+		if param.required {
+			m.reqParamN--
+		}
+		m.globals[param.global] = paramValue
+	}
+	if m.reqParamN != 0 {
+		return fmt.Errorf("required parameters not set")
+	}
 
-func (m *Machine) run(ctx context.Context) error {
 	ip := 0
 	f := m.callFrameFactory.NewCallFrame()
 	f.Instrs = m.program.fns[0].instrs
