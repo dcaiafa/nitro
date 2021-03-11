@@ -9,6 +9,8 @@ import (
 
 func TestHelloWorld(t *testing.T) {
 	prog := `
+lines() | split("\t")
+
 json_lines() | 
 	join(json_lines("nodes.json"), ".metadata.node", ".node_name") |
 	select(&e->e.metadata.labels.team=="t2")

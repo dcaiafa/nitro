@@ -15,10 +15,17 @@ func (a *Array) Append(v Value) {
 }
 
 func (a *Array) Get(index int) Value {
-	if len(a.array) < index {
+	if index >= len(a.array) {
 		return nil
 	}
 	return a.array[index]
+}
+
+func (a *Array) GetRef(index int) *Value {
+	if index >= len(a.array) {
+		return nil
+	}
+	return &a.array[index]
 }
 
 func (a *Array) Len() int {

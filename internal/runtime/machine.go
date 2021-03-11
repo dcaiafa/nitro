@@ -309,26 +309,50 @@ func (m *Machine) Run(
 			if objRaw == nil {
 				push(nil)
 			} else {
-				obj, ok := objRaw.(*Object)
-				if !ok {
-					return errors.New("not an object")
+				var v Value
+				switch obj := objRaw.(type) {
+				case *Object:
+					v = obj.Get(member)
+				case *Array:
+					index, ok := member.(Int)
+					if !ok {
+						return fmt.Errorf(
+							"Cannot index array: index must be Int, but it is %v",
+							index.ValueType())
+					}
+					v = obj.Get(int(index))
+				default:
+					return fmt.Errorf(
+						"Cannot index: allowed types are Object and Array, but got %v",
+						objRaw.ValueType())
 				}
-				val := obj.Get(member)
-				push(val)
+				push(v)
 			}
 
 		case OpObjectGetRef:
 			member := pop()
 			objRaw := pop()
 			if objRaw == nil {
-				return errors.New("cannot access object member: value is nil")
+				return fmt.Errorf("Cannot deref nil value")
 			}
-			obj, ok := objRaw.(*Object)
-			if !ok {
-				return errors.New("not an object")
+			var v *Value
+			switch obj := objRaw.(type) {
+			case *Object:
+				v = obj.GetRef(member)
+			case *Array:
+				index, ok := member.(Int)
+				if !ok {
+					return fmt.Errorf(
+						"Cannot index array: index must be Int, but it is %v",
+						index.ValueType())
+				}
+				v = obj.GetRef(int(index))
+			default:
+				return fmt.Errorf(
+					"Cannot index: allowed types are Object and Array, but got %v",
+					objRaw.ValueType())
 			}
-			valRef := obj.GetRef(member)
-			push(ValueRef{valRef})
+			push(ValueRef{v})
 
 		case OpArrayAppendNoPop:
 			value := pop()

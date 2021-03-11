@@ -111,18 +111,6 @@ func (s *ForVar) RunPass(ctx *Context, pass Pass) {
 	panic("not implemented")
 }
 
-type IndexExpr struct {
-	astBase
-	Target Expr
-	Index  Expr
-}
-
-func (s *IndexExpr) isExpr() {}
-
-func (s *IndexExpr) RunPass(ctx *Context, pass Pass) {
-	panic("not implemented")
-}
-
 type SliceExpr struct {
 	astBase
 	Target Expr
