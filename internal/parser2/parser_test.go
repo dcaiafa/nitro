@@ -9,8 +9,15 @@ import (
 
 func TestHelloWorld(t *testing.T) {
 	prog := `
-map(o, &x->1 + 2)
-map(o, &x->{name: x.name})
+json_lines() | 
+	join(json_lines("nodes.json"), ".metadata.node", ".node_name") |
+	select(&e->e.metadata.labels.team=="t2")
+
+select(
+  join(
+		json_lines(),
+		json_lines("nodes.json"), ".metadata.node", ".node_name"),
+	&e->e.metadata.labels.team=="t2")
 		`
 
 	module, err := Parse("test.nitro", prog, true, &errlogger.ConsoleErrLogger{})

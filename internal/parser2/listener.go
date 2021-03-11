@@ -193,7 +193,7 @@ func (l *listener) ExitStmt(ctx *parser.StmtContext) {
 	} else if s = l.takeAST(ctx.If_stmt()); s != nil {
 	} else if s = l.takeAST(ctx.Func_stmt()); s != nil {
 	} else if s = l.takeAST(ctx.Return_stmt()); s != nil {
-	} else if e := l.takeExpr(ctx.Primary_expr()); e != nil {
+	} else if e := l.takeExpr(ctx.Expr()); e != nil {
 		s = &ast.ExprStmt{Expr: e}
 	}
 	if s != nil {

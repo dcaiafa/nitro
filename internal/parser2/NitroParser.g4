@@ -31,7 +31,7 @@ stmt: assignment_stmt ';'
     | if_stmt ';'
     | func_stmt ';'
     | return_stmt ';'
-    | primary_expr ';'
+    | expr ';'
     | ';'
     ;
 
@@ -58,9 +58,12 @@ return_stmt: RETURN rvalues?;
 
 // Expressions
 
-expr: binary_expr       # expr_binary
-    | short_lambda_expr # expr_short_lambda
+expr: binary_expr           # expr_binary
+    | short_lambda_expr     # expr_short_lambda
+    | pipeline_expr         # expr_pipeline
     ;
+
+pipeline_expr: binary_expr? ('|' binary_expr)+;
 
 binary_expr: unary_expr
            | binary_expr op=('*'|'/'|'%') binary_expr

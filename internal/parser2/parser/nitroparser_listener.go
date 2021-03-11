@@ -86,6 +86,12 @@ type NitroParserListener interface {
 	// EnterExpr_short_lambda is called when entering the expr_short_lambda production.
 	EnterExpr_short_lambda(c *Expr_short_lambdaContext)
 
+	// EnterExpr_pipeline is called when entering the expr_pipeline production.
+	EnterExpr_pipeline(c *Expr_pipelineContext)
+
+	// EnterPipeline_expr is called when entering the pipeline_expr production.
+	EnterPipeline_expr(c *Pipeline_exprContext)
+
 	// EnterBinary_expr is called when entering the binary_expr production.
 	EnterBinary_expr(c *Binary_exprContext)
 
@@ -274,6 +280,12 @@ type NitroParserListener interface {
 
 	// ExitExpr_short_lambda is called when exiting the expr_short_lambda production.
 	ExitExpr_short_lambda(c *Expr_short_lambdaContext)
+
+	// ExitExpr_pipeline is called when exiting the expr_pipeline production.
+	ExitExpr_pipeline(c *Expr_pipelineContext)
+
+	// ExitPipeline_expr is called when exiting the pipeline_expr production.
+	ExitPipeline_expr(c *Pipeline_exprContext)
 
 	// ExitBinary_expr is called when exiting the binary_expr production.
 	ExitBinary_expr(c *Binary_exprContext)

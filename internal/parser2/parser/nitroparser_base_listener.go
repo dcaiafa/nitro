@@ -177,6 +177,18 @@ func (s *BaseNitroParserListener) EnterExpr_short_lambda(ctx *Expr_short_lambdaC
 // ExitExpr_short_lambda is called when production expr_short_lambda is exited.
 func (s *BaseNitroParserListener) ExitExpr_short_lambda(ctx *Expr_short_lambdaContext) {}
 
+// EnterExpr_pipeline is called when production expr_pipeline is entered.
+func (s *BaseNitroParserListener) EnterExpr_pipeline(ctx *Expr_pipelineContext) {}
+
+// ExitExpr_pipeline is called when production expr_pipeline is exited.
+func (s *BaseNitroParserListener) ExitExpr_pipeline(ctx *Expr_pipelineContext) {}
+
+// EnterPipeline_expr is called when production pipeline_expr is entered.
+func (s *BaseNitroParserListener) EnterPipeline_expr(ctx *Pipeline_exprContext) {}
+
+// ExitPipeline_expr is called when production pipeline_expr is exited.
+func (s *BaseNitroParserListener) ExitPipeline_expr(ctx *Pipeline_exprContext) {}
+
 // EnterBinary_expr is called when production binary_expr is entered.
 func (s *BaseNitroParserListener) EnterBinary_expr(ctx *Binary_exprContext) {}
 
