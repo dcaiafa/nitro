@@ -91,26 +91,6 @@ func (s *WhileStmt) RunPass(ctx *Context, pass Pass) {
 	panic("not implemented")
 }
 
-type ForStmt struct {
-	astBase
-	ForVars  ASTs
-	IterExpr Expr
-	Stmts    ASTs
-}
-
-func (s *ForStmt) RunPass(ctx *Context, pass Pass) {
-	panic("not implemented")
-}
-
-type ForVar struct {
-	astBase
-	VarName token.Token
-}
-
-func (s *ForVar) RunPass(ctx *Context, pass Pass) {
-	panic("not implemented")
-}
-
 type SliceExpr struct {
 	astBase
 	Target Expr

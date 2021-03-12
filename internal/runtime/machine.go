@@ -59,6 +59,7 @@ const (
 	OpRet
 	OpStore
 	OpInitCallFrame
+	OpMakeIter
 )
 
 type Instr struct {
@@ -165,7 +166,7 @@ func (m *Machine) Run(
 			push(v)
 
 		case OpPop:
-			pop()
+			discardN(int(instr.Operand1))
 
 		case OpCall:
 			expRetN := int(instr.Operand2)
@@ -174,17 +175,21 @@ func (m *Machine) Run(
 
 			switch callable := pop().(type) {
 			case *Closure:
-				f.IP = ip
-				m.callStack = append(m.callStack, f)
+				if callable.ExternFn != nil {
+					callable.ExternFn(ctx, callable.Captures, args)
+				} else {
+					f.IP = ip
+					m.callStack = append(m.callStack, f)
 
-				f = m.callFrameFactory.NewCallFrame()
-				f.Instrs = callable.Fn.instrs
-				f.ExpRetN = expRetN
-				f.Args = args
-				f.Captures = callable.Captures
+					f = m.callFrameFactory.NewCallFrame()
+					f.Instrs = callable.Fn.instrs
+					f.ExpRetN = expRetN
+					f.Args = args
+					f.Captures = callable.Captures
 
-				// ip will be 0 after incrementing.
-				ip = -1
+					// ip will be 0 after incrementing.
+					ip = -1
+				}
 
 			case *Fn:
 				f.IP = ip
@@ -199,7 +204,7 @@ func (m *Machine) Run(
 				ip = -1
 
 			case ExternFn:
-				rets, err := callable(ctx, args)
+				rets, err := callable(ctx, nil, args)
 				if err != nil {
 					return err
 				}
@@ -318,13 +323,13 @@ func (m *Machine) Run(
 					if !ok {
 						return fmt.Errorf(
 							"Cannot index array: index must be Int, but it is %v",
-							index.ValueType())
+							index.Type())
 					}
 					v = obj.Get(int(index))
 				default:
 					return fmt.Errorf(
 						"Cannot index: allowed types are Object and Array, but got %v",
-						objRaw.ValueType())
+						objRaw.Type())
 				}
 				push(v)
 			}
@@ -344,13 +349,13 @@ func (m *Machine) Run(
 				if !ok {
 					return fmt.Errorf(
 						"Cannot index array: index must be Int, but it is %v",
-						index.ValueType())
+						index.Type())
 				}
 				v = obj.GetRef(int(index))
 			default:
 				return fmt.Errorf(
 					"Cannot index: allowed types are Object and Array, but got %v",
-					objRaw.ValueType())
+					objRaw.Type())
 			}
 			push(ValueRef{v})
 
@@ -385,6 +390,14 @@ func (m *Machine) Run(
 		case OpInitCallFrame:
 			localN := instr.Operand1
 			f.Init(int(localN))
+
+		case OpMakeIter:
+			v := peek(0)
+			switch v.Kind() {
+			case FuncKind:
+			default:
+				return fmt.Errorf("Cannot iterate over value of type %q", v.Type())
+			}
 
 		default:
 			panic("invalid instruction")

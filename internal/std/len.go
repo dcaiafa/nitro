@@ -10,7 +10,7 @@ import (
 
 var errNotEnoughArgs = errors.New("not enough arguments")
 
-func Len(ctx context.Context, args []runtime.Value) ([]runtime.Value, error) {
+func Len(ctx context.Context, caps []runtime.ValueRef, args []runtime.Value) ([]runtime.Value, error) {
 	if len(args) == 0 {
 		return nil, errNotEnoughArgs
 	}
@@ -29,7 +29,7 @@ func Len(ctx context.Context, args []runtime.Value) ([]runtime.Value, error) {
 	case *runtime.Object:
 		l = v.Len()
 	default:
-		return nil, fmt.Errorf("cannot get length of %s", v.ValueType())
+		return nil, fmt.Errorf("cannot get length of %s", v.Type())
 	}
 
 	return []runtime.Value{runtime.Int(l)}, nil

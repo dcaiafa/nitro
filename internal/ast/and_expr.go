@@ -24,7 +24,7 @@ func (e *AndExpr) RunPass(ctx *Context, pass Pass) {
 		skipLabel = emitter.NewLabel()
 		emitter.Emit(runtime.OpDup, 0, 0)
 		emitter.EmitJump(runtime.OpJumpIfFalse, skipLabel)
-		emitter.Emit(runtime.OpPop, 0, 0)
+		emitter.Emit(runtime.OpPop, 1, 0)
 	}
 
 	ctx.RunPassChild(e, e.Right, pass)

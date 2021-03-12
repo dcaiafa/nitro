@@ -14,6 +14,7 @@ import (
 
 type (
 	Value    = runtime.Value
+	ValueRef = runtime.ValueRef
 	String   = runtime.String
 	Int      = runtime.Int
 	Float    = runtime.Float
