@@ -1,6 +1,7 @@
 package tests
 
-/*
+import "testing"
+
 func TestForStmt(t *testing.T) {
 	RunSubO(t, "for", `
 		var i = 0
@@ -16,6 +17,9 @@ func TestForStmt(t *testing.T) {
 		for x in iter(3)
     	print(x)
 		end
-	`, ``)
+	`, `
+1
+2
+3
+`)
 }
-*/

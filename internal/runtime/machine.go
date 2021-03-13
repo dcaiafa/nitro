@@ -171,7 +171,8 @@ func (m *Machine) Run(
 		case OpCall:
 			expRetN := int(instr.Operand2)
 			argN := int(instr.Operand1)
-			args := popN(argN)
+			args := make([]Value, argN)
+			copy(args, popN(argN))
 
 			switch callable := pop().(type) {
 			case *Closure:
