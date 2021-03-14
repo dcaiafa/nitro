@@ -9,7 +9,7 @@ type Func struct {
 	astBase
 
 	Params ASTs
-	Stmts  ASTs
+	Block  *StmtBlock
 
 	IsClosure bool
 	FnNdx     int
@@ -34,15 +34,15 @@ func (f *Func) RunPass(ctx *Context, pass Pass) {
 
 	ctx.Push(f)
 	f.Params.RunPass(ctx, pass)
-	f.Stmts.RunPass(ctx, pass)
+	f.Block.RunPass(ctx, pass)
 	ctx.Pop()
 
 	switch pass {
 	case Emit:
 		emitter := ctx.Emitter()
-		synthRet := len(f.Stmts) == 0
+		synthRet := len(f.Block.Stmts) == 0
 		if !synthRet {
-			_, hasReturnStmt := f.Stmts[len(f.Stmts)-1].(*ReturnStmt)
+			_, hasReturnStmt := f.Block.Stmts[len(f.Block.Stmts)-1].(*ReturnStmt)
 			synthRet = !hasReturnStmt
 		}
 		if synthRet {

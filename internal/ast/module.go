@@ -8,7 +8,7 @@ import (
 type Module struct {
 	astBase
 
-	Stmts ASTs
+	Block *StmtBlock
 
 	scope *symbol.Scope
 	fn    int
@@ -30,15 +30,13 @@ func (m *Module) RunPass(ctx *Context, pass Pass) {
 		emitter.Emit(runtime.OpInitCallFrame, 0, 0)
 	}
 
-	ctx.Push(m)
-	m.Stmts.RunPass(ctx, pass)
-	ctx.Pop()
+	ctx.RunPassChild(m, m.Block, pass)
 
 	switch pass {
 	case Emit:
-		synthesizeReturn := len(m.Stmts) == 0
+		synthesizeReturn := len(m.Block.Stmts) == 0
 		if !synthesizeReturn {
-			_, endsWithReturn := m.Stmts[len(m.Stmts)-1].(*ReturnStmt)
+			_, endsWithReturn := m.Block.Stmts[len(m.Block.Stmts)-1].(*ReturnStmt)
 			synthesizeReturn = !endsWithReturn
 		}
 		if synthesizeReturn {

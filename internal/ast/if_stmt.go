@@ -4,7 +4,7 @@ import "github.com/dcaiafa/nitro/internal/runtime"
 
 type IfStmt struct {
 	astBase
-	Blocks ASTs
+	Sections ASTs
 
 	end *runtime.Label
 }
@@ -15,7 +15,7 @@ func (s *IfStmt) RunPass(ctx *Context, pass Pass) {
 		s.end = ctx.Emitter().NewLabel()
 	}
 
-	ctx.RunPassChild(s, s.Blocks, pass)
+	ctx.RunPassChild(s, s.Sections, pass)
 
 	switch pass {
 	case Emit:
@@ -26,7 +26,7 @@ func (s *IfStmt) RunPass(ctx *Context, pass Pass) {
 type IfBlock struct {
 	astBase
 	Pred  Expr
-	Stmts ASTs
+	Block AST
 
 	end *runtime.Label
 }
@@ -49,7 +49,7 @@ func (b *IfBlock) RunPass(ctx *Context, pass Pass) {
 		}
 	}
 
-	ctx.RunPassChild(b, b.Stmts, pass)
+	ctx.RunPassChild(b, b.Block, pass)
 
 	switch pass {
 	case Emit:

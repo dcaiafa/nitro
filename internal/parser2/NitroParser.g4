@@ -104,8 +104,8 @@ lambda_expr: FN '(' param_list? ')' stmts END;
 
 short_lambda_expr: '&' param_list? '->' binary_expr;
 
-object_literal: '{' object_fields? '}';
-object_fields: object_field ((','|';') object_field)* (','|';')*;
+object_literal: '{' object_fields '}';
+object_fields: (object_field ((','|';') object_field)* (','|';')*)?;
 
 object_field: id_or_keyword ':' expr     # object_field_id_key
             | '[' expr ']' ':' expr      # object_field_expr_key
@@ -113,11 +113,11 @@ object_field: id_or_keyword ':' expr     # object_field_id_key
             | object_for                 # object_field_for
             ;
 
-object_if: IF expr ';' object_fields? object_elif* object_else? END;
-object_elif: ELSE IF expr ';' object_fields?;
-object_else: ELSE object_fields?;
+object_if: IF expr ';' object_fields object_elif* object_else? END;
+object_elif: ELSE IF expr ';' object_fields;
+object_else: ELSE object_fields;
 
-object_for: FOR for_vars IN expr ';' object_fields? END;
+object_for: FOR for_vars IN expr ';' object_fields END;
 
 array_literal: '[' array_elems? ']';
 array_elems: array_elem ((','|';') array_elem)* (','|';')*;

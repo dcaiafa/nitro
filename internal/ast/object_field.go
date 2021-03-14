@@ -1,6 +1,46 @@
 package ast
 
-import "github.com/dcaiafa/nitro/internal/runtime"
+import (
+	"github.com/dcaiafa/nitro/internal/runtime"
+	"github.com/dcaiafa/nitro/internal/symbol"
+)
+
+type ObjectFieldBlock struct {
+	astBase
+
+	Fields ASTs
+
+	scope *symbol.Scope
+}
+
+func (b *ObjectFieldBlock) Scope() *symbol.Scope {
+	return b.scope
+}
+
+func (b *ObjectFieldBlock) RunPass(ctx *Context, pass Pass) {
+	switch pass {
+	case Check:
+		b.scope = symbol.NewScope()
+
+	case Emit:
+		obj := ctx.FindSymbol("$obj")
+		if obj == nil {
+			panic("not reached")
+		}
+		emitSymbolPush(ctx.Emitter(), obj)
+	}
+
+	ctx.Push(b)
+	for _, b := range b.Fields {
+		b.RunPass(ctx, pass)
+	}
+	ctx.Pop()
+
+	switch pass {
+	case Emit:
+		ctx.Emitter().Emit(runtime.OpPop, 1, 0)
+	}
+}
 
 type ObjectField struct {
 	astBase

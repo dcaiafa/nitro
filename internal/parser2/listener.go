@@ -137,7 +137,7 @@ func (l *listener) ExitStart(ctx *parser.StartContext) {
 // module: meta_section? stmts;
 func (l *listener) ExitModule(ctx *parser.ModuleContext) {
 	m := &ast.Module{}
-	m.Stmts = l.takeASTs(ctx.Stmts())
+	m.Block = l.takeAST(ctx.Stmts()).(*ast.StmtBlock)
 	l.put(ctx, m)
 }
 
@@ -171,7 +171,10 @@ func (l *listener) ExitStmts(ctx *parser.StmtsContext) {
 			stmts = append(stmts, stmt)
 		}
 	}
-	l.put(ctx, stmts)
+	block := &ast.StmtBlock{
+		Stmts: stmts,
+	}
+	l.put(ctx, block)
 }
 
 // stmt: assignment_stmt ';'
@@ -254,7 +257,7 @@ func (l *listener) ExitFor_stmt(ctx *parser.For_stmtContext) {
 	l.put(ctx, &ast.ForStmt{
 		ForVars:  l.takeASTs(ctx.For_vars()),
 		IterExpr: l.takeExpr(ctx.Expr()),
-		Stmts:    l.takeASTs(ctx.Stmts()),
+		Block:    l.takeAST(ctx.Stmts()),
 	})
 }
 
@@ -280,7 +283,7 @@ func (l *listener) ExitWhile_stmt(ctx *parser.While_stmtContext) {
 func (l *listener) ExitIf_stmt(ctx *parser.If_stmtContext) {
 	ifBlock := &ast.IfBlock{
 		Pred:  l.takeExpr(ctx.Expr()),
-		Stmts: l.takeASTs(ctx.Stmts()),
+		Block: l.takeAST(ctx.Stmts()),
 	}
 
 	allElifs := ctx.AllIf_elif()
@@ -294,7 +297,7 @@ func (l *listener) ExitIf_stmt(ctx *parser.If_stmtContext) {
 	}
 
 	l.put(ctx, &ast.IfStmt{
-		Blocks: blocks,
+		Sections: blocks,
 	})
 }
 
@@ -302,14 +305,14 @@ func (l *listener) ExitIf_stmt(ctx *parser.If_stmtContext) {
 func (l *listener) ExitIf_elif(ctx *parser.If_elifContext) {
 	l.put(ctx, &ast.IfBlock{
 		Pred:  l.takeExpr(ctx.Expr()),
-		Stmts: l.takeASTs(ctx.Stmts()),
+		Block: l.takeAST(ctx.Stmts()),
 	})
 }
 
 // if_else: ELSE stmts END;
 func (l *listener) ExitIf_else(ctx *parser.If_elseContext) {
 	l.put(ctx, &ast.IfBlock{
-		Stmts: l.takeASTs(ctx.Stmts()),
+		Block: l.takeAST(ctx.Stmts()),
 	})
 }
 
@@ -318,7 +321,7 @@ func (l *listener) ExitFunc_stmt(ctx *parser.Func_stmtContext) {
 	f := &ast.FuncStmt{}
 	f.Name = ctx.ID().GetText()
 	f.Params = l.takeASTs(ctx.Param_list())
-	f.Stmts = l.takeASTs(ctx.Stmts())
+	f.Block = l.takeAST(ctx.Stmts()).(*ast.StmtBlock)
 	l.put(ctx, f)
 }
 
@@ -549,7 +552,7 @@ func (l *listener) ExitLvalue_expr_index(ctx *parser.Lvalue_expr_indexContext) {
 func (l *listener) ExitLambda_expr(ctx *parser.Lambda_exprContext) {
 	lambda := &ast.LambdaExpr{}
 	lambda.Params = l.takeASTs(ctx.Param_list())
-	lambda.Stmts = l.takeASTs(ctx.Stmts())
+	lambda.Block = l.takeAST(ctx.Stmts()).(*ast.StmtBlock)
 	l.put(ctx, lambda)
 }
 
@@ -557,9 +560,11 @@ func (l *listener) ExitLambda_expr(ctx *parser.Lambda_exprContext) {
 func (l *listener) ExitShort_lambda_expr(ctx *parser.Short_lambda_exprContext) {
 	lambda := &ast.LambdaExpr{}
 	lambda.Params = l.takeASTs(ctx.Param_list())
-	lambda.Stmts = ast.ASTs{
-		&ast.ReturnStmt{
-			Values: ast.Exprs{l.takeExpr(ctx.Binary_expr())},
+	lambda.Block = &ast.StmtBlock{
+		Stmts: ast.ASTs{
+			&ast.ReturnStmt{
+				Values: ast.Exprs{l.takeExpr(ctx.Binary_expr())},
+			},
 		},
 	}
 	l.put(ctx, lambda)
@@ -568,18 +573,21 @@ func (l *listener) ExitShort_lambda_expr(ctx *parser.Short_lambda_exprContext) {
 // object_literal: '{' object_fields? '}';
 func (l *listener) ExitObject_literal(ctx *parser.Object_literalContext) {
 	l.put(ctx, &ast.ObjectLiteral{
-		Fields: l.takeASTs(ctx.Object_fields()),
+		FieldBlock: l.takeAST(ctx.Object_fields()).(*ast.ObjectFieldBlock),
 	})
 }
 
-// object_fields: object_field ((','|';') object_field)* (','|';')*;
+// object_fields: (object_field ((','|';') object_field)* (','|';')*)?;
 func (l *listener) ExitObject_fields(ctx *parser.Object_fieldsContext) {
 	allFields := ctx.AllObject_field()
 	fields := make(ast.ASTs, len(allFields))
 	for i, entry := range allFields {
 		fields[i] = l.takeAST(entry)
 	}
-	l.put(ctx, fields)
+	block := &ast.ObjectFieldBlock{
+		Fields: fields,
+	}
+	l.put(ctx, block)
 }
 
 // object_field: id_or_keyword ':' expr     # object_field_id_key
@@ -611,25 +619,25 @@ func (l *listener) ExitObject_field_for(ctx *parser.Object_field_forContext) {
 	l.put(ctx, l.takeAST(ctx.Object_for()))
 }
 
-// object_if: IF expr THEN object_fields? object_elif* object_else? END;
+// object_if: IF expr THEN bject_fields? object_elif* object_else? END;
 func (l *listener) ExitObject_if(ctx *parser.Object_ifContext) {
 	ifBlock := &ast.IfBlock{
 		Pred:  l.takeExpr(ctx.Expr()),
-		Stmts: l.takeASTs(ctx.Object_fields()),
+		Block: l.takeAST(ctx.Object_fields()),
 	}
 
 	allElifs := ctx.AllObject_elif()
-	blocks := make(ast.ASTs, 0, len(allElifs)+2)
-	blocks = append(blocks, ifBlock)
+	sections := make(ast.ASTs, 0, len(allElifs)+2)
+	sections = append(sections, ifBlock)
 	for _, elif := range allElifs {
-		blocks = append(blocks, l.takeAST(elif))
+		sections = append(sections, l.takeAST(elif))
 	}
 	if ctx.Object_else() != nil {
-		blocks = append(blocks, l.takeAST(ctx.Object_else()))
+		sections = append(sections, l.takeAST(ctx.Object_else()))
 	}
 
 	l.put(ctx, &ast.IfStmt{
-		Blocks: blocks,
+		Sections: sections,
 	})
 }
 
@@ -637,14 +645,14 @@ func (l *listener) ExitObject_if(ctx *parser.Object_ifContext) {
 func (l *listener) ExitObject_elif(ctx *parser.Object_elifContext) {
 	l.put(ctx, &ast.IfBlock{
 		Pred:  l.takeExpr(ctx.Expr()),
-		Stmts: l.takeASTs(ctx.Object_fields()),
+		Block: l.takeASTs(ctx.Object_fields()),
 	})
 }
 
 // object_else: ELSE object_fields?;
 func (l *listener) ExitObject_else(ctx *parser.Object_elseContext) {
 	l.put(ctx, &ast.IfBlock{
-		Stmts: l.takeASTs(ctx.Object_fields()),
+		Block: l.takeASTs(ctx.Object_fields()),
 	})
 }
 
@@ -653,7 +661,7 @@ func (l *listener) ExitObject_for(ctx *parser.Object_forContext) {
 	l.put(ctx, &ast.ForStmt{
 		ForVars:  l.takeASTs(ctx.For_vars()),
 		IterExpr: l.takeExpr(ctx.Expr()),
-		Stmts:    l.takeASTs(ctx.Object_fields()),
+		Block:    l.takeASTs(ctx.Object_fields()),
 	})
 }
 
@@ -692,7 +700,7 @@ func (l *listener) ExitArray_elem(ctx *parser.Array_elemContext) {
 func (l *listener) ExitArray_if(ctx *parser.Array_ifContext) {
 	ifBlock := &ast.IfBlock{
 		Pred:  l.takeExpr(ctx.Expr()),
-		Stmts: l.takeASTs(ctx.Array_elems()),
+		Block: l.takeASTs(ctx.Array_elems()),
 	}
 
 	allElifs := ctx.AllArray_elif()
@@ -705,7 +713,7 @@ func (l *listener) ExitArray_if(ctx *parser.Array_ifContext) {
 		blocks = append(blocks, l.takeAST(ctx.Array_else()))
 	}
 	l.put(ctx, &ast.IfStmt{
-		Blocks: blocks,
+		Sections: blocks,
 	})
 }
 
@@ -713,14 +721,14 @@ func (l *listener) ExitArray_if(ctx *parser.Array_ifContext) {
 func (l *listener) ExitArray_elif(ctx *parser.Array_elifContext) {
 	l.put(ctx, &ast.IfBlock{
 		Pred:  l.takeExpr(ctx.Expr()),
-		Stmts: l.takeASTs(ctx.Array_elems()),
+		Block: l.takeASTs(ctx.Array_elems()),
 	})
 }
 
 // array_else: ELSE array_elems?;
 func (l *listener) ExitArray_else(ctx *parser.Array_elseContext) {
 	l.put(ctx, &ast.IfBlock{
-		Stmts: l.takeASTs(ctx.Array_elems()),
+		Block: l.takeASTs(ctx.Array_elems()),
 	})
 }
 
@@ -729,7 +737,7 @@ func (l *listener) ExitArray_for(ctx *parser.Array_forContext) {
 	l.put(ctx, &ast.ForStmt{
 		ForVars:  l.takeASTs(ctx.For_vars()),
 		IterExpr: l.takeExpr(ctx.Expr()),
-		Stmts:    l.takeASTs(ctx.Array_elems()),
+		Block:    l.takeASTs(ctx.Array_elems()),
 	})
 }
 

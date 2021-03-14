@@ -10,7 +10,7 @@ type ForStmt struct {
 	astBase
 	ForVars  ASTs
 	IterExpr Expr
-	Stmts    ASTs
+	Block    AST
 
 	scope *symbol.Scope
 	iter  symbol.Symbol
@@ -51,7 +51,7 @@ func (s *ForStmt) RunPass(ctx *Context, pass Pass) {
 		e.Emit(runtime.OpStore, uint16(len(s.ForVars)), 0)
 	}
 
-	ctx.RunPassChild(s, s.Stmts, pass)
+	ctx.RunPassChild(s, s.Block, pass)
 
 	if pass == Emit {
 		e := ctx.Emitter()
