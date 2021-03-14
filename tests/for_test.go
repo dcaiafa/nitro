@@ -22,4 +22,24 @@ func TestForStmt(t *testing.T) {
 2
 3
 `)
+
+	RunSubO(t, "for_array", `
+		for x in ["foo", "bar"]
+    	print(x)
+		end
+	`, `
+foo
+bar
+`)
+
+	RunSubO(t, "for_array_empty", `
+		print("begin")
+		for x in []
+    	print(x)
+		end
+		print("end")
+	`, `
+begin
+end
+`)
 }

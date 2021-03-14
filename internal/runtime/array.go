@@ -1,5 +1,7 @@
 package runtime
 
+import "context"
+
 type Array struct {
 	array []Value
 }
@@ -35,4 +37,19 @@ func (a *Array) Len() int {
 
 func (a *Array) String() string {
 	return formatObject(a)
+}
+
+func arrayIter(ctx context.Context, caps []ValueRef, args []Value) ([]Value, error) {
+	var (
+		arr  = (*caps[0].Ref).(*Array)
+		next = int((*caps[1].Ref).(Int).Int64())
+	)
+
+	if next >= arr.Len() {
+		return []Value{nil, NewBool(false)}, nil
+	}
+
+	*caps[1].Ref = NewInt(int64(next + 1))
+
+	return []Value{arr.Get(next), NewBool(true)}, nil
 }

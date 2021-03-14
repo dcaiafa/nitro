@@ -72,15 +72,15 @@ func TestArrayLiteral(t *testing.T) {
 		`, `[0 1 -2 3 -4 5 -6 7 -8 9 -10 99]`)
 
 	RunSubO(t, "for_multi", `
-		var a = [
-			0
-			for x in range(3)
-				for y in range(1, 3)
-			x*y
+		var r = {
+			names: [
+			for f in [ "alice", "bob" ]
+				for l in [ "smith", "hunter" ]
+			{ first: f, last: l }
 				end
 			end
-			99
-		]
-		print(a)
-		`, `[0 0 0 1 2 2 4 99]`)
+			]
+		}
+		print(r)
+		`, `{names: [{first: "alice", last: "smith"} {first: "alice", last: "hunter"} {first: "bob", last: "smith"} {first: "bob", last: "hunter"}]}`)
 }

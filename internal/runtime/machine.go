@@ -403,6 +403,14 @@ func (m *Machine) Run(
 			v := peek(0)
 			switch v.Kind() {
 			case FuncKind:
+				// Ready to go.
+			case ArrayKind:
+				var arr Value = pop().(*Array)
+				var next Value = NewInt(0)
+				iter := NewClosure(
+					arrayIter,
+					[]ValueRef{NewValueRef(&arr), NewValueRef(&next)})
+				push(iter)
 			default:
 				return fmt.Errorf("Cannot iterate over value of type %q", v.Type())
 			}
