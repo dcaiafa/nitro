@@ -24,12 +24,12 @@ func (e *LiteralExpr) RunPass(ctx *Context, pass Pass) {
 			if 0 <= e.Val.Int && e.Val.Int <= math.MaxUint16 {
 				emitter.Emit(runtime.OpNewInt, uint16(e.Val.Int), 0)
 			} else {
-				literal := emitter.AddLiteral(runtime.Int(e.Val.Int))
+				literal := emitter.AddLiteral(runtime.NewInt(e.Val.Int))
 				emitter.Emit(runtime.OpLoadLiteral, uint16(literal), 0)
 			}
 
 		case token.Float:
-			literal := emitter.AddLiteral(runtime.Float(e.Val.Float))
+			literal := emitter.AddLiteral(runtime.NewFloat(e.Val.Float))
 			emitter.Emit(runtime.OpLoadLiteral, uint16(literal), 0)
 
 		case token.String:

@@ -28,27 +28,46 @@ type Value interface {
 	Kind() Kind
 }
 
-type String string
+type String struct {
+	v string
+}
 
-func (s String) String() string { return string(s) }
+func NewString(v string) String { return String{v} }
+
+func (s String) String() string { return s.v }
 func (s String) Type() string   { return "String" }
 func (s String) Kind() Kind     { return StringKind }
 
-type Int int64
+type Int struct {
+	v int64
+}
 
-func (i Int) String() string { return strconv.FormatInt(int64(i), 10) }
+func NewInt(v int64) Int { return Int{v} }
+
+func (i Int) Int64() int64   { return i.v }
+func (i Int) String() string { return strconv.FormatInt(i.v, 10) }
 func (i Int) Type() string   { return "Int" }
 func (i Int) Kind() Kind     { return IntKind }
 
-type Float float64
+type Float struct {
+	v float64
+}
 
-func (f Float) String() string { return strconv.FormatFloat(float64(f), 'g', -1, 64) }
-func (f Float) Type() string   { return "Float" }
-func (f Float) Kind() Kind     { return FloatKind }
+func NewFloat(v float64) Float { return Float{v} }
 
-type Bool bool
+func (f Float) Float64() float64 { return f.v }
+func (f Float) String() string   { return strconv.FormatFloat(f.v, 'g', -1, 64) }
+func (f Float) Type() string     { return "Float" }
+func (f Float) Kind() Kind       { return FloatKind }
 
-func (b Bool) String() string { return fmt.Sprint(bool(b)) }
+type Bool struct {
+	v bool
+}
+
+func NewBool(v bool) Bool { return Bool{v} }
+
+func (b Bool) Bool() bool     { return b.v }
+func (b Bool) String() string { return fmt.Sprint(b.v) }
 func (b Bool) Type() string   { return "Bool" }
 func (b Bool) Kind() Kind     { return BoolKind }
 
@@ -56,14 +75,26 @@ type ValueRef struct {
 	Ref *Value
 }
 
+func NewValueRef(ref *Value) ValueRef {
+	return ValueRef{Ref: ref}
+}
+
+func (r ValueRef) Refo() *Value   { return r.Ref }
 func (r ValueRef) String() string { return "&" + (*r.Ref).String() }
 func (r ValueRef) Type() string   { return "&" + (*r.Ref).Type() }
 func (r ValueRef) Kind() Kind     { return RefKind }
 
 type Closure struct {
-	Fn       *Fn
-	ExternFn ExternFn
-	Captures []ValueRef
+	fn    *Fn
+	extFn ExternFn
+	caps  []ValueRef
+}
+
+func NewClosure(extFn ExternFn, caps []ValueRef) *Closure {
+	return &Closure{
+		extFn: extFn,
+		caps:  caps,
+	}
 }
 
 func (c *Closure) String() string { return "<func>" }

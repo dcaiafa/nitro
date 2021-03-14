@@ -58,4 +58,12 @@ func TestArrayLiteral(t *testing.T) {
 		end
 		print(f("odd"), f("even"), f("other"))
 		`, `[1 3 5] [2 4 8] [0]`)
+
+	/*
+		RunSubO(t, "for", `
+			var a = [
+				0,
+			]
+		`, ``)
+	*/
 }

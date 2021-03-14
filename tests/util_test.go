@@ -23,7 +23,16 @@ func (fs MemoryFileSystem) ReadFile(name string) ([]byte, error) {
 func valuesToInterface(values []nitro.Value) []interface{} {
 	ivalues := make([]interface{}, len(values))
 	for i, v := range values {
-		ivalues[i] = v
+		switch v := v.(type) {
+		case nitro.Int:
+			ivalues[i] = v.Int64()
+		case nitro.Float:
+			ivalues[i] = v.Float64()
+		case nitro.String:
+			ivalues[i] = v.String()
+		default:
+			ivalues[i] = v
+		}
 	}
 	return ivalues
 }
@@ -50,7 +59,7 @@ func run(prog string, params map[string]nitro.Value) (output string, err error) 
 		func(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value) ([]nitro.Value, error) {
 			msg := args[0].(nitro.String)
 			iargs := valuesToInterface(args[1:])
-			fmt.Fprintf(outBuilder, string(msg)+"\n", iargs...)
+			fmt.Fprintf(outBuilder, msg.String()+"\n", iargs...)
 			return nil, nil
 		})
 

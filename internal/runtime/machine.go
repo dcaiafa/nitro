@@ -176,17 +176,24 @@ func (m *Machine) Run(
 
 			switch callable := pop().(type) {
 			case *Closure:
-				if callable.ExternFn != nil {
-					callable.ExternFn(ctx, callable.Captures, args)
+				if callable.extFn != nil {
+					rets, err := callable.extFn(ctx, callable.caps, args)
+					if err != nil {
+						return err
+					}
+					if len(rets) < expRetN {
+						return fmt.Errorf("expected at least %v returned values", expRetN)
+					}
+					f.Stack = append(f.Stack, rets[:expRetN]...)
 				} else {
 					f.IP = ip
 					m.callStack = append(m.callStack, f)
 
 					f = m.callFrameFactory.NewCallFrame()
-					f.Instrs = callable.Fn.instrs
+					f.Instrs = callable.fn.instrs
 					f.ExpRetN = expRetN
 					f.Args = args
-					f.Captures = callable.Captures
+					f.Captures = callable.caps
 
 					// ip will be 0 after incrementing.
 					ip = -1
@@ -226,16 +233,16 @@ func (m *Machine) Run(
 				caps[i] = capture.(ValueRef)
 			}
 			closure := &Closure{
-				Fn:       &m.program.fns[fn],
-				Captures: caps,
+				fn:   &m.program.fns[fn],
+				caps: caps,
 			}
 			push(closure)
 
 		case OpNewInt:
-			push(Int(instr.Operand1))
+			push(NewInt(int64(instr.Operand1)))
 
 		case OpNewBool:
-			push(Bool(instr.Operand1 != 0))
+			push(NewBool(instr.Operand1 != 0))
 
 		case OpNewObject:
 			push(NewObject())
@@ -288,7 +295,7 @@ func (m *Machine) Run(
 
 		case OpNot:
 			term := pop()
-			push(Bool(!coerceToBool(term)))
+			push(NewBool(!coerceToBool(term)))
 
 		case OpUnaryMinus:
 			term := pop()
@@ -297,9 +304,9 @@ func (m *Machine) Run(
 			}
 			switch term := term.(type) {
 			case Int:
-				push(-term)
+				push(NewInt(-term.Int64()))
 			case Float:
-				push(-term)
+				push(NewFloat(-term.Float64()))
 			default:
 			}
 
@@ -326,7 +333,7 @@ func (m *Machine) Run(
 							"Cannot index array: index must be Int, but it is %v",
 							index.Type())
 					}
-					v = obj.Get(int(index))
+					v = obj.Get(int(index.Int64()))
 				default:
 					return fmt.Errorf(
 						"Cannot index: allowed types are Object and Array, but got %v",
@@ -352,7 +359,7 @@ func (m *Machine) Run(
 						"Cannot index array: index must be Int, but it is %v",
 						index.Type())
 				}
-				v = obj.GetRef(int(index))
+				v = obj.GetRef(int(index.Int64()))
 			default:
 				return fmt.Errorf(
 					"Cannot index: allowed types are Object and Array, but got %v",
@@ -413,21 +420,21 @@ func EvalBinOp(op BinOp, operand1, operand2 Value) (Value, error) {
 	case Int:
 		switch operand2 := operand2.(type) {
 		case Int:
-			return evalBinOpInt(op, operand1, operand2)
+			return evalBinOpInt(op, operand1.Int64(), operand2.Int64())
 		case Float:
-			return evalBinOpFloat(op, Float(operand1), operand2)
+			return evalBinOpFloat(op, float64(operand1.Int64()), operand2.Float64())
 		}
 	case Float:
 		switch operand2 := operand2.(type) {
 		case Int:
-			return evalBinOpFloat(op, operand1, Float(operand2))
+			return evalBinOpFloat(op, operand1.Float64(), float64(operand2.Int64()))
 		case Float:
-			return evalBinOpFloat(op, operand1, operand2)
+			return evalBinOpFloat(op, operand1.Float64(), operand2.Float64())
 		}
 
 	case String:
 		if operand2, ok := operand2.(String); ok {
-			return evalBinOpString(op, operand1, operand2)
+			return evalBinOpString(op, operand1.String(), operand2.String())
 		}
 	}
 
@@ -436,80 +443,80 @@ func EvalBinOp(op BinOp, operand1, operand2 Value) (Value, error) {
 		reflect.TypeOf(operand1), reflect.TypeOf(operand2))
 }
 
-func evalBinOpInt(op BinOp, operand1, operand2 Int) (Value, error) {
+func evalBinOpInt(op BinOp, operand1, operand2 int64) (Value, error) {
 	switch op {
 	case BinAdd:
-		return operand1 + operand2, nil
+		return NewInt(operand1 + operand2), nil
 	case BinSub:
-		return operand1 - operand2, nil
+		return NewInt(operand1 - operand2), nil
 	case BinMult:
-		return operand1 * operand2, nil
+		return NewInt(operand1 * operand2), nil
 	case BinDiv:
-		return operand1 / operand2, nil
+		return NewInt(operand1 / operand2), nil
 	case BinMod:
-		return operand1 % operand2, nil
+		return NewInt(operand1 % operand2), nil
 	case BinLT:
-		return Bool(operand1 < operand2), nil
+		return NewBool(operand1 < operand2), nil
 	case BinLE:
-		return Bool(operand1 <= operand2), nil
+		return NewBool(operand1 <= operand2), nil
 	case BinGT:
-		return Bool(operand1 > operand2), nil
+		return NewBool(operand1 > operand2), nil
 	case BinGE:
-		return Bool(operand1 >= operand2), nil
+		return NewBool(operand1 >= operand2), nil
 	case BinEq:
-		return Bool(operand1 == operand2), nil
+		return NewBool(operand1 == operand2), nil
 	case BinNE:
-		return Bool(operand1 != operand2), nil
+		return NewBool(operand1 != operand2), nil
 	default:
 		panic("invalid BinOp")
 	}
 }
 
-func evalBinOpFloat(op BinOp, operand1, operand2 Float) (Value, error) {
+func evalBinOpFloat(op BinOp, operand1, operand2 float64) (Value, error) {
 	switch op {
 	case BinAdd:
-		return operand1 + operand2, nil
+		return NewFloat(operand1 + operand2), nil
 	case BinSub:
-		return operand1 - operand2, nil
+		return NewFloat(operand1 - operand2), nil
 	case BinMult:
-		return operand1 * operand2, nil
+		return NewFloat(operand1 * operand2), nil
 	case BinDiv:
-		return operand1 / operand2, nil
+		return NewFloat(operand1 / operand2), nil
 	case BinMod:
 		return nil, errors.New("modulo operation not permitted with Float")
 	case BinLT:
-		return Bool(operand1 < operand2), nil
+		return NewBool(operand1 < operand2), nil
 	case BinLE:
-		return Bool(operand1 <= operand2), nil
+		return NewBool(operand1 <= operand2), nil
 	case BinGT:
-		return Bool(operand1 > operand2), nil
+		return NewBool(operand1 > operand2), nil
 	case BinGE:
-		return Bool(operand1 >= operand2), nil
+		return NewBool(operand1 >= operand2), nil
 	case BinEq:
-		return Bool(operand1 == operand2), nil
+		return NewBool(operand1 == operand2), nil
 	case BinNE:
-		return Bool(operand1 != operand2), nil
+		return NewBool(operand1 != operand2), nil
 	default:
 		panic("invalid BinOp")
 	}
 }
 
-func evalBinOpString(op BinOp, operand1, operand2 String) (Value, error) {
+func evalBinOpString(op BinOp, operand1, operand2 string) (Value, error) {
 	switch op {
 	case BinAdd:
-		return operand1 + operand2, nil
+		return NewString(operand1 + operand2), nil
 	case BinLT:
-		return Bool(operand1 < operand2), nil
+		return NewBool(operand1 < operand2), nil
 	case BinLE:
-		return Bool(operand1 <= operand2), nil
+		return NewBool(operand1 <= operand2), nil
 	case BinGT:
-		return Bool(operand1 > operand2), nil
+		return NewBool(operand1 > operand2), nil
 	case BinGE:
-		return Bool(operand1 >= operand2), nil
+		return NewBool(operand1 >= operand2), nil
 	case BinEq:
-		return Bool(operand1 == operand2), nil
+		return NewBool(operand1 == operand2), nil
 	case BinNE:
-		return Bool(operand1 != operand2), nil
+		return NewBool(operand1 != operand2), nil
 	default:
 		return nil, fmt.Errorf("cannot use this operator with string operands")
 	}
@@ -518,13 +525,13 @@ func evalBinOpString(op BinOp, operand1, operand2 String) (Value, error) {
 func coerceToBool(v Value) bool {
 	switch v := v.(type) {
 	case Bool:
-		return bool(v)
+		return v.Bool()
 	case Int:
-		return v != 0
+		return v.Int64() != 0
 	case Float:
-		return v != 0
+		return v.Float64() != 0
 	case String:
-		return len(v) != 0
+		return len(v.String()) != 0
 	case *Object:
 		return v.Len() != 0
 	case *Array:

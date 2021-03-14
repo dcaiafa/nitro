@@ -124,7 +124,7 @@ func (e *Emitter) AddExternalFunc(fn ExternFn) int {
 func (e *Emitter) AddString(s string) int {
 	n, ok := e.stringMap[s]
 	if !ok {
-		n = e.AddLiteral(String(s))
+		n = e.AddLiteral(NewString(s))
 		e.stringMap[s] = n
 	}
 	return n

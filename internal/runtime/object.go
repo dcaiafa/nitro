@@ -110,13 +110,13 @@ func (of *objectFormatter) format(v Value) {
 	switch v := v.(type) {
 	case String:
 		// TODO: escape special characters.
-		of.str(`"` + string(v) + `"`)
+		of.str(`"` + v.String() + `"`)
 	case Int:
-		of.str(strconv.FormatInt(int64(v), 10))
+		of.str(strconv.FormatInt(v.Int64(), 10))
 	case Float:
-		of.str(strconv.FormatFloat(float64(v), 'g', -1, 64))
+		of.str(strconv.FormatFloat(v.Float64(), 'g', -1, 64))
 	case Bool:
-		if bool(v) {
+		if v.Bool() {
 			of.str("true")
 		} else {
 			of.str("false")
@@ -136,7 +136,7 @@ func (of *objectFormatter) format(v Value) {
 				first = false
 			}
 			if ks, ok := k.(String); ok {
-				of.str(string(ks))
+				of.str(ks.String())
 			} else {
 				of.str("[")
 				of.format(k)
