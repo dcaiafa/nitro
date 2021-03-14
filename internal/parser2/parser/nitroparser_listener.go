@@ -161,6 +161,9 @@ type NitroParserListener interface {
 	// EnterObject_field_expr_key is called when entering the object_field_expr_key production.
 	EnterObject_field_expr_key(c *Object_field_expr_keyContext)
 
+	// EnterObject_field_expansion is called when entering the object_field_expansion production.
+	EnterObject_field_expansion(c *Object_field_expansionContext)
+
 	// EnterObject_field_if is called when entering the object_field_if production.
 	EnterObject_field_if(c *Object_field_ifContext)
 
@@ -355,6 +358,9 @@ type NitroParserListener interface {
 
 	// ExitObject_field_expr_key is called when exiting the object_field_expr_key production.
 	ExitObject_field_expr_key(c *Object_field_expr_keyContext)
+
+	// ExitObject_field_expansion is called when exiting the object_field_expansion production.
+	ExitObject_field_expansion(c *Object_field_expansionContext)
 
 	// ExitObject_field_if is called when exiting the object_field_if production.
 	ExitObject_field_if(c *Object_field_ifContext)

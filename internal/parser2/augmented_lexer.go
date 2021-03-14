@@ -48,6 +48,7 @@ func (l *augmentedLexer) NextToken() antlr.Token {
 		case parser.NitroLexerCPAREN,
 			parser.NitroLexerCBRACKET,
 			parser.NitroLexerCCURLY,
+			parser.NitroLexerEXPAND,
 			parser.NitroLexerNUMBER,
 			parser.NitroLexerSTRING,
 			parser.NitroLexerID,

@@ -333,6 +333,12 @@ func (s *BaseNitroParserListener) EnterObject_field_expr_key(ctx *Object_field_e
 // ExitObject_field_expr_key is called when production object_field_expr_key is exited.
 func (s *BaseNitroParserListener) ExitObject_field_expr_key(ctx *Object_field_expr_keyContext) {}
 
+// EnterObject_field_expansion is called when production object_field_expansion is entered.
+func (s *BaseNitroParserListener) EnterObject_field_expansion(ctx *Object_field_expansionContext) {}
+
+// ExitObject_field_expansion is called when production object_field_expansion is exited.
+func (s *BaseNitroParserListener) ExitObject_field_expansion(ctx *Object_field_expansionContext) {}
+
 // EnterObject_field_if is called when production object_field_if is entered.
 func (s *BaseNitroParserListener) EnterObject_field_if(ctx *Object_field_ifContext) {}
 

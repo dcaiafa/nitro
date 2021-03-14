@@ -109,6 +109,7 @@ object_fields: (object_field ((','|';') object_field)* (','|';')*)?;
 
 object_field: id_or_keyword ':' expr     # object_field_id_key
             | '[' expr ']' ':' expr      # object_field_expr_key
+            | primary_expr '...'         # object_field_expansion
             | object_if                  # object_field_if
             | object_for                 # object_field_for
             ;
