@@ -16,7 +16,7 @@ var _ = reflect.Copy
 var _ = strconv.Itoa
 
 var parserATN = []uint16{
-	3, 24715, 42794, 33075, 47597, 16764, 15335, 30598, 22884, 3, 48, 537,
+	3, 24715, 42794, 33075, 47597, 16764, 15335, 30598, 22884, 3, 48, 531,
 	4, 2, 9, 2, 4, 3, 9, 3, 4, 4, 9, 4, 4, 5, 9, 5, 4, 6, 9, 6, 4, 7, 9, 7,
 	4, 8, 9, 8, 4, 9, 9, 9, 4, 10, 9, 10, 4, 11, 9, 11, 4, 12, 9, 12, 4, 13,
 	9, 13, 4, 14, 9, 14, 4, 15, 9, 15, 4, 16, 9, 16, 4, 17, 9, 17, 4, 18, 9,
@@ -66,19 +66,18 @@ var parserATN = []uint16{
 	39, 3, 39, 7, 39, 445, 10, 39, 12, 39, 14, 39, 448, 11, 39, 3, 39, 5, 39,
 	451, 10, 39, 3, 39, 3, 39, 3, 40, 3, 40, 3, 40, 3, 40, 3, 40, 3, 40, 3,
 	41, 3, 41, 3, 41, 3, 42, 3, 42, 3, 42, 3, 42, 3, 42, 3, 42, 3, 42, 3, 42,
-	3, 43, 3, 43, 5, 43, 474, 10, 43, 3, 43, 3, 43, 3, 44, 3, 44, 3, 44, 7,
-	44, 481, 10, 44, 12, 44, 14, 44, 484, 11, 44, 3, 44, 7, 44, 487, 10, 44,
-	12, 44, 14, 44, 490, 11, 44, 3, 45, 3, 45, 3, 45, 5, 45, 495, 10, 45, 3,
-	46, 3, 46, 3, 46, 3, 46, 5, 46, 501, 10, 46, 3, 46, 7, 46, 504, 10, 46,
-	12, 46, 14, 46, 507, 11, 46, 3, 46, 5, 46, 510, 10, 46, 3, 46, 3, 46, 3,
-	47, 3, 47, 3, 47, 3, 47, 3, 47, 5, 47, 519, 10, 47, 3, 48, 3, 48, 5, 48,
-	523, 10, 48, 3, 49, 3, 49, 3, 49, 3, 49, 3, 49, 3, 49, 5, 49, 531, 10,
-	49, 3, 49, 3, 49, 3, 50, 3, 50, 3, 50, 2, 4, 54, 58, 51, 2, 4, 6, 8, 10,
-	12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46,
-	48, 50, 52, 54, 56, 58, 60, 62, 64, 66, 68, 70, 72, 74, 76, 78, 80, 82,
-	84, 86, 88, 90, 92, 94, 96, 98, 2, 8, 3, 2, 30, 31, 3, 2, 27, 29, 3, 2,
-	25, 26, 3, 2, 19, 24, 6, 2, 6, 6, 15, 15, 43, 43, 47, 47, 4, 2, 3, 17,
-	44, 44, 2, 562, 2, 100, 3, 2, 2, 2, 4, 104, 3, 2, 2, 2, 6, 108, 3, 2, 2,
+	3, 43, 3, 43, 3, 43, 3, 43, 3, 44, 3, 44, 3, 44, 7, 44, 479, 10, 44, 12,
+	44, 14, 44, 482, 11, 44, 3, 44, 7, 44, 485, 10, 44, 12, 44, 14, 44, 488,
+	11, 44, 5, 44, 490, 10, 44, 3, 45, 3, 45, 3, 45, 5, 45, 495, 10, 45, 3,
+	46, 3, 46, 3, 46, 3, 46, 3, 46, 7, 46, 502, 10, 46, 12, 46, 14, 46, 505,
+	11, 46, 3, 46, 5, 46, 508, 10, 46, 3, 46, 3, 46, 3, 47, 3, 47, 3, 47, 3,
+	47, 3, 47, 3, 47, 3, 48, 3, 48, 3, 48, 3, 49, 3, 49, 3, 49, 3, 49, 3, 49,
+	3, 49, 3, 49, 3, 49, 3, 50, 3, 50, 3, 50, 2, 4, 54, 58, 51, 2, 4, 6, 8,
+	10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44,
+	46, 48, 50, 52, 54, 56, 58, 60, 62, 64, 66, 68, 70, 72, 74, 76, 78, 80,
+	82, 84, 86, 88, 90, 92, 94, 96, 98, 2, 8, 3, 2, 30, 31, 3, 2, 27, 29, 3,
+	2, 25, 26, 3, 2, 19, 24, 6, 2, 6, 6, 15, 15, 43, 43, 47, 47, 4, 2, 3, 17,
+	44, 44, 2, 552, 2, 100, 3, 2, 2, 2, 4, 104, 3, 2, 2, 2, 6, 108, 3, 2, 2,
 	2, 8, 117, 3, 2, 2, 2, 10, 120, 3, 2, 2, 2, 12, 126, 3, 2, 2, 2, 14, 134,
 	3, 2, 2, 2, 16, 143, 3, 2, 2, 2, 18, 148, 3, 2, 2, 2, 20, 176, 3, 2, 2,
 	2, 22, 178, 3, 2, 2, 2, 24, 182, 3, 2, 2, 2, 26, 190, 3, 2, 2, 2, 28, 198,
@@ -90,8 +89,8 @@ var parserATN = []uint16{
 	2, 64, 387, 3, 2, 2, 2, 66, 389, 3, 2, 2, 2, 68, 398, 3, 2, 2, 2, 70, 405,
 	3, 2, 2, 2, 72, 423, 3, 2, 2, 2, 74, 437, 3, 2, 2, 2, 76, 439, 3, 2, 2,
 	2, 78, 454, 3, 2, 2, 2, 80, 460, 3, 2, 2, 2, 82, 463, 3, 2, 2, 2, 84, 471,
-	3, 2, 2, 2, 86, 477, 3, 2, 2, 2, 88, 494, 3, 2, 2, 2, 90, 496, 3, 2, 2,
-	2, 92, 513, 3, 2, 2, 2, 94, 520, 3, 2, 2, 2, 96, 524, 3, 2, 2, 2, 98, 534,
+	3, 2, 2, 2, 86, 489, 3, 2, 2, 2, 88, 494, 3, 2, 2, 2, 90, 496, 3, 2, 2,
+	2, 92, 511, 3, 2, 2, 2, 94, 517, 3, 2, 2, 2, 96, 520, 3, 2, 2, 2, 98, 528,
 	3, 2, 2, 2, 100, 101, 5, 4, 3, 2, 101, 102, 7, 2, 2, 3, 102, 3, 3, 2, 2,
 	2, 103, 105, 5, 6, 4, 2, 104, 103, 3, 2, 2, 2, 104, 105, 3, 2, 2, 2, 105,
 	106, 3, 2, 2, 2, 106, 107, 5, 18, 10, 2, 107, 5, 3, 2, 2, 2, 108, 112,
@@ -227,34 +226,30 @@ var parserATN = []uint16{
 	2, 2, 461, 462, 5, 72, 37, 2, 462, 81, 3, 2, 2, 2, 463, 464, 7, 8, 2, 2,
 	464, 465, 5, 34, 18, 2, 465, 466, 7, 10, 2, 2, 466, 467, 5, 50, 26, 2,
 	467, 468, 7, 30, 2, 2, 468, 469, 5, 72, 37, 2, 469, 470, 7, 5, 2, 2, 470,
-	83, 3, 2, 2, 2, 471, 473, 7, 36, 2, 2, 472, 474, 5, 86, 44, 2, 473, 472,
-	3, 2, 2, 2, 473, 474, 3, 2, 2, 2, 474, 475, 3, 2, 2, 2, 475, 476, 7, 37,
-	2, 2, 476, 85, 3, 2, 2, 2, 477, 482, 5, 88, 45, 2, 478, 479, 9, 2, 2, 2,
-	479, 481, 5, 88, 45, 2, 480, 478, 3, 2, 2, 2, 481, 484, 3, 2, 2, 2, 482,
-	480, 3, 2, 2, 2, 482, 483, 3, 2, 2, 2, 483, 488, 3, 2, 2, 2, 484, 482,
-	3, 2, 2, 2, 485, 487, 9, 2, 2, 2, 486, 485, 3, 2, 2, 2, 487, 490, 3, 2,
-	2, 2, 488, 486, 3, 2, 2, 2, 488, 489, 3, 2, 2, 2, 489, 87, 3, 2, 2, 2,
-	490, 488, 3, 2, 2, 2, 491, 495, 5, 50, 26, 2, 492, 495, 5, 90, 46, 2, 493,
-	495, 5, 96, 49, 2, 494, 491, 3, 2, 2, 2, 494, 492, 3, 2, 2, 2, 494, 493,
-	3, 2, 2, 2, 495, 89, 3, 2, 2, 2, 496, 497, 7, 9, 2, 2, 497, 498, 5, 50,
-	26, 2, 498, 500, 7, 30, 2, 2, 499, 501, 5, 86, 44, 2, 500, 499, 3, 2, 2,
-	2, 500, 501, 3, 2, 2, 2, 501, 505, 3, 2, 2, 2, 502, 504, 5, 92, 47, 2,
-	503, 502, 3, 2, 2, 2, 504, 507, 3, 2, 2, 2, 505, 503, 3, 2, 2, 2, 505,
-	506, 3, 2, 2, 2, 506, 509, 3, 2, 2, 2, 507, 505, 3, 2, 2, 2, 508, 510,
-	5, 94, 48, 2, 509, 508, 3, 2, 2, 2, 509, 510, 3, 2, 2, 2, 510, 511, 3,
-	2, 2, 2, 511, 512, 7, 5, 2, 2, 512, 91, 3, 2, 2, 2, 513, 514, 7, 4, 2,
-	2, 514, 515, 7, 9, 2, 2, 515, 516, 5, 50, 26, 2, 516, 518, 7, 30, 2, 2,
-	517, 519, 5, 86, 44, 2, 518, 517, 3, 2, 2, 2, 518, 519, 3, 2, 2, 2, 519,
-	93, 3, 2, 2, 2, 520, 522, 7, 4, 2, 2, 521, 523, 5, 86, 44, 2, 522, 521,
-	3, 2, 2, 2, 522, 523, 3, 2, 2, 2, 523, 95, 3, 2, 2, 2, 524, 525, 7, 8,
-	2, 2, 525, 526, 5, 34, 18, 2, 526, 527, 7, 10, 2, 2, 527, 528, 5, 50, 26,
-	2, 528, 530, 7, 30, 2, 2, 529, 531, 5, 86, 44, 2, 530, 529, 3, 2, 2, 2,
-	530, 531, 3, 2, 2, 2, 531, 532, 3, 2, 2, 2, 532, 533, 7, 5, 2, 2, 533,
-	97, 3, 2, 2, 2, 534, 535, 9, 7, 2, 2, 535, 99, 3, 2, 2, 2, 51, 104, 112,
+	83, 3, 2, 2, 2, 471, 472, 7, 36, 2, 2, 472, 473, 5, 86, 44, 2, 473, 474,
+	7, 37, 2, 2, 474, 85, 3, 2, 2, 2, 475, 480, 5, 88, 45, 2, 476, 477, 9,
+	2, 2, 2, 477, 479, 5, 88, 45, 2, 478, 476, 3, 2, 2, 2, 479, 482, 3, 2,
+	2, 2, 480, 478, 3, 2, 2, 2, 480, 481, 3, 2, 2, 2, 481, 486, 3, 2, 2, 2,
+	482, 480, 3, 2, 2, 2, 483, 485, 9, 2, 2, 2, 484, 483, 3, 2, 2, 2, 485,
+	488, 3, 2, 2, 2, 486, 484, 3, 2, 2, 2, 486, 487, 3, 2, 2, 2, 487, 490,
+	3, 2, 2, 2, 488, 486, 3, 2, 2, 2, 489, 475, 3, 2, 2, 2, 489, 490, 3, 2,
+	2, 2, 490, 87, 3, 2, 2, 2, 491, 495, 5, 50, 26, 2, 492, 495, 5, 90, 46,
+	2, 493, 495, 5, 96, 49, 2, 494, 491, 3, 2, 2, 2, 494, 492, 3, 2, 2, 2,
+	494, 493, 3, 2, 2, 2, 495, 89, 3, 2, 2, 2, 496, 497, 7, 9, 2, 2, 497, 498,
+	5, 50, 26, 2, 498, 499, 7, 30, 2, 2, 499, 503, 5, 86, 44, 2, 500, 502,
+	5, 92, 47, 2, 501, 500, 3, 2, 2, 2, 502, 505, 3, 2, 2, 2, 503, 501, 3,
+	2, 2, 2, 503, 504, 3, 2, 2, 2, 504, 507, 3, 2, 2, 2, 505, 503, 3, 2, 2,
+	2, 506, 508, 5, 94, 48, 2, 507, 506, 3, 2, 2, 2, 507, 508, 3, 2, 2, 2,
+	508, 509, 3, 2, 2, 2, 509, 510, 7, 5, 2, 2, 510, 91, 3, 2, 2, 2, 511, 512,
+	7, 4, 2, 2, 512, 513, 7, 9, 2, 2, 513, 514, 5, 50, 26, 2, 514, 515, 7,
+	30, 2, 2, 515, 516, 5, 86, 44, 2, 516, 93, 3, 2, 2, 2, 517, 518, 7, 4,
+	2, 2, 518, 519, 5, 86, 44, 2, 519, 95, 3, 2, 2, 2, 520, 521, 7, 8, 2, 2,
+	521, 522, 5, 34, 18, 2, 522, 523, 7, 10, 2, 2, 523, 524, 5, 50, 26, 2,
+	524, 525, 7, 30, 2, 2, 525, 526, 5, 86, 44, 2, 526, 527, 7, 5, 2, 2, 527,
+	97, 3, 2, 2, 2, 528, 529, 9, 7, 2, 2, 529, 99, 3, 2, 2, 2, 47, 104, 112,
 	122, 131, 143, 148, 176, 187, 195, 202, 209, 225, 241, 245, 262, 273, 278,
 	283, 286, 292, 312, 314, 324, 336, 349, 353, 359, 362, 364, 374, 387, 392,
-	400, 414, 420, 423, 437, 446, 450, 473, 482, 488, 494, 500, 505, 509, 518,
-	522, 530,
+	400, 414, 420, 423, 437, 446, 450, 480, 486, 489, 494, 503, 507,
 }
 var literalNames = []string{
 	"", "'and'", "'else'", "'end'", "'false'", "'fn'", "'for'", "'if'", "'in'",
@@ -7461,10 +7456,6 @@ func (s *Array_literalContext) OBRACKET() antlr.TerminalNode {
 	return s.GetToken(NitroParserOBRACKET, 0)
 }
 
-func (s *Array_literalContext) CBRACKET() antlr.TerminalNode {
-	return s.GetToken(NitroParserCBRACKET, 0)
-}
-
 func (s *Array_literalContext) Array_elems() IArray_elemsContext {
 	var t = s.GetTypedRuleContext(reflect.TypeOf((*IArray_elemsContext)(nil)).Elem(), 0)
 
@@ -7473,6 +7464,10 @@ func (s *Array_literalContext) Array_elems() IArray_elemsContext {
 	}
 
 	return t.(IArray_elemsContext)
+}
+
+func (s *Array_literalContext) CBRACKET() antlr.TerminalNode {
+	return s.GetToken(NitroParserCBRACKET, 0)
 }
 
 func (s *Array_literalContext) GetRuleContext() antlr.RuleContext {
@@ -7498,7 +7493,6 @@ func (s *Array_literalContext) ExitRule(listener antlr.ParseTreeListener) {
 func (p *NitroParser) Array_literal() (localctx IArray_literalContext) {
 	localctx = NewArray_literalContext(p, p.GetParserRuleContext(), p.GetState())
 	p.EnterRule(localctx, 82, NitroParserRULE_array_literal)
-	var _la int
 
 	defer func() {
 		p.ExitRule()
@@ -7521,19 +7515,12 @@ func (p *NitroParser) Array_literal() (localctx IArray_literalContext) {
 		p.SetState(469)
 		p.Match(NitroParserOBRACKET)
 	}
-	p.SetState(471)
-	p.GetErrorHandler().Sync(p)
-	_la = p.GetTokenStream().LA(1)
-
-	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserFOR)|(1<<NitroParserIF)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(NitroParserOPAREN-32))|(1<<(NitroParserOBRACKET-32))|(1<<(NitroParserOCURLY-32))|(1<<(NitroParserLAMBDA-32))|(1<<(NitroParserPIPE-32))|(1<<(NitroParserNUMBER-32))|(1<<(NitroParserID-32))|(1<<(NitroParserSTRING-32)))) != 0) {
-		{
-			p.SetState(470)
-			p.Array_elems()
-		}
-
+	{
+		p.SetState(470)
+		p.Array_elems()
 	}
 	{
-		p.SetState(473)
+		p.SetState(471)
 		p.Match(NitroParserCBRACKET)
 	}
 
@@ -7661,18 +7648,49 @@ func (p *NitroParser) Array_elems() (localctx IArray_elemsContext) {
 	var _alt int
 
 	p.EnterOuterAlt(localctx, 1)
-	{
-		p.SetState(475)
-		p.Array_elem()
-	}
-	p.SetState(480)
+	p.SetState(487)
 	p.GetErrorHandler().Sync(p)
-	_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 40, p.GetParserRuleContext())
+	_la = p.GetTokenStream().LA(1)
 
-	for _alt != 2 && _alt != antlr.ATNInvalidAltNumber {
-		if _alt == 1 {
+	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserFOR)|(1<<NitroParserIF)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(NitroParserOPAREN-32))|(1<<(NitroParserOBRACKET-32))|(1<<(NitroParserOCURLY-32))|(1<<(NitroParserLAMBDA-32))|(1<<(NitroParserPIPE-32))|(1<<(NitroParserNUMBER-32))|(1<<(NitroParserID-32))|(1<<(NitroParserSTRING-32)))) != 0) {
+		{
+			p.SetState(473)
+			p.Array_elem()
+		}
+		p.SetState(478)
+		p.GetErrorHandler().Sync(p)
+		_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 39, p.GetParserRuleContext())
+
+		for _alt != 2 && _alt != antlr.ATNInvalidAltNumber {
+			if _alt == 1 {
+				{
+					p.SetState(474)
+					_la = p.GetTokenStream().LA(1)
+
+					if !(_la == NitroParserSEMICOLON || _la == NitroParserCOMMA) {
+						p.GetErrorHandler().RecoverInline(p)
+					} else {
+						p.GetErrorHandler().ReportMatch(p)
+						p.Consume()
+					}
+				}
+				{
+					p.SetState(475)
+					p.Array_elem()
+				}
+
+			}
+			p.SetState(480)
+			p.GetErrorHandler().Sync(p)
+			_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 39, p.GetParserRuleContext())
+		}
+		p.SetState(484)
+		p.GetErrorHandler().Sync(p)
+		_la = p.GetTokenStream().LA(1)
+
+		for _la == NitroParserSEMICOLON || _la == NitroParserCOMMA {
 			{
-				p.SetState(476)
+				p.SetState(481)
 				_la = p.GetTokenStream().LA(1)
 
 				if !(_la == NitroParserSEMICOLON || _la == NitroParserCOMMA) {
@@ -7682,36 +7700,12 @@ func (p *NitroParser) Array_elems() (localctx IArray_elemsContext) {
 					p.Consume()
 				}
 			}
-			{
-				p.SetState(477)
-				p.Array_elem()
-			}
 
-		}
-		p.SetState(482)
-		p.GetErrorHandler().Sync(p)
-		_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 40, p.GetParserRuleContext())
-	}
-	p.SetState(486)
-	p.GetErrorHandler().Sync(p)
-	_la = p.GetTokenStream().LA(1)
-
-	for _la == NitroParserSEMICOLON || _la == NitroParserCOMMA {
-		{
-			p.SetState(483)
+			p.SetState(486)
+			p.GetErrorHandler().Sync(p)
 			_la = p.GetTokenStream().LA(1)
-
-			if !(_la == NitroParserSEMICOLON || _la == NitroParserCOMMA) {
-				p.GetErrorHandler().RecoverInline(p)
-			} else {
-				p.GetErrorHandler().ReportMatch(p)
-				p.Consume()
-			}
 		}
 
-		p.SetState(488)
-		p.GetErrorHandler().Sync(p)
-		_la = p.GetTokenStream().LA(1)
 	}
 
 	return localctx
@@ -7913,10 +7907,6 @@ func (s *Array_ifContext) SEMICOLON() antlr.TerminalNode {
 	return s.GetToken(NitroParserSEMICOLON, 0)
 }
 
-func (s *Array_ifContext) END() antlr.TerminalNode {
-	return s.GetToken(NitroParserEND, 0)
-}
-
 func (s *Array_ifContext) Array_elems() IArray_elemsContext {
 	var t = s.GetTypedRuleContext(reflect.TypeOf((*IArray_elemsContext)(nil)).Elem(), 0)
 
@@ -7925,6 +7915,10 @@ func (s *Array_ifContext) Array_elems() IArray_elemsContext {
 	}
 
 	return t.(IArray_elemsContext)
+}
+
+func (s *Array_ifContext) END() antlr.TerminalNode {
+	return s.GetToken(NitroParserEND, 0)
 }
 
 func (s *Array_ifContext) AllArray_elif() []IArray_elifContext {
@@ -8016,46 +8010,39 @@ func (p *NitroParser) Array_if() (localctx IArray_ifContext) {
 		p.SetState(496)
 		p.Match(NitroParserSEMICOLON)
 	}
-	p.SetState(498)
-	p.GetErrorHandler().Sync(p)
-	_la = p.GetTokenStream().LA(1)
-
-	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserFOR)|(1<<NitroParserIF)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(NitroParserOPAREN-32))|(1<<(NitroParserOBRACKET-32))|(1<<(NitroParserOCURLY-32))|(1<<(NitroParserLAMBDA-32))|(1<<(NitroParserPIPE-32))|(1<<(NitroParserNUMBER-32))|(1<<(NitroParserID-32))|(1<<(NitroParserSTRING-32)))) != 0) {
-		{
-			p.SetState(497)
-			p.Array_elems()
-		}
-
+	{
+		p.SetState(497)
+		p.Array_elems()
 	}
-	p.SetState(503)
+	p.SetState(501)
 	p.GetErrorHandler().Sync(p)
-	_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 44, p.GetParserRuleContext())
+	_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 43, p.GetParserRuleContext())
 
 	for _alt != 2 && _alt != antlr.ATNInvalidAltNumber {
 		if _alt == 1 {
 			{
-				p.SetState(500)
+				p.SetState(498)
 				p.Array_elif()
 			}
 
 		}
-		p.SetState(505)
+		p.SetState(503)
 		p.GetErrorHandler().Sync(p)
-		_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 44, p.GetParserRuleContext())
+		_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 43, p.GetParserRuleContext())
 	}
-	p.SetState(507)
+	p.SetState(505)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
 	if _la == NitroParserELSE {
 		{
-			p.SetState(506)
+			p.SetState(504)
 			p.Array_else()
 		}
 
 	}
 	{
-		p.SetState(509)
+		p.SetState(507)
 		p.Match(NitroParserEND)
 	}
 
@@ -8155,7 +8142,6 @@ func (s *Array_elifContext) ExitRule(listener antlr.ParseTreeListener) {
 func (p *NitroParser) Array_elif() (localctx IArray_elifContext) {
 	localctx = NewArray_elifContext(p, p.GetParserRuleContext(), p.GetState())
 	p.EnterRule(localctx, 90, NitroParserRULE_array_elif)
-	var _la int
 
 	defer func() {
 		p.ExitRule()
@@ -8175,31 +8161,24 @@ func (p *NitroParser) Array_elif() (localctx IArray_elifContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(511)
+		p.SetState(509)
 		p.Match(NitroParserELSE)
 	}
 	{
-		p.SetState(512)
+		p.SetState(510)
 		p.Match(NitroParserIF)
 	}
 	{
-		p.SetState(513)
+		p.SetState(511)
 		p.Expr()
 	}
 	{
-		p.SetState(514)
+		p.SetState(512)
 		p.Match(NitroParserSEMICOLON)
 	}
-	p.SetState(516)
-	p.GetErrorHandler().Sync(p)
-	_la = p.GetTokenStream().LA(1)
-
-	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserFOR)|(1<<NitroParserIF)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(NitroParserOPAREN-32))|(1<<(NitroParserOBRACKET-32))|(1<<(NitroParserOCURLY-32))|(1<<(NitroParserLAMBDA-32))|(1<<(NitroParserPIPE-32))|(1<<(NitroParserNUMBER-32))|(1<<(NitroParserID-32))|(1<<(NitroParserSTRING-32)))) != 0) {
-		{
-			p.SetState(515)
-			p.Array_elems()
-		}
-
+	{
+		p.SetState(513)
+		p.Array_elems()
 	}
 
 	return localctx
@@ -8280,7 +8259,6 @@ func (s *Array_elseContext) ExitRule(listener antlr.ParseTreeListener) {
 func (p *NitroParser) Array_else() (localctx IArray_elseContext) {
 	localctx = NewArray_elseContext(p, p.GetParserRuleContext(), p.GetState())
 	p.EnterRule(localctx, 92, NitroParserRULE_array_else)
-	var _la int
 
 	defer func() {
 		p.ExitRule()
@@ -8300,19 +8278,12 @@ func (p *NitroParser) Array_else() (localctx IArray_elseContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(518)
+		p.SetState(515)
 		p.Match(NitroParserELSE)
 	}
-	p.SetState(520)
-	p.GetErrorHandler().Sync(p)
-	_la = p.GetTokenStream().LA(1)
-
-	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserFOR)|(1<<NitroParserIF)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(NitroParserOPAREN-32))|(1<<(NitroParserOBRACKET-32))|(1<<(NitroParserOCURLY-32))|(1<<(NitroParserLAMBDA-32))|(1<<(NitroParserPIPE-32))|(1<<(NitroParserNUMBER-32))|(1<<(NitroParserID-32))|(1<<(NitroParserSTRING-32)))) != 0) {
-		{
-			p.SetState(519)
-			p.Array_elems()
-		}
-
+	{
+		p.SetState(516)
+		p.Array_elems()
 	}
 
 	return localctx
@@ -8388,10 +8359,6 @@ func (s *Array_forContext) SEMICOLON() antlr.TerminalNode {
 	return s.GetToken(NitroParserSEMICOLON, 0)
 }
 
-func (s *Array_forContext) END() antlr.TerminalNode {
-	return s.GetToken(NitroParserEND, 0)
-}
-
 func (s *Array_forContext) Array_elems() IArray_elemsContext {
 	var t = s.GetTypedRuleContext(reflect.TypeOf((*IArray_elemsContext)(nil)).Elem(), 0)
 
@@ -8400,6 +8367,10 @@ func (s *Array_forContext) Array_elems() IArray_elemsContext {
 	}
 
 	return t.(IArray_elemsContext)
+}
+
+func (s *Array_forContext) END() antlr.TerminalNode {
+	return s.GetToken(NitroParserEND, 0)
 }
 
 func (s *Array_forContext) GetRuleContext() antlr.RuleContext {
@@ -8425,7 +8396,6 @@ func (s *Array_forContext) ExitRule(listener antlr.ParseTreeListener) {
 func (p *NitroParser) Array_for() (localctx IArray_forContext) {
 	localctx = NewArray_forContext(p, p.GetParserRuleContext(), p.GetState())
 	p.EnterRule(localctx, 94, NitroParserRULE_array_for)
-	var _la int
 
 	defer func() {
 		p.ExitRule()
@@ -8445,38 +8415,31 @@ func (p *NitroParser) Array_for() (localctx IArray_forContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(522)
+		p.SetState(518)
 		p.Match(NitroParserFOR)
 	}
 	{
-		p.SetState(523)
+		p.SetState(519)
 		p.For_vars()
 	}
 	{
-		p.SetState(524)
+		p.SetState(520)
 		p.Match(NitroParserIN)
 	}
 	{
-		p.SetState(525)
+		p.SetState(521)
 		p.Expr()
 	}
 	{
-		p.SetState(526)
+		p.SetState(522)
 		p.Match(NitroParserSEMICOLON)
 	}
-	p.SetState(528)
-	p.GetErrorHandler().Sync(p)
-	_la = p.GetTokenStream().LA(1)
-
-	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserFOR)|(1<<NitroParserIF)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(NitroParserOPAREN-32))|(1<<(NitroParserOBRACKET-32))|(1<<(NitroParserOCURLY-32))|(1<<(NitroParserLAMBDA-32))|(1<<(NitroParserPIPE-32))|(1<<(NitroParserNUMBER-32))|(1<<(NitroParserID-32))|(1<<(NitroParserSTRING-32)))) != 0) {
-		{
-			p.SetState(527)
-			p.Array_elems()
-		}
-
+	{
+		p.SetState(523)
+		p.Array_elems()
 	}
 	{
-		p.SetState(530)
+		p.SetState(524)
 		p.Match(NitroParserEND)
 	}
 
@@ -8639,7 +8602,7 @@ func (p *NitroParser) Id_or_keyword() (localctx IId_or_keywordContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(532)
+		p.SetState(526)
 
 		var _lt = p.GetTokenStream().LT(1)
 

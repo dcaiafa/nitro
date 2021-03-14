@@ -668,7 +668,7 @@ func (l *listener) ExitObject_for(ctx *parser.Object_forContext) {
 // array_literal: '[' array_elems? ']';
 func (l *listener) ExitArray_literal(ctx *parser.Array_literalContext) {
 	l.put(ctx, &ast.ArrayLiteral{
-		Elements: l.takeASTs(ctx.Array_elems()),
+		Block: l.takeAST(ctx.Array_elems()).(*ast.ArrayElementBlock),
 	})
 }
 
@@ -679,7 +679,10 @@ func (l *listener) ExitArray_elems(ctx *parser.Array_elemsContext) {
 	for i, entry := range all {
 		elems[i] = l.takeAST(entry)
 	}
-	l.put(ctx, elems)
+	block := &ast.ArrayElementBlock{
+		Elements: elems,
+	}
+	l.put(ctx, block)
 }
 
 // array_elem: expr | array_if | array_for;
@@ -700,7 +703,7 @@ func (l *listener) ExitArray_elem(ctx *parser.Array_elemContext) {
 func (l *listener) ExitArray_if(ctx *parser.Array_ifContext) {
 	ifBlock := &ast.IfBlock{
 		Pred:  l.takeExpr(ctx.Expr()),
-		Block: l.takeASTs(ctx.Array_elems()),
+		Block: l.takeAST(ctx.Array_elems()),
 	}
 
 	allElifs := ctx.AllArray_elif()
@@ -721,14 +724,14 @@ func (l *listener) ExitArray_if(ctx *parser.Array_ifContext) {
 func (l *listener) ExitArray_elif(ctx *parser.Array_elifContext) {
 	l.put(ctx, &ast.IfBlock{
 		Pred:  l.takeExpr(ctx.Expr()),
-		Block: l.takeASTs(ctx.Array_elems()),
+		Block: l.takeAST(ctx.Array_elems()),
 	})
 }
 
 // array_else: ELSE array_elems?;
 func (l *listener) ExitArray_else(ctx *parser.Array_elseContext) {
 	l.put(ctx, &ast.IfBlock{
-		Block: l.takeASTs(ctx.Array_elems()),
+		Block: l.takeAST(ctx.Array_elems()),
 	})
 }
 

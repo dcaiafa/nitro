@@ -3,7 +3,7 @@ package tests
 import "testing"
 
 func TestForStmt(t *testing.T) {
-	RunSubO(t, "for", `
+	RunSubO(t, "for_iter", `
 		var i = 0
 		fn iter(n)
 			return fn()

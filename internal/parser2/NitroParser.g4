@@ -119,15 +119,15 @@ object_else: ELSE object_fields;
 
 object_for: FOR for_vars IN expr ';' object_fields END;
 
-array_literal: '[' array_elems? ']';
-array_elems: array_elem ((','|';') array_elem)* (','|';')*;
+array_literal: '[' array_elems ']';
+array_elems: ( array_elem ((','|';') array_elem)* (','|';')* )?;
 array_elem: expr | array_if | array_for;
 
-array_if: IF expr ';' array_elems? array_elif* array_else? END;
-array_elif: ELSE IF expr ';' array_elems?;
-array_else: ELSE array_elems?;
+array_if: IF expr ';' array_elems array_elif* array_else? END;
+array_elif: ELSE IF expr ';' array_elems;
+array_else: ELSE array_elems;
 
-array_for: FOR for_vars IN expr ';' array_elems? END;
+array_for: FOR for_vars IN expr ';' array_elems END;
 
 id_or_keyword: 
     t=(ID | AND | ELSE | END | FALSE |
