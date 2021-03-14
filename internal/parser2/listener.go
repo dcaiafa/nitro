@@ -740,7 +740,7 @@ func (l *listener) ExitArray_for(ctx *parser.Array_forContext) {
 	l.put(ctx, &ast.ForStmt{
 		ForVars:  l.takeASTs(ctx.For_vars()),
 		IterExpr: l.takeExpr(ctx.Expr()),
-		Block:    l.takeASTs(ctx.Array_elems()),
+		Block:    l.takeAST(ctx.Array_elems()),
 	})
 }
 
