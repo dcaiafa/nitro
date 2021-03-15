@@ -5,8 +5,8 @@ import "testing"
 func TestForStmt(t *testing.T) {
 	RunSubO(t, "for_iter", `
 		var i = 0
-		fn iter(n)
-			return fn()
+		func iter(n)
+			return func()
 				i = i + 1
 				if i > n
 					return 0, false

@@ -95,8 +95,8 @@ before
 else
 after`)
 
-	RunSubO(t, "fn", `
-		fn evenOdd(n)
+	RunSubO(t, "func", `
+		func evenOdd(n)
 			if n % 2 == 0
 				return "even"
 			else

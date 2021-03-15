@@ -8,57 +8,57 @@ import (
 
 func TestFn(t *testing.T) {
 	RunSubO(t, "no_args", `
-		fn func() 
+		func f() 
       print("X")
 		end
-		func()
+		f()
 `, `X`)
 
 	RunSubO(t, "ret1_stmt", `
-		fn func(a, b) 
+		func f(a, b) 
 			return a + b
 		end
-		func(1, 2)
+		f(1, 2)
 		print("done")
 `, `done`)
 
 	RunSubO(t, "ret1_var_decl", `
-		fn func(a, b) 
+		func f(a, b) 
 			return a + b
 		end
-		var x = func(1, 2)
+		var x = f(1, 2)
 		print(x)
 `, `3`)
 
 	RunSubO(t, "ret1_assign", `
-		fn func(a, b) 
+		func f(a, b) 
 			return a + b
 		end
 		var x
-		x = func(1, 2)
+		x = f(1, 2)
 		print(x)
 `, `3`)
 
 	RunSubO(t, "ret1_expr", `
-		fn func(a, b) 
+		func f(a, b) 
 			return a + b
 		end
 		var x
-		x = func(1, 2)
+		x = f(1, 2)
 		print(x)
 `, `3`)
 
 	RunSubO(t, "local_vars", `
-		fn func(a, b) 
+		func f(a, b) 
 			var x = a + b
 			return x + 1
 		end
-		print(func(1, 2))
+		print(f(1, 2))
 `, `4`)
 
 	RunSubO(t, "sub_func", `
-		fn X(a, b) 
-			fn Y(x, y)
+		func X(a, b) 
+			func Y(x, y)
       	return x + y
 			end
 			return Y(a+1, b+1)
@@ -67,9 +67,9 @@ func TestFn(t *testing.T) {
 `, `5`)
 
 	RunSubO(t, "sub_func_cap", `
-		fn x() 
+		func x() 
 			var a = 0
-			fn y() 
+			func y() 
       	a = a + 1
 				return a
 			end
@@ -81,10 +81,10 @@ func TestFn(t *testing.T) {
 `, `1 1 2 2`)
 
 	RunSubO(t, "sub_func_multi", `
-		fn x() 
+		func x() 
 			var a = 0
-			var f = fn() 
-				return fn()
+			var f = func() 
+				return func()
         	a = a + 1
 					return a
 				end
@@ -102,7 +102,7 @@ func TestFn(t *testing.T) {
 	`, `3`)
 
 	RunSubO(t, "lambda_as_arg", `
-		fn apply(f, v)
+		func apply(f, v)
 			return f(v)
 		end
 		print(apply(&x->x+1, 10))
@@ -110,7 +110,7 @@ func TestFn(t *testing.T) {
 
 	RunSubO(t, "lambda_with_capture", `
 		var n = 3
-		fn apply(f, v)
+		func apply(f, v)
 			return f(v)
 		end
 		print(apply(&x->x+n, 10))
@@ -126,7 +126,7 @@ func TestFn(t *testing.T) {
 	`, `{name: "bob"}`)
 
 	RunSubO(t, "recursive", `
-		fn fib(n)
+		func fib(n)
     	if n <= 1 
 				return 1
 			else

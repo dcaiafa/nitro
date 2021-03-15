@@ -14,14 +14,14 @@ func TestArrayLiteral(t *testing.T) {
 	`, `[]`)
 
 	RunSubO(t, "literal_with_exprs", `
-		fn f(x)
+		func f(x)
 			return [x, x+1, x+2]
 		end
 		print(f(10))
 	`, `[10 11 12]`)
 
 	RunSubO(t, "if", `
-		fn f(even) 
+		func f(even) 
 			return [
 			if even
 				2
@@ -45,7 +45,7 @@ func TestArrayLiteral(t *testing.T) {
 `)
 
 	RunSubO(t, "if_else", `
-		fn f(x)
+		func f(x)
 			return [
 				if x == "odd"
 					1, 3, 5

@@ -254,14 +254,14 @@ var parserATN = []uint16{
 	400, 414, 420, 423, 440, 449, 453, 483, 489, 492, 497, 506, 510,
 }
 var literalNames = []string{
-	"", "'and'", "'else'", "'end'", "'false'", "'fn'", "'for'", "'if'", "'in'",
+	"", "'and'", "'else'", "'end'", "'false'", "'func'", "'for'", "'if'", "'in'",
 	"'meta'", "'not'", "'or'", "'return'", "'true'", "'var'", "'while'", "'='",
 	"'=='", "'!='", "'<'", "'<='", "'>'", "'>='", "'+'", "'-'", "'*'", "'/'",
 	"'%'", "';'", "','", "':'", "'.'", "'('", "')'", "'['", "']'", "'{'", "'}'",
 	"'->'", "'&'", "'|'", "'...'",
 }
 var symbolicNames = []string{
-	"", "AND", "ELSE", "END", "FALSE", "FN", "FOR", "IF", "IN", "META", "NOT",
+	"", "AND", "ELSE", "END", "FALSE", "FUNC", "FOR", "IF", "IN", "META", "NOT",
 	"OR", "RETURN", "TRUE", "VAR", "WHILE", "ASSIGN", "EQ", "NE", "LT", "LE",
 	"GT", "GE", "ADD", "SUB", "MUL", "DIV", "MOD", "SEMICOLON", "COMMA", "COLON",
 	"PERIOD", "OPAREN", "CPAREN", "OBRACKET", "CBRACKET", "OCURLY", "CCURLY",
@@ -317,7 +317,7 @@ const (
 	NitroParserELSE      = 2
 	NitroParserEND       = 3
 	NitroParserFALSE     = 4
-	NitroParserFN        = 5
+	NitroParserFUNC      = 5
 	NitroParserFOR       = 6
 	NitroParserIF        = 7
 	NitroParserIN        = 8
@@ -1524,7 +1524,7 @@ func (p *NitroParser) Stmts() (localctx IStmtsContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	for (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserFOR)|(1<<NitroParserIF)|(1<<NitroParserNOT)|(1<<NitroParserRETURN)|(1<<NitroParserTRUE)|(1<<NitroParserVAR)|(1<<NitroParserWHILE)|(1<<NitroParserADD)|(1<<NitroParserSUB)|(1<<NitroParserSEMICOLON))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(NitroParserOPAREN-32))|(1<<(NitroParserOBRACKET-32))|(1<<(NitroParserOCURLY-32))|(1<<(NitroParserLAMBDA-32))|(1<<(NitroParserPIPE-32))|(1<<(NitroParserNUMBER-32))|(1<<(NitroParserID-32))|(1<<(NitroParserSTRING-32)))) != 0) {
+	for (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFUNC)|(1<<NitroParserFOR)|(1<<NitroParserIF)|(1<<NitroParserNOT)|(1<<NitroParserRETURN)|(1<<NitroParserTRUE)|(1<<NitroParserVAR)|(1<<NitroParserWHILE)|(1<<NitroParserADD)|(1<<NitroParserSUB)|(1<<NitroParserSEMICOLON))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(NitroParserOPAREN-32))|(1<<(NitroParserOBRACKET-32))|(1<<(NitroParserOCURLY-32))|(1<<(NitroParserLAMBDA-32))|(1<<(NitroParserPIPE-32))|(1<<(NitroParserNUMBER-32))|(1<<(NitroParserID-32))|(1<<(NitroParserSTRING-32)))) != 0) {
 		{
 			p.SetState(143)
 			p.Stmt()
@@ -3343,8 +3343,8 @@ func NewFunc_stmtContext(parser antlr.Parser, parent antlr.ParserRuleContext, in
 
 func (s *Func_stmtContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *Func_stmtContext) FN() antlr.TerminalNode {
-	return s.GetToken(NitroParserFN, 0)
+func (s *Func_stmtContext) FUNC() antlr.TerminalNode {
+	return s.GetToken(NitroParserFUNC, 0)
 }
 
 func (s *Func_stmtContext) ID() antlr.TerminalNode {
@@ -3427,7 +3427,7 @@ func (p *NitroParser) Func_stmt() (localctx IFunc_stmtContext) {
 	p.EnterOuterAlt(localctx, 1)
 	{
 		p.SetState(256)
-		p.Match(NitroParserFN)
+		p.Match(NitroParserFUNC)
 	}
 	{
 		p.SetState(257)
@@ -3688,7 +3688,7 @@ func (p *NitroParser) Return_stmt() (localctx IReturn_stmtContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(NitroParserOPAREN-32))|(1<<(NitroParserOBRACKET-32))|(1<<(NitroParserOCURLY-32))|(1<<(NitroParserLAMBDA-32))|(1<<(NitroParserPIPE-32))|(1<<(NitroParserNUMBER-32))|(1<<(NitroParserID-32))|(1<<(NitroParserSTRING-32)))) != 0) {
+	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFUNC)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(NitroParserOPAREN-32))|(1<<(NitroParserOBRACKET-32))|(1<<(NitroParserOCURLY-32))|(1<<(NitroParserLAMBDA-32))|(1<<(NitroParserPIPE-32))|(1<<(NitroParserNUMBER-32))|(1<<(NitroParserID-32))|(1<<(NitroParserSTRING-32)))) != 0) {
 		{
 			p.SetState(275)
 			p.Rvalues()
@@ -4036,7 +4036,7 @@ func (p *NitroParser) Pipeline_expr() (localctx IPipeline_exprContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(NitroParserOPAREN-32))|(1<<(NitroParserOBRACKET-32))|(1<<(NitroParserOCURLY-32))|(1<<(NitroParserNUMBER-32))|(1<<(NitroParserID-32))|(1<<(NitroParserSTRING-32)))) != 0) {
+	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFUNC)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(NitroParserOPAREN-32))|(1<<(NitroParserOBRACKET-32))|(1<<(NitroParserOCURLY-32))|(1<<(NitroParserNUMBER-32))|(1<<(NitroParserID-32))|(1<<(NitroParserSTRING-32)))) != 0) {
 		{
 			p.SetState(283)
 			p.binary_expr(0)
@@ -4582,7 +4582,7 @@ func (p *NitroParser) Unary_expr() (localctx IUnary_exprContext) {
 			p.Unary_expr()
 		}
 
-	case NitroParserFALSE, NitroParserFN, NitroParserTRUE, NitroParserOPAREN, NitroParserOBRACKET, NitroParserOCURLY, NitroParserNUMBER, NitroParserID, NitroParserSTRING:
+	case NitroParserFALSE, NitroParserFUNC, NitroParserTRUE, NitroParserOPAREN, NitroParserOBRACKET, NitroParserOCURLY, NitroParserNUMBER, NitroParserID, NitroParserSTRING:
 		p.EnterOuterAlt(localctx, 4)
 		{
 			p.SetState(321)
@@ -5184,7 +5184,7 @@ func (p *NitroParser) primary_expr(_p int) (localctx IPrimary_exprContext) {
 			p.Match(NitroParserID)
 		}
 
-	case NitroParserFN:
+	case NitroParserFUNC:
 		localctx = NewPrimary_expr_lambdaContext(p, localctx)
 		p.SetParserRuleContext(localctx)
 		_prevctx = localctx
@@ -5308,7 +5308,7 @@ func (p *NitroParser) primary_expr(_p int) (localctx IPrimary_exprContext) {
 				p.GetErrorHandler().Sync(p)
 				_la = p.GetTokenStream().LA(1)
 
-				if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(NitroParserOPAREN-32))|(1<<(NitroParserOBRACKET-32))|(1<<(NitroParserOCURLY-32))|(1<<(NitroParserLAMBDA-32))|(1<<(NitroParserPIPE-32))|(1<<(NitroParserNUMBER-32))|(1<<(NitroParserID-32))|(1<<(NitroParserSTRING-32)))) != 0) {
+				if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFUNC)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(NitroParserOPAREN-32))|(1<<(NitroParserOBRACKET-32))|(1<<(NitroParserOCURLY-32))|(1<<(NitroParserLAMBDA-32))|(1<<(NitroParserPIPE-32))|(1<<(NitroParserNUMBER-32))|(1<<(NitroParserID-32))|(1<<(NitroParserSTRING-32)))) != 0) {
 					{
 						p.SetState(346)
 
@@ -5326,7 +5326,7 @@ func (p *NitroParser) primary_expr(_p int) (localctx IPrimary_exprContext) {
 				p.GetErrorHandler().Sync(p)
 				_la = p.GetTokenStream().LA(1)
 
-				if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(NitroParserOPAREN-32))|(1<<(NitroParserOBRACKET-32))|(1<<(NitroParserOCURLY-32))|(1<<(NitroParserLAMBDA-32))|(1<<(NitroParserPIPE-32))|(1<<(NitroParserNUMBER-32))|(1<<(NitroParserID-32))|(1<<(NitroParserSTRING-32)))) != 0) {
+				if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFUNC)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(NitroParserOPAREN-32))|(1<<(NitroParserOBRACKET-32))|(1<<(NitroParserOCURLY-32))|(1<<(NitroParserLAMBDA-32))|(1<<(NitroParserPIPE-32))|(1<<(NitroParserNUMBER-32))|(1<<(NitroParserID-32))|(1<<(NitroParserSTRING-32)))) != 0) {
 					{
 						p.SetState(350)
 
@@ -5357,7 +5357,7 @@ func (p *NitroParser) primary_expr(_p int) (localctx IPrimary_exprContext) {
 				p.GetErrorHandler().Sync(p)
 				_la = p.GetTokenStream().LA(1)
 
-				if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(NitroParserOPAREN-32))|(1<<(NitroParserOBRACKET-32))|(1<<(NitroParserOCURLY-32))|(1<<(NitroParserLAMBDA-32))|(1<<(NitroParserPIPE-32))|(1<<(NitroParserNUMBER-32))|(1<<(NitroParserID-32))|(1<<(NitroParserSTRING-32)))) != 0) {
+				if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFUNC)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(NitroParserOPAREN-32))|(1<<(NitroParserOBRACKET-32))|(1<<(NitroParserOCURLY-32))|(1<<(NitroParserLAMBDA-32))|(1<<(NitroParserPIPE-32))|(1<<(NitroParserNUMBER-32))|(1<<(NitroParserID-32))|(1<<(NitroParserSTRING-32)))) != 0) {
 					{
 						p.SetState(356)
 						p.Arg_list()
@@ -5946,8 +5946,8 @@ func NewLambda_exprContext(parser antlr.Parser, parent antlr.ParserRuleContext, 
 
 func (s *Lambda_exprContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *Lambda_exprContext) FN() antlr.TerminalNode {
-	return s.GetToken(NitroParserFN, 0)
+func (s *Lambda_exprContext) FUNC() antlr.TerminalNode {
+	return s.GetToken(NitroParserFUNC, 0)
 }
 
 func (s *Lambda_exprContext) OPAREN() antlr.TerminalNode {
@@ -6026,7 +6026,7 @@ func (p *NitroParser) Lambda_expr() (localctx ILambda_exprContext) {
 	p.EnterOuterAlt(localctx, 1)
 	{
 		p.SetState(387)
-		p.Match(NitroParserFN)
+		p.Match(NitroParserFUNC)
 	}
 	{
 		p.SetState(388)
@@ -7712,7 +7712,7 @@ func (p *NitroParser) Array_elems() (localctx IArray_elemsContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserFOR)|(1<<NitroParserIF)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(NitroParserOPAREN-32))|(1<<(NitroParserOBRACKET-32))|(1<<(NitroParserOCURLY-32))|(1<<(NitroParserLAMBDA-32))|(1<<(NitroParserPIPE-32))|(1<<(NitroParserNUMBER-32))|(1<<(NitroParserID-32))|(1<<(NitroParserSTRING-32)))) != 0) {
+	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFUNC)|(1<<NitroParserFOR)|(1<<NitroParserIF)|(1<<NitroParserNOT)|(1<<NitroParserTRUE)|(1<<NitroParserADD)|(1<<NitroParserSUB))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(NitroParserOPAREN-32))|(1<<(NitroParserOBRACKET-32))|(1<<(NitroParserOCURLY-32))|(1<<(NitroParserLAMBDA-32))|(1<<(NitroParserPIPE-32))|(1<<(NitroParserNUMBER-32))|(1<<(NitroParserID-32))|(1<<(NitroParserSTRING-32)))) != 0) {
 		{
 			p.SetState(476)
 			p.Array_elem()
@@ -7883,7 +7883,7 @@ func (p *NitroParser) Array_elem() (localctx IArray_elemContext) {
 	p.GetErrorHandler().Sync(p)
 
 	switch p.GetTokenStream().LA(1) {
-	case NitroParserFALSE, NitroParserFN, NitroParserNOT, NitroParserTRUE, NitroParserADD, NitroParserSUB, NitroParserOPAREN, NitroParserOBRACKET, NitroParserOCURLY, NitroParserLAMBDA, NitroParserPIPE, NitroParserNUMBER, NitroParserID, NitroParserSTRING:
+	case NitroParserFALSE, NitroParserFUNC, NitroParserNOT, NitroParserTRUE, NitroParserADD, NitroParserSUB, NitroParserOPAREN, NitroParserOBRACKET, NitroParserOCURLY, NitroParserLAMBDA, NitroParserPIPE, NitroParserNUMBER, NitroParserID, NitroParserSTRING:
 		p.EnterOuterAlt(localctx, 1)
 		{
 			p.SetState(492)
@@ -8575,8 +8575,8 @@ func (s *Id_or_keywordContext) FALSE() antlr.TerminalNode {
 	return s.GetToken(NitroParserFALSE, 0)
 }
 
-func (s *Id_or_keywordContext) FN() antlr.TerminalNode {
-	return s.GetToken(NitroParserFN, 0)
+func (s *Id_or_keywordContext) FUNC() antlr.TerminalNode {
+	return s.GetToken(NitroParserFUNC, 0)
 }
 
 func (s *Id_or_keywordContext) FOR() antlr.TerminalNode {
@@ -8670,7 +8670,7 @@ func (p *NitroParser) Id_or_keyword() (localctx IId_or_keywordContext) {
 
 		_la = p.GetTokenStream().LA(1)
 
-		if !((((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserAND)|(1<<NitroParserELSE)|(1<<NitroParserEND)|(1<<NitroParserFALSE)|(1<<NitroParserFN)|(1<<NitroParserFOR)|(1<<NitroParserIF)|(1<<NitroParserIN)|(1<<NitroParserMETA)|(1<<NitroParserNOT)|(1<<NitroParserOR)|(1<<NitroParserRETURN)|(1<<NitroParserTRUE)|(1<<NitroParserVAR)|(1<<NitroParserWHILE))) != 0) || _la == NitroParserID) {
+		if !((((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserAND)|(1<<NitroParserELSE)|(1<<NitroParserEND)|(1<<NitroParserFALSE)|(1<<NitroParserFUNC)|(1<<NitroParserFOR)|(1<<NitroParserIF)|(1<<NitroParserIN)|(1<<NitroParserMETA)|(1<<NitroParserNOT)|(1<<NitroParserOR)|(1<<NitroParserRETURN)|(1<<NitroParserTRUE)|(1<<NitroParserVAR)|(1<<NitroParserWHILE))) != 0) || _la == NitroParserID) {
 			var _ri = p.GetErrorHandler().RecoverInline(p)
 
 			localctx.(*Id_or_keywordContext).t = _ri

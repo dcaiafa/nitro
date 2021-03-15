@@ -5,7 +5,7 @@ AND: 'and';
 ELSE: 'else';
 END: 'end';
 FALSE: 'false';
-FN: 'fn';
+FUNC: 'func';
 FOR: 'for';
 IF: 'if';
 IN: 'in';

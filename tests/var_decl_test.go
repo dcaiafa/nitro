@@ -14,7 +14,7 @@ func VarDeclTest(t *testing.T) {
 `, `1`)
 	RunSubO(t, "local_no_init", `
 		var a = 1
-		fn f()
+		func f()
 			var a
 			a = 2
 			return a
@@ -23,7 +23,7 @@ func VarDeclTest(t *testing.T) {
 `, `2 1`)
 	RunSubO(t, "local_with_init", `
 		var a = 1
-		fn f()
+		func f()
 			var a = 2
 			return a
 		end
@@ -31,7 +31,7 @@ func VarDeclTest(t *testing.T) {
 `, `2 1`)
 
 	RunSubO(t, "init_multi", `
-		fn foo(x)
+		func foo(x)
 			return x + 1
 		end
   	var a, b, c  = 1, foo(1), 3
@@ -39,7 +39,7 @@ func VarDeclTest(t *testing.T) {
 	`, `1 2 3`)
 
 	RunSubO(t, "init_func_single", `
-		fn foo(x)
+		func foo(x)
 			return x + 1
 		end
   	var a = foo(1)
@@ -47,7 +47,7 @@ func VarDeclTest(t *testing.T) {
 	`, `2`)
 
 	RunSubO(t, "init_func_multi", `
-		fn foo(x)
+		func foo(x)
 			return x, x+1, x+2
 		end
   	var a, b, c = foo(1)
@@ -55,7 +55,7 @@ func VarDeclTest(t *testing.T) {
 	`, `1 2 3`)
 
 	RunSubO(t, "init_func_multi_discard", `
-		fn foo(x)
+		func foo(x)
 			return x, x+1, x+2
 		end
   	var a = foo(1)

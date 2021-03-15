@@ -4,7 +4,7 @@ null
 'else'
 'end'
 'false'
-'fn'
+'func'
 'for'
 'if'
 'in'
@@ -54,7 +54,7 @@ AND
 ELSE
 END
 FALSE
-FN
+FUNC
 FOR
 IF
 IN

@@ -16,7 +16,7 @@ func TestObjectLiteral(t *testing.T) {
 `, `{foo: "bar", other: 123, sub: {x: true, y: false}}`)
 
 	RunSubO(t, "expr_value", `
-		fn f(x) 
+		func f(x) 
 			return {
 				foo: "bar"
 				other: x
@@ -30,7 +30,7 @@ func TestObjectLiteral(t *testing.T) {
 `, `{foo: "bar", other: 12, sub: {x: true, y: false}}`)
 
 	RunSubO(t, "expr_key", `
-		fn f(x) 
+		func f(x) 
 			return {
 				foo: "bar"
 				[ x ]: 123
@@ -44,7 +44,7 @@ func TestObjectLiteral(t *testing.T) {
 `, `{foo: "bar", other: 123, sub: {x: true, y: false}}`)
 
 	RunSubO(t, "if", `
-		fn f(a, b) 
+		func f(a, b) 
 			return {
 				foo: "bar"
 			if a
@@ -74,7 +74,7 @@ func TestObjectLiteral(t *testing.T) {
 			else: 1
 			end: 1
 			false: 1
-			fn: 1
+			func: 1
 			for: 1
 			if: 1
 			in: 1
@@ -87,7 +87,7 @@ func TestObjectLiteral(t *testing.T) {
 			while: 1
 		}
 		print(a)
-	`, `{and: 1, else: 1, end: 1, false: 1, fn: 1, for: 1, if: 1, in: 1, meta: 1, not: 1, or: 1, return: 1, true: 1, var: 1, while: 1}`)
+	`, `{and: 1, else: 1, end: 1, false: 1, func: 1, for: 1, if: 1, in: 1, meta: 1, not: 1, or: 1, return: 1, true: 1, var: 1, while: 1}`)
 }
 
 func TestObjectMemberAccess(t *testing.T) {

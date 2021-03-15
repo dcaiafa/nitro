@@ -51,7 +51,7 @@ if_stmt: IF expr ';' stmts if_elif* if_else? END;
 if_elif: ELSE IF expr ';' stmts;
 if_else: ELSE stmts;
 
-func_stmt: FN ID '(' param_list? ')' stmts END;
+func_stmt: FUNC ID '(' param_list? ')' stmts END;
 param_list: ID (',' ID)*;
 
 return_stmt: RETURN rvalues?;
@@ -100,7 +100,7 @@ lvalue_expr: ID                          # lvalue_expr_simple_ref
            | primary_expr '[' expr ']'   # lvalue_expr_index
            ;
 
-lambda_expr: FN '(' param_list? ')' stmts END;
+lambda_expr: FUNC '(' param_list? ')' stmts END;
 
 short_lambda_expr: '&' param_list? '->' binary_expr;
 
@@ -132,6 +132,6 @@ array_for: FOR for_vars IN expr ';' array_elems END;
 
 id_or_keyword: 
     t=(ID | AND | ELSE | END | FALSE |
-       FN | FOR | IF | IN | META | NOT | OR | RETURN |
+       FUNC | FOR | IF | IN | META | NOT | OR | RETURN |
        TRUE | VAR | WHILE)
     ;

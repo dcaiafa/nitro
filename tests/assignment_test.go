@@ -10,7 +10,7 @@ func TestAssignment(t *testing.T) {
 		`1`)
 
 	RunSubO(t, "multi", `
-		fn f(x) 
+		func f(x) 
 			return x - 2
 		end
 		var a, b, c
@@ -19,7 +19,7 @@ func TestAssignment(t *testing.T) {
 		`1 2 3`)
 
 	RunSubO(t, "func_single", `
-  	fn foo(x) 
+  	func foo(x) 
 			return x + 1
 		end
 		var a
@@ -28,7 +28,7 @@ func TestAssignment(t *testing.T) {
 	`, `2`)
 
 	RunSubO(t, "func_multi", `
-  	fn foo(x) 
+  	func foo(x) 
 			return x, x+1, x+2
 		end
 		var a, b, c
@@ -37,7 +37,7 @@ func TestAssignment(t *testing.T) {
 	`, `1 2 3`)
 
 	RunSubO(t, "func_multi_discard", `
-  	fn foo(x) 
+  	func foo(x) 
 			return x, x+1, x+2
 		end
 		var a, b, c

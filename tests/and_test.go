@@ -9,7 +9,7 @@ func TestAnd(t *testing.T) {
 	RunSubO(t, "true_true", `print(true and 123)`, `123`)
 
 	RunSubO(t, "short_circuit", `
-		fn f(b)
+		func f(b)
 			print("f", b)
 			return b
 		end
@@ -19,7 +19,7 @@ f false
 false`)
 
 	RunSubO(t, "dont_short_circuit", `
-		fn f(b)
+		func f(b)
 			print("f", b)
 			return b
 		end
