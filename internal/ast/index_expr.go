@@ -18,9 +18,9 @@ func (e *IndexExpr) RunPass(ctx *Context, pass Pass) {
 	case Emit:
 		emitter := ctx.Emitter()
 		if _, isLValue := ctx.Parent().(*LValue); isLValue {
-			emitter.Emit(runtime.OpObjectGetRef, 0, 0)
+			emitter.Emit(e.Pos(), runtime.OpObjectGetRef, 0, 0)
 		} else {
-			emitter.Emit(runtime.OpObjectGet, 0, 0)
+			emitter.Emit(e.Pos(), runtime.OpObjectGet, 0, 0)
 		}
 	}
 }

@@ -29,7 +29,7 @@ func (s *ForStmt) RunPass(ctx *Context, pass Pass) {
 	ctx.RunPassChild(s, s.ForVars, pass)
 
 	if pass == Emit {
-		emitSymbolRefPush(ctx.Emitter(), s.iter)
+		emitSymbolRefPush(s.Pos(), ctx.Emitter(), s.iter)
 	}
 
 	ctx.RunPassChild(s, s.IterExpr, pass)
@@ -39,25 +39,25 @@ func (s *ForStmt) RunPass(ctx *Context, pass Pass) {
 		e := ctx.Emitter()
 		begin = e.NewLabel()
 		end = e.NewLabel()
-		e.Emit(runtime.OpMakeIter, 0, 0)
-		e.Emit(runtime.OpStore, 1, 0)
+		e.Emit(s.Pos(), runtime.OpMakeIter, 0, 0)
+		e.Emit(s.Pos(), runtime.OpStore, 1, 0)
 		e.ResolveLabel(begin)
 		for _, v := range s.ForVars {
-			emitSymbolRefPush(e, v.(*ForVar).sym)
+			emitSymbolRefPush(s.Pos(), e, v.(*ForVar).sym)
 		}
-		emitSymbolPush(e, s.iter)
-		e.Emit(runtime.OpCall, 0, byte(len(s.ForVars)+1))
-		e.EmitJump(runtime.OpJumpIfFalse, end)
-		e.Emit(runtime.OpStore, uint16(len(s.ForVars)), 0)
+		emitSymbolPush(s.Pos(), e, s.iter)
+		e.Emit(s.Pos(), runtime.OpCall, 0, byte(len(s.ForVars)+1))
+		e.EmitJump(s.Pos(), runtime.OpJumpIfFalse, end)
+		e.Emit(s.Pos(), runtime.OpStore, uint16(len(s.ForVars)), 0)
 	}
 
 	ctx.RunPassChild(s, s.Block, pass)
 
 	if pass == Emit {
 		e := ctx.Emitter()
-		e.EmitJump(runtime.OpJump, begin)
+		e.EmitJump(s.Pos(), runtime.OpJump, begin)
 		e.ResolveLabel(end)
-		e.Emit(runtime.OpPop, uint16(len(s.ForVars)*2), 0)
+		e.Emit(s.Pos(), runtime.OpPop, uint16(len(s.ForVars)*2), 0)
 	}
 }
 

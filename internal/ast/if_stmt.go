@@ -45,7 +45,7 @@ func (b *IfBlock) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Emit:
 		if b.Pred != nil {
-			ctx.Emitter().EmitJump(runtime.OpJumpIfFalse, b.end)
+			ctx.Emitter().EmitJump(b.Pos(), runtime.OpJumpIfFalse, b.end)
 		}
 	}
 
@@ -54,7 +54,7 @@ func (b *IfBlock) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Emit:
 		ifStmtEnd := ctx.Parent().(*IfStmt).end
-		ctx.Emitter().EmitJump(runtime.OpJump, ifStmtEnd)
+		ctx.Emitter().EmitJump(b.Pos(), runtime.OpJump, ifStmtEnd)
 		ctx.Emitter().ResolveLabel(b.end)
 	}
 }

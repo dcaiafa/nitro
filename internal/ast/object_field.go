@@ -27,7 +27,7 @@ func (b *ObjectFieldBlock) RunPass(ctx *Context, pass Pass) {
 		if obj == nil {
 			panic("not reached")
 		}
-		emitSymbolPush(ctx.Emitter(), obj)
+		emitSymbolPush(b.Pos(), ctx.Emitter(), obj)
 	}
 
 	ctx.Push(b)
@@ -38,7 +38,7 @@ func (b *ObjectFieldBlock) RunPass(ctx *Context, pass Pass) {
 
 	switch pass {
 	case Emit:
-		ctx.Emitter().Emit(runtime.OpPop, 1, 0)
+		ctx.Emitter().Emit(b.Pos(), runtime.OpPop, 1, 0)
 	}
 }
 
@@ -58,7 +58,7 @@ func (s *ObjectField) RunPass(ctx *Context, pass Pass) {
 		if s.NameID != "" {
 			emitter := ctx.Emitter()
 			nameID := emitter.AddString(s.NameID)
-			emitter.Emit(runtime.OpLoadLiteral, uint16(nameID), 0)
+			emitter.Emit(s.Pos(), runtime.OpLoadLiteral, uint16(nameID), 0)
 		}
 	}
 
@@ -66,6 +66,6 @@ func (s *ObjectField) RunPass(ctx *Context, pass Pass) {
 
 	switch pass {
 	case Emit:
-		ctx.Emitter().Emit(runtime.OpObjectPutNoPop, 0, 0)
+		ctx.Emitter().Emit(s.Pos(), runtime.OpObjectPutNoPop, 0, 0)
 	}
 }

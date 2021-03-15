@@ -23,10 +23,15 @@ type (
 	Array    = runtime.Array
 	ExternFn = runtime.ExternFn
 	Program  = runtime.Program
+	Frame    = runtime.Frame
+
+	RuntimeError = runtime.RuntimeError
 
 	ErrLogger = errlogger.ErrLogger
 	Pos       = token.Pos
 )
+
+var ErrCannotCallNil = runtime.ErrCannotCallNil
 
 type FileSystem interface {
 	ReadFile(name string) ([]byte, error)

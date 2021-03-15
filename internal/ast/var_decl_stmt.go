@@ -41,9 +41,9 @@ func (s *VarDeclStmt) RunPass(ctx *Context, pass Pass) {
 			for _, sym := range s.syms {
 				switch sym := sym.(type) {
 				case *symbol.LocalVarSymbol:
-					emitter.Emit(runtime.OpLoadLocalRef, uint16(sym.LocalNdx), 0)
+					emitter.Emit(s.Pos(), runtime.OpLoadLocalRef, uint16(sym.LocalNdx), 0)
 				case *symbol.GlobalVarSymbol:
-					emitter.Emit(runtime.OpLoadGlobalRef, uint16(sym.GlobalNdx), 0)
+					emitter.Emit(s.Pos(), runtime.OpLoadGlobalRef, uint16(sym.GlobalNdx), 0)
 				}
 			}
 		}
@@ -57,7 +57,7 @@ func (s *VarDeclStmt) RunPass(ctx *Context, pass Pass) {
 	case Emit:
 		if s.InitValues != nil {
 			emitter := ctx.Emitter()
-			emitter.Emit(runtime.OpStore, uint16(len(s.syms)), 0)
+			emitter.Emit(s.Pos(), runtime.OpStore, uint16(len(s.syms)), 0)
 		}
 	}
 }

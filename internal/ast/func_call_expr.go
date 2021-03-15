@@ -18,6 +18,6 @@ func (c *FuncCallExpr) RunPass(ctx *Context, pass Pass) {
 	ctx.Pop()
 
 	if pass == Emit {
-		ctx.Emitter().Emit(runtime.OpCall, uint16(len(c.Args)), byte(c.RetN))
+		ctx.Emitter().Emit(c.Pos(), runtime.OpCall, uint16(len(c.Args)), byte(c.RetN))
 	}
 }

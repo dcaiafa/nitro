@@ -2,6 +2,7 @@ package runtime
 
 import (
 	"github.com/dcaiafa/nitro/internal/symbol"
+	"github.com/dcaiafa/nitro/internal/token"
 )
 
 type Label struct {
@@ -27,6 +28,8 @@ type Emitter struct {
 	literals  []Value
 	params    map[string]*Param
 	reqParamN int
+	curFile   string
+	curFileID int
 }
 
 func NewEmitter() *Emitter {
@@ -91,28 +94,48 @@ func (e *Emitter) curFn() *Fn {
 	return e.fnStack[len(e.fnStack)-1]
 }
 
-func (e *Emitter) Emit(op OpCode, operand1 uint16, operand2 byte) {
+func (e *Emitter) Emit(pos token.Pos, op OpCode, operand1 uint16, operand2 byte) {
 	curFn := e.curFn()
 	curFn.instrs = append(curFn.instrs, Instr{
 		Op:       op,
 		Operand2: operand2,
 		Operand1: operand1,
 	})
+
+	if pos.Filename != e.curFile {
+		e.curFile = pos.Filename
+		e.curFileID = e.AddString(pos.Filename)
+	}
+
+	var lastLoc *Location
+	if len(curFn.locations) > 0 {
+		lastLoc = &curFn.locations[len(curFn.locations)-1]
+	}
+
+	if lastLoc == nil ||
+		lastLoc.filename != e.curFileID ||
+		lastLoc.lineNum != pos.Line {
+		curFn.locations = append(curFn.locations, Location{
+			ip:       len(curFn.instrs) - 1,
+			filename: e.curFileID,
+			lineNum:  pos.Line,
+		})
+	}
 }
 
-func (e *Emitter) EmitJump(op OpCode, label *Label) {
+func (e *Emitter) EmitJump(pos token.Pos, op OpCode, label *Label) {
 	if label.addr == -1 {
 		if e.curFn() != label.fn {
 			panic("cannot jump across fns")
 		}
-		e.Emit(op, 0, 0)
+		e.Emit(pos, op, 0, 0)
 		instrs := e.curFn().instrs
 		lastEmittedInstr := len(instrs) - 1
 		label.refs = append(label.refs, lastEmittedInstr)
 	} else {
 		// TODO: Check that fns are no longer than 2^24-1.
 		operand1, operand2 := word24ToOperands(uint32(label.addr))
-		e.Emit(op, operand1, operand2)
+		e.Emit(pos, op, operand1, operand2)
 	}
 }
 

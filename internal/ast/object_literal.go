@@ -28,15 +28,15 @@ func (s *ObjectLiteral) RunPass(ctx *Context, pass Pass) {
 		ctx.Pop()
 
 	case Emit:
-		emitSymbolRefPush(ctx.Emitter(), s.obj)
-		ctx.Emitter().Emit(runtime.OpNewObject, 0, 0)
-		ctx.Emitter().Emit(runtime.OpStore, 1, 0)
+		emitSymbolRefPush(s.Pos(), ctx.Emitter(), s.obj)
+		ctx.Emitter().Emit(s.Pos(), runtime.OpNewObject, 0, 0)
+		ctx.Emitter().Emit(s.Pos(), runtime.OpStore, 1, 0)
 	}
 
 	ctx.RunPassChild(s, s.FieldBlock, pass)
 
 	switch pass {
 	case Emit:
-		emitSymbolPush(ctx.Emitter(), s.obj)
+		emitSymbolPush(s.Pos(), ctx.Emitter(), s.obj)
 	}
 }

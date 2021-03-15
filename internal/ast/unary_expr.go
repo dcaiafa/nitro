@@ -25,11 +25,11 @@ func (e *UnaryExpr) RunPass(ctx *Context, pass Pass) {
 	case Emit:
 		switch e.Op {
 		case UnaryOpNot:
-			ctx.Emitter().Emit(runtime.OpNot, 0, 0)
+			ctx.Emitter().Emit(e.Pos(), runtime.OpNot, 0, 0)
 		case UnaryOpPlus:
 			// nop
 		case UnaryOpMinus:
-			ctx.Emitter().Emit(runtime.OpUnaryMinus, 0, 0)
+			ctx.Emitter().Emit(e.Pos(), runtime.OpUnaryMinus, 0, 0)
 		default:
 			panic("not reached")
 		}

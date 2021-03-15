@@ -28,16 +28,16 @@ func (a *ArrayLiteral) RunPass(ctx *Context, pass Pass) {
 		ctx.Pop()
 
 	case Emit:
-		emitSymbolRefPush(ctx.Emitter(), a.arr)
-		ctx.Emitter().Emit(runtime.OpNewArray, 0, 0)
-		ctx.Emitter().Emit(runtime.OpStore, 1, 0)
+		emitSymbolRefPush(a.Pos(), ctx.Emitter(), a.arr)
+		ctx.Emitter().Emit(a.Pos(), runtime.OpNewArray, 0, 0)
+		ctx.Emitter().Emit(a.Pos(), runtime.OpStore, 1, 0)
 	}
 
 	ctx.RunPassChild(a, a.Block, pass)
 
 	switch pass {
 	case Emit:
-		emitSymbolPush(ctx.Emitter(), a.arr)
+		emitSymbolPush(a.Pos(), ctx.Emitter(), a.arr)
 	}
 }
 
@@ -63,7 +63,7 @@ func (b *ArrayElementBlock) RunPass(ctx *Context, pass Pass) {
 		if obj == nil {
 			panic("not reached")
 		}
-		emitSymbolPush(ctx.Emitter(), obj)
+		emitSymbolPush(b.Pos(), ctx.Emitter(), obj)
 	}
 
 	ctx.Push(b)
@@ -74,6 +74,6 @@ func (b *ArrayElementBlock) RunPass(ctx *Context, pass Pass) {
 
 	switch pass {
 	case Emit:
-		ctx.Emitter().Emit(runtime.OpPop, 1, 0)
+		ctx.Emitter().Emit(b.Pos(), runtime.OpPop, 1, 0)
 	}
 }

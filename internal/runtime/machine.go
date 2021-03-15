@@ -78,6 +78,11 @@ func word24ToOperands(word24 uint32) (operand1 uint16, operand2 byte) {
 	return operand1, operand2
 }
 
+type Frame struct {
+	Filename string
+	Line     int
+}
+
 type Machine struct {
 	callFrameFactory CallFrameFactory
 	callStack        []*CallFrame
@@ -97,7 +102,7 @@ func NewMachine(prog *Program) *Machine {
 func (m *Machine) Run(
 	ctx context.Context,
 	params map[string]Value,
-) error {
+) (err error) {
 	for paramName, paramValue := range params {
 		param := m.program.params[paramName]
 		if param == nil {
@@ -112,9 +117,24 @@ func (m *Machine) Run(
 		return fmt.Errorf("required parameters not set")
 	}
 
-	ip := 0
 	f := m.callFrameFactory.NewCallFrame()
+	f.Fn = &m.program.fns[0]
 	f.Instrs = m.program.fns[0].instrs
+
+	defer func() {
+		if err != nil {
+			rerr, ok := err.(*RuntimeError)
+			if !ok {
+				rerr = &RuntimeError{
+					Err: err,
+				}
+			}
+			if rerr.Stack == nil {
+				rerr.Stack = m.GetDebugStack(f)
+			}
+			err = rerr
+		}
+	}()
 
 	push := func(v Value) {
 		f.Stack = append(f.Stack, v)
@@ -142,23 +162,23 @@ func (m *Machine) Run(
 	}
 
 	for {
-		instr := f.Instrs[ip]
+		instr := f.Instrs[f.IP]
 		switch instr.Op {
 		case OpNop:
 
 		case OpJump:
-			ip = int(operandsToWord24(instr.Operand1, instr.Operand2)) - 1
+			f.IP = int(operandsToWord24(instr.Operand1, instr.Operand2)) - 1
 
 		case OpJumpIfTrue:
 			v := coerceToBool(pop())
 			if v {
-				ip = int(operandsToWord24(instr.Operand1, instr.Operand2)) - 1
+				f.IP = int(operandsToWord24(instr.Operand1, instr.Operand2)) - 1
 			}
 
 		case OpJumpIfFalse:
 			v := coerceToBool(pop())
 			if !v {
-				ip = int(operandsToWord24(instr.Operand1, instr.Operand2)) - 1
+				f.IP = int(operandsToWord24(instr.Operand1, instr.Operand2)) - 1
 			}
 
 		case OpDup:
@@ -186,30 +206,26 @@ func (m *Machine) Run(
 					}
 					f.Stack = append(f.Stack, rets[:expRetN]...)
 				} else {
-					f.IP = ip
 					m.callStack = append(m.callStack, f)
 
 					f = m.callFrameFactory.NewCallFrame()
+					f.Fn = callable.fn
 					f.Instrs = callable.fn.instrs
 					f.ExpRetN = expRetN
 					f.Args = args
 					f.Captures = callable.caps
-
-					// ip will be 0 after incrementing.
-					ip = -1
+					f.IP = -1 // ip will be 0 after incrementing.
 				}
 
 			case *Fn:
-				f.IP = ip
 				m.callStack = append(m.callStack, f)
 
 				f = m.callFrameFactory.NewCallFrame()
+				f.Fn = callable
 				f.Instrs = callable.instrs
 				f.ExpRetN = expRetN
 				f.Args = args
-
-				// ip will be 0 after incrementing.
-				ip = -1
+				f.IP = -1 // ip will be 0 after incrementing.
 
 			case ExternFn:
 				rets, err := callable(ctx, nil, args)
@@ -222,7 +238,11 @@ func (m *Machine) Run(
 				f.Stack = append(f.Stack, rets[:expRetN]...)
 
 			default:
-				return fmt.Errorf("cannot call type %q", reflect.TypeOf(callable))
+				if callable == nil {
+					return ErrCannotCallNil
+				}
+
+				return fmt.Errorf("cannot call type %q", callable.Type())
 			}
 
 		case OpNewClosure:
@@ -373,18 +393,16 @@ func (m *Machine) Run(
 			array.Append(value)
 
 		case OpRet:
+			if len(m.callStack) == 0 {
+				return nil
+			}
 			if f.ExpRetN > len(f.Stack) {
 				return fmt.Errorf("error")
 			}
 			rets := f.Stack[:f.ExpRetN]
-			if len(m.callStack) == 0 {
-				return nil
-			}
-
 			f = m.callStack[len(m.callStack)-1]
 			m.callStack = m.callStack[:len(m.callStack)-1]
 			f.Stack = append(f.Stack, rets...)
-			ip = f.IP
 
 		case OpStore:
 			count := int(instr.Operand1)
@@ -419,8 +437,47 @@ func (m *Machine) Run(
 			panic("invalid instruction")
 		}
 
-		ip++
+		f.IP++
 	}
+}
+
+func (m *Machine) GetDebugStack(currentFrame *CallFrame) []Frame {
+	stack := make([]Frame, 0, len(m.callStack)+1)
+	stack = append(stack, m.getDebugFrame(currentFrame))
+	for i := len(m.callStack) - 1; i >= 0; i-- {
+		stack = append(stack, m.getDebugFrame(m.callStack[i]))
+	}
+	return stack
+}
+
+func (m *Machine) getDebugFrame(callFrame *CallFrame) Frame {
+	loc := m.getLocation(callFrame.Fn, callFrame.IP)
+	if loc == nil {
+		return Frame{
+			Filename: "???",
+			Line:     0,
+		}
+	}
+	return Frame{
+		Filename: m.program.literals[loc.filename].(String).String(),
+		Line:     loc.lineNum,
+	}
+}
+
+func (m *Machine) getLocation(fn *Fn, ip int) *Location {
+	locs := fn.locations
+	if len(fn.locations) == 0 {
+		return nil
+	}
+	for i := range locs {
+		if locs[i].ip > ip {
+			if i == 0 {
+				return nil
+			}
+			return &locs[i-1]
+		}
+	}
+	return &locs[len(fn.locations)]
 }
 
 func EvalBinOp(op BinOp, operand1, operand2 Value) (Value, error) {

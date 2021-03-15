@@ -31,6 +31,6 @@ func (r *SimpleRef) RunPass(ctx *Context, pass Pass) {
 		if isLValue {
 			emit = emitSymbolRefPush
 		}
-		emit(ctx.Emitter(), r.sym)
+		emit(r.Pos(), ctx.Emitter(), r.sym)
 	}
 }

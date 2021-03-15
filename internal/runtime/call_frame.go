@@ -1,7 +1,5 @@
 package runtime
 
-// TODO: reuse callframes, consider pre-allocate Locals, Args, Stack
-
 type CallFrameFactory struct {
 }
 
@@ -11,6 +9,7 @@ func (f *CallFrameFactory) NewCallFrame() *CallFrame {
 
 type CallFrame struct {
 	ExpRetN  int
+	Fn       *Fn
 	Instrs   []Instr
 	Args     []Value
 	Captures []ValueRef

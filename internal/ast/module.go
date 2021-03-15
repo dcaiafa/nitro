@@ -27,7 +27,7 @@ func (m *Module) RunPass(ctx *Context, pass Pass) {
 	case Emit:
 		emitter := ctx.Emitter()
 		emitter.PushFn(m.fn)
-		emitter.Emit(runtime.OpInitCallFrame, 0, 0)
+		emitter.Emit(m.Pos(), runtime.OpInitCallFrame, 0, 0)
 	}
 
 	ctx.RunPassChild(m, m.Block, pass)
@@ -40,7 +40,7 @@ func (m *Module) RunPass(ctx *Context, pass Pass) {
 			synthesizeReturn = !endsWithReturn
 		}
 		if synthesizeReturn {
-			ctx.Emitter().Emit(runtime.OpRet, 0, 0)
+			ctx.Emitter().Emit(m.Pos(), runtime.OpRet, 0, 0)
 		}
 
 		ctx.Emitter().PopFn()

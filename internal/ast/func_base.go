@@ -29,7 +29,7 @@ func (f *Func) RunPass(ctx *Context, pass Pass) {
 	case Emit:
 		emitter := ctx.Emitter()
 		emitter.PushFn(f.FnNdx)
-		emitter.Emit(runtime.OpInitCallFrame, uint16(f.localCount), 0)
+		emitter.Emit(f.Pos(), runtime.OpInitCallFrame, uint16(f.localCount), 0)
 	}
 
 	ctx.Push(f)
@@ -46,16 +46,16 @@ func (f *Func) RunPass(ctx *Context, pass Pass) {
 			synthRet = !hasReturnStmt
 		}
 		if synthRet {
-			emitter.Emit(runtime.OpRet, 0, 0)
+			emitter.Emit(f.Pos(), runtime.OpRet, 0, 0)
 		}
 		emitter.PopFn()
 
 		if f.IsClosure {
 			// TODO: check if number of captures > 255 (can't fit in Operand2)
 			for _, capture := range f.captures {
-				emitSymbolRefPush(emitter, capture.Captured)
+				emitSymbolRefPush(f.Pos(), emitter, capture.Captured)
 			}
-			emitter.Emit(runtime.OpNewClosure, uint16(f.FnNdx), byte(len(f.captures)))
+			emitter.Emit(f.Pos(), runtime.OpNewClosure, uint16(f.FnNdx), byte(len(f.captures)))
 		}
 	}
 }

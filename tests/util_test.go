@@ -2,6 +2,7 @@ package tests
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -39,7 +40,7 @@ func valuesToInterface(values []nitro.Value) []interface{} {
 
 func run(prog string, params map[string]nitro.Value) (output string, err error) {
 	fs := make(MemoryFileSystem)
-	fs["main"] = prog
+	fs["main.ni"] = prog
 
 	outBuilder := &strings.Builder{}
 
@@ -63,7 +64,7 @@ func run(prog string, params map[string]nitro.Value) (output string, err error) 
 			return nil, nil
 		})
 
-	compiled, err := compiler.Compile("main")
+	compiled, err := compiler.Compile("main.ni")
 	if err != nil {
 		return "", err
 	}
@@ -96,5 +97,25 @@ func RunSubO(t *testing.T, name string, prog string, expectedOutput string) {
 	t.Run(name, func(t *testing.T) {
 		t.Helper()
 		RunO(t, prog, expectedOutput)
+	})
+}
+
+func RunErr(t *testing.T, prog string, expectedErr error) {
+	t.Helper()
+
+	_, err := run(prog, nil)
+	if err == nil {
+		t.Fatalf("Error expected but operation succeeded")
+	}
+
+	if !errors.Is(err, expectedErr) {
+		t.Fatalf("Expected error %v, but received %v", expectedErr, err)
+	}
+}
+
+func RunSubErr(t *testing.T, name string, prog string, expectedErr error) {
+	t.Run(name, func(t *testing.T) {
+		t.Helper()
+		RunErr(t, prog, expectedErr)
 	})
 }

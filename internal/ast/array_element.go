@@ -12,6 +12,6 @@ func (e *ArrayElement) RunPass(ctx *Context, pass Pass) {
 
 	switch pass {
 	case Emit:
-		ctx.Emitter().Emit(runtime.OpArrayAppendNoPop, 0, 0)
+		ctx.Emitter().Emit(e.Pos(), runtime.OpArrayAppendNoPop, 0, 0)
 	}
 }

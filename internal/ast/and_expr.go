@@ -22,9 +22,9 @@ func (e *AndExpr) RunPass(ctx *Context, pass Pass) {
 	case Emit:
 		emitter := ctx.Emitter()
 		skipLabel = emitter.NewLabel()
-		emitter.Emit(runtime.OpDup, 0, 0)
-		emitter.EmitJump(runtime.OpJumpIfFalse, skipLabel)
-		emitter.Emit(runtime.OpPop, 1, 0)
+		emitter.Emit(e.Pos(), runtime.OpDup, 0, 0)
+		emitter.EmitJump(e.Pos(), runtime.OpJumpIfFalse, skipLabel)
+		emitter.Emit(e.Pos(), runtime.OpPop, 1, 0)
 	}
 
 	ctx.RunPassChild(e, e.Right, pass)

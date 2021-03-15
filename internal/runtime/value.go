@@ -112,7 +112,8 @@ func (f ExternFn) Type() string   { return "Func" }
 func (f ExternFn) Kind() Kind     { return FuncKind }
 
 type Fn struct {
-	instrs []Instr
+	locations []Location
+	instrs    []Instr
 }
 
 func (f *Fn) Type() string   { return "Func" }

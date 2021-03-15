@@ -1,6 +1,10 @@
 package tests
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/dcaiafa/nitro"
+)
 
 func TestFn(t *testing.T) {
 	RunSubO(t, "no_args", `
@@ -120,4 +124,20 @@ func TestFn(t *testing.T) {
 	RunSubO(t, "lambda_return_object", `
 		print((&n->{name: n})("bob"))
 	`, `{name: "bob"}`)
+
+	RunSubO(t, "recursive", `
+		fn fib(n)
+    	if n <= 1 
+				return 1
+			else
+				return fib(n-2) + fib(n-1)
+			end
+		end
+		print(fib(6))
+	`, `13`)
+
+	RunSubErr(t, "err_call_nil", `
+			var a
+			a(2)
+		`, nitro.ErrCannotCallNil)
 }
