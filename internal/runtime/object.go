@@ -1,6 +1,7 @@
 package runtime
 
 import (
+	"context"
 	"reflect"
 	"strconv"
 	"strings"
@@ -78,6 +79,21 @@ func (o *Object) GetRef(k Value) *Value {
 		o.data[k] = n
 	}
 	return &n.value
+}
+
+func (o *Object) GetFirst() (key Value, val Value) {
+	if len(o.data) == 0 {
+		return nil, nil
+	}
+	return o.list.next.key, o.list.next.value
+}
+
+func (o *Object) GetNext(key Value) (nextKey Value, nextVal Value) {
+	node := o.data[key]
+	if node == nil || node.next == o.list {
+		return nil, nil
+	}
+	return node.next.key, node.next.value
 }
 
 func (o *Object) ForEach(f func(k, v Value) bool) {
@@ -167,4 +183,21 @@ func (of *objectFormatter) format(v Value) {
 
 func (of *objectFormatter) str(s string) {
 	of.w.WriteString(s)
+}
+
+func objectIter(ctx context.Context, caps []ValueRef, args []Value) ([]Value, error) {
+	var (
+		obj = (*caps[0].Ref).(*Object)
+		key = *caps[1].Ref
+	)
+
+	val := obj.Get(key)
+	if val == nil {
+		return []Value{nil, nil, NewBool(false)}, nil
+	}
+
+	nextKey, _ := obj.GetNext(key)
+	*caps[1].Ref = nextKey
+
+	return []Value{key, val, NewBool(true)}, nil
 }

@@ -42,4 +42,29 @@ bar
 begin
 end
 `)
+
+	RunSubO(t, "for_object", `
+		var d = {
+			x: 1
+			y: { z: 2 }
+		}
+		for k, v in d 
+			print(k, v)
+		end
+	`, `
+x 1
+y {z: 2}
+`)
+
+	RunSubO(t, "for_object_empty", `
+		print("begin")
+		for k, v in {}
+			print(k, v)
+		end
+		print("end")
+	`, `
+begin
+end
+`)
+
 }

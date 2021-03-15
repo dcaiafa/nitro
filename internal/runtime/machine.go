@@ -429,6 +429,13 @@ func (m *Machine) Run(
 					arrayIter,
 					[]ValueRef{NewValueRef(&arr), NewValueRef(&next)})
 				push(iter)
+			case ObjectKind:
+				obj := pop()
+				nextKey, _ := obj.(*Object).GetFirst()
+				iter := NewClosure(
+					objectIter,
+					[]ValueRef{NewValueRef(&obj), NewValueRef(&nextKey)})
+				push(iter)
 			default:
 				return fmt.Errorf("Cannot iterate over value of type %q", v.Type())
 			}
