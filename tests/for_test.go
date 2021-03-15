@@ -56,6 +56,19 @@ x 1
 y {z: 2}
 `)
 
+	RunSubO(t, "for_object_key_only", `
+		var d = {
+			x: 1
+			y: { z: 2 }
+		}
+		for k in d 
+			print(k)
+		end
+	`, `
+x
+y
+`)
+
 	RunSubO(t, "for_object_empty", `
 		print("begin")
 		for k, v in {}

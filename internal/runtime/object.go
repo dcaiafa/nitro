@@ -2,6 +2,7 @@ package runtime
 
 import (
 	"context"
+	"log"
 	"reflect"
 	"strconv"
 	"strings"
@@ -185,19 +186,31 @@ func (of *objectFormatter) str(s string) {
 	of.w.WriteString(s)
 }
 
-func objectIter(ctx context.Context, caps []ValueRef, args []Value) ([]Value, error) {
+func objectIter(ctx context.Context, caps []ValueRef, args []Value, expRetN int) ([]Value, error) {
 	var (
 		obj = (*caps[0].Ref).(*Object)
 		key = *caps[1].Ref
 	)
 
+	if expRetN != 2 && expRetN != 3 {
+		log.Fatalf("unexpected return count %v", expRetN)
+	}
+
 	val := obj.Get(key)
 	if val == nil {
-		return []Value{nil, nil, NewBool(false)}, nil
+		if expRetN == 2 {
+			return []Value{nil, NewBool(false)}, nil
+		} else {
+			return []Value{nil, nil, NewBool(false)}, nil
+		}
 	}
 
 	nextKey, _ := obj.GetNext(key)
 	*caps[1].Ref = nextKey
 
-	return []Value{key, val, NewBool(true)}, nil
+	if expRetN == 2 {
+		return []Value{key, NewBool(true)}, nil
+	} else {
+		return []Value{key, val, NewBool(true)}, nil
+	}
 }

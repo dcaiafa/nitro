@@ -7,7 +7,7 @@ import (
 	"github.com/dcaiafa/nitro/internal/runtime"
 )
 
-func Range(ctx context.Context, caps []runtime.ValueRef, args []runtime.Value) ([]runtime.Value, error) {
+func Range(ctx context.Context, caps []runtime.ValueRef, args []runtime.Value, expRetN int) ([]runtime.Value, error) {
 	var err error
 	var start int64 = 0
 	var step int64 = 0
@@ -77,7 +77,7 @@ func Range(ctx context.Context, caps []runtime.ValueRef, args []runtime.Value) (
 	return []runtime.Value{c}, nil
 }
 
-func rangeIter(ctx context.Context, caps []runtime.ValueRef, args []runtime.Value) ([]runtime.Value, error) {
+func rangeIter(ctx context.Context, caps []runtime.ValueRef, args []runtime.Value, expRetN int) ([]runtime.Value, error) {
 	var (
 		cur  = ((*caps[0].Ref).(runtime.Int)).Int64()
 		end  = ((*caps[1].Ref).(runtime.Int)).Int64()

@@ -49,7 +49,7 @@ func run(prog string, params map[string]nitro.Value) (output string, err error) 
 
 	compiler.AddExternalFn(
 		"print",
-		func(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value) ([]nitro.Value, error) {
+		func(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, expRetN int) ([]nitro.Value, error) {
 			iargs := valuesToInterface(args)
 			fmt.Fprintln(outBuilder, iargs...)
 			return nil, nil
@@ -57,7 +57,7 @@ func run(prog string, params map[string]nitro.Value) (output string, err error) 
 
 	compiler.AddExternalFn(
 		"printf",
-		func(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value) ([]nitro.Value, error) {
+		func(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, expRetN int) ([]nitro.Value, error) {
 			msg := args[0].(nitro.String)
 			iargs := valuesToInterface(args[1:])
 			fmt.Fprintf(outBuilder, msg.String()+"\n", iargs...)

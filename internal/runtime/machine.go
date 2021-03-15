@@ -197,7 +197,7 @@ func (m *Machine) Run(
 			switch callable := pop().(type) {
 			case *Closure:
 				if callable.extFn != nil {
-					rets, err := callable.extFn(ctx, callable.caps, args)
+					rets, err := callable.extFn(ctx, callable.caps, args, expRetN)
 					if err != nil {
 						return err
 					}
@@ -207,7 +207,6 @@ func (m *Machine) Run(
 					f.Stack = append(f.Stack, rets[:expRetN]...)
 				} else {
 					m.callStack = append(m.callStack, f)
-
 					f = m.callFrameFactory.NewCallFrame()
 					f.Fn = callable.fn
 					f.Instrs = callable.fn.instrs
@@ -219,7 +218,6 @@ func (m *Machine) Run(
 
 			case *Fn:
 				m.callStack = append(m.callStack, f)
-
 				f = m.callFrameFactory.NewCallFrame()
 				f.Fn = callable
 				f.Instrs = callable.instrs
@@ -228,7 +226,7 @@ func (m *Machine) Run(
 				f.IP = -1 // ip will be 0 after incrementing.
 
 			case ExternFn:
-				rets, err := callable(ctx, nil, args)
+				rets, err := callable(ctx, nil, args, expRetN)
 				if err != nil {
 					return err
 				}

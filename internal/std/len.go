@@ -13,7 +13,7 @@ var (
 	errTooManyArgs   = errors.New("too many arguments")
 )
 
-func Len(ctx context.Context, caps []runtime.ValueRef, args []runtime.Value) ([]runtime.Value, error) {
+func Len(ctx context.Context, caps []runtime.ValueRef, args []runtime.Value, expRetN int) ([]runtime.Value, error) {
 	if len(args) == 0 {
 		return nil, errNotEnoughArgs
 	}

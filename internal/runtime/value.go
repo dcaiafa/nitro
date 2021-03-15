@@ -105,6 +105,7 @@ type ExternFn func(
 	ctx context.Context,
 	caps []ValueRef,
 	args []Value,
+	retN int,
 ) ([]Value, error)
 
 func (f ExternFn) String() string { return "<func>" }

@@ -39,7 +39,7 @@ func (a *Array) String() string {
 	return formatObject(a)
 }
 
-func arrayIter(ctx context.Context, caps []ValueRef, args []Value) ([]Value, error) {
+func arrayIter(ctx context.Context, caps []ValueRef, args []Value, expRetN int) ([]Value, error) {
 	var (
 		arr  = (*caps[0].Ref).(*Array)
 		next = int((*caps[1].Ref).(Int).Int64())
