@@ -60,6 +60,8 @@ const (
 	OpStore
 	OpInitCallFrame
 	OpMakeIter
+	OpStartTry
+	OpEndTry
 )
 
 type Instr struct {

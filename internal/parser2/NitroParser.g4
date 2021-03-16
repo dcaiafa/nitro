@@ -32,6 +32,8 @@ stmt: assignment_stmt ';'
     | func_stmt ';'
     | return_stmt ';'
     | expr ';'
+    | try_catch_stmt ';'
+    | defer_stmt ';'
     | ';'
     ;
 
@@ -55,6 +57,10 @@ func_stmt: FUNC ID '(' param_list? ')' stmts END;
 param_list: ID (',' ID)*;
 
 return_stmt: RETURN rvalues?;
+
+try_catch_stmt: TRY stmts CATCH ID? ';' stmts END;
+
+defer_stmt: DEFER primary_expr;
 
 // Expressions
 
@@ -133,5 +139,5 @@ array_for: FOR for_vars IN expr ';' array_elems END;
 id_or_keyword: 
     t=(ID | AND | ELSE | END | FALSE |
        FUNC | FOR | IF | IN | META | NOT | OR | RETURN |
-       TRUE | VAR | WHILE)
+       TRUE | VAR | WHILE | DEFER | TRY | CATCH)
     ;

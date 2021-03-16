@@ -185,6 +185,8 @@ func (l *listener) ExitStmts(ctx *parser.StmtsContext) {
 //     | func_stmt ';'
 //     | return_stmt ';'
 //     | primary_expr ';'
+//     | try_catch_stmt ';'
+//     | defer_stmt ';'
 //     | ';'
 //     ;
 func (l *listener) ExitStmt(ctx *parser.StmtContext) {
@@ -196,6 +198,8 @@ func (l *listener) ExitStmt(ctx *parser.StmtContext) {
 	} else if s = l.takeAST(ctx.If_stmt()); s != nil {
 	} else if s = l.takeAST(ctx.Func_stmt()); s != nil {
 	} else if s = l.takeAST(ctx.Return_stmt()); s != nil {
+	} else if s = l.takeAST(ctx.Try_catch_stmt()); s != nil {
+	} else if s = l.takeAST(ctx.Defer_stmt()); s != nil {
 	} else if e := l.takeExpr(ctx.Expr()); e != nil {
 		s = &ast.ExprStmt{Expr: e}
 	}
@@ -343,6 +347,22 @@ func (l *listener) ExitReturn_stmt(ctx *parser.Return_stmtContext) {
 	l.put(ctx, &ast.ReturnStmt{
 		Values: l.takeExprs(ctx.Rvalues()),
 	})
+}
+
+func (l *listener) ExitTry_catch_stmt(ctx *parser.Try_catch_stmtContext) {
+	var id *token.Token
+	if ctx.ID() != nil {
+		id = new(token.Token)
+		*id = l.tokenToNitro(ctx.ID().GetSymbol())
+	}
+	l.put(ctx, &ast.TryCatchStmt{
+		TryBlock:   l.takeAST(ctx.Stmts(0)),
+		CatchVar:   id,
+		CatchBlock: l.takeAST(ctx.Stmts(1)),
+	})
+}
+
+func (l *listener) ExitDefer_stmt(ctx *parser.Defer_stmtContext) {
 }
 
 // expr: binary_expr       # expr_binary

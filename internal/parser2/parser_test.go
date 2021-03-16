@@ -11,9 +11,13 @@ func TestHelloWorld(t *testing.T) {
 	prog := `
 lines() | split("\t")
 
-json_lines() | 
-	join(json_lines("nodes.json"), ".metadata.node", ".node_name") |
-	select(&e->e.metadata.labels.team=="t2")
+try
+	json_lines() | 
+		join(json_lines("nodes.json"), ".metadata.node", ".node_name") |
+		select(&e->e.metadata.labels.team=="t2")
+catch e
+	log("shit's on fire yo " + e)
+end
 
 select(
   join(

@@ -80,6 +80,12 @@ type NitroParserListener interface {
 	// EnterReturn_stmt is called when entering the return_stmt production.
 	EnterReturn_stmt(c *Return_stmtContext)
 
+	// EnterTry_catch_stmt is called when entering the try_catch_stmt production.
+	EnterTry_catch_stmt(c *Try_catch_stmtContext)
+
+	// EnterDefer_stmt is called when entering the defer_stmt production.
+	EnterDefer_stmt(c *Defer_stmtContext)
+
 	// EnterExpr_binary is called when entering the expr_binary production.
 	EnterExpr_binary(c *Expr_binaryContext)
 
@@ -277,6 +283,12 @@ type NitroParserListener interface {
 
 	// ExitReturn_stmt is called when exiting the return_stmt production.
 	ExitReturn_stmt(c *Return_stmtContext)
+
+	// ExitTry_catch_stmt is called when exiting the try_catch_stmt production.
+	ExitTry_catch_stmt(c *Try_catch_stmtContext)
+
+	// ExitDefer_stmt is called when exiting the defer_stmt production.
+	ExitDefer_stmt(c *Defer_stmtContext)
 
 	// ExitExpr_binary is called when exiting the expr_binary production.
 	ExitExpr_binary(c *Expr_binaryContext)

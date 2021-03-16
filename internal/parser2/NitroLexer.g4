@@ -16,6 +16,9 @@ RETURN: 'return';
 TRUE: 'true';
 VAR: 'var';
 WHILE: 'while';
+DEFER: 'defer';
+TRY: 'try';
+CATCH: 'catch';
 
 ASSIGN: '=';
 EQ: '==';

@@ -165,6 +165,18 @@ func (s *BaseNitroParserListener) EnterReturn_stmt(ctx *Return_stmtContext) {}
 // ExitReturn_stmt is called when production return_stmt is exited.
 func (s *BaseNitroParserListener) ExitReturn_stmt(ctx *Return_stmtContext) {}
 
+// EnterTry_catch_stmt is called when production try_catch_stmt is entered.
+func (s *BaseNitroParserListener) EnterTry_catch_stmt(ctx *Try_catch_stmtContext) {}
+
+// ExitTry_catch_stmt is called when production try_catch_stmt is exited.
+func (s *BaseNitroParserListener) ExitTry_catch_stmt(ctx *Try_catch_stmtContext) {}
+
+// EnterDefer_stmt is called when production defer_stmt is entered.
+func (s *BaseNitroParserListener) EnterDefer_stmt(ctx *Defer_stmtContext) {}
+
+// ExitDefer_stmt is called when production defer_stmt is exited.
+func (s *BaseNitroParserListener) ExitDefer_stmt(ctx *Defer_stmtContext) {}
+
 // EnterExpr_binary is called when production expr_binary is entered.
 func (s *BaseNitroParserListener) EnterExpr_binary(ctx *Expr_binaryContext) {}
 
