@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"reflect"
 )
 
 type BinOp byte
@@ -91,6 +90,7 @@ type Machine struct {
 	program          *Program
 	globals          []Value
 	reqParamN        int
+	frame            *CallFrame
 }
 
 func NewMachine(prog *Program) *Machine {
@@ -119,9 +119,9 @@ func (m *Machine) Run(
 		return fmt.Errorf("required parameters not set")
 	}
 
-	f := m.callFrameFactory.NewCallFrame()
-	f.Fn = &m.program.fns[0]
-	f.Instrs = m.program.fns[0].instrs
+	m.frame = m.callFrameFactory.NewCallFrame()
+	m.frame.Fn = &m.program.fns[0]
+	m.frame.Instrs = m.program.fns[0].instrs
 
 	defer func() {
 		if err != nil {
@@ -132,71 +132,47 @@ func (m *Machine) Run(
 				}
 			}
 			if rerr.Stack == nil {
-				rerr.Stack = m.GetDebugStack(f)
+				rerr.Stack = m.GetDebugStack()
 			}
 			err = rerr
 		}
 	}()
 
-	push := func(v Value) {
-		f.Stack = append(f.Stack, v)
-	}
-
-	pop := func() Value {
-		l := len(f.Stack)
-		r := f.Stack[l-1]
-		f.Stack = f.Stack[:l-1]
-		return r
-	}
-
-	peek := func(n int) Value {
-		return f.Stack[len(f.Stack)-1-n]
-	}
-
-	popN := func(n int) []Value {
-		r := f.Stack[len(f.Stack)-n:]
-		f.Stack = f.Stack[:len(f.Stack)-n]
-		return r
-	}
-
-	discardN := func(n int) {
-		f.Stack = f.Stack[:len(f.Stack)-n]
-	}
-
 	for {
-		instr := f.Instrs[f.IP]
+		instr := m.frame.Instrs[m.frame.IP]
+
 		switch instr.Op {
 		case OpNop:
 
 		case OpJump:
-			f.IP = int(operandsToWord24(instr.Operand1, instr.Operand2)) - 1
+			m.frame.IP = int(operandsToWord24(instr.Operand1, instr.Operand2)) - 1
 
 		case OpJumpIfTrue:
-			v := coerceToBool(pop())
+			v := coerceToBool(m.pop())
 			if v {
-				f.IP = int(operandsToWord24(instr.Operand1, instr.Operand2)) - 1
+				m.frame.IP = int(operandsToWord24(instr.Operand1, instr.Operand2)) - 1
 			}
 
 		case OpJumpIfFalse:
-			v := coerceToBool(pop())
+			v := coerceToBool(m.pop())
 			if !v {
-				f.IP = int(operandsToWord24(instr.Operand1, instr.Operand2)) - 1
+				m.frame.IP = int(operandsToWord24(instr.Operand1, instr.Operand2)) - 1
 			}
 
 		case OpDup:
-			v := peek(0)
-			push(v)
+			v := m.peek(0)
+			m.push(v)
 
 		case OpPop:
-			discardN(int(instr.Operand1))
+			m.discardN(int(instr.Operand1))
 
 		case OpCall:
 			expRetN := int(instr.Operand2)
 			argN := int(instr.Operand1)
 			args := make([]Value, argN)
-			copy(args, popN(argN))
+			copy(args, m.popN(argN))
 
-			switch callable := pop().(type) {
+			switch callable := m.pop().(type) {
 			case *Closure:
 				if callable.extFn != nil {
 					rets, err := callable.extFn(ctx, callable.caps, args, expRetN)
@@ -206,26 +182,26 @@ func (m *Machine) Run(
 					if len(rets) < expRetN {
 						return fmt.Errorf("expected at least %v returned values", expRetN)
 					}
-					f.Stack = append(f.Stack, rets[:expRetN]...)
+					m.frame.Stack = append(m.frame.Stack, rets[:expRetN]...)
 				} else {
-					m.callStack = append(m.callStack, f)
-					f = m.callFrameFactory.NewCallFrame()
-					f.Fn = callable.fn
-					f.Instrs = callable.fn.instrs
-					f.ExpRetN = expRetN
-					f.Args = args
-					f.Captures = callable.caps
-					f.IP = -1 // ip will be 0 after incrementing.
+					m.callStack = append(m.callStack, m.frame)
+					m.frame = m.callFrameFactory.NewCallFrame()
+					m.frame.Fn = callable.fn
+					m.frame.Instrs = callable.fn.instrs
+					m.frame.ExpRetN = expRetN
+					m.frame.Args = args
+					m.frame.Captures = callable.caps
+					m.frame.IP = -1 // ip will be 0 after incrementing.
 				}
 
 			case *Fn:
-				m.callStack = append(m.callStack, f)
-				f = m.callFrameFactory.NewCallFrame()
-				f.Fn = callable
-				f.Instrs = callable.instrs
-				f.ExpRetN = expRetN
-				f.Args = args
-				f.IP = -1 // ip will be 0 after incrementing.
+				m.callStack = append(m.callStack, m.frame)
+				m.frame = m.callFrameFactory.NewCallFrame()
+				m.frame.Fn = callable
+				m.frame.Instrs = callable.instrs
+				m.frame.ExpRetN = expRetN
+				m.frame.Args = args
+				m.frame.IP = -1 // ip will be 0 after incrementing.
 
 			case ExternFn:
 				rets, err := callable(ctx, nil, args, expRetN)
@@ -235,7 +211,7 @@ func (m *Machine) Run(
 				if len(rets) < expRetN {
 					return fmt.Errorf("expected at least %v returned values", expRetN)
 				}
-				f.Stack = append(f.Stack, rets[:expRetN]...)
+				m.frame.Stack = append(m.frame.Stack, rets[:expRetN]...)
 
 			default:
 				if callable == nil {
@@ -249,98 +225,98 @@ func (m *Machine) Run(
 			capN := int(instr.Operand2)
 			fn := int(instr.Operand1)
 			caps := make([]ValueRef, capN)
-			for i, capture := range popN(capN) {
+			for i, capture := range m.popN(capN) {
 				caps[i] = capture.(ValueRef)
 			}
 			closure := &Closure{
 				fn:   &m.program.fns[fn],
 				caps: caps,
 			}
-			push(closure)
+			m.push(closure)
 
 		case OpNewInt:
-			push(NewInt(int64(instr.Operand1)))
+			m.push(NewInt(int64(instr.Operand1)))
 
 		case OpNewBool:
-			push(NewBool(instr.Operand1 != 0))
+			m.push(NewBool(instr.Operand1 != 0))
 
 		case OpNewObject:
-			push(NewObject())
+			m.push(NewObject())
 
 		case OpNewArray:
-			push(NewArray())
+			m.push(NewArray())
 
 		case OpLoadGlobal:
-			push(m.globals[int(instr.Operand1)])
+			m.push(m.globals[int(instr.Operand1)])
 
 		case OpLoadGlobalRef:
-			push(ValueRef{&m.globals[int(instr.Operand1)]})
+			m.push(ValueRef{&m.globals[int(instr.Operand1)]})
 
 		case OpLoadLocal:
-			push(f.Locals[int(instr.Operand1)])
+			m.push(m.frame.Locals[int(instr.Operand1)])
 
 		case OpLoadLocalRef:
-			push(ValueRef{&f.Locals[int(instr.Operand1)]})
+			m.push(ValueRef{&m.frame.Locals[int(instr.Operand1)]})
 
 		case OpLoadArg:
-			push(f.Args[int(instr.Operand1)])
+			m.push(m.frame.Args[int(instr.Operand1)])
 
 		case OpLoadArgRef:
-			push(ValueRef{&f.Args[int(instr.Operand1)]})
+			m.push(ValueRef{&m.frame.Args[int(instr.Operand1)]})
 
 		case OpLoadCapture:
-			push(*f.Captures[int(instr.Operand1)].Ref)
+			m.push(*m.frame.Captures[int(instr.Operand1)].Ref)
 
 		case OpLoadCaptureRef:
-			push(f.Captures[int(instr.Operand1)])
+			m.push(m.frame.Captures[int(instr.Operand1)])
 
 		case OpLoadFn:
-			push(&m.program.fns[int(instr.Operand1)])
+			m.push(&m.program.fns[int(instr.Operand1)])
 
 		case OpLoadExternFn:
-			push(m.program.extFns[int(instr.Operand1)])
+			m.push(m.program.extFns[int(instr.Operand1)])
 
 		case OpLoadLiteral:
-			push(m.program.literals[int(instr.Operand1)])
+			m.push(m.program.literals[int(instr.Operand1)])
 
 		case OpEvalBinOp:
-			operand2 := pop()
-			operand1 := pop()
+			operand2 := m.pop()
+			operand1 := m.pop()
 			op := BinOp(instr.Operand1)
 			res, err := EvalBinOp(op, operand1, operand2)
 			if err != nil {
 				return err
 			}
-			push(res)
+			m.push(res)
 
 		case OpNot:
-			term := pop()
-			push(NewBool(!coerceToBool(term)))
+			term := m.pop()
+			m.push(NewBool(!coerceToBool(term)))
 
 		case OpUnaryMinus:
-			term := pop()
+			term := m.pop()
 			if term == nil {
 				return errors.New("value is nil")
 			}
 			switch term := term.(type) {
 			case Int:
-				push(NewInt(-term.Int64()))
+				m.push(NewInt(-term.Int64()))
 			case Float:
-				push(NewFloat(-term.Float64()))
+				m.push(NewFloat(-term.Float64()))
 			default:
 			}
 
 		case OpObjectPutNoPop:
-			val := pop()
-			key := pop()
-			obj := peek(0).(*Object)
+			val := m.pop()
+			key := m.pop()
+			obj := m.peek(0).(*Object)
 			obj.Put(key, val)
 
 		case OpObjectGet:
-			member := pop()
-			objRaw := pop()
+			member := m.pop()
+			objRaw := m.pop()
 			if objRaw == nil {
-				push(nil)
+				m.push(nil)
 			} else {
 				var v Value
 				switch obj := objRaw.(type) {
@@ -359,12 +335,12 @@ func (m *Machine) Run(
 						"Cannot index: allowed types are Object and Array, but got %v",
 						objRaw.Type())
 				}
-				push(v)
+				m.push(v)
 			}
 
 		case OpObjectGetRef:
-			member := pop()
-			objRaw := pop()
+			member := m.pop()
+			objRaw := m.pop()
 			if objRaw == nil {
 				return fmt.Errorf("Cannot deref nil value")
 			}
@@ -385,57 +361,57 @@ func (m *Machine) Run(
 					"Cannot index: allowed types are Object and Array, but got %v",
 					objRaw.Type())
 			}
-			push(ValueRef{v})
+			m.push(ValueRef{v})
 
 		case OpArrayAppendNoPop:
-			value := pop()
-			array := peek(0).(*Array)
+			value := m.pop()
+			array := m.peek(0).(*Array)
 			array.Append(value)
 
 		case OpRet:
 			if len(m.callStack) == 0 {
 				return nil
 			}
-			if f.ExpRetN > len(f.Stack) {
+			if m.frame.ExpRetN > len(m.frame.Stack) {
 				return fmt.Errorf("error")
 			}
-			rets := f.Stack[:f.ExpRetN]
-			f = m.callStack[len(m.callStack)-1]
+			rets := m.frame.Stack[:m.frame.ExpRetN]
+			m.frame = m.callStack[len(m.callStack)-1]
 			m.callStack = m.callStack[:len(m.callStack)-1]
-			f.Stack = append(f.Stack, rets...)
+			m.frame.Stack = append(m.frame.Stack, rets...)
 
 		case OpStore:
 			count := int(instr.Operand1)
 			for i := 0; i < count; i++ {
-				rval := peek(count*2 - 1 - i).(ValueRef)
-				val := peek(count - 1 - i)
+				rval := m.peek(count*2 - 1 - i).(ValueRef)
+				val := m.peek(count - 1 - i)
 				*rval.Ref = val
 			}
-			discardN(count * 2)
+			m.discardN(count * 2)
 
 		case OpInitCallFrame:
 			localN := instr.Operand1
-			f.Init(int(localN))
+			m.frame.Init(int(localN))
 
 		case OpMakeIter:
-			v := peek(0)
+			v := m.peek(0)
 			switch v.Kind() {
 			case FuncKind:
 				// Ready to go.
 			case ArrayKind:
-				var arr Value = pop().(*Array)
+				var arr Value = m.pop().(*Array)
 				var next Value = NewInt(0)
 				iter := NewClosure(
 					arrayIter,
 					[]ValueRef{NewValueRef(&arr), NewValueRef(&next)})
-				push(iter)
+				m.push(iter)
 			case ObjectKind:
-				obj := pop()
+				obj := m.pop()
 				nextKey, _ := obj.(*Object).GetFirst()
 				iter := NewClosure(
 					objectIter,
 					[]ValueRef{NewValueRef(&obj), NewValueRef(&nextKey)})
-				push(iter)
+				m.push(iter)
 			default:
 				return fmt.Errorf("Cannot iterate over value of type %q", v.Type())
 			}
@@ -444,13 +420,13 @@ func (m *Machine) Run(
 			panic("invalid instruction")
 		}
 
-		f.IP++
+		m.frame.IP++
 	}
 }
 
-func (m *Machine) GetDebugStack(currentFrame *CallFrame) []Frame {
+func (m *Machine) GetDebugStack() []Frame {
 	stack := make([]Frame, 0, len(m.callStack)+1)
-	stack = append(stack, m.getDebugFrame(currentFrame))
+	stack = append(stack, m.getDebugFrame(m.frame))
 	for i := len(m.callStack) - 1; i >= 0; i-- {
 		stack = append(stack, m.getDebugFrame(m.callStack[i]))
 	}
@@ -487,128 +463,27 @@ func (m *Machine) getLocation(fn *Fn, ip int) *Location {
 	return &locs[len(fn.locations)]
 }
 
-func EvalBinOp(op BinOp, operand1, operand2 Value) (Value, error) {
-	switch operand1 := operand1.(type) {
-	case Int:
-		switch operand2 := operand2.(type) {
-		case Int:
-			return evalBinOpInt(op, operand1.Int64(), operand2.Int64())
-		case Float:
-			return evalBinOpFloat(op, float64(operand1.Int64()), operand2.Float64())
-		}
-	case Float:
-		switch operand2 := operand2.(type) {
-		case Int:
-			return evalBinOpFloat(op, operand1.Float64(), float64(operand2.Int64()))
-		case Float:
-			return evalBinOpFloat(op, operand1.Float64(), operand2.Float64())
-		}
-
-	case String:
-		if operand2, ok := operand2.(String); ok {
-			return evalBinOpString(op, operand1.String(), operand2.String())
-		}
-	}
-
-	return nil, fmt.Errorf(
-		"could not evaluate binary expression: type %v is incompatible with type %v",
-		reflect.TypeOf(operand1), reflect.TypeOf(operand2))
+func (m *Machine) push(v Value) {
+	m.frame.Stack = append(m.frame.Stack, v)
 }
 
-func evalBinOpInt(op BinOp, operand1, operand2 int64) (Value, error) {
-	switch op {
-	case BinAdd:
-		return NewInt(operand1 + operand2), nil
-	case BinSub:
-		return NewInt(operand1 - operand2), nil
-	case BinMult:
-		return NewInt(operand1 * operand2), nil
-	case BinDiv:
-		return NewInt(operand1 / operand2), nil
-	case BinMod:
-		return NewInt(operand1 % operand2), nil
-	case BinLT:
-		return NewBool(operand1 < operand2), nil
-	case BinLE:
-		return NewBool(operand1 <= operand2), nil
-	case BinGT:
-		return NewBool(operand1 > operand2), nil
-	case BinGE:
-		return NewBool(operand1 >= operand2), nil
-	case BinEq:
-		return NewBool(operand1 == operand2), nil
-	case BinNE:
-		return NewBool(operand1 != operand2), nil
-	default:
-		panic("invalid BinOp")
-	}
+func (m *Machine) pop() Value {
+	l := len(m.frame.Stack)
+	r := m.frame.Stack[l-1]
+	m.frame.Stack = m.frame.Stack[:l-1]
+	return r
 }
 
-func evalBinOpFloat(op BinOp, operand1, operand2 float64) (Value, error) {
-	switch op {
-	case BinAdd:
-		return NewFloat(operand1 + operand2), nil
-	case BinSub:
-		return NewFloat(operand1 - operand2), nil
-	case BinMult:
-		return NewFloat(operand1 * operand2), nil
-	case BinDiv:
-		return NewFloat(operand1 / operand2), nil
-	case BinMod:
-		return nil, errors.New("modulo operation not permitted with Float")
-	case BinLT:
-		return NewBool(operand1 < operand2), nil
-	case BinLE:
-		return NewBool(operand1 <= operand2), nil
-	case BinGT:
-		return NewBool(operand1 > operand2), nil
-	case BinGE:
-		return NewBool(operand1 >= operand2), nil
-	case BinEq:
-		return NewBool(operand1 == operand2), nil
-	case BinNE:
-		return NewBool(operand1 != operand2), nil
-	default:
-		panic("invalid BinOp")
-	}
+func (m *Machine) peek(n int) Value {
+	return m.frame.Stack[len(m.frame.Stack)-1-n]
 }
 
-func evalBinOpString(op BinOp, operand1, operand2 string) (Value, error) {
-	switch op {
-	case BinAdd:
-		return NewString(operand1 + operand2), nil
-	case BinLT:
-		return NewBool(operand1 < operand2), nil
-	case BinLE:
-		return NewBool(operand1 <= operand2), nil
-	case BinGT:
-		return NewBool(operand1 > operand2), nil
-	case BinGE:
-		return NewBool(operand1 >= operand2), nil
-	case BinEq:
-		return NewBool(operand1 == operand2), nil
-	case BinNE:
-		return NewBool(operand1 != operand2), nil
-	default:
-		return nil, fmt.Errorf("cannot use this operator with string operands")
-	}
+func (m *Machine) popN(n int) []Value {
+	r := m.frame.Stack[len(m.frame.Stack)-n:]
+	m.frame.Stack = m.frame.Stack[:len(m.frame.Stack)-n]
+	return r
 }
 
-func coerceToBool(v Value) bool {
-	switch v := v.(type) {
-	case Bool:
-		return v.Bool()
-	case Int:
-		return v.Int64() != 0
-	case Float:
-		return v.Float64() != 0
-	case String:
-		return len(v.String()) != 0
-	case *Object:
-		return v.Len() != 0
-	case *Array:
-		return v.Len() != 0
-	default:
-		return v != nil
-	}
+func (m *Machine) discardN(n int) {
+	m.frame.Stack = m.frame.Stack[:len(m.frame.Stack)-n]
 }
