@@ -85,12 +85,11 @@ type Frame struct {
 }
 
 type Machine struct {
-	callFrameFactory CallFrameFactory
-	callStack        []*CallFrame
-	program          *Program
-	globals          []Value
-	reqParamN        int
-	frame            *CallFrame
+	callStack []*callFrame
+	program   *Program
+	globals   []Value
+	reqParamN int
+	frame     *callFrame
 }
 
 func NewMachine(prog *Program) *Machine {
@@ -104,7 +103,7 @@ func NewMachine(prog *Program) *Machine {
 func (m *Machine) Run(
 	ctx context.Context,
 	params map[string]Value,
-) (err error) {
+) error {
 	for paramName, paramValue := range params {
 		param := m.program.params[paramName]
 		if param == nil {
@@ -119,25 +118,25 @@ func (m *Machine) Run(
 		return fmt.Errorf("required parameters not set")
 	}
 
-	m.frame = m.callFrameFactory.NewCallFrame()
+	m.frame = newCallFrame()
 	m.frame.Fn = &m.program.fns[0]
 	m.frame.Instrs = m.program.fns[0].instrs
 
-	defer func() {
-		if err != nil {
-			rerr, ok := err.(*RuntimeError)
-			if !ok {
-				rerr = &RuntimeError{
-					Err: err,
-				}
-			}
-			if rerr.Stack == nil {
-				rerr.Stack = m.GetDebugStack()
-			}
-			err = rerr
+	for {
+		err := m.runUntilErr(ctx)
+		if err == nil {
+			break
 		}
-	}()
+		err = m.recover(err)
+		if err != nil {
+			return err
+		}
+	}
 
+	return nil
+}
+
+func (m *Machine) runUntilErr(ctx context.Context) error {
 	for {
 		instr := m.frame.Instrs[m.frame.IP]
 
@@ -177,7 +176,7 @@ func (m *Machine) Run(
 				if callable.extFn != nil {
 					rets, err := callable.extFn(ctx, callable.caps, args, expRetN)
 					if err != nil {
-						return err
+						break
 					}
 					if len(rets) < expRetN {
 						return fmt.Errorf("expected at least %v returned values", expRetN)
@@ -185,7 +184,7 @@ func (m *Machine) Run(
 					m.frame.Stack = append(m.frame.Stack, rets[:expRetN]...)
 				} else {
 					m.callStack = append(m.callStack, m.frame)
-					m.frame = m.callFrameFactory.NewCallFrame()
+					m.frame = newCallFrame()
 					m.frame.Fn = callable.fn
 					m.frame.Instrs = callable.fn.instrs
 					m.frame.ExpRetN = expRetN
@@ -196,7 +195,7 @@ func (m *Machine) Run(
 
 			case *Fn:
 				m.callStack = append(m.callStack, m.frame)
-				m.frame = m.callFrameFactory.NewCallFrame()
+				m.frame = newCallFrame()
 				m.frame.Fn = callable
 				m.frame.Instrs = callable.instrs
 				m.frame.ExpRetN = expRetN
@@ -217,7 +216,6 @@ func (m *Machine) Run(
 				if callable == nil {
 					return ErrCannotCallNil
 				}
-
 				return fmt.Errorf("cannot call type %q", callable.Type())
 			}
 
@@ -416,6 +414,15 @@ func (m *Machine) Run(
 				return fmt.Errorf("Cannot iterate over value of type %q", v.Type())
 			}
 
+		case OpStartTry:
+			m.frame.TryCatches = append(m.frame.TryCatches, tryCatch{
+				CatchAddr: int(operandsToWord24(instr.Operand1, instr.Operand2)) - 1,
+			})
+
+		case OpEndTry:
+			m.frame.TryCatches = m.frame.TryCatches[:len(m.frame.TryCatches)-1]
+			m.frame.IP = int(operandsToWord24(instr.Operand1, instr.Operand2)) - 1
+
 		default:
 			panic("invalid instruction")
 		}
@@ -433,7 +440,7 @@ func (m *Machine) GetDebugStack() []Frame {
 	return stack
 }
 
-func (m *Machine) getDebugFrame(callFrame *CallFrame) Frame {
+func (m *Machine) getDebugFrame(callFrame *callFrame) Frame {
 	loc := m.getLocation(callFrame.Fn, callFrame.IP)
 	if loc == nil {
 		return Frame{
@@ -486,4 +493,33 @@ func (m *Machine) popN(n int) []Value {
 
 func (m *Machine) discardN(n int) {
 	m.frame.Stack = m.frame.Stack[:len(m.frame.Stack)-n]
+}
+
+func (m *Machine) recover(err error) error {
+	rerr, ok := err.(*RuntimeError)
+	if !ok {
+		rerr = &RuntimeError{
+			Err: err,
+		}
+	}
+	if rerr.Stack == nil {
+		rerr.Stack = m.GetDebugStack()
+	}
+	err = rerr
+
+	for len(m.callStack) > 0 {
+		frame := m.callStack[len(m.callStack)-1]
+		m.callStack = m.callStack[:len(m.callStack)-1]
+
+		if len(frame.TryCatches) > 0 {
+			m.frame = frame
+			tryCatch := frame.TryCatches[len(frame.TryCatches)-1]
+			frame.TryCatches = frame.TryCatches[:len(frame.TryCatches)-1]
+			m.frame.IP = tryCatch.CatchAddr
+			m.frame.Stack = m.frame.Stack[:0]
+			return nil
+		}
+	}
+
+	return err
 }

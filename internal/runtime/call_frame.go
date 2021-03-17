@@ -1,23 +1,25 @@
 package runtime
 
-type CallFrameFactory struct {
+type tryCatch struct {
+	CatchAddr int
 }
 
-func (f *CallFrameFactory) NewCallFrame() *CallFrame {
-	return &CallFrame{}
+type callFrame struct {
+	ExpRetN    int
+	Fn         *Fn
+	Instrs     []Instr
+	Args       []Value
+	Captures   []ValueRef
+	Locals     []Value
+	Stack      []Value
+	TryCatches []tryCatch
+	IP         int
 }
 
-type CallFrame struct {
-	ExpRetN  int
-	Fn       *Fn
-	Instrs   []Instr
-	Args     []Value
-	Captures []ValueRef
-	Locals   []Value
-	Stack    []Value
-	IP       int
+func newCallFrame() *callFrame {
+	return &callFrame{}
 }
 
-func (f *CallFrame) Init(localN int) {
+func (f *callFrame) Init(localN int) {
 	f.Locals = make([]Value, localN)
 }
