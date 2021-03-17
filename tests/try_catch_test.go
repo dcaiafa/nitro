@@ -1,0 +1,87 @@
+package tests
+
+import "testing"
+
+func TestTryCatch(t *testing.T) {
+	RunSubO(t, "same_frame", `
+	print(1)
+	try
+		print(2)
+		("throw")()
+		print(3)
+	catch
+		print(4)
+	end
+  print(5)
+	`, `
+1
+2
+4
+5
+`)
+
+	RunSubO(t, "diff_frame", `
+	func g()
+		print("g1")
+		("throw")()
+		print("g2")
+	end
+	func f() 
+		print("f1")
+		try
+			print("f2")
+			print("from g:" + g())
+			print("f3")
+		catch
+			print("f4")
+		end
+		print("f5")
+	end
+	f()
+	`, `
+f1
+f2
+g1
+f4
+f5
+`)
+
+	RunSubO(t, "cascading", `
+	func g()
+		print("g1")
+		("throw")()
+		print("g2")
+	end
+	func f() 
+		var x = 0
+		print("f1")
+		try
+			print("f2")
+			x = "f4"
+			print("from g:" + g())
+			print("f3")
+		catch
+			print(x)
+			("throw-again")()
+		end
+		print("f5")
+	end
+	func x() 
+		var i = 0
+		try
+			i = 1
+			f()
+			i = 2
+		catch
+			print("x", i)
+		end
+	end
+	x()
+	`, `
+f1
+f2
+g1
+f4
+x 1
+`)
+}

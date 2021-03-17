@@ -24,7 +24,6 @@ func (s *TryCatchStmt) RunPass(ctx *Context, pass Pass) {
 		beginCatch = e.NewLabel()
 		endCatch = e.NewLabel()
 		e.EmitJump(s.Pos(), runtime.OpStartTry, beginCatch)
-		e.ResolveLabel(beginCatch)
 	}
 
 	ctx.RunPassChild(s, s.TryBlock, pass)
@@ -45,6 +44,8 @@ func (s *TryCatchStmt) RunPass(ctx *Context, pass Pass) {
 				return
 			}
 		}
+	case Emit:
+		ctx.Emitter().ResolveLabel(beginCatch)
 	}
 
 	ctx.RunPassChild(s, s.CatchBlock, pass)

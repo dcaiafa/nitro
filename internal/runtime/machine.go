@@ -416,7 +416,7 @@ func (m *Machine) runUntilErr(ctx context.Context) error {
 
 		case OpStartTry:
 			m.frame.TryCatches = append(m.frame.TryCatches, tryCatch{
-				CatchAddr: int(operandsToWord24(instr.Operand1, instr.Operand2)) - 1,
+				CatchAddr: int(operandsToWord24(instr.Operand1, instr.Operand2)),
 			})
 
 		case OpEndTry:
@@ -507,10 +507,8 @@ func (m *Machine) recover(err error) error {
 	}
 	err = rerr
 
-	for len(m.callStack) > 0 {
-		frame := m.callStack[len(m.callStack)-1]
-		m.callStack = m.callStack[:len(m.callStack)-1]
-
+	frame := m.frame
+	for {
 		if len(frame.TryCatches) > 0 {
 			m.frame = frame
 			tryCatch := frame.TryCatches[len(frame.TryCatches)-1]
@@ -519,6 +517,13 @@ func (m *Machine) recover(err error) error {
 			m.frame.Stack = m.frame.Stack[:0]
 			return nil
 		}
+
+		if len(m.callStack) == 0 {
+			break
+		}
+
+		frame = m.callStack[len(m.callStack)-1]
+		m.callStack = m.callStack[:len(m.callStack)-1]
 	}
 
 	return err

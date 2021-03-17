@@ -54,7 +54,8 @@ func (l *augmentedLexer) NextToken() antlr.Token {
 			parser.NitroLexerID,
 			parser.NitroLexerEND,
 			parser.NitroLexerTRUE,
-			parser.NitroLexerFALSE:
+			parser.NitroLexerFALSE,
+			parser.NitroLexerCATCH:
 			l.eolToken = true
 
 		default:
