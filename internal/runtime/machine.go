@@ -79,17 +79,17 @@ func word24ToOperands(word24 uint32) (operand1 uint16, operand2 byte) {
 	return operand1, operand2
 }
 
-type Frame struct {
+type FrameInfo struct {
 	Filename string
 	Line     int
 }
 
 type Machine struct {
-	callStack []*callFrame
+	callStack []*frame
 	program   *Program
 	globals   []Value
 	reqParamN int
-	frame     *callFrame
+	frame     *frame
 }
 
 func NewMachine(prog *Program) *Machine {
@@ -118,7 +118,7 @@ func (m *Machine) Run(
 		return fmt.Errorf("required parameters not set")
 	}
 
-	m.frame = newCallFrame()
+	m.frame = newFrame()
 	m.frame.Fn = &m.program.fns[0]
 	m.frame.Instrs = m.program.fns[0].instrs
 
@@ -184,7 +184,7 @@ func (m *Machine) runUntilErr(ctx context.Context) error {
 					m.frame.Stack = append(m.frame.Stack, rets[:expRetN]...)
 				} else {
 					m.callStack = append(m.callStack, m.frame)
-					m.frame = newCallFrame()
+					m.frame = newFrame()
 					m.frame.Fn = callable.fn
 					m.frame.Instrs = callable.fn.instrs
 					m.frame.ExpRetN = expRetN
@@ -195,7 +195,7 @@ func (m *Machine) runUntilErr(ctx context.Context) error {
 
 			case *Fn:
 				m.callStack = append(m.callStack, m.frame)
-				m.frame = newCallFrame()
+				m.frame = newFrame()
 				m.frame.Fn = callable
 				m.frame.Instrs = callable.instrs
 				m.frame.ExpRetN = expRetN
@@ -403,8 +403,8 @@ func (m *Machine) runUntilErr(ctx context.Context) error {
 	}
 }
 
-func (m *Machine) GetDebugStack() []Frame {
-	stack := make([]Frame, 0, len(m.callStack)+1)
+func (m *Machine) GetDebugStack() []FrameInfo {
+	stack := make([]FrameInfo, 0, len(m.callStack)+1)
 	stack = append(stack, m.getDebugFrame(m.frame))
 	for i := len(m.callStack) - 1; i >= 0; i-- {
 		stack = append(stack, m.getDebugFrame(m.callStack[i]))
@@ -412,15 +412,15 @@ func (m *Machine) GetDebugStack() []Frame {
 	return stack
 }
 
-func (m *Machine) getDebugFrame(callFrame *callFrame) Frame {
-	loc := m.getLocation(callFrame.Fn, callFrame.IP)
+func (m *Machine) getDebugFrame(frame *frame) FrameInfo {
+	loc := m.getLocation(frame.Fn, frame.IP)
 	if loc == nil {
-		return Frame{
+		return FrameInfo{
 			Filename: "???",
 			Line:     0,
 		}
 	}
-	return Frame{
+	return FrameInfo{
 		Filename: m.program.literals[loc.filename].(String).String(),
 		Line:     loc.lineNum,
 	}

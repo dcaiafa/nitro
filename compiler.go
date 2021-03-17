@@ -23,7 +23,7 @@ type (
 	Array    = runtime.Array
 	ExternFn = runtime.ExternFn
 	Program  = runtime.Program
-	Frame    = runtime.Frame
+	Frame    = runtime.FrameInfo
 
 	RuntimeError = runtime.RuntimeError
 

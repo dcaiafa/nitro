@@ -4,7 +4,7 @@ type tryCatch struct {
 	CatchAddr int
 }
 
-type callFrame struct {
+type frame struct {
 	ExpRetN    int
 	Fn         *Fn
 	Instrs     []Instr
@@ -16,10 +16,10 @@ type callFrame struct {
 	IP         int
 }
 
-func newCallFrame() *callFrame {
-	return &callFrame{}
+func newFrame() *frame {
+	return &frame{}
 }
 
-func (f *callFrame) Init(localN int) {
+func (f *frame) Init(localN int) {
 	f.Locals = make([]Value, localN)
 }

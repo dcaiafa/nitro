@@ -8,7 +8,7 @@ import (
 
 type RuntimeError struct {
 	Err   error
-	Stack []Frame
+	Stack []FrameInfo
 }
 
 var _ error = (*RuntimeError)(nil)
