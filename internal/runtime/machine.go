@@ -316,50 +316,33 @@ func (m *Machine) runUntilErr(ctx context.Context) error {
 			if objRaw == nil {
 				m.push(nil)
 			} else {
-				var v Value
-				switch obj := objRaw.(type) {
-				case *Object:
-					v = obj.Get(member)
-				case *Array:
-					index, ok := member.(Int)
-					if !ok {
-						return fmt.Errorf(
-							"Cannot index array: index must be Int, but it is %v",
-							index.Type())
-					}
-					v = obj.Get(int(index.Int64()))
-				default:
-					return fmt.Errorf(
-						"Cannot index: allowed types are Object and Array, but got %v",
-						objRaw.Type())
+				indexable, ok := objRaw.(Indexable)
+				if !ok {
+					return fmt.Errorf("Value type %v is not indexable", objRaw.Type())
 				}
-				m.push(v)
+				item, err := indexable.Index(member)
+				if err != nil {
+					return err
+				}
+				m.push(item)
 			}
 
 		case OpObjectGetRef:
 			member := m.pop()
 			objRaw := m.pop()
 			if objRaw == nil {
-				return fmt.Errorf("Cannot deref nil value")
-			}
-			var v *Value
-			switch obj := objRaw.(type) {
-			case *Object:
-				v = obj.GetRef(member)
-			case *Array:
-				index, ok := member.(Int)
+				m.push(nil)
+			} else {
+				indexable, ok := objRaw.(Indexable)
 				if !ok {
-					return fmt.Errorf(
-						"Cannot index array: index must be Int, but it is %v",
-						index.Type())
+					return fmt.Errorf("Value type %v is not indexable", objRaw.Type())
 				}
-				v = obj.GetRef(int(index.Int64()))
-			default:
-				return fmt.Errorf(
-					"Cannot index: allowed types are Object and Array, but got %v",
-					objRaw.Type())
+				itemRef, err := indexable.IndexRef(member)
+				if err != nil {
+					return err
+				}
+				m.push(itemRef)
 			}
-			m.push(ValueRef{v})
 
 		case OpArrayAppendNoPop:
 			value := m.pop()

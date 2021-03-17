@@ -63,22 +63,22 @@ func (o *Object) Put(k, v Value) {
 	n.value = v
 }
 
-func (o *Object) Get(k Value) Value {
+func (o *Object) Index(k Value) (Value, error) {
 	n := o.data[k]
 	if n == nil {
-		return nil
+		return nil, nil
 	}
-	return n.value
+	return n.value, nil
 }
 
-func (o *Object) GetRef(k Value) *Value {
+func (o *Object) IndexRef(k Value) (ValueRef, error) {
 	n := o.data[k]
 	if n == nil {
 		n = &objectNode{key: k}
 		n.InsertAfter(o.list.prev)
 		o.data[k] = n
 	}
-	return &n.value
+	return NewValueRef(&n.value), nil
 }
 
 func (o *Object) GetFirst() (key Value, val Value) {
@@ -203,7 +203,10 @@ func objectIter(ctx context.Context, caps []ValueRef, args []Value, expRetN int)
 		log.Fatalf("unexpected return count %v", expRetN)
 	}
 
-	val := obj.Get(key)
+	val, err := obj.Index(key)
+	if err != nil {
+		return nil, err
+	}
 	if val == nil {
 		if expRetN == 2 {
 			return []Value{nil, NewBool(false)}, nil

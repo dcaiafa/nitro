@@ -17,6 +17,12 @@ type Enumerable interface {
 	Enumerate() *Closure
 }
 
+type Indexable interface {
+	Value
+	Index(key Value) (Value, error)
+	IndexRef(key Value) (ValueRef, error)
+}
+
 type String struct {
 	v string
 }
