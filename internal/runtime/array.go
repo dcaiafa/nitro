@@ -11,7 +11,6 @@ func NewArray() *Array {
 }
 
 func (a *Array) Type() string { return "Array" }
-func (a *Array) Kind() Kind   { return ArrayKind }
 
 func (a *Array) Append(v Value) {
 	a.array = append(a.array, v)
@@ -37,6 +36,14 @@ func (a *Array) Len() int {
 
 func (a *Array) String() string {
 	return formatObject(a)
+}
+
+func (a *Array) Enumerate() *Closure {
+	var arr Value = a
+	var next Value = NewInt(0)
+	return NewClosure(
+		arrayIter,
+		[]ValueRef{NewValueRef(&arr), NewValueRef(&next)})
 }
 
 func arrayIter(ctx context.Context, caps []ValueRef, args []Value, expRetN int) ([]Value, error) {

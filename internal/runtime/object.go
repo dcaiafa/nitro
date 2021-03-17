@@ -48,7 +48,6 @@ func NewObject() *Object {
 }
 
 func (o *Object) Type() string { return "Object" }
-func (o *Object) Kind() Kind   { return ObjectKind }
 
 func (o *Object) Len() int {
 	return len(o.data)
@@ -107,6 +106,14 @@ func (o *Object) ForEach(f func(k, v Value) bool) {
 
 func (o *Object) String() string {
 	return formatObject(o)
+}
+
+func (o *Object) Enumerate() *Closure {
+	var obj Value = o
+	nextKey, _ := obj.(*Object).GetFirst()
+	return NewClosure(
+		objectIter,
+		[]ValueRef{NewValueRef(&obj), NewValueRef(&nextKey)})
 }
 
 type objectFormatter struct {

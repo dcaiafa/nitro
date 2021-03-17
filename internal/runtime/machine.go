@@ -393,23 +393,12 @@ func (m *Machine) runUntilErr(ctx context.Context) error {
 
 		case OpMakeIter:
 			v := m.peek(0)
-			switch v.Kind() {
-			case FuncKind:
+			switch v := v.(type) {
+			case *Closure, ExternFn, *Fn:
 				// Ready to go.
-			case ArrayKind:
-				var arr Value = m.pop().(*Array)
-				var next Value = NewInt(0)
-				iter := NewClosure(
-					arrayIter,
-					[]ValueRef{NewValueRef(&arr), NewValueRef(&next)})
-				m.push(iter)
-			case ObjectKind:
-				obj := m.pop()
-				nextKey, _ := obj.(*Object).GetFirst()
-				iter := NewClosure(
-					objectIter,
-					[]ValueRef{NewValueRef(&obj), NewValueRef(&nextKey)})
-				m.push(iter)
+			case Enumerable:
+				m.pop()
+				m.push(v.Enumerate())
 			default:
 				return fmt.Errorf("Cannot iterate over value of type %q", v.Type())
 			}
