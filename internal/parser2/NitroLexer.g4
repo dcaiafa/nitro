@@ -19,6 +19,7 @@ WHILE: 'while';
 DEFER: 'defer';
 TRY: 'try';
 CATCH: 'catch';
+THROW: 'throw';
 
 ASSIGN: '=';
 EQ: '==';

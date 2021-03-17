@@ -171,6 +171,12 @@ func (s *BaseNitroParserListener) EnterTry_catch_stmt(ctx *Try_catch_stmtContext
 // ExitTry_catch_stmt is called when production try_catch_stmt is exited.
 func (s *BaseNitroParserListener) ExitTry_catch_stmt(ctx *Try_catch_stmtContext) {}
 
+// EnterThrow_stmt is called when production throw_stmt is entered.
+func (s *BaseNitroParserListener) EnterThrow_stmt(ctx *Throw_stmtContext) {}
+
+// ExitThrow_stmt is called when production throw_stmt is exited.
+func (s *BaseNitroParserListener) ExitThrow_stmt(ctx *Throw_stmtContext) {}
+
 // EnterDefer_stmt is called when production defer_stmt is entered.
 func (s *BaseNitroParserListener) EnterDefer_stmt(ctx *Defer_stmtContext) {}
 

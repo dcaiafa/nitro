@@ -83,6 +83,9 @@ type NitroParserListener interface {
 	// EnterTry_catch_stmt is called when entering the try_catch_stmt production.
 	EnterTry_catch_stmt(c *Try_catch_stmtContext)
 
+	// EnterThrow_stmt is called when entering the throw_stmt production.
+	EnterThrow_stmt(c *Throw_stmtContext)
+
 	// EnterDefer_stmt is called when entering the defer_stmt production.
 	EnterDefer_stmt(c *Defer_stmtContext)
 
@@ -286,6 +289,9 @@ type NitroParserListener interface {
 
 	// ExitTry_catch_stmt is called when exiting the try_catch_stmt production.
 	ExitTry_catch_stmt(c *Try_catch_stmtContext)
+
+	// ExitThrow_stmt is called when exiting the throw_stmt production.
+	ExitThrow_stmt(c *Throw_stmtContext)
 
 	// ExitDefer_stmt is called when exiting the defer_stmt production.
 	ExitDefer_stmt(c *Defer_stmtContext)

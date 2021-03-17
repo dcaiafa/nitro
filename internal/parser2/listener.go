@@ -186,6 +186,7 @@ func (l *listener) ExitStmts(ctx *parser.StmtsContext) {
 //     | return_stmt ';'
 //     | primary_expr ';'
 //     | try_catch_stmt ';'
+//     | throw_stmt ';'
 //     | defer_stmt ';'
 //     | ';'
 //     ;
@@ -199,6 +200,7 @@ func (l *listener) ExitStmt(ctx *parser.StmtContext) {
 	} else if s = l.takeAST(ctx.Func_stmt()); s != nil {
 	} else if s = l.takeAST(ctx.Return_stmt()); s != nil {
 	} else if s = l.takeAST(ctx.Try_catch_stmt()); s != nil {
+	} else if s = l.takeAST(ctx.Throw_stmt()); s != nil {
 	} else if s = l.takeAST(ctx.Defer_stmt()); s != nil {
 	} else if e := l.takeExpr(ctx.Expr()); e != nil {
 		s = &ast.ExprStmt{Expr: e}
@@ -357,6 +359,12 @@ func (l *listener) ExitTry_catch_stmt(ctx *parser.Try_catch_stmtContext) {
 	}
 	l.put(ctx, ast.NewTryCatchStmt(
 		l.takeAST(ctx.Stmts(0)), id, l.takeAST(ctx.Stmts(1))))
+}
+
+func (l *listener) ExitThrow_stmt(ctx *parser.Throw_stmtContext) {
+	l.put(ctx, &ast.ThrowStmt{
+		Expr: l.takeExpr(ctx.Expr()),
+	})
 }
 
 func (l *listener) ExitDefer_stmt(ctx *parser.Defer_stmtContext) {

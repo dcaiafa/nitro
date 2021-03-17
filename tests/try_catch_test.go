@@ -49,7 +49,7 @@ f5
 	RunSubO(t, "cascading", `
 	func g()
 		print("g1")
-		("throw")()
+		throw "boom"
 		print("g2")
 	end
 	func f() 
@@ -60,9 +60,9 @@ f5
 			x = "f4"
 			print("from g:" + g())
 			print("f3")
-		catch
+		catch e
 			print(x)
-			("throw-again")()
+			throw e
 		end
 		print("f5")
 	end
@@ -73,7 +73,7 @@ f5
 			f()
 			i = 2
 		catch e
-			print("x", i)
+			print(e)
 		end
 	end
 	x()
@@ -82,16 +82,22 @@ f1
 f2
 g1
 f4
-x 1
+Runtime error: boom
+ main.ni:4
+ main.ni:13
+ main.ni:25
+ main.ni:31
 `)
 
 	RunSubO(t, "catch_error", `
 	var x
 	try
 		x = "hi"
-		("throw")()
+		throw "nope"
 		x = "bye"
 	catch e
 		print(e.error, x)
-	end`, ``)
+	end`, `
+nope hi
+`)
 }

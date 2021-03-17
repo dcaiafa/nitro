@@ -62,6 +62,7 @@ const (
 	OpBeginTry
 	OpEndTry
 	OpSwapStack
+	OpThrow
 )
 
 type Instr struct {
@@ -402,6 +403,14 @@ func (m *Machine) runUntilErr(ctx context.Context) error {
 			t := m.frame.Stack[i2]
 			m.frame.Stack[i2] = m.frame.Stack[i1]
 			m.frame.Stack[i1] = t
+
+		case OpThrow:
+			errVal := m.pop()
+			err, ok := errVal.(*RuntimeError)
+			if !ok {
+				err = &RuntimeError{ErrValue: errVal}
+			}
+			return err
 
 		default:
 			panic("invalid instruction")

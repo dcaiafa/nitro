@@ -15,6 +15,8 @@ try
 	json_lines() | 
 		join(json_lines("nodes.json"), ".metadata.node", ".node_name") |
 		select(&e->e.metadata.labels.team=="t2")
+	
+	throw "boom"
 catch e
 	log("shit's on fire yo " + e)
 end
