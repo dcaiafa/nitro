@@ -61,6 +61,7 @@ const (
 	OpMakeIter
 	OpBeginTry
 	OpEndTry
+	OpSwapStack
 )
 
 type Instr struct {
@@ -395,6 +396,13 @@ func (m *Machine) runUntilErr(ctx context.Context) error {
 			m.frame.TryCatches = m.frame.TryCatches[:len(m.frame.TryCatches)-1]
 			m.frame.IP = int(operandsToWord24(instr.Operand1, instr.Operand2)) - 1
 
+		case OpSwapStack:
+			i1 := len(m.frame.Stack) - 1
+			i2 := i1 - int(instr.Operand1)
+			t := m.frame.Stack[i2]
+			m.frame.Stack[i2] = m.frame.Stack[i1]
+			m.frame.Stack[i1] = t
+
 		default:
 			panic("invalid instruction")
 		}
@@ -486,7 +494,7 @@ func (m *Machine) recover(err error) error {
 			tryCatch := frame.TryCatches[len(frame.TryCatches)-1]
 			frame.TryCatches = frame.TryCatches[:len(frame.TryCatches)-1]
 			m.frame.IP = tryCatch.CatchAddr
-			m.frame.Stack = m.frame.Stack[:0]
+			m.frame.Stack = append(m.frame.Stack[:0], rerr)
 			return nil
 		}
 

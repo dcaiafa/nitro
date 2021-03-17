@@ -72,7 +72,7 @@ f5
 			i = 1
 			f()
 			i = 2
-		catch
+		catch e
 			print("x", i)
 		end
 	end
@@ -84,4 +84,14 @@ g1
 f4
 x 1
 `)
+
+	RunSubO(t, "catch_error", `
+	var x
+	try
+		x = "hi"
+		("throw")()
+		x = "bye"
+	catch e
+		print(e.error, x)
+	end`, ``)
 }

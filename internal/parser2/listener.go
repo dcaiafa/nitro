@@ -355,11 +355,8 @@ func (l *listener) ExitTry_catch_stmt(ctx *parser.Try_catch_stmtContext) {
 		id = new(token.Token)
 		*id = l.tokenToNitro(ctx.ID().GetSymbol())
 	}
-	l.put(ctx, &ast.TryCatchStmt{
-		TryBlock:   l.takeAST(ctx.Stmts(0)),
-		CatchVar:   id,
-		CatchBlock: l.takeAST(ctx.Stmts(1)),
-	})
+	l.put(ctx, ast.NewTryCatchStmt(
+		l.takeAST(ctx.Stmts(0)), id, l.takeAST(ctx.Stmts(1))))
 }
 
 func (l *listener) ExitDefer_stmt(ctx *parser.Defer_stmtContext) {
