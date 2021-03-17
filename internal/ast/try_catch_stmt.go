@@ -23,7 +23,7 @@ func (s *TryCatchStmt) RunPass(ctx *Context, pass Pass) {
 		e := ctx.Emitter()
 		beginCatch = e.NewLabel()
 		endCatch = e.NewLabel()
-		e.EmitJump(s.Pos(), runtime.OpStartTry, beginCatch)
+		e.EmitJump(s.Pos(), runtime.OpBeginTry, beginCatch)
 	}
 
 	ctx.RunPassChild(s, s.TryBlock, pass)

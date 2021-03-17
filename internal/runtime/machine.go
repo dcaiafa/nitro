@@ -59,7 +59,7 @@ const (
 	OpStore
 	OpInitCallFrame
 	OpMakeIter
-	OpStartTry
+	OpBeginTry
 	OpEndTry
 )
 
@@ -403,7 +403,7 @@ func (m *Machine) runUntilErr(ctx context.Context) error {
 				return fmt.Errorf("Cannot iterate over value of type %q", v.Type())
 			}
 
-		case OpStartTry:
+		case OpBeginTry:
 			m.frame.TryCatches = append(m.frame.TryCatches, tryCatch{
 				CatchAddr: int(operandsToWord24(instr.Operand1, instr.Operand2)),
 			})
