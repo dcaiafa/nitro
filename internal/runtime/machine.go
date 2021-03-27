@@ -63,6 +63,7 @@ const (
 	OpEndTry
 	OpSwapStack
 	OpThrow
+	OpDefer
 )
 
 type Instr struct {
@@ -411,6 +412,10 @@ func (m *Machine) runUntilErr(ctx context.Context) error {
 				err = &RuntimeError{ErrValue: errVal}
 			}
 			return err
+
+		case OpDefer:
+			deferClosure := m.pop().(*Closure)
+			m.frame.Defers = append(m.frame.Defers, deferClosure)
 
 		default:
 			panic("invalid instruction")

@@ -13,6 +13,7 @@ type frame struct {
 	Locals     []Value
 	Stack      []Value
 	TryCatches []tryCatch
+	Defers     []*Closure
 	IP         int
 }
 

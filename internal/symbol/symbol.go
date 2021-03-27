@@ -35,7 +35,7 @@ func (b *baseSymbol) SetPos(pos token.Pos) {
 type FuncSymbol struct {
 	baseSymbol
 	External bool
-	FnNdx    int
+	IdxFunc    int
 }
 
 type GlobalVarSymbol struct {

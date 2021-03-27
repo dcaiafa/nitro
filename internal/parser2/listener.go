@@ -16,14 +16,16 @@ type listener struct {
 
 	Module *ast.Module
 
-	filename string
-	values   map[antlr.RuleContext]interface{}
+	filename    string
+	errListener *errorListener
+	values      map[antlr.RuleContext]interface{}
 }
 
-func newListener(filename string) *listener {
+func newListener(filename string, errListener *errorListener) *listener {
 	return &listener{
-		filename: filename,
-		values:   make(map[antlr.RuleContext]interface{}),
+		filename:    filename,
+		errListener: errListener,
+		values:      make(map[antlr.RuleContext]interface{}),
 	}
 }
 
@@ -351,6 +353,7 @@ func (l *listener) ExitReturn_stmt(ctx *parser.Return_stmtContext) {
 	})
 }
 
+// try_catch_stmt: TRY stmts CATCH ID? ';' stmts END;
 func (l *listener) ExitTry_catch_stmt(ctx *parser.Try_catch_stmtContext) {
 	var id *token.Token
 	if ctx.ID() != nil {
@@ -361,13 +364,24 @@ func (l *listener) ExitTry_catch_stmt(ctx *parser.Try_catch_stmtContext) {
 		l.takeAST(ctx.Stmts(0)), id, l.takeAST(ctx.Stmts(1))))
 }
 
+// throw_stmt: THROW expr;
 func (l *listener) ExitThrow_stmt(ctx *parser.Throw_stmtContext) {
 	l.put(ctx, &ast.ThrowStmt{
 		Expr: l.takeExpr(ctx.Expr()),
 	})
 }
 
+// defer_stmt: DEFER primary_expr;
 func (l *listener) ExitDefer_stmt(ctx *parser.Defer_stmtContext) {
+	primaryExpr := l.takeExpr(ctx.Primary_expr())
+	callExpr, ok := primaryExpr.(*ast.FuncCallExpr)
+	if !ok {
+		l.errListener.LogError(
+			ctx.GetStart().GetLine(),
+			ctx.GetStart().GetColumn(),
+			"Deferred expression must be a call")
+	}
+	l.put(ctx, ast.NewDeferStmt(callExpr))
 }
 
 // expr: binary_expr       # expr_binary

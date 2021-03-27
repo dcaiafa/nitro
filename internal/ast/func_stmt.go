@@ -42,7 +42,7 @@ func (s *FuncStmt) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Check:
 		if fnSym, ok := s.sym.(*symbol.FuncSymbol); ok {
-			fnSym.FnNdx = s.Func.FnNdx
+			fnSym.IdxFunc = s.Func.IdxFunc()
 		}
 
 	case Emit:

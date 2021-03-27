@@ -8,12 +8,11 @@ import (
 type Func struct {
 	astBase
 
-	Params ASTs
-	Block  *StmtBlock
-
+	Params    ASTs
+	Block     *StmtBlock
 	IsClosure bool
-	FnNdx     int
 
+	idxFunc    int
 	scope      *symbol.Scope
 	paramCount int
 	localCount int
@@ -24,11 +23,11 @@ func (f *Func) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Check:
 		f.scope = symbol.NewScope()
-		f.FnNdx = ctx.Emitter().NewFn()
+		f.idxFunc = ctx.Emitter().NewFn()
 
 	case Emit:
 		emitter := ctx.Emitter()
-		emitter.PushFn(f.FnNdx)
+		emitter.PushFn(f.idxFunc)
 		emitter.Emit(f.Pos(), runtime.OpInitCallFrame, uint16(f.localCount), 0)
 	}
 
@@ -55,9 +54,13 @@ func (f *Func) RunPass(ctx *Context, pass Pass) {
 			for _, capture := range f.captures {
 				emitSymbolRefPush(f.Pos(), emitter, capture.Captured)
 			}
-			emitter.Emit(f.Pos(), runtime.OpNewClosure, uint16(f.FnNdx), byte(len(f.captures)))
+			emitter.Emit(f.Pos(), runtime.OpNewClosure, uint16(f.idxFunc), byte(len(f.captures)))
 		}
 	}
+}
+
+func (f *Func) IdxFunc() int {
+	return f.idxFunc
 }
 
 func (f *Func) NewLocal() *symbol.LocalVarSymbol {

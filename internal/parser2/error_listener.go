@@ -27,6 +27,19 @@ func (l *errorListener) Error() error {
 	return l.err
 }
 
+func (l *errorListener) LogError(line, col int, msg string, args ...interface{}) {
+	pos := token.Pos{
+		Filename: l.filename,
+		Line:     line,
+		Col:      col,
+	}
+	renderedMsg := fmt.Sprintf(msg, args...)
+	l.errLogger.Failf(pos, "%s", renderedMsg)
+	if l.err == nil {
+		l.err = fmt.Errorf("%v: %v", pos.String(), renderedMsg)
+	}
+}
+
 func (l *errorListener) SyntaxError(
 	recognizer antlr.Recognizer,
 	offendingSymbol interface{},
@@ -34,13 +47,5 @@ func (l *errorListener) SyntaxError(
 	msg string,
 	e antlr.RecognitionException,
 ) {
-	pos := token.Pos{
-		Filename: l.filename,
-		Line:     line,
-		Col:      column,
-	}
-	l.errLogger.Failf(pos, "%s", msg)
-	if l.err == nil {
-		l.err = fmt.Errorf("%v: %v", pos.String(), msg)
-	}
+	l.LogError(line, column, "%s", msg)
 }

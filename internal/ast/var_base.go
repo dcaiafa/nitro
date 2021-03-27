@@ -44,9 +44,9 @@ func emitSymbolPush(pos token.Pos, emitter *runtime.Emitter, sym symbol.Symbol) 
 
 	case *symbol.FuncSymbol:
 		if sym.External {
-			emitter.Emit(pos, runtime.OpLoadExternFn, uint16(sym.FnNdx), 0)
+			emitter.Emit(pos, runtime.OpLoadExternFn, uint16(sym.IdxFunc), 0)
 		} else {
-			emitter.Emit(pos, runtime.OpLoadFn, uint16(sym.FnNdx), 0)
+			emitter.Emit(pos, runtime.OpLoadFn, uint16(sym.IdxFunc), 0)
 		}
 
 	default:

@@ -35,7 +35,7 @@ func Parse(filename string, input string, diagMode bool, errLogger errlogger.Err
 		nitroParser.GetInterpreter().SetPredictionMode(antlr.PredictionModeLLExactAmbigDetection)
 		nitroParser.AddErrorListener(antlr.NewDiagnosticErrorListener(true))
 	}
-	listener := newListener(filename)
+	listener := newListener(filename, errListener)
 	parseTree := nitroParser.Start()
 	parserPool.Put(nitroParser)
 	lexerPool.Put(lexer)
