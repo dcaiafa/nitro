@@ -121,25 +121,70 @@ func (m *Machine) Run(
 		return fmt.Errorf("required parameters not set")
 	}
 
-	m.frame = newFrame()
-	m.frame.Fn = &m.program.fns[0]
-	m.frame.Instrs = m.program.fns[0].instrs
+	_, err := m.runFunc(ctx, &m.program.fns[0], nil, nil, 0)
 
-	for {
-		err := m.runUntilErr(ctx)
-		if err == nil {
-			break
-		}
-		err = m.recover(err)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return err
 }
 
-func (m *Machine) runUntilErr(ctx context.Context) error {
+func (m *Machine) runFunc(
+	ctx context.Context,
+	fn *Fn,
+	args []Value,
+	captures []ValueRef,
+	retN int,
+) ([]Value, error) {
+	frame := newFrame()
+	frame.Fn = fn
+	frame.Instrs = fn.instrs
+	frame.Args = args
+	frame.ExpRetN = retN
+	frame.Captures = captures
+	return m.runFrame(ctx, frame)
+}
+
+func (m *Machine) runFrame(ctx context.Context, frame *frame) ([]Value, error) {
+	m.callStack = append(m.callStack, frame)
+	m.frame = frame
+
+	defer func() {
+		m.callStack[len(m.callStack)-1] = nil
+		m.callStack = m.callStack[:len(m.callStack)-1]
+		if len(m.callStack) > 0 {
+			m.frame = m.callStack[len(m.callStack)-1]
+		}
+	}()
+
+	for {
+		ret, err := m.resume(ctx)
+		if err == nil {
+			return ret, nil
+		}
+
+		rerr, ok := err.(*RuntimeError)
+		if !ok {
+			rerr = &RuntimeError{
+				Err: err,
+			}
+		}
+
+		if rerr.Stack == nil {
+			rerr.Stack = m.GetDebugStack()
+		}
+
+		err = rerr
+
+		if len(m.frame.TryCatches) == 0 {
+			return nil, err
+		}
+
+		tryCatch := m.frame.TryCatches[len(m.frame.TryCatches)-1]
+		m.frame.TryCatches = m.frame.TryCatches[:len(m.frame.TryCatches)-1]
+		m.frame.IP = tryCatch.CatchAddr
+		m.frame.Stack = append(m.frame.Stack[:0], rerr)
+	}
+}
+
+func (m *Machine) resume(ctx context.Context) (ret []Value, err error) {
 	for {
 		instr := m.frame.Instrs[m.frame.IP]
 
@@ -169,6 +214,7 @@ func (m *Machine) runUntilErr(ctx context.Context) error {
 			m.discardN(int(instr.Operand1))
 
 		case OpCall:
+			var rets []Value
 			expRetN := int(instr.Operand2)
 			argN := int(instr.Operand1)
 			args := make([]Value, argN)
@@ -177,50 +223,43 @@ func (m *Machine) runUntilErr(ctx context.Context) error {
 			switch callable := m.pop().(type) {
 			case *Closure:
 				if callable.extFn != nil {
-					rets, err := callable.extFn(ctx, callable.caps, args, expRetN)
+					rets, err = callable.extFn(ctx, callable.caps, args, expRetN)
 					if err != nil {
 						break
 					}
 					if len(rets) < expRetN {
-						return fmt.Errorf("expected at least %v returned values", expRetN)
+						return nil, fmt.Errorf("expected at least %v returned values", expRetN)
 					}
-					m.frame.Stack = append(m.frame.Stack, rets[:expRetN]...)
 				} else {
-					m.callStack = append(m.callStack, m.frame)
-					m.frame = newFrame()
-					m.frame.Fn = callable.fn
-					m.frame.Instrs = callable.fn.instrs
-					m.frame.ExpRetN = expRetN
-					m.frame.Args = args
-					m.frame.Captures = callable.caps
-					m.frame.IP = -1 // ip will be 0 after incrementing.
+					rets, err = m.runFunc(ctx, callable.fn, args, callable.caps, expRetN)
+					if err != nil {
+						return nil, err
+					}
 				}
 
 			case *Fn:
-				m.callStack = append(m.callStack, m.frame)
-				m.frame = newFrame()
-				m.frame.Fn = callable
-				m.frame.Instrs = callable.instrs
-				m.frame.ExpRetN = expRetN
-				m.frame.Args = args
-				m.frame.IP = -1 // ip will be 0 after incrementing.
+				rets, err = m.runFunc(ctx, callable, args, nil, expRetN)
+				if err != nil {
+					return nil, err
+				}
 
 			case ExternFn:
-				rets, err := callable(ctx, nil, args, expRetN)
+				rets, err = callable(ctx, nil, args, expRetN)
 				if err != nil {
-					return err
+					return nil, err
 				}
 				if len(rets) < expRetN {
-					return fmt.Errorf("expected at least %v returned values", expRetN)
+					return nil, fmt.Errorf("expected at least %v returned values", expRetN)
 				}
-				m.frame.Stack = append(m.frame.Stack, rets[:expRetN]...)
 
 			default:
 				if callable == nil {
-					return ErrCannotCallNil
+					return nil, ErrCannotCallNil
 				}
-				return fmt.Errorf("cannot call type %q", callable.Type())
+				return nil, fmt.Errorf("cannot call type %q", callable.Type())
 			}
+
+			m.frame.Stack = append(m.frame.Stack, rets[:expRetN]...)
 
 		case OpNewClosure:
 			capN := int(instr.Operand2)
@@ -286,7 +325,7 @@ func (m *Machine) runUntilErr(ctx context.Context) error {
 			op := BinOp(instr.Operand1)
 			res, err := EvalBinOp(op, operand1, operand2)
 			if err != nil {
-				return err
+				return nil, err
 			}
 			m.push(res)
 
@@ -297,7 +336,7 @@ func (m *Machine) runUntilErr(ctx context.Context) error {
 		case OpUnaryMinus:
 			term := m.pop()
 			if term == nil {
-				return errors.New("value is nil")
+				return nil, errors.New("value is nil")
 			}
 			switch term := term.(type) {
 			case Int:
@@ -321,11 +360,11 @@ func (m *Machine) runUntilErr(ctx context.Context) error {
 			} else {
 				indexable, ok := objRaw.(Indexable)
 				if !ok {
-					return fmt.Errorf("Value type %v is not indexable", objRaw.Type())
+					return nil, fmt.Errorf("Value type %v is not indexable", objRaw.Type())
 				}
 				item, err := indexable.Index(member)
 				if err != nil {
-					return err
+					return nil, err
 				}
 				m.push(item)
 			}
@@ -338,11 +377,11 @@ func (m *Machine) runUntilErr(ctx context.Context) error {
 			} else {
 				indexable, ok := objRaw.(Indexable)
 				if !ok {
-					return fmt.Errorf("Value type %v is not indexable", objRaw.Type())
+					return nil, fmt.Errorf("Value type %v is not indexable", objRaw.Type())
 				}
 				itemRef, err := indexable.IndexRef(member)
 				if err != nil {
-					return err
+					return nil, err
 				}
 				m.push(itemRef)
 			}
@@ -353,16 +392,11 @@ func (m *Machine) runUntilErr(ctx context.Context) error {
 			array.Append(value)
 
 		case OpRet:
-			if len(m.callStack) == 0 {
-				return nil
-			}
 			if m.frame.ExpRetN > len(m.frame.Stack) {
-				return fmt.Errorf("error")
+				return nil, fmt.Errorf("error")
 			}
 			rets := m.frame.Stack[:m.frame.ExpRetN]
-			m.frame = m.callStack[len(m.callStack)-1]
-			m.callStack = m.callStack[:len(m.callStack)-1]
-			m.frame.Stack = append(m.frame.Stack, rets...)
+			return rets, nil
 
 		case OpStore:
 			count := int(instr.Operand1)
@@ -386,7 +420,7 @@ func (m *Machine) runUntilErr(ctx context.Context) error {
 				m.pop()
 				m.push(v.Enumerate())
 			default:
-				return fmt.Errorf("Cannot iterate over value of type %q", v.Type())
+				return nil, fmt.Errorf("Cannot iterate over value of type %q", v.Type())
 			}
 
 		case OpBeginTry:
@@ -411,7 +445,7 @@ func (m *Machine) runUntilErr(ctx context.Context) error {
 			if !ok {
 				err = &RuntimeError{ErrValue: errVal}
 			}
-			return err
+			return nil, err
 
 		case OpDefer:
 			deferClosure := m.pop().(*Closure)
@@ -426,8 +460,7 @@ func (m *Machine) runUntilErr(ctx context.Context) error {
 }
 
 func (m *Machine) GetDebugStack() []FrameInfo {
-	stack := make([]FrameInfo, 0, len(m.callStack)+1)
-	stack = append(stack, m.getDebugFrame(m.frame))
+	stack := make([]FrameInfo, 0, len(m.callStack))
 	for i := len(m.callStack) - 1; i >= 0; i-- {
 		stack = append(stack, m.getDebugFrame(m.callStack[i]))
 	}
@@ -487,38 +520,4 @@ func (m *Machine) popN(n int) []Value {
 
 func (m *Machine) discardN(n int) {
 	m.frame.Stack = m.frame.Stack[:len(m.frame.Stack)-n]
-}
-
-func (m *Machine) recover(err error) error {
-	rerr, ok := err.(*RuntimeError)
-	if !ok {
-		rerr = &RuntimeError{
-			Err: err,
-		}
-	}
-	if rerr.Stack == nil {
-		rerr.Stack = m.GetDebugStack()
-	}
-	err = rerr
-
-	frame := m.frame
-	for {
-		if len(frame.TryCatches) > 0 {
-			m.frame = frame
-			tryCatch := frame.TryCatches[len(frame.TryCatches)-1]
-			frame.TryCatches = frame.TryCatches[:len(frame.TryCatches)-1]
-			m.frame.IP = tryCatch.CatchAddr
-			m.frame.Stack = append(m.frame.Stack[:0], rerr)
-			return nil
-		}
-
-		if len(m.callStack) == 0 {
-			break
-		}
-
-		frame = m.callStack[len(m.callStack)-1]
-		m.callStack = m.callStack[:len(m.callStack)-1]
-	}
-
-	return err
 }
