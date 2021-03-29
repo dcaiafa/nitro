@@ -126,6 +126,55 @@ func (m *Machine) Run(
 	return err
 }
 
+func (m *Machine) runCallable(
+	ctx context.Context,
+	callable Value,
+	args []Value,
+	expRetN int,
+) ([]Value, error) {
+	var rets []Value
+	var err error
+	switch callable := callable.(type) {
+	case *Closure:
+		if callable.extFn != nil {
+			rets, err = callable.extFn(ctx, callable.caps, args, expRetN)
+			if err != nil {
+				return nil, err
+			}
+			if len(rets) < expRetN {
+				return nil, fmt.Errorf("expected at least %v returned values", expRetN)
+			}
+		} else {
+			rets, err = m.runFunc(ctx, callable.fn, args, callable.caps, expRetN)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+	case *Fn:
+		rets, err = m.runFunc(ctx, callable, args, nil, expRetN)
+		if err != nil {
+			return nil, err
+		}
+
+	case ExternFn:
+		rets, err = callable(ctx, nil, args, expRetN)
+		if err != nil {
+			return nil, err
+		}
+		if len(rets) < expRetN {
+			return nil, fmt.Errorf("expected at least %v returned values", expRetN)
+		}
+
+	default:
+		if callable == nil {
+			return nil, ErrCannotCallNil
+		}
+		return nil, fmt.Errorf("cannot call type %q", callable.Type())
+	}
+	return rets, nil
+}
+
 func (m *Machine) runFunc(
 	ctx context.Context,
 	fn *Fn,
@@ -142,7 +191,7 @@ func (m *Machine) runFunc(
 	return m.runFrame(ctx, frame)
 }
 
-func (m *Machine) runFrame(ctx context.Context, frame *frame) ([]Value, error) {
+func (m *Machine) runFrame(ctx context.Context, frame *frame) (rets []Value, err error) {
 	m.callStack = append(m.callStack, frame)
 	m.frame = frame
 
@@ -214,51 +263,15 @@ func (m *Machine) resume(ctx context.Context) (ret []Value, err error) {
 			m.discardN(int(instr.Operand1))
 
 		case OpCall:
-			var rets []Value
 			expRetN := int(instr.Operand2)
 			argN := int(instr.Operand1)
 			args := make([]Value, argN)
 			copy(args, m.popN(argN))
-
-			switch callable := m.pop().(type) {
-			case *Closure:
-				if callable.extFn != nil {
-					rets, err = callable.extFn(ctx, callable.caps, args, expRetN)
-					if err != nil {
-						break
-					}
-					if len(rets) < expRetN {
-						return nil, fmt.Errorf("expected at least %v returned values", expRetN)
-					}
-				} else {
-					rets, err = m.runFunc(ctx, callable.fn, args, callable.caps, expRetN)
-					if err != nil {
-						return nil, err
-					}
-				}
-
-			case *Fn:
-				rets, err = m.runFunc(ctx, callable, args, nil, expRetN)
-				if err != nil {
-					return nil, err
-				}
-
-			case ExternFn:
-				rets, err = callable(ctx, nil, args, expRetN)
-				if err != nil {
-					return nil, err
-				}
-				if len(rets) < expRetN {
-					return nil, fmt.Errorf("expected at least %v returned values", expRetN)
-				}
-
-			default:
-				if callable == nil {
-					return nil, ErrCannotCallNil
-				}
-				return nil, fmt.Errorf("cannot call type %q", callable.Type())
+			callable := m.pop()
+			rets, err := m.runCallable(ctx, callable, args, expRetN)
+			if err != nil {
+				return nil, err
 			}
-
 			m.frame.Stack = append(m.frame.Stack, rets[:expRetN]...)
 
 		case OpNewClosure:
