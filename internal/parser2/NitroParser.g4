@@ -72,7 +72,7 @@ expr: binary_expr           # expr_binary
     | pipeline_expr         # expr_pipeline
     ;
 
-pipeline_expr: binary_expr? ('|' binary_expr)+;
+pipeline_expr: binary_expr ('|' primary_expr)+;
 
 binary_expr: unary_expr
            | binary_expr op=('*'|'/'|'%') binary_expr

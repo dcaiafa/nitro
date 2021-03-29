@@ -384,8 +384,9 @@ func (l *listener) ExitDefer_stmt(ctx *parser.Defer_stmtContext) {
 	l.put(ctx, ast.NewDeferStmt(callExpr))
 }
 
-// expr: binary_expr       # expr_binary
-//     | short_lambda_expr # expr_short_lambda
+// expr: binary_expr           # expr_binary
+//     | short_lambda_expr     # expr_short_lambda
+//     | pipeline_expr         # expr_pipeline
 //     ;
 
 func (l *listener) ExitExpr_binary(ctx *parser.Expr_binaryContext) {
@@ -394,6 +395,29 @@ func (l *listener) ExitExpr_binary(ctx *parser.Expr_binaryContext) {
 
 func (l *listener) ExitExpr_short_lambda(ctx *parser.Expr_short_lambdaContext) {
 	l.put(ctx, l.takeExpr(ctx.Short_lambda_expr()))
+}
+
+func (l *listener) ExitExpr_pipeline(ctx *parser.Expr_pipelineContext) {
+	l.put(ctx, l.takeExpr(ctx.Pipeline_expr()))
+}
+
+// pipeline_expr: binary_expr ('|' primary_expr)+;
+func (l *listener) ExitPipeline_expr(ctx *parser.Pipeline_exprContext) {
+	arg := l.takeExpr(ctx.Binary_expr())
+	for _, fnRaw := range ctx.AllPrimary_expr() {
+		fn, ok := l.takeExpr(fnRaw).(*ast.FuncCallExpr)
+		if !ok {
+			l.errListener.LogError(
+				fnRaw.GetStart().GetLine(),
+				fnRaw.GetStart().GetColumn(),
+				"Pipeline term on the right must be a invocation expression")
+			return
+		}
+
+		fn.Args = append(ast.Exprs{arg}, fn.Args...)
+		arg = fn
+	}
+	l.put(ctx, arg)
 }
 
 // binary_expr: unary_expr

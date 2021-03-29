@@ -11,6 +11,12 @@ func TestHelloWorld(t *testing.T) {
 	prog := `
 lines() | split("\t")
 
+a | b() | c()
+
+1 + 2 | b() | c()
+
+c(b(a))
+
 try
 	json_lines() | 
 		join(json_lines("nodes.json"), ".metadata.node", ".node_name") |
