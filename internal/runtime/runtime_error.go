@@ -65,3 +65,4 @@ func (e *RuntimeError) Unwrap() error {
 }
 
 var ErrCannotCallNil = errors.New("cannot evaluate function call because target is nil")
+var ErrIsNotEnumerable = errors.New("is not enumerable")

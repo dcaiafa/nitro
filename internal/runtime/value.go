@@ -12,11 +12,6 @@ type Value interface {
 	Type() string
 }
 
-type Enumerable interface {
-	Value
-	Enumerate() *Closure
-}
-
 type Indexable interface {
 	Value
 	Index(key Value) (Value, error)

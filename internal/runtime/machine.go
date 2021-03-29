@@ -87,6 +87,12 @@ type FrameInfo struct {
 	Line     int
 }
 
+var machineContextKey = "runtime.Machine"
+
+func MachineFromContext(ctx context.Context) *Machine {
+	return ctx.Value(&machineContextKey).(*Machine)
+}
+
 type Machine struct {
 	callStack []*frame
 	program   *Program
@@ -107,6 +113,8 @@ func (m *Machine) Run(
 	ctx context.Context,
 	params map[string]Value,
 ) error {
+	ctx = context.WithValue(ctx, &machineContextKey, m)
+
 	for paramName, paramValue := range params {
 		param := m.program.params[paramName]
 		if param == nil {
@@ -438,7 +446,7 @@ func (m *Machine) resume(ctx context.Context) (ret []Value, err error) {
 		case OpMakeIter:
 			v := m.peek(0)
 			switch v := v.(type) {
-			case *Closure, ExternFn, *Fn:
+			case *Closure:
 				// Ready to go.
 			case Enumerable:
 				m.pop()
