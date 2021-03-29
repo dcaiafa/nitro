@@ -126,6 +126,22 @@ func (m *Machine) Run(
 	return err
 }
 
+func (m *Machine) runFunc(
+	ctx context.Context,
+	fn *Fn,
+	args []Value,
+	captures []ValueRef,
+	retN int,
+) ([]Value, error) {
+	frame := newFrame()
+	frame.Fn = fn
+	frame.Instrs = fn.instrs
+	frame.Args = args
+	frame.ExpRetN = retN
+	frame.Captures = captures
+	return m.runFrame(ctx, frame)
+}
+
 func (m *Machine) runCallable(
 	ctx context.Context,
 	callable Value,
@@ -175,27 +191,22 @@ func (m *Machine) runCallable(
 	return rets, nil
 }
 
-func (m *Machine) runFunc(
-	ctx context.Context,
-	fn *Fn,
-	args []Value,
-	captures []ValueRef,
-	retN int,
-) ([]Value, error) {
-	frame := newFrame()
-	frame.Fn = fn
-	frame.Instrs = fn.instrs
-	frame.Args = args
-	frame.ExpRetN = retN
-	frame.Captures = captures
-	return m.runFrame(ctx, frame)
-}
-
 func (m *Machine) runFrame(ctx context.Context, frame *frame) (rets []Value, err error) {
 	m.callStack = append(m.callStack, frame)
 	m.frame = frame
 
 	defer func() {
+		for i := len(m.frame.Defers) - 1; i >= 0; i-- {
+			deferred := m.frame.Defers[i]
+			_, derr := m.runCallable(ctx, deferred, nil, 0)
+			if derr != nil {
+				if err == nil {
+					// TODO: combine errors
+					err = derr
+				}
+			}
+		}
+
 		m.callStack[len(m.callStack)-1] = nil
 		m.callStack = m.callStack[:len(m.callStack)-1]
 		if len(m.callStack) > 0 {
