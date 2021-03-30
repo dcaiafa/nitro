@@ -92,7 +92,7 @@ func arrayIter(ctx context.Context, caps []ValueRef, args []Value, expRetN int) 
 	)
 
 	if int(next.Int64()) >= arr.Len() {
-		return []Value{nil, NewBool(false)}, nil
+		return []Value{NewBool(false), nil}, nil
 	}
 
 	*caps[1].Ref = NewInt(int64(next.Int64() + 1))
@@ -102,5 +102,5 @@ func arrayIter(ctx context.Context, caps []ValueRef, args []Value, expRetN int) 
 		return nil, err
 	}
 
-	return []Value{v, NewBool(true)}, nil
+	return []Value{NewBool(true), v}, nil
 }

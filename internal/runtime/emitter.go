@@ -119,12 +119,12 @@ func (e *Emitter) Emit(pos token.Pos, op OpCode, operand1 uint32, operand2 uint1
 	}
 }
 
-func (e *Emitter) EmitJump(pos token.Pos, op OpCode, label *Label) {
+func (e *Emitter) EmitJump(pos token.Pos, op OpCode, label *Label, operand2 uint16) {
 	if label.addr == -1 {
 		if e.curFn() != label.fn {
 			panic("cannot jump across fns")
 		}
-		e.Emit(pos, op, 0, 0)
+		e.Emit(pos, op, 0, operand2)
 		instrs := e.curFn().instrs
 		lastEmittedInstr := len(instrs) - 1
 		label.refs = append(label.refs, lastEmittedInstr)

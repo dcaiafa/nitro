@@ -47,17 +47,15 @@ func (s *ForStmt) RunPass(ctx *Context, pass Pass) {
 		}
 		emitSymbolPush(s.Pos(), e, s.iter)
 		e.Emit(s.Pos(), runtime.OpCall, 0, uint16(len(s.ForVars)+1))
-		e.EmitJump(s.Pos(), runtime.OpJumpIfFalse, end)
-		e.Emit(s.Pos(), runtime.OpStore, uint32(len(s.ForVars)), 0)
+		e.EmitJump(s.Pos(), runtime.OpNext, end, uint16(len(s.ForVars)+1))
 	}
 
 	ctx.RunPassChild(s, s.Block, pass)
 
 	if pass == Emit {
 		e := ctx.Emitter()
-		e.EmitJump(s.Pos(), runtime.OpJump, begin)
+		e.EmitJump(s.Pos(), runtime.OpJump, begin, 0)
 		e.ResolveLabel(end)
-		e.Emit(s.Pos(), runtime.OpPop, uint32(len(s.ForVars)*2), 0)
 	}
 }
 

@@ -474,6 +474,27 @@ func (m *Machine) resume(ctx context.Context) (ret []Value, err error) {
 			deferClosure := m.pop().(*Closure)
 			m.frame.Defers = append(m.frame.Defers, deferClosure)
 
+		case OpNext:
+			jumpTo := int(instr.operand1)
+			argN := int(instr.operand2)
+			has, ok := m.peek(argN - 1).(Bool)
+			if !ok {
+				return nil, fmt.Errorf(
+					"enumerator's first return value must be Bool; instead it is %q",
+					m.peek(argN-1).Type())
+			}
+			if has.Bool() {
+				count := argN - 1
+				for i := 0; i < count; i++ {
+					rval := m.peek(count*2 - i).(ValueRef)
+					val := m.peek(count - 1 - i)
+					*rval.Ref = val
+				}
+			} else {
+				m.frame.IP = jumpTo - 1
+			}
+			m.discardN((argN-1)*2 + 1)
+
 		default:
 			panic("invalid instruction")
 		}

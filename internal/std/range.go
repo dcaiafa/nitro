@@ -87,10 +87,10 @@ func rangeIter(ctx context.Context, caps []runtime.ValueRef, args []runtime.Valu
 	if (step > 0 && cur >= end) ||
 		(step < 0 && cur <= end) ||
 		(step == 0) {
-		return []runtime.Value{runtime.NewInt(0), runtime.NewBool(false)}, nil
+		return []runtime.Value{runtime.NewBool(false), runtime.NewInt(0)}, nil
 	}
 
 	*caps[0].Refo() = runtime.NewInt(cur + step)
 
-	return []runtime.Value{runtime.NewInt(cur), runtime.NewBool(true)}, nil
+	return []runtime.Value{runtime.NewBool(true), runtime.NewInt(cur)}, nil
 }

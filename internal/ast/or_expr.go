@@ -23,7 +23,7 @@ func (e *OrExpr) RunPass(ctx *Context, pass Pass) {
 		emitter := ctx.Emitter()
 		skipLabel = emitter.NewLabel()
 		emitter.Emit(e.Pos(), runtime.OpDup, 0, 0)
-		emitter.EmitJump(e.Pos(), runtime.OpJumpIfTrue, skipLabel)
+		emitter.EmitJump(e.Pos(), runtime.OpJumpIfTrue, skipLabel, 0)
 		emitter.Emit(e.Pos(), runtime.OpPop, 1, 0)
 	}
 

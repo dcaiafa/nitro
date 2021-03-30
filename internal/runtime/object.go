@@ -209,9 +209,9 @@ func objectIter(ctx context.Context, caps []ValueRef, args []Value, expRetN int)
 	}
 	if val == nil {
 		if expRetN == 2 {
-			return []Value{nil, NewBool(false)}, nil
+			return []Value{NewBool(false), nil}, nil
 		} else {
-			return []Value{nil, nil, NewBool(false)}, nil
+			return []Value{NewBool(false), nil, nil}, nil
 		}
 	}
 
@@ -219,8 +219,8 @@ func objectIter(ctx context.Context, caps []ValueRef, args []Value, expRetN int)
 	*caps[1].Ref = nextKey
 
 	if expRetN == 2 {
-		return []Value{key, NewBool(true)}, nil
+		return []Value{NewBool(true), key}, nil
 	} else {
-		return []Value{key, val, NewBool(true)}, nil
+		return []Value{NewBool(true), key, val}, nil
 	}
 }

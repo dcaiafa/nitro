@@ -9,9 +9,9 @@ func TestForStmt(t *testing.T) {
 			return func()
 				i = i + 1
 				if i > n
-					return 0, false
+					return false, 0
 				end
-				return i, true
+				return true, i
 			end
 		end
 		for x in iter(3)
