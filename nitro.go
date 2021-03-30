@@ -20,6 +20,7 @@ type (
 	ExternFn = runtime.ExternFn
 	Program  = runtime.Program
 	Frame    = runtime.FrameInfo
+	Closure  = runtime.Closure
 
 	RuntimeError = runtime.RuntimeError
 
@@ -28,6 +29,10 @@ type (
 )
 
 var ErrCannotCallNil = runtime.ErrCannotCallNil
+
+func NewClosure(extFn ExternFn, caps []ValueRef) *Closure {
+	return runtime.NewClosure(extFn, caps)
+}
 
 func MakeEnumerator(ctx context.Context, v Value) (Value, error) {
 	return runtime.MakeEnumerator(ctx, v)
