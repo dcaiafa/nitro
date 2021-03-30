@@ -64,22 +64,13 @@ const (
 	OpSwapStack
 	OpThrow
 	OpDefer
+	OpNext
 )
 
 type Instr struct {
-	Op       OpCode
-	Operand2 byte
-	Operand1 uint16
-}
-
-func operandsToWord24(operand1 uint16, operand2 byte) uint32 {
-	return uint32(operand1) | (uint32(operand2) << 16)
-}
-
-func word24ToOperands(word24 uint32) (operand1 uint16, operand2 byte) {
-	operand1 = uint16(word24 & 0xFFFF)
-	operand2 = byte((word24 >> 16) & 0xFF)
-	return operand1, operand2
+	op       OpCode
+	operand1 uint32
+	operand2 uint16
 }
 
 type FrameInfo struct {
@@ -256,22 +247,22 @@ func (m *Machine) resume(ctx context.Context) (ret []Value, err error) {
 	for {
 		instr := m.frame.Instrs[m.frame.IP]
 
-		switch instr.Op {
+		switch instr.op {
 		case OpNop:
 
 		case OpJump:
-			m.frame.IP = int(operandsToWord24(instr.Operand1, instr.Operand2)) - 1
+			m.frame.IP = int(instr.operand1) - 1
 
 		case OpJumpIfTrue:
 			v := coerceToBool(m.pop())
 			if v {
-				m.frame.IP = int(operandsToWord24(instr.Operand1, instr.Operand2)) - 1
+				m.frame.IP = int(instr.operand1) - 1
 			}
 
 		case OpJumpIfFalse:
 			v := coerceToBool(m.pop())
 			if !v {
-				m.frame.IP = int(operandsToWord24(instr.Operand1, instr.Operand2)) - 1
+				m.frame.IP = int(instr.operand1) - 1
 			}
 
 		case OpDup:
@@ -279,11 +270,11 @@ func (m *Machine) resume(ctx context.Context) (ret []Value, err error) {
 			m.push(v)
 
 		case OpPop:
-			m.discardN(int(instr.Operand1))
+			m.discardN(int(instr.operand1))
 
 		case OpCall:
-			expRetN := int(instr.Operand2)
-			argN := int(instr.Operand1)
+			expRetN := int(instr.operand2)
+			argN := int(instr.operand1)
 			args := make([]Value, argN)
 			copy(args, m.popN(argN))
 			callable := m.pop()
@@ -294,8 +285,8 @@ func (m *Machine) resume(ctx context.Context) (ret []Value, err error) {
 			m.frame.Stack = append(m.frame.Stack, rets[:expRetN]...)
 
 		case OpNewClosure:
-			capN := int(instr.Operand2)
-			fn := int(instr.Operand1)
+			capN := int(instr.operand2)
+			fn := int(instr.operand1)
 			caps := make([]ValueRef, capN)
 			for i, capture := range m.popN(capN) {
 				caps[i] = capture.(ValueRef)
@@ -307,10 +298,10 @@ func (m *Machine) resume(ctx context.Context) (ret []Value, err error) {
 			m.push(closure)
 
 		case OpNewInt:
-			m.push(NewInt(int64(instr.Operand1)))
+			m.push(NewInt(int64(instr.operand1)))
 
 		case OpNewBool:
-			m.push(NewBool(instr.Operand1 != 0))
+			m.push(NewBool(instr.operand1 != 0))
 
 		case OpNewObject:
 			m.push(NewObject())
@@ -319,42 +310,42 @@ func (m *Machine) resume(ctx context.Context) (ret []Value, err error) {
 			m.push(NewArray())
 
 		case OpLoadGlobal:
-			m.push(m.globals[int(instr.Operand1)])
+			m.push(m.globals[int(instr.operand1)])
 
 		case OpLoadGlobalRef:
-			m.push(ValueRef{&m.globals[int(instr.Operand1)]})
+			m.push(ValueRef{&m.globals[int(instr.operand1)]})
 
 		case OpLoadLocal:
-			m.push(m.frame.Locals[int(instr.Operand1)])
+			m.push(m.frame.Locals[int(instr.operand1)])
 
 		case OpLoadLocalRef:
-			m.push(ValueRef{&m.frame.Locals[int(instr.Operand1)]})
+			m.push(ValueRef{&m.frame.Locals[int(instr.operand1)]})
 
 		case OpLoadArg:
-			m.push(m.frame.Args[int(instr.Operand1)])
+			m.push(m.frame.Args[int(instr.operand1)])
 
 		case OpLoadArgRef:
-			m.push(ValueRef{&m.frame.Args[int(instr.Operand1)]})
+			m.push(ValueRef{&m.frame.Args[int(instr.operand1)]})
 
 		case OpLoadCapture:
-			m.push(*m.frame.Captures[int(instr.Operand1)].Ref)
+			m.push(*m.frame.Captures[int(instr.operand1)].Ref)
 
 		case OpLoadCaptureRef:
-			m.push(m.frame.Captures[int(instr.Operand1)])
+			m.push(m.frame.Captures[int(instr.operand1)])
 
 		case OpLoadFn:
-			m.push(&m.program.fns[int(instr.Operand1)])
+			m.push(&m.program.fns[int(instr.operand1)])
 
 		case OpLoadExternFn:
-			m.push(m.program.extFns[int(instr.Operand1)])
+			m.push(m.program.extFns[int(instr.operand1)])
 
 		case OpLoadLiteral:
-			m.push(m.program.literals[int(instr.Operand1)])
+			m.push(m.program.literals[int(instr.operand1)])
 
 		case OpEvalBinOp:
 			operand2 := m.pop()
 			operand1 := m.pop()
-			op := BinOp(instr.Operand1)
+			op := BinOp(instr.operand1)
 			res, err := EvalBinOp(op, operand1, operand2)
 			if err != nil {
 				return nil, err
@@ -431,7 +422,7 @@ func (m *Machine) resume(ctx context.Context) (ret []Value, err error) {
 			return rets, nil
 
 		case OpStore:
-			count := int(instr.Operand1)
+			count := int(instr.operand1)
 			for i := 0; i < count; i++ {
 				rval := m.peek(count*2 - 1 - i).(ValueRef)
 				val := m.peek(count - 1 - i)
@@ -440,7 +431,7 @@ func (m *Machine) resume(ctx context.Context) (ret []Value, err error) {
 			m.discardN(count * 2)
 
 		case OpInitCallFrame:
-			localN := instr.Operand1
+			localN := instr.operand1
 			m.frame.Init(int(localN))
 
 		case OpMakeIter:
@@ -457,16 +448,16 @@ func (m *Machine) resume(ctx context.Context) (ret []Value, err error) {
 
 		case OpBeginTry:
 			m.frame.TryCatches = append(m.frame.TryCatches, tryCatch{
-				CatchAddr: int(operandsToWord24(instr.Operand1, instr.Operand2)),
+				CatchAddr: int(instr.operand1),
 			})
 
 		case OpEndTry:
 			m.frame.TryCatches = m.frame.TryCatches[:len(m.frame.TryCatches)-1]
-			m.frame.IP = int(operandsToWord24(instr.Operand1, instr.Operand2)) - 1
+			m.frame.IP = int(instr.operand1) - 1
 
 		case OpSwapStack:
 			i1 := len(m.frame.Stack) - 1
-			i2 := i1 - int(instr.Operand1)
+			i2 := i1 - int(instr.operand1)
 			t := m.frame.Stack[i2]
 			m.frame.Stack[i2] = m.frame.Stack[i1]
 			m.frame.Stack[i1] = t

@@ -22,26 +22,26 @@ func (e *LiteralExpr) RunPass(ctx *Context, pass Pass) {
 		switch e.Val.Type {
 		case token.Int:
 			if 0 <= e.Val.Int && e.Val.Int <= math.MaxUint16 {
-				emitter.Emit(e.Pos(), runtime.OpNewInt, uint16(e.Val.Int), 0)
+				emitter.Emit(e.Pos(), runtime.OpNewInt, uint32(e.Val.Int), 0)
 			} else {
 				literal := emitter.AddLiteral(runtime.NewInt(e.Val.Int))
-				emitter.Emit(e.Pos(), runtime.OpLoadLiteral, uint16(literal), 0)
+				emitter.Emit(e.Pos(), runtime.OpLoadLiteral, uint32(literal), 0)
 			}
 
 		case token.Float:
 			literal := emitter.AddLiteral(runtime.NewFloat(e.Val.Float))
-			emitter.Emit(e.Pos(), runtime.OpLoadLiteral, uint16(literal), 0)
+			emitter.Emit(e.Pos(), runtime.OpLoadLiteral, uint32(literal), 0)
 
 		case token.String:
 			str := emitter.AddString(e.Val.Str)
-			emitter.Emit(e.Pos(), runtime.OpLoadLiteral, uint16(str), 0)
+			emitter.Emit(e.Pos(), runtime.OpLoadLiteral, uint32(str), 0)
 
 		case token.Bool:
 			var v uint16 = 0
 			if e.Val.Bool {
 				v = 1
 			}
-			emitter.Emit(e.Pos(), runtime.OpNewBool, uint16(v), 0)
+			emitter.Emit(e.Pos(), runtime.OpNewBool, uint32(v), 0)
 
 		default:
 			panic("not implemented")

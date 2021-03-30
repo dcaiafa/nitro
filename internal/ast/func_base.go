@@ -28,7 +28,7 @@ func (f *Func) RunPass(ctx *Context, pass Pass) {
 	case Emit:
 		emitter := ctx.Emitter()
 		emitter.PushFn(f.idxFunc)
-		emitter.Emit(f.Pos(), runtime.OpInitCallFrame, uint16(f.localCount), 0)
+		emitter.Emit(f.Pos(), runtime.OpInitCallFrame, uint32(f.localCount), 0)
 	}
 
 	ctx.Push(f)
@@ -54,7 +54,7 @@ func (f *Func) RunPass(ctx *Context, pass Pass) {
 			for _, capture := range f.captures {
 				emitSymbolRefPush(f.Pos(), emitter, capture.Captured)
 			}
-			emitter.Emit(f.Pos(), runtime.OpNewClosure, uint16(f.idxFunc), byte(len(f.captures)))
+			emitter.Emit(f.Pos(), runtime.OpNewClosure, uint32(f.idxFunc), uint16(len(f.captures)))
 		}
 	}
 }

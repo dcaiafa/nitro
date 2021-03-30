@@ -86,7 +86,7 @@ func (e *Emitter) ResolveLabel(label *Label) {
 	label.addr = len(instrs)
 	for _, ref := range label.refs {
 		instr := &instrs[ref]
-		instr.Operand1, instr.Operand2 = word24ToOperands(uint32(label.addr))
+		instr.operand1 = uint32(label.addr)
 	}
 }
 
@@ -94,13 +94,9 @@ func (e *Emitter) curFn() *Fn {
 	return e.fnStack[len(e.fnStack)-1]
 }
 
-func (e *Emitter) Emit(pos token.Pos, op OpCode, operand1 uint16, operand2 byte) {
+func (e *Emitter) Emit(pos token.Pos, op OpCode, operand1 uint32, operand2 uint16) {
 	curFn := e.curFn()
-	curFn.instrs = append(curFn.instrs, Instr{
-		Op:       op,
-		Operand2: operand2,
-		Operand1: operand1,
-	})
+	curFn.instrs = append(curFn.instrs, Instr{op, operand1, operand2})
 
 	if pos.Filename != e.curFile {
 		e.curFile = pos.Filename
@@ -133,9 +129,7 @@ func (e *Emitter) EmitJump(pos token.Pos, op OpCode, label *Label) {
 		lastEmittedInstr := len(instrs) - 1
 		label.refs = append(label.refs, lastEmittedInstr)
 	} else {
-		// TODO: Check that fns are no longer than 2^24-1.
-		operand1, operand2 := word24ToOperands(uint32(label.addr))
-		e.Emit(pos, op, operand1, operand2)
+		e.Emit(pos, op, uint32(label.addr), 0)
 	}
 }
 

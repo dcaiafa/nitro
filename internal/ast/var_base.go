@@ -31,22 +31,22 @@ func AddVariable(ctx *Context, name string, pos token.Pos) symbol.Symbol {
 func emitSymbolPush(pos token.Pos, emitter *runtime.Emitter, sym symbol.Symbol) {
 	switch sym := sym.(type) {
 	case *symbol.GlobalVarSymbol:
-		emitter.Emit(pos, runtime.OpLoadGlobal, uint16(sym.GlobalNdx), 0)
+		emitter.Emit(pos, runtime.OpLoadGlobal, uint32(sym.GlobalNdx), 0)
 
 	case *symbol.LocalVarSymbol:
-		emitter.Emit(pos, runtime.OpLoadLocal, uint16(sym.LocalNdx), 0)
+		emitter.Emit(pos, runtime.OpLoadLocal, uint32(sym.LocalNdx), 0)
 
 	case *symbol.CaptureSymbol:
-		emitter.Emit(pos, runtime.OpLoadCapture, uint16(sym.CaptureNdx), 0)
+		emitter.Emit(pos, runtime.OpLoadCapture, uint32(sym.CaptureNdx), 0)
 
 	case *symbol.ParamSymbol:
-		emitter.Emit(pos, runtime.OpLoadArg, uint16(sym.ParamNdx), 0)
+		emitter.Emit(pos, runtime.OpLoadArg, uint32(sym.ParamNdx), 0)
 
 	case *symbol.FuncSymbol:
 		if sym.External {
-			emitter.Emit(pos, runtime.OpLoadExternFn, uint16(sym.IdxFunc), 0)
+			emitter.Emit(pos, runtime.OpLoadExternFn, uint32(sym.IdxFunc), 0)
 		} else {
-			emitter.Emit(pos, runtime.OpLoadFn, uint16(sym.IdxFunc), 0)
+			emitter.Emit(pos, runtime.OpLoadFn, uint32(sym.IdxFunc), 0)
 		}
 
 	default:
@@ -57,16 +57,16 @@ func emitSymbolPush(pos token.Pos, emitter *runtime.Emitter, sym symbol.Symbol) 
 func emitSymbolRefPush(pos token.Pos, emitter *runtime.Emitter, sym symbol.Symbol) {
 	switch sym := sym.(type) {
 	case *symbol.GlobalVarSymbol:
-		emitter.Emit(pos, runtime.OpLoadGlobalRef, uint16(sym.GlobalNdx), 0)
+		emitter.Emit(pos, runtime.OpLoadGlobalRef, uint32(sym.GlobalNdx), 0)
 
 	case *symbol.LocalVarSymbol:
-		emitter.Emit(pos, runtime.OpLoadLocalRef, uint16(sym.LocalNdx), 0)
+		emitter.Emit(pos, runtime.OpLoadLocalRef, uint32(sym.LocalNdx), 0)
 
 	case *symbol.CaptureSymbol:
-		emitter.Emit(pos, runtime.OpLoadCaptureRef, uint16(sym.CaptureNdx), 0)
+		emitter.Emit(pos, runtime.OpLoadCaptureRef, uint32(sym.CaptureNdx), 0)
 
 	case *symbol.ParamSymbol:
-		emitter.Emit(pos, runtime.OpLoadArgRef, uint16(sym.ParamNdx), 0)
+		emitter.Emit(pos, runtime.OpLoadArgRef, uint32(sym.ParamNdx), 0)
 
 	default:
 		panic("not implemented")

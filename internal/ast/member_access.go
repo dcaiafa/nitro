@@ -21,7 +21,7 @@ func (a *MemberAccess) RunPass(ctx *Context, pass Pass) {
 		emitter := ctx.Emitter()
 		emitter.Emit(
 			a.Pos(), runtime.OpLoadLiteral,
-			uint16(emitter.AddString(a.Member.Str)), 0)
+			uint32(emitter.AddString(a.Member.Str)), 0)
 		if _, isLValue := ctx.Parent().(*LValue); isLValue {
 			emitter.Emit(a.Pos(), runtime.OpObjectGetRef, 0, 0)
 		} else {

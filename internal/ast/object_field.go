@@ -58,7 +58,7 @@ func (s *ObjectField) RunPass(ctx *Context, pass Pass) {
 		if s.NameID != "" {
 			emitter := ctx.Emitter()
 			nameID := emitter.AddString(s.NameID)
-			emitter.Emit(s.Pos(), runtime.OpLoadLiteral, uint16(nameID), 0)
+			emitter.Emit(s.Pos(), runtime.OpLoadLiteral, uint32(nameID), 0)
 		}
 	}
 
