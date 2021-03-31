@@ -10,7 +10,7 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-func Lines(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func lines(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
 	if len(args) < 1 {
 		return nil, errNotEnoughArgs
 	}
@@ -25,7 +25,7 @@ func Lines(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN 
 		return nil, fmt.Errorf("don't know how to split %q into lines", args[0].Type())
 	}
 
-	l := &lines{
+	l := &linesState{
 		input:   input,
 		scanner: bufio.NewScanner(input),
 	}
@@ -35,11 +35,23 @@ func Lines(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN 
 	return []nitro.Value{closure}, nil
 }
 
-type lines struct {
+type linesState struct {
 	input   io.Reader
 	scanner *bufio.Scanner
 }
 
-func (l *lines) Next(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
-	return nil, nil
+func (l *linesState) Next(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+	if !l.scanner.Scan() {
+		if l.scanner.Err() != nil {
+			return nil, l.scanner.Err()
+		}
+		return []nitro.Value{
+			nitro.NewBool(false),
+			nil,
+		}, nil
+	}
+	return []nitro.Value{
+		nitro.NewBool(true),
+		nitro.NewString(l.scanner.Text()),
+	}, nil
 }

@@ -30,10 +30,6 @@ type (
 
 var ErrCannotCallNil = runtime.ErrCannotCallNil
 
-func NewClosure(extFn ExternFn, caps []ValueRef) *Closure {
-	return runtime.NewClosure(extFn, caps)
-}
-
 func MakeEnumerator(ctx context.Context, v Value) (Value, error) {
 	return runtime.MakeEnumerator(ctx, v)
 }
@@ -45,3 +41,10 @@ func Next(ctx context.Context, e Value, n int) ([]Value, bool, error) {
 func Call(ctx context.Context, callable Value, args []Value, retN int) ([]Value, error) {
 	return runtime.Call(ctx, callable, args, retN)
 }
+
+func NewString(v string) String                    { return runtime.NewString(v) }
+func NewInt(v int64) Int                           { return runtime.NewInt(v) }
+func NewFloat(v float64) Float                     { return runtime.NewFloat(v) }
+func NewBool(v bool) Bool                          { return runtime.NewBool(v) }
+func NewValueRef(ref *Value) ValueRef              { return runtime.NewValueRef(ref) }
+func NewClosure(f ExternFn, c []ValueRef) *Closure { return runtime.NewClosure(f, c) }

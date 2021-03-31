@@ -3,6 +3,7 @@ package nitro
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 
 	"github.com/dcaiafa/nitro/internal/ast"
 	"github.com/dcaiafa/nitro/internal/errlogger"
@@ -13,6 +14,16 @@ import (
 
 type FileSystem interface {
 	ReadFile(name string) ([]byte, error)
+}
+
+type nativeFileSystem struct{}
+
+func NewNativeFileSystem() FileSystem {
+	return &nativeFileSystem{}
+}
+
+func (fs *nativeFileSystem) ReadFile(name string) ([]byte, error) {
+	return ioutil.ReadFile(name)
 }
 
 type Compiler struct {
