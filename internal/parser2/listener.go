@@ -30,6 +30,8 @@ func newListener(filename string, errListener *errorListener) *listener {
 }
 
 func (l *listener) tokenToNitro(at antlr.Token) token.Token {
+	var err error
+
 	t := token.Token{}
 	switch at.GetTokenType() {
 	case parser.NitroLexerSTRING:
@@ -38,7 +40,13 @@ func (l *listener) tokenToNitro(at antlr.Token) token.Token {
 		s = s[1 : len(s)-1]
 		t.Type = token.String
 		t.Str = s
-		// TODO: expand escaped sequences.
+		t.Str, err = expandEscapeSequences(s)
+		if err != nil {
+			l.errListener.LogError(
+				at.GetLine(),
+				at.GetColumn(),
+				"Invalid string literal: %v", err)
+		}
 
 	case parser.NitroLexerNUMBER:
 		if strings.IndexByte(at.GetText(), '.') == -1 {
