@@ -18,4 +18,5 @@ func RegisterAll(c *nitro.Compiler) {
 	c.AddExternalFn("print", fnPrint)
 	c.AddExternalFn("printall", fnPrintAll)
 	c.AddExternalFn("readall", readall)
+	c.AddExternalFn("tojson", fnToJSON)
 }

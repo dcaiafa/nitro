@@ -17,7 +17,7 @@ func fromjson(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, re
 
 	defer CloseReader(input)
 
-	v, err := ParseJSON(input)
+	v, err := FromJSON(input)
 	if err != nil {
 		return nil, err
 	}
@@ -25,7 +25,7 @@ func fromjson(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, re
 	return []nitro.Value{v}, nil
 }
 
-func ParseJSON(r io.Reader) (nitro.Value, error) {
+func FromJSON(r io.Reader) (nitro.Value, error) {
 	parser := &jsonParser{
 		dec: json.NewDecoder(r),
 	}

@@ -36,6 +36,19 @@ func getStringArg(args []runtime.Value, ndx int) (string, error) {
 	return v.String(), nil
 }
 
+func getObjectArg(args []runtime.Value, ndx int) (*nitro.Object, error) {
+	if ndx >= len(args) {
+		return nil, errNotEnoughArgs
+	}
+	v, ok := args[ndx].(*runtime.Object)
+	if !ok {
+		return nil, fmt.Errorf(
+			"expected argument %d to be Object, but it is %v",
+			ndx+1, args[ndx].Type())
+	}
+	return v, nil
+}
+
 func getReaderArg(args []runtime.Value, ndx int) (io.Reader, error) {
 	if ndx >= len(args) {
 		return nil, errNotEnoughArgs
