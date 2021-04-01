@@ -400,33 +400,40 @@ func (l *listener) ExitDefer_stmt(ctx *parser.Defer_stmtContext) {
 	l.put(ctx, ast.NewDeferStmt(callExpr))
 }
 
-// expr: pipeline_term_expr ('|' pipeline_term_expr)*;
+// expr: expr '|' expr
+//     | pipeline_term_expr
+//     ;
 func (l *listener) ExitExpr(ctx *parser.ExprContext) {
-	arg := l.takeExpr(ctx.Pipeline_term_expr(0))
-	for _, fnRaw := range ctx.AllPipeline_term_expr()[1:] {
-		switch fn := l.takeExpr(fnRaw).(type) {
-		case *ast.FuncCallExpr:
-			fn.Args = append(ast.Exprs{arg}, fn.Args...)
-			arg = fn
-
-		case *ast.LambdaExpr:
-			fnCall := &ast.FuncCallExpr{
-				Target: fn,
-				Args:   ast.Exprs{arg},
-				RetN:   1,
-			}
-			arg = fnCall
-
-		default:
-			l.errListener.LogError(
-				fnRaw.GetStart().GetLine(),
-				fnRaw.GetStart().GetColumn(),
-				"Pipeline term on the right must be a invocation expression")
-			l.put(ctx, &ast.ZeroExpr{})
-			return
-		}
+	if ctx.Pipeline_term_expr() != nil {
+		l.put(ctx, l.takeExpr(ctx.Pipeline_term_expr()))
+		return
 	}
-	l.put(ctx, arg)
+
+	left := l.takeExpr(ctx.Expr(0))
+	right := l.takeExpr(ctx.Expr(1))
+
+	switch fn := right.(type) {
+	case *ast.FuncCallExpr:
+		fn.Args = append(ast.Exprs{left}, fn.Args...)
+		l.put(ctx, fn)
+
+	case *ast.LambdaExpr:
+		fnCall := &ast.FuncCallExpr{
+			Target: fn,
+			Args:   ast.Exprs{left},
+			RetN:   1,
+		}
+		l.put(ctx, fnCall)
+
+	default:
+		r := ctx.Expr(1)
+		l.errListener.LogError(
+			r.GetStart().GetLine(),
+			r.GetStart().GetColumn(),
+			"Pipeline term on the right is not an invocation expression")
+		l.put(ctx, &ast.ZeroExpr{})
+		return
+	}
 }
 
 // pipeline_term_expr: binary_expr           # pipeline_term_expr_binary

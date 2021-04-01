@@ -67,7 +67,9 @@ defer_stmt: DEFER primary_expr;
 
 // Expressions
 
-expr: pipeline_term_expr ('|' pipeline_term_expr)*;
+expr: expr '|' expr
+    | pipeline_term_expr
+    ;
 
 pipeline_term_expr: binary_expr           # pipeline_term_expr_binary
                   | short_lambda_expr     # pipeline_term_expr_short_lambda
