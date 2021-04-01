@@ -17,15 +17,15 @@ const (
 
 type Context struct {
 	Stack
-	*errlogger.ErrLoggerBase
+	*errlogger.ErrLoggerWrapper
 
 	emitter *runtime.Emitter
 }
 
-func NewContext(l errlogger.ErrLogger) *Context {
+func NewContext(l *errlogger.ErrLoggerWrapper) *Context {
 	return &Context{
-		ErrLoggerBase: errlogger.NewErrLoggerBase(l),
-		emitter:       runtime.NewEmitter(),
+		ErrLoggerWrapper: l,
+		emitter:          runtime.NewEmitter(),
 	}
 }
 

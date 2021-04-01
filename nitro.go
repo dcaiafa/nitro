@@ -42,6 +42,10 @@ func Call(ctx context.Context, callable Value, args []Value, retN int) ([]Value,
 	return runtime.Call(ctx, callable, args, retN)
 }
 
+func NewConsoleErrLogger() ErrLogger {
+	return &errlogger.ConsoleErrLogger{}
+}
+
 func TypeName(v Value) string                      { return runtime.TypeName(v) }
 func NewString(v string) String                    { return runtime.NewString(v) }
 func NewInt(v int64) Int                           { return runtime.NewInt(v) }

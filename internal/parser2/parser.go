@@ -39,9 +39,9 @@ func Parse(filename string, input string, diagMode bool, errLogger errlogger.Err
 	parseTree := nitroParser.Start()
 	parserPool.Put(nitroParser)
 	lexerPool.Put(lexer)
+	antlr.ParseTreeWalkerDefault.Walk(listener, parseTree)
 	if errListener.Error() != nil {
 		return nil, errListener.Error()
 	}
-	antlr.ParseTreeWalkerDefault.Walk(listener, parseTree)
 	return listener.Module, nil
 }

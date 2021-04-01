@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/dcaiafa/nitro"
+	"github.com/dcaiafa/nitro/internal/errlogger"
 )
 
 type MemoryFileSystem map[string]string
@@ -64,7 +65,7 @@ func run(prog string, params map[string]nitro.Value) (output string, err error) 
 			return nil, nil
 		})
 
-	compiled, err := compiler.Compile("main.ni")
+	compiled, err := compiler.Compile("main.ni", &errlogger.ConsoleErrLogger{})
 	if err != nil {
 		return "", err
 	}

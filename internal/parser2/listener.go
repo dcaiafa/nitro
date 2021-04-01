@@ -427,6 +427,7 @@ func (l *listener) ExitPipeline_expr(ctx *parser.Pipeline_exprContext) {
 				fnRaw.GetStart().GetLine(),
 				fnRaw.GetStart().GetColumn(),
 				"Pipeline term on the right must be a invocation expression")
+			l.put(ctx, &ast.ZeroExpr{})
 			return
 		}
 
