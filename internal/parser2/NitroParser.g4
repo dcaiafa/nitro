@@ -45,7 +45,7 @@ rvalues: expr (',' expr)*;
 var_decl_stmt: VAR var_decl_vars ('=' rvalues)?;
 var_decl_vars: ID (',' ID)*;
 
-for_stmt: FOR for_vars IN expr ';' stmts END;
+for_stmt: FOR for_vars ID expr ';' stmts END;
 for_vars: ID (',' ID)*;
 
 while_stmt: WHILE expr ';' stmts END;
@@ -127,7 +127,7 @@ object_if: IF expr ';' object_fields object_elif* object_else? END;
 object_elif: ELSE IF expr ';' object_fields;
 object_else: ELSE object_fields;
 
-object_for: FOR for_vars IN expr ';' object_fields END;
+object_for: FOR for_vars ID expr ';' object_fields END;
 
 array_literal: '[' array_elems ']';
 array_elems: ( array_elem ((','|';') array_elem)* (','|';')* )?;
@@ -137,10 +137,10 @@ array_if: IF expr ';' array_elems array_elif* array_else? END;
 array_elif: ELSE IF expr ';' array_elems;
 array_else: ELSE array_elems;
 
-array_for: FOR for_vars IN expr ';' array_elems END;
+array_for: FOR for_vars ID expr ';' array_elems END;
 
 id_or_keyword: 
     t=(ID | AND | ELSE | END | FALSE |
-       FUNC | FOR | IF | IN | META | NOT | OR | RETURN |
+       FUNC | FOR | IF | META | NOT | OR | RETURN |
        TRUE | VAR | WHILE | DEFER | TRY | CATCH | THROW)
     ;

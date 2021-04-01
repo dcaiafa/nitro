@@ -42,9 +42,12 @@ func Call(ctx context.Context, callable Value, args []Value, retN int) ([]Value,
 	return runtime.Call(ctx, callable, args, retN)
 }
 
+func TypeName(v Value) string                      { return runtime.TypeName(v) }
 func NewString(v string) String                    { return runtime.NewString(v) }
 func NewInt(v int64) Int                           { return runtime.NewInt(v) }
 func NewFloat(v float64) Float                     { return runtime.NewFloat(v) }
 func NewBool(v bool) Bool                          { return runtime.NewBool(v) }
 func NewValueRef(ref *Value) ValueRef              { return runtime.NewValueRef(ref) }
 func NewClosure(f ExternFn, c []ValueRef) *Closure { return runtime.NewClosure(f, c) }
+func NewArray() *Array                             { return runtime.NewArray() }
+func NewObject() *Object                           { return runtime.NewObject() }

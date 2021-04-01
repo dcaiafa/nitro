@@ -41,8 +41,12 @@ type Object struct {
 }
 
 func NewObject() *Object {
+	return NewObjectWithCapacity(0)
+}
+
+func NewObjectWithCapacity(c int) *Object {
 	return &Object{
-		data: make(map[Value]*objectNode),
+		data: make(map[Value]*objectNode, c),
 		list: newObjectNodeList(),
 	}
 }

@@ -14,6 +14,12 @@ func NewArray() *Array {
 	return &Array{}
 }
 
+func NewArrayWithCapacity(c int) *Array {
+	return &Array{
+		array: make([]Value, 0, c),
+	}
+}
+
 func (a *Array) Type() string { return "Array" }
 
 func (a *Array) Append(v Value) {

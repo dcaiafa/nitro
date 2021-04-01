@@ -12,6 +12,13 @@ type Value interface {
 	Type() string
 }
 
+func TypeName(v Value) string {
+	if v == nil {
+		return "nil"
+	}
+	return v.Type()
+}
+
 type Indexable interface {
 	Value
 	Index(key Value) (Value, error)

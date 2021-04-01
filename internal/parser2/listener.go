@@ -36,8 +36,7 @@ func (l *listener) tokenToNitro(at antlr.Token) token.Token {
 	switch at.GetTokenType() {
 	case parser.NitroLexerSTRING:
 		s := at.GetText()
-		// Remove quotes.
-		s = s[1 : len(s)-1]
+		s = s[1 : len(s)-1] // remove quotes
 		t.Type = token.String
 		t.Str = s
 		t.Str, err = expandEscapeSequences(s)
@@ -268,8 +267,17 @@ func (l *listener) ExitVar_decl_vars(ctx *parser.Var_decl_varsContext) {
 	l.put(ctx, ids)
 }
 
-// for_stmt: FOR for_vars IN expr DO stmts END;
+// for_stmt: FOR for_vars ID expr DO stmts END;
 func (l *listener) ExitFor_stmt(ctx *parser.For_stmtContext) {
+	if ctx.ID().GetText() != "in" {
+		l.errListener.LogError(
+			ctx.ID().GetSymbol().GetLine(),
+			ctx.ID().GetSymbol().GetColumn(),
+			"Unexpected identifier %v. Expected 'in' instead.",
+			ctx.ID().GetText())
+		return
+	}
+
 	l.put(ctx, &ast.ForStmt{
 		ForVars:  l.takeASTs(ctx.For_vars()),
 		IterExpr: l.takeExpr(ctx.Expr()),

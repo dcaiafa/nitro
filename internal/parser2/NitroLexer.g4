@@ -8,7 +8,6 @@ FALSE: 'false';
 FUNC: 'func';
 FOR: 'for';
 IF: 'if';
-IN: 'in';
 META: 'meta';
 NOT: 'not';
 OR: 'or';

@@ -185,7 +185,7 @@ func (m *Machine) runCallable(
 		if callable == nil {
 			return nil, ErrCannotCallNil
 		}
-		return nil, fmt.Errorf("cannot call type %q", callable.Type())
+		return nil, fmt.Errorf("cannot call type %q", TypeName(callable))
 	}
 	return rets, nil
 }
@@ -383,7 +383,7 @@ func (m *Machine) resume(ctx context.Context) (ret []Value, err error) {
 			} else {
 				indexable, ok := objRaw.(Indexable)
 				if !ok {
-					return nil, fmt.Errorf("Value type %v is not indexable", objRaw.Type())
+					return nil, fmt.Errorf("Value type %v is not indexable", TypeName(objRaw))
 				}
 				item, err := indexable.Index(member)
 				if err != nil {
@@ -400,7 +400,7 @@ func (m *Machine) resume(ctx context.Context) (ret []Value, err error) {
 			} else {
 				indexable, ok := objRaw.(Indexable)
 				if !ok {
-					return nil, fmt.Errorf("Value type %v is not indexable", objRaw.Type())
+					return nil, fmt.Errorf("Value type %v is not indexable", TypeName(objRaw))
 				}
 				itemRef, err := indexable.IndexRef(member)
 				if err != nil {
@@ -443,7 +443,7 @@ func (m *Machine) resume(ctx context.Context) (ret []Value, err error) {
 				m.pop()
 				m.push(v.Enumerate())
 			default:
-				return nil, fmt.Errorf("Cannot iterate over value of type %q", v.Type())
+				return nil, fmt.Errorf("Cannot iterate over value of type %q", TypeName(v))
 			}
 
 		case OpBeginTry:
@@ -481,7 +481,7 @@ func (m *Machine) resume(ctx context.Context) (ret []Value, err error) {
 			if !ok {
 				return nil, fmt.Errorf(
 					"enumerator's first return value must be Bool; instead it is %q",
-					m.peek(argN-1).Type())
+					TypeName(m.peek(argN-1)))
 			}
 			if has.Bool() {
 				count := argN - 1

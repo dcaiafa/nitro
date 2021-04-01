@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"strings"
 
 	"github.com/dcaiafa/nitro"
 )
@@ -15,14 +14,9 @@ func lines(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN 
 		return nil, errNotEnoughArgs
 	}
 
-	var input io.Reader
-	switch arg := args[0].(type) {
-	case io.Reader:
-		input = arg
-	case nitro.String:
-		input = strings.NewReader(arg.String())
-	default:
-		return nil, fmt.Errorf("don't know how to split %q into lines", args[0].Type())
+	input, err := ToReader(ctx, args[0])
+	if err != nil {
+		return nil, fmt.Errorf("invalid argument #1: %w", err)
 	}
 
 	l := &linesState{

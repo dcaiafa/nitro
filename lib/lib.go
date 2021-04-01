@@ -9,8 +9,9 @@ import (
 var errNotEnoughArgs = errors.New("not enough arguments")
 
 func RegisterAll(c *nitro.Compiler) {
-	c.AddExternalFn("stdin", stdin)
-	c.AddExternalFn("stdout", stdout)
+	c.AddExternalFn("in", in)
+	c.AddExternalFn("out", out)
 	c.AddExternalFn("lines", lines)
 	c.AddExternalFn("print", print)
+	c.AddExternalFn("fromjson", fromjson)
 }
