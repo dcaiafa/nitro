@@ -10,11 +10,7 @@ import (
 )
 
 func lines(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
-	if len(args) < 1 {
-		return nil, errNotEnoughArgs
-	}
-
-	input, err := ToReader(ctx, args[0])
+	input, err := getReaderArg(args, 0)
 	if err != nil {
 		return nil, fmt.Errorf("invalid argument #1: %w", err)
 	}
@@ -36,6 +32,7 @@ type linesState struct {
 
 func (l *linesState) Next(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
 	if !l.scanner.Scan() {
+		CloseReader(l.input)
 		if l.scanner.Err() != nil {
 			return nil, l.scanner.Err()
 		}

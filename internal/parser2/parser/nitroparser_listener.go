@@ -89,17 +89,14 @@ type NitroParserListener interface {
 	// EnterDefer_stmt is called when entering the defer_stmt production.
 	EnterDefer_stmt(c *Defer_stmtContext)
 
-	// EnterExpr_binary is called when entering the expr_binary production.
-	EnterExpr_binary(c *Expr_binaryContext)
+	// EnterExpr is called when entering the expr production.
+	EnterExpr(c *ExprContext)
 
-	// EnterExpr_short_lambda is called when entering the expr_short_lambda production.
-	EnterExpr_short_lambda(c *Expr_short_lambdaContext)
+	// EnterPipeline_term_expr_binary is called when entering the pipeline_term_expr_binary production.
+	EnterPipeline_term_expr_binary(c *Pipeline_term_expr_binaryContext)
 
-	// EnterExpr_pipeline is called when entering the expr_pipeline production.
-	EnterExpr_pipeline(c *Expr_pipelineContext)
-
-	// EnterPipeline_expr is called when entering the pipeline_expr production.
-	EnterPipeline_expr(c *Pipeline_exprContext)
+	// EnterPipeline_term_expr_short_lambda is called when entering the pipeline_term_expr_short_lambda production.
+	EnterPipeline_term_expr_short_lambda(c *Pipeline_term_expr_short_lambdaContext)
 
 	// EnterBinary_expr is called when entering the binary_expr production.
 	EnterBinary_expr(c *Binary_exprContext)
@@ -296,17 +293,14 @@ type NitroParserListener interface {
 	// ExitDefer_stmt is called when exiting the defer_stmt production.
 	ExitDefer_stmt(c *Defer_stmtContext)
 
-	// ExitExpr_binary is called when exiting the expr_binary production.
-	ExitExpr_binary(c *Expr_binaryContext)
+	// ExitExpr is called when exiting the expr production.
+	ExitExpr(c *ExprContext)
 
-	// ExitExpr_short_lambda is called when exiting the expr_short_lambda production.
-	ExitExpr_short_lambda(c *Expr_short_lambdaContext)
+	// ExitPipeline_term_expr_binary is called when exiting the pipeline_term_expr_binary production.
+	ExitPipeline_term_expr_binary(c *Pipeline_term_expr_binaryContext)
 
-	// ExitExpr_pipeline is called when exiting the expr_pipeline production.
-	ExitExpr_pipeline(c *Expr_pipelineContext)
-
-	// ExitPipeline_expr is called when exiting the pipeline_expr production.
-	ExitPipeline_expr(c *Pipeline_exprContext)
+	// ExitPipeline_term_expr_short_lambda is called when exiting the pipeline_term_expr_short_lambda production.
+	ExitPipeline_term_expr_short_lambda(c *Pipeline_term_expr_short_lambdaContext)
 
 	// ExitBinary_expr is called when exiting the binary_expr production.
 	ExitBinary_expr(c *Binary_exprContext)

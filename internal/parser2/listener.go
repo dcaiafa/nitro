@@ -400,29 +400,24 @@ func (l *listener) ExitDefer_stmt(ctx *parser.Defer_stmtContext) {
 	l.put(ctx, ast.NewDeferStmt(callExpr))
 }
 
-// expr: binary_expr           # expr_binary
-//     | short_lambda_expr     # expr_short_lambda
-//     | pipeline_expr         # expr_pipeline
-//     ;
+// expr: pipeline_term_expr ('|' pipeline_term_expr)*;
+func (l *listener) ExitExpr(ctx *parser.ExprContext) {
+	arg := l.takeExpr(ctx.Pipeline_term_expr(0))
+	for _, fnRaw := range ctx.AllPipeline_term_expr()[1:] {
+		switch fn := l.takeExpr(fnRaw).(type) {
+		case *ast.FuncCallExpr:
+			fn.Args = append(ast.Exprs{arg}, fn.Args...)
+			arg = fn
 
-func (l *listener) ExitExpr_binary(ctx *parser.Expr_binaryContext) {
-	l.put(ctx, l.takeExpr(ctx.Binary_expr()))
-}
+		case *ast.LambdaExpr:
+			fnCall := &ast.FuncCallExpr{
+				Target: fn,
+				Args:   ast.Exprs{arg},
+				RetN:   1,
+			}
+			arg = fnCall
 
-func (l *listener) ExitExpr_short_lambda(ctx *parser.Expr_short_lambdaContext) {
-	l.put(ctx, l.takeExpr(ctx.Short_lambda_expr()))
-}
-
-func (l *listener) ExitExpr_pipeline(ctx *parser.Expr_pipelineContext) {
-	l.put(ctx, l.takeExpr(ctx.Pipeline_expr()))
-}
-
-// pipeline_expr: binary_expr ('|' primary_expr)+;
-func (l *listener) ExitPipeline_expr(ctx *parser.Pipeline_exprContext) {
-	arg := l.takeExpr(ctx.Binary_expr())
-	for _, fnRaw := range ctx.AllPrimary_expr() {
-		fn, ok := l.takeExpr(fnRaw).(*ast.FuncCallExpr)
-		if !ok {
+		default:
 			l.errListener.LogError(
 				fnRaw.GetStart().GetLine(),
 				fnRaw.GetStart().GetColumn(),
@@ -430,11 +425,20 @@ func (l *listener) ExitPipeline_expr(ctx *parser.Pipeline_exprContext) {
 			l.put(ctx, &ast.ZeroExpr{})
 			return
 		}
-
-		fn.Args = append(ast.Exprs{arg}, fn.Args...)
-		arg = fn
 	}
 	l.put(ctx, arg)
+}
+
+// pipeline_term_expr: binary_expr           # pipeline_term_expr_binary
+//                   | short_lambda_expr     # pipeline_term_expr_short_lambda
+//                   ;
+
+func (l *listener) ExitPipeline_term_expr_binary(ctx *parser.Pipeline_term_expr_binaryContext) {
+	l.put(ctx, l.takeExpr(ctx.Binary_expr()))
+}
+
+func (l *listener) ExitPipeline_term_expr_short_lambda(ctx *parser.Pipeline_term_expr_short_lambdaContext) {
+	l.put(ctx, l.takeExpr(ctx.Short_lambda_expr()))
 }
 
 // binary_expr: unary_expr

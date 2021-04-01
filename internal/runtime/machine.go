@@ -538,7 +538,7 @@ func (m *Machine) getLocation(fn *Fn, ip int) *Location {
 			return &locs[i-1]
 		}
 	}
-	return &locs[len(fn.locations)]
+	return &locs[len(fn.locations)-1]
 }
 
 func (m *Machine) push(v Value) {

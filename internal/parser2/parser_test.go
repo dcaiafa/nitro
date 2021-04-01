@@ -15,6 +15,8 @@ a | b() | c()
 
 1 + 2 | b() | c()
 
+print(in() | fromjson() | &d -> d.id)
+
 c(b(a))
 
 try

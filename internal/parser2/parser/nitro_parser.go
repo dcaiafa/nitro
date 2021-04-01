@@ -48,8 +48,8 @@ var parserATN = []uint16{
 	23, 3, 23, 3, 23, 3, 24, 3, 24, 3, 24, 7, 24, 287, 10, 24, 12, 24, 14,
 	24, 290, 11, 24, 3, 25, 3, 25, 5, 25, 294, 10, 25, 3, 26, 3, 26, 3, 26,
 	3, 26, 5, 26, 300, 10, 26, 3, 26, 3, 26, 3, 26, 3, 26, 3, 27, 3, 27, 3,
-	27, 3, 28, 3, 28, 3, 28, 3, 29, 3, 29, 3, 29, 5, 29, 315, 10, 29, 3, 30,
-	3, 30, 3, 30, 6, 30, 320, 10, 30, 13, 30, 14, 30, 321, 3, 31, 3, 31, 3,
+	27, 3, 28, 3, 28, 3, 28, 3, 29, 3, 29, 3, 29, 7, 29, 315, 10, 29, 12, 29,
+	14, 29, 318, 11, 29, 3, 30, 3, 30, 5, 30, 322, 10, 30, 3, 31, 3, 31, 3,
 	31, 3, 31, 3, 31, 3, 31, 3, 31, 3, 31, 3, 31, 3, 31, 3, 31, 3, 31, 3, 31,
 	3, 31, 3, 31, 3, 31, 3, 31, 3, 31, 7, 31, 342, 10, 31, 12, 31, 14, 31,
 	345, 11, 31, 3, 32, 3, 32, 3, 32, 3, 32, 3, 32, 3, 32, 3, 32, 5, 32, 354,
@@ -80,7 +80,7 @@ var parserATN = []uint16{
 	40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64, 66, 68, 70, 72, 74,
 	76, 78, 80, 82, 84, 86, 88, 90, 92, 94, 96, 98, 100, 102, 104, 2, 8, 3,
 	2, 33, 34, 3, 2, 30, 32, 3, 2, 28, 29, 3, 2, 22, 27, 6, 2, 6, 6, 14, 14,
-	47, 47, 51, 51, 4, 2, 3, 20, 48, 48, 2, 585, 2, 106, 3, 2, 2, 2, 4, 110,
+	47, 47, 51, 51, 4, 2, 3, 20, 48, 48, 2, 584, 2, 106, 3, 2, 2, 2, 4, 110,
 	3, 2, 2, 2, 6, 114, 3, 2, 2, 2, 8, 123, 3, 2, 2, 2, 10, 126, 3, 2, 2, 2,
 	12, 132, 3, 2, 2, 2, 14, 140, 3, 2, 2, 2, 16, 149, 3, 2, 2, 2, 18, 154,
 	3, 2, 2, 2, 20, 191, 3, 2, 2, 2, 22, 193, 3, 2, 2, 2, 24, 197, 3, 2, 2,
@@ -88,7 +88,7 @@ var parserATN = []uint16{
 	3, 2, 2, 2, 34, 235, 3, 2, 2, 2, 36, 243, 3, 2, 2, 2, 38, 249, 3, 2, 2,
 	2, 40, 264, 3, 2, 2, 2, 42, 270, 3, 2, 2, 2, 44, 273, 3, 2, 2, 2, 46, 283,
 	3, 2, 2, 2, 48, 291, 3, 2, 2, 2, 50, 295, 3, 2, 2, 2, 52, 305, 3, 2, 2,
-	2, 54, 308, 3, 2, 2, 2, 56, 314, 3, 2, 2, 2, 58, 316, 3, 2, 2, 2, 60, 323,
+	2, 54, 308, 3, 2, 2, 2, 56, 311, 3, 2, 2, 2, 58, 321, 3, 2, 2, 2, 60, 323,
 	3, 2, 2, 2, 62, 353, 3, 2, 2, 2, 64, 365, 3, 2, 2, 2, 66, 396, 3, 2, 2,
 	2, 68, 398, 3, 2, 2, 2, 70, 416, 3, 2, 2, 2, 72, 418, 3, 2, 2, 2, 74, 427,
 	3, 2, 2, 2, 76, 434, 3, 2, 2, 2, 78, 452, 3, 2, 2, 2, 80, 469, 3, 2, 2,
@@ -168,102 +168,102 @@ var parserATN = []uint16{
 	299, 300, 3, 2, 2, 2, 300, 301, 3, 2, 2, 2, 301, 302, 7, 33, 2, 2, 302,
 	303, 5, 18, 10, 2, 303, 304, 7, 5, 2, 2, 304, 51, 3, 2, 2, 2, 305, 306,
 	7, 20, 2, 2, 306, 307, 5, 56, 29, 2, 307, 53, 3, 2, 2, 2, 308, 309, 7,
-	17, 2, 2, 309, 310, 5, 64, 33, 2, 310, 55, 3, 2, 2, 2, 311, 315, 5, 60,
-	31, 2, 312, 315, 5, 74, 38, 2, 313, 315, 5, 58, 30, 2, 314, 311, 3, 2,
-	2, 2, 314, 312, 3, 2, 2, 2, 314, 313, 3, 2, 2, 2, 315, 57, 3, 2, 2, 2,
-	316, 319, 5, 60, 31, 2, 317, 318, 7, 45, 2, 2, 318, 320, 5, 64, 33, 2,
-	319, 317, 3, 2, 2, 2, 320, 321, 3, 2, 2, 2, 321, 319, 3, 2, 2, 2, 321,
-	322, 3, 2, 2, 2, 322, 59, 3, 2, 2, 2, 323, 324, 8, 31, 1, 2, 324, 325,
-	5, 62, 32, 2, 325, 343, 3, 2, 2, 2, 326, 327, 12, 7, 2, 2, 327, 328, 9,
-	3, 2, 2, 328, 342, 5, 60, 31, 8, 329, 330, 12, 6, 2, 2, 330, 331, 9, 4,
-	2, 2, 331, 342, 5, 60, 31, 7, 332, 333, 12, 5, 2, 2, 333, 334, 9, 5, 2,
-	2, 334, 342, 5, 60, 31, 6, 335, 336, 12, 4, 2, 2, 336, 337, 7, 3, 2, 2,
-	337, 342, 5, 60, 31, 5, 338, 339, 12, 3, 2, 2, 339, 340, 7, 12, 2, 2, 340,
-	342, 5, 60, 31, 4, 341, 326, 3, 2, 2, 2, 341, 329, 3, 2, 2, 2, 341, 332,
-	3, 2, 2, 2, 341, 335, 3, 2, 2, 2, 341, 338, 3, 2, 2, 2, 342, 345, 3, 2,
-	2, 2, 343, 341, 3, 2, 2, 2, 343, 344, 3, 2, 2, 2, 344, 61, 3, 2, 2, 2,
-	345, 343, 3, 2, 2, 2, 346, 347, 7, 11, 2, 2, 347, 354, 5, 62, 32, 2, 348,
-	349, 7, 28, 2, 2, 349, 354, 5, 62, 32, 2, 350, 351, 7, 29, 2, 2, 351, 354,
-	5, 62, 32, 2, 352, 354, 5, 64, 33, 2, 353, 346, 3, 2, 2, 2, 353, 348, 3,
-	2, 2, 2, 353, 350, 3, 2, 2, 2, 353, 352, 3, 2, 2, 2, 354, 63, 3, 2, 2,
-	2, 355, 356, 8, 33, 1, 2, 356, 366, 7, 48, 2, 2, 357, 366, 5, 72, 37, 2,
-	358, 366, 5, 76, 39, 2, 359, 366, 5, 90, 46, 2, 360, 366, 5, 66, 34, 2,
-	361, 362, 7, 37, 2, 2, 362, 363, 5, 56, 29, 2, 363, 364, 7, 38, 2, 2, 364,
-	366, 3, 2, 2, 2, 365, 355, 3, 2, 2, 2, 365, 357, 3, 2, 2, 2, 365, 358,
-	3, 2, 2, 2, 365, 359, 3, 2, 2, 2, 365, 360, 3, 2, 2, 2, 365, 361, 3, 2,
-	2, 2, 366, 393, 3, 2, 2, 2, 367, 368, 12, 11, 2, 2, 368, 369, 7, 36, 2,
-	2, 369, 392, 7, 48, 2, 2, 370, 371, 12, 10, 2, 2, 371, 372, 7, 39, 2, 2,
-	372, 373, 5, 56, 29, 2, 373, 374, 7, 40, 2, 2, 374, 392, 3, 2, 2, 2, 375,
-	376, 12, 9, 2, 2, 376, 378, 7, 39, 2, 2, 377, 379, 5, 56, 29, 2, 378, 377,
-	3, 2, 2, 2, 378, 379, 3, 2, 2, 2, 379, 380, 3, 2, 2, 2, 380, 382, 7, 35,
-	2, 2, 381, 383, 5, 56, 29, 2, 382, 381, 3, 2, 2, 2, 382, 383, 3, 2, 2,
-	2, 383, 384, 3, 2, 2, 2, 384, 392, 7, 40, 2, 2, 385, 386, 12, 8, 2, 2,
-	386, 388, 7, 37, 2, 2, 387, 389, 5, 68, 35, 2, 388, 387, 3, 2, 2, 2, 388,
-	389, 3, 2, 2, 2, 389, 390, 3, 2, 2, 2, 390, 392, 7, 38, 2, 2, 391, 367,
-	3, 2, 2, 2, 391, 370, 3, 2, 2, 2, 391, 375, 3, 2, 2, 2, 391, 385, 3, 2,
-	2, 2, 392, 395, 3, 2, 2, 2, 393, 391, 3, 2, 2, 2, 393, 394, 3, 2, 2, 2,
-	394, 65, 3, 2, 2, 2, 395, 393, 3, 2, 2, 2, 396, 397, 9, 6, 2, 2, 397, 67,
-	3, 2, 2, 2, 398, 403, 5, 56, 29, 2, 399, 400, 7, 34, 2, 2, 400, 402, 5,
-	56, 29, 2, 401, 399, 3, 2, 2, 2, 402, 405, 3, 2, 2, 2, 403, 401, 3, 2,
-	2, 2, 403, 404, 3, 2, 2, 2, 404, 69, 3, 2, 2, 2, 405, 403, 3, 2, 2, 2,
-	406, 417, 7, 48, 2, 2, 407, 408, 5, 64, 33, 2, 408, 409, 7, 36, 2, 2, 409,
-	410, 7, 48, 2, 2, 410, 417, 3, 2, 2, 2, 411, 412, 5, 64, 33, 2, 412, 413,
-	7, 39, 2, 2, 413, 414, 5, 56, 29, 2, 414, 415, 7, 40, 2, 2, 415, 417, 3,
-	2, 2, 2, 416, 406, 3, 2, 2, 2, 416, 407, 3, 2, 2, 2, 416, 411, 3, 2, 2,
-	2, 417, 71, 3, 2, 2, 2, 418, 419, 7, 7, 2, 2, 419, 421, 7, 37, 2, 2, 420,
-	422, 5, 46, 24, 2, 421, 420, 3, 2, 2, 2, 421, 422, 3, 2, 2, 2, 422, 423,
-	3, 2, 2, 2, 423, 424, 7, 38, 2, 2, 424, 425, 5, 18, 10, 2, 425, 426, 7,
-	5, 2, 2, 426, 73, 3, 2, 2, 2, 427, 429, 7, 44, 2, 2, 428, 430, 5, 46, 24,
-	2, 429, 428, 3, 2, 2, 2, 429, 430, 3, 2, 2, 2, 430, 431, 3, 2, 2, 2, 431,
-	432, 7, 43, 2, 2, 432, 433, 5, 60, 31, 2, 433, 75, 3, 2, 2, 2, 434, 435,
-	7, 41, 2, 2, 435, 436, 5, 78, 40, 2, 436, 437, 7, 42, 2, 2, 437, 77, 3,
-	2, 2, 2, 438, 443, 5, 80, 41, 2, 439, 440, 9, 2, 2, 2, 440, 442, 5, 80,
-	41, 2, 441, 439, 3, 2, 2, 2, 442, 445, 3, 2, 2, 2, 443, 441, 3, 2, 2, 2,
-	443, 444, 3, 2, 2, 2, 444, 449, 3, 2, 2, 2, 445, 443, 3, 2, 2, 2, 446,
-	448, 9, 2, 2, 2, 447, 446, 3, 2, 2, 2, 448, 451, 3, 2, 2, 2, 449, 447,
-	3, 2, 2, 2, 449, 450, 3, 2, 2, 2, 450, 453, 3, 2, 2, 2, 451, 449, 3, 2,
-	2, 2, 452, 438, 3, 2, 2, 2, 452, 453, 3, 2, 2, 2, 453, 79, 3, 2, 2, 2,
-	454, 455, 5, 104, 53, 2, 455, 456, 7, 35, 2, 2, 456, 457, 5, 56, 29, 2,
-	457, 470, 3, 2, 2, 2, 458, 459, 7, 39, 2, 2, 459, 460, 5, 56, 29, 2, 460,
-	461, 7, 40, 2, 2, 461, 462, 7, 35, 2, 2, 462, 463, 5, 56, 29, 2, 463, 470,
-	3, 2, 2, 2, 464, 465, 5, 64, 33, 2, 465, 466, 7, 46, 2, 2, 466, 470, 3,
-	2, 2, 2, 467, 470, 5, 82, 42, 2, 468, 470, 5, 88, 45, 2, 469, 454, 3, 2,
-	2, 2, 469, 458, 3, 2, 2, 2, 469, 464, 3, 2, 2, 2, 469, 467, 3, 2, 2, 2,
-	469, 468, 3, 2, 2, 2, 470, 81, 3, 2, 2, 2, 471, 472, 7, 9, 2, 2, 472, 473,
-	5, 56, 29, 2, 473, 474, 7, 33, 2, 2, 474, 478, 5, 78, 40, 2, 475, 477,
-	5, 84, 43, 2, 476, 475, 3, 2, 2, 2, 477, 480, 3, 2, 2, 2, 478, 476, 3,
-	2, 2, 2, 478, 479, 3, 2, 2, 2, 479, 482, 3, 2, 2, 2, 480, 478, 3, 2, 2,
-	2, 481, 483, 5, 86, 44, 2, 482, 481, 3, 2, 2, 2, 482, 483, 3, 2, 2, 2,
-	483, 484, 3, 2, 2, 2, 484, 485, 7, 5, 2, 2, 485, 83, 3, 2, 2, 2, 486, 487,
-	7, 4, 2, 2, 487, 488, 7, 9, 2, 2, 488, 489, 5, 56, 29, 2, 489, 490, 7,
-	33, 2, 2, 490, 491, 5, 78, 40, 2, 491, 85, 3, 2, 2, 2, 492, 493, 7, 4,
-	2, 2, 493, 494, 5, 78, 40, 2, 494, 87, 3, 2, 2, 2, 495, 496, 7, 8, 2, 2,
-	496, 497, 5, 34, 18, 2, 497, 498, 7, 48, 2, 2, 498, 499, 5, 56, 29, 2,
-	499, 500, 7, 33, 2, 2, 500, 501, 5, 78, 40, 2, 501, 502, 7, 5, 2, 2, 502,
-	89, 3, 2, 2, 2, 503, 504, 7, 39, 2, 2, 504, 505, 5, 92, 47, 2, 505, 506,
-	7, 40, 2, 2, 506, 91, 3, 2, 2, 2, 507, 512, 5, 94, 48, 2, 508, 509, 9,
-	2, 2, 2, 509, 511, 5, 94, 48, 2, 510, 508, 3, 2, 2, 2, 511, 514, 3, 2,
-	2, 2, 512, 510, 3, 2, 2, 2, 512, 513, 3, 2, 2, 2, 513, 518, 3, 2, 2, 2,
-	514, 512, 3, 2, 2, 2, 515, 517, 9, 2, 2, 2, 516, 515, 3, 2, 2, 2, 517,
-	520, 3, 2, 2, 2, 518, 516, 3, 2, 2, 2, 518, 519, 3, 2, 2, 2, 519, 522,
-	3, 2, 2, 2, 520, 518, 3, 2, 2, 2, 521, 507, 3, 2, 2, 2, 521, 522, 3, 2,
-	2, 2, 522, 93, 3, 2, 2, 2, 523, 527, 5, 56, 29, 2, 524, 527, 5, 96, 49,
-	2, 525, 527, 5, 102, 52, 2, 526, 523, 3, 2, 2, 2, 526, 524, 3, 2, 2, 2,
-	526, 525, 3, 2, 2, 2, 527, 95, 3, 2, 2, 2, 528, 529, 7, 9, 2, 2, 529, 530,
-	5, 56, 29, 2, 530, 531, 7, 33, 2, 2, 531, 535, 5, 92, 47, 2, 532, 534,
-	5, 98, 50, 2, 533, 532, 3, 2, 2, 2, 534, 537, 3, 2, 2, 2, 535, 533, 3,
-	2, 2, 2, 535, 536, 3, 2, 2, 2, 536, 539, 3, 2, 2, 2, 537, 535, 3, 2, 2,
-	2, 538, 540, 5, 100, 51, 2, 539, 538, 3, 2, 2, 2, 539, 540, 3, 2, 2, 2,
-	540, 541, 3, 2, 2, 2, 541, 542, 7, 5, 2, 2, 542, 97, 3, 2, 2, 2, 543, 544,
-	7, 4, 2, 2, 544, 545, 7, 9, 2, 2, 545, 546, 5, 56, 29, 2, 546, 547, 7,
-	33, 2, 2, 547, 548, 5, 92, 47, 2, 548, 99, 3, 2, 2, 2, 549, 550, 7, 4,
-	2, 2, 550, 551, 5, 92, 47, 2, 551, 101, 3, 2, 2, 2, 552, 553, 7, 8, 2,
-	2, 553, 554, 5, 34, 18, 2, 554, 555, 7, 48, 2, 2, 555, 556, 5, 56, 29,
-	2, 556, 557, 7, 33, 2, 2, 557, 558, 5, 92, 47, 2, 558, 559, 7, 5, 2, 2,
-	559, 103, 3, 2, 2, 2, 560, 561, 9, 7, 2, 2, 561, 105, 3, 2, 2, 2, 47, 110,
-	118, 128, 137, 149, 154, 191, 202, 210, 217, 224, 240, 256, 260, 277, 288,
-	293, 299, 314, 321, 341, 343, 353, 365, 378, 382, 388, 391, 393, 403, 416,
-	421, 429, 443, 449, 452, 469, 478, 482, 512, 518, 521, 526, 535, 539,
+	17, 2, 2, 309, 310, 5, 64, 33, 2, 310, 55, 3, 2, 2, 2, 311, 316, 5, 58,
+	30, 2, 312, 313, 7, 45, 2, 2, 313, 315, 5, 58, 30, 2, 314, 312, 3, 2, 2,
+	2, 315, 318, 3, 2, 2, 2, 316, 314, 3, 2, 2, 2, 316, 317, 3, 2, 2, 2, 317,
+	57, 3, 2, 2, 2, 318, 316, 3, 2, 2, 2, 319, 322, 5, 60, 31, 2, 320, 322,
+	5, 74, 38, 2, 321, 319, 3, 2, 2, 2, 321, 320, 3, 2, 2, 2, 322, 59, 3, 2,
+	2, 2, 323, 324, 8, 31, 1, 2, 324, 325, 5, 62, 32, 2, 325, 343, 3, 2, 2,
+	2, 326, 327, 12, 7, 2, 2, 327, 328, 9, 3, 2, 2, 328, 342, 5, 60, 31, 8,
+	329, 330, 12, 6, 2, 2, 330, 331, 9, 4, 2, 2, 331, 342, 5, 60, 31, 7, 332,
+	333, 12, 5, 2, 2, 333, 334, 9, 5, 2, 2, 334, 342, 5, 60, 31, 6, 335, 336,
+	12, 4, 2, 2, 336, 337, 7, 3, 2, 2, 337, 342, 5, 60, 31, 5, 338, 339, 12,
+	3, 2, 2, 339, 340, 7, 12, 2, 2, 340, 342, 5, 60, 31, 4, 341, 326, 3, 2,
+	2, 2, 341, 329, 3, 2, 2, 2, 341, 332, 3, 2, 2, 2, 341, 335, 3, 2, 2, 2,
+	341, 338, 3, 2, 2, 2, 342, 345, 3, 2, 2, 2, 343, 341, 3, 2, 2, 2, 343,
+	344, 3, 2, 2, 2, 344, 61, 3, 2, 2, 2, 345, 343, 3, 2, 2, 2, 346, 347, 7,
+	11, 2, 2, 347, 354, 5, 62, 32, 2, 348, 349, 7, 28, 2, 2, 349, 354, 5, 62,
+	32, 2, 350, 351, 7, 29, 2, 2, 351, 354, 5, 62, 32, 2, 352, 354, 5, 64,
+	33, 2, 353, 346, 3, 2, 2, 2, 353, 348, 3, 2, 2, 2, 353, 350, 3, 2, 2, 2,
+	353, 352, 3, 2, 2, 2, 354, 63, 3, 2, 2, 2, 355, 356, 8, 33, 1, 2, 356,
+	366, 7, 48, 2, 2, 357, 366, 5, 72, 37, 2, 358, 366, 5, 76, 39, 2, 359,
+	366, 5, 90, 46, 2, 360, 366, 5, 66, 34, 2, 361, 362, 7, 37, 2, 2, 362,
+	363, 5, 56, 29, 2, 363, 364, 7, 38, 2, 2, 364, 366, 3, 2, 2, 2, 365, 355,
+	3, 2, 2, 2, 365, 357, 3, 2, 2, 2, 365, 358, 3, 2, 2, 2, 365, 359, 3, 2,
+	2, 2, 365, 360, 3, 2, 2, 2, 365, 361, 3, 2, 2, 2, 366, 393, 3, 2, 2, 2,
+	367, 368, 12, 11, 2, 2, 368, 369, 7, 36, 2, 2, 369, 392, 7, 48, 2, 2, 370,
+	371, 12, 10, 2, 2, 371, 372, 7, 39, 2, 2, 372, 373, 5, 56, 29, 2, 373,
+	374, 7, 40, 2, 2, 374, 392, 3, 2, 2, 2, 375, 376, 12, 9, 2, 2, 376, 378,
+	7, 39, 2, 2, 377, 379, 5, 56, 29, 2, 378, 377, 3, 2, 2, 2, 378, 379, 3,
+	2, 2, 2, 379, 380, 3, 2, 2, 2, 380, 382, 7, 35, 2, 2, 381, 383, 5, 56,
+	29, 2, 382, 381, 3, 2, 2, 2, 382, 383, 3, 2, 2, 2, 383, 384, 3, 2, 2, 2,
+	384, 392, 7, 40, 2, 2, 385, 386, 12, 8, 2, 2, 386, 388, 7, 37, 2, 2, 387,
+	389, 5, 68, 35, 2, 388, 387, 3, 2, 2, 2, 388, 389, 3, 2, 2, 2, 389, 390,
+	3, 2, 2, 2, 390, 392, 7, 38, 2, 2, 391, 367, 3, 2, 2, 2, 391, 370, 3, 2,
+	2, 2, 391, 375, 3, 2, 2, 2, 391, 385, 3, 2, 2, 2, 392, 395, 3, 2, 2, 2,
+	393, 391, 3, 2, 2, 2, 393, 394, 3, 2, 2, 2, 394, 65, 3, 2, 2, 2, 395, 393,
+	3, 2, 2, 2, 396, 397, 9, 6, 2, 2, 397, 67, 3, 2, 2, 2, 398, 403, 5, 56,
+	29, 2, 399, 400, 7, 34, 2, 2, 400, 402, 5, 56, 29, 2, 401, 399, 3, 2, 2,
+	2, 402, 405, 3, 2, 2, 2, 403, 401, 3, 2, 2, 2, 403, 404, 3, 2, 2, 2, 404,
+	69, 3, 2, 2, 2, 405, 403, 3, 2, 2, 2, 406, 417, 7, 48, 2, 2, 407, 408,
+	5, 64, 33, 2, 408, 409, 7, 36, 2, 2, 409, 410, 7, 48, 2, 2, 410, 417, 3,
+	2, 2, 2, 411, 412, 5, 64, 33, 2, 412, 413, 7, 39, 2, 2, 413, 414, 5, 56,
+	29, 2, 414, 415, 7, 40, 2, 2, 415, 417, 3, 2, 2, 2, 416, 406, 3, 2, 2,
+	2, 416, 407, 3, 2, 2, 2, 416, 411, 3, 2, 2, 2, 417, 71, 3, 2, 2, 2, 418,
+	419, 7, 7, 2, 2, 419, 421, 7, 37, 2, 2, 420, 422, 5, 46, 24, 2, 421, 420,
+	3, 2, 2, 2, 421, 422, 3, 2, 2, 2, 422, 423, 3, 2, 2, 2, 423, 424, 7, 38,
+	2, 2, 424, 425, 5, 18, 10, 2, 425, 426, 7, 5, 2, 2, 426, 73, 3, 2, 2, 2,
+	427, 429, 7, 44, 2, 2, 428, 430, 5, 46, 24, 2, 429, 428, 3, 2, 2, 2, 429,
+	430, 3, 2, 2, 2, 430, 431, 3, 2, 2, 2, 431, 432, 7, 43, 2, 2, 432, 433,
+	5, 60, 31, 2, 433, 75, 3, 2, 2, 2, 434, 435, 7, 41, 2, 2, 435, 436, 5,
+	78, 40, 2, 436, 437, 7, 42, 2, 2, 437, 77, 3, 2, 2, 2, 438, 443, 5, 80,
+	41, 2, 439, 440, 9, 2, 2, 2, 440, 442, 5, 80, 41, 2, 441, 439, 3, 2, 2,
+	2, 442, 445, 3, 2, 2, 2, 443, 441, 3, 2, 2, 2, 443, 444, 3, 2, 2, 2, 444,
+	449, 3, 2, 2, 2, 445, 443, 3, 2, 2, 2, 446, 448, 9, 2, 2, 2, 447, 446,
+	3, 2, 2, 2, 448, 451, 3, 2, 2, 2, 449, 447, 3, 2, 2, 2, 449, 450, 3, 2,
+	2, 2, 450, 453, 3, 2, 2, 2, 451, 449, 3, 2, 2, 2, 452, 438, 3, 2, 2, 2,
+	452, 453, 3, 2, 2, 2, 453, 79, 3, 2, 2, 2, 454, 455, 5, 104, 53, 2, 455,
+	456, 7, 35, 2, 2, 456, 457, 5, 56, 29, 2, 457, 470, 3, 2, 2, 2, 458, 459,
+	7, 39, 2, 2, 459, 460, 5, 56, 29, 2, 460, 461, 7, 40, 2, 2, 461, 462, 7,
+	35, 2, 2, 462, 463, 5, 56, 29, 2, 463, 470, 3, 2, 2, 2, 464, 465, 5, 64,
+	33, 2, 465, 466, 7, 46, 2, 2, 466, 470, 3, 2, 2, 2, 467, 470, 5, 82, 42,
+	2, 468, 470, 5, 88, 45, 2, 469, 454, 3, 2, 2, 2, 469, 458, 3, 2, 2, 2,
+	469, 464, 3, 2, 2, 2, 469, 467, 3, 2, 2, 2, 469, 468, 3, 2, 2, 2, 470,
+	81, 3, 2, 2, 2, 471, 472, 7, 9, 2, 2, 472, 473, 5, 56, 29, 2, 473, 474,
+	7, 33, 2, 2, 474, 478, 5, 78, 40, 2, 475, 477, 5, 84, 43, 2, 476, 475,
+	3, 2, 2, 2, 477, 480, 3, 2, 2, 2, 478, 476, 3, 2, 2, 2, 478, 479, 3, 2,
+	2, 2, 479, 482, 3, 2, 2, 2, 480, 478, 3, 2, 2, 2, 481, 483, 5, 86, 44,
+	2, 482, 481, 3, 2, 2, 2, 482, 483, 3, 2, 2, 2, 483, 484, 3, 2, 2, 2, 484,
+	485, 7, 5, 2, 2, 485, 83, 3, 2, 2, 2, 486, 487, 7, 4, 2, 2, 487, 488, 7,
+	9, 2, 2, 488, 489, 5, 56, 29, 2, 489, 490, 7, 33, 2, 2, 490, 491, 5, 78,
+	40, 2, 491, 85, 3, 2, 2, 2, 492, 493, 7, 4, 2, 2, 493, 494, 5, 78, 40,
+	2, 494, 87, 3, 2, 2, 2, 495, 496, 7, 8, 2, 2, 496, 497, 5, 34, 18, 2, 497,
+	498, 7, 48, 2, 2, 498, 499, 5, 56, 29, 2, 499, 500, 7, 33, 2, 2, 500, 501,
+	5, 78, 40, 2, 501, 502, 7, 5, 2, 2, 502, 89, 3, 2, 2, 2, 503, 504, 7, 39,
+	2, 2, 504, 505, 5, 92, 47, 2, 505, 506, 7, 40, 2, 2, 506, 91, 3, 2, 2,
+	2, 507, 512, 5, 94, 48, 2, 508, 509, 9, 2, 2, 2, 509, 511, 5, 94, 48, 2,
+	510, 508, 3, 2, 2, 2, 511, 514, 3, 2, 2, 2, 512, 510, 3, 2, 2, 2, 512,
+	513, 3, 2, 2, 2, 513, 518, 3, 2, 2, 2, 514, 512, 3, 2, 2, 2, 515, 517,
+	9, 2, 2, 2, 516, 515, 3, 2, 2, 2, 517, 520, 3, 2, 2, 2, 518, 516, 3, 2,
+	2, 2, 518, 519, 3, 2, 2, 2, 519, 522, 3, 2, 2, 2, 520, 518, 3, 2, 2, 2,
+	521, 507, 3, 2, 2, 2, 521, 522, 3, 2, 2, 2, 522, 93, 3, 2, 2, 2, 523, 527,
+	5, 56, 29, 2, 524, 527, 5, 96, 49, 2, 525, 527, 5, 102, 52, 2, 526, 523,
+	3, 2, 2, 2, 526, 524, 3, 2, 2, 2, 526, 525, 3, 2, 2, 2, 527, 95, 3, 2,
+	2, 2, 528, 529, 7, 9, 2, 2, 529, 530, 5, 56, 29, 2, 530, 531, 7, 33, 2,
+	2, 531, 535, 5, 92, 47, 2, 532, 534, 5, 98, 50, 2, 533, 532, 3, 2, 2, 2,
+	534, 537, 3, 2, 2, 2, 535, 533, 3, 2, 2, 2, 535, 536, 3, 2, 2, 2, 536,
+	539, 3, 2, 2, 2, 537, 535, 3, 2, 2, 2, 538, 540, 5, 100, 51, 2, 539, 538,
+	3, 2, 2, 2, 539, 540, 3, 2, 2, 2, 540, 541, 3, 2, 2, 2, 541, 542, 7, 5,
+	2, 2, 542, 97, 3, 2, 2, 2, 543, 544, 7, 4, 2, 2, 544, 545, 7, 9, 2, 2,
+	545, 546, 5, 56, 29, 2, 546, 547, 7, 33, 2, 2, 547, 548, 5, 92, 47, 2,
+	548, 99, 3, 2, 2, 2, 549, 550, 7, 4, 2, 2, 550, 551, 5, 92, 47, 2, 551,
+	101, 3, 2, 2, 2, 552, 553, 7, 8, 2, 2, 553, 554, 5, 34, 18, 2, 554, 555,
+	7, 48, 2, 2, 555, 556, 5, 56, 29, 2, 556, 557, 7, 33, 2, 2, 557, 558, 5,
+	92, 47, 2, 558, 559, 7, 5, 2, 2, 559, 103, 3, 2, 2, 2, 560, 561, 9, 7,
+	2, 2, 561, 105, 3, 2, 2, 2, 47, 110, 118, 128, 137, 149, 154, 191, 202,
+	210, 217, 224, 240, 256, 260, 277, 288, 293, 299, 316, 321, 341, 343, 353,
+	365, 378, 382, 388, 391, 393, 403, 416, 421, 429, 443, 449, 452, 469, 478,
+	482, 512, 518, 521, 526, 535, 539,
 }
 var literalNames = []string{
 	"", "'and'", "'else'", "'end'", "'false'", "'func'", "'for'", "'if'", "'meta'",
@@ -286,7 +286,7 @@ var ruleNames = []string{
 	"meta_field", "meta_field_value", "stmts", "stmt", "assignment_stmt", "assignment_lvalues",
 	"rvalues", "var_decl_stmt", "var_decl_vars", "for_stmt", "for_vars", "while_stmt",
 	"if_stmt", "if_elif", "if_else", "func_stmt", "param_list", "return_stmt",
-	"try_catch_stmt", "throw_stmt", "defer_stmt", "expr", "pipeline_expr",
+	"try_catch_stmt", "throw_stmt", "defer_stmt", "expr", "pipeline_term_expr",
 	"binary_expr", "unary_expr", "primary_expr", "simple_literal", "arg_list",
 	"lvalue_expr", "lambda_expr", "short_lambda_expr", "object_literal", "object_fields",
 	"object_field", "object_if", "object_elif", "object_else", "object_for",
@@ -408,7 +408,7 @@ const (
 	NitroParserRULE_throw_stmt         = 25
 	NitroParserRULE_defer_stmt         = 26
 	NitroParserRULE_expr               = 27
-	NitroParserRULE_pipeline_expr      = 28
+	NitroParserRULE_pipeline_term_expr = 28
 	NitroParserRULE_binary_expr        = 29
 	NitroParserRULE_unary_expr         = 30
 	NitroParserRULE_primary_expr       = 31
@@ -4191,8 +4191,35 @@ func NewExprContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokin
 
 func (s *ExprContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *ExprContext) CopyFrom(ctx *ExprContext) {
-	s.BaseParserRuleContext.CopyFrom(ctx.BaseParserRuleContext)
+func (s *ExprContext) AllPipeline_term_expr() []IPipeline_term_exprContext {
+	var ts = s.GetTypedRuleContexts(reflect.TypeOf((*IPipeline_term_exprContext)(nil)).Elem())
+	var tst = make([]IPipeline_term_exprContext, len(ts))
+
+	for i, t := range ts {
+		if t != nil {
+			tst[i] = t.(IPipeline_term_exprContext)
+		}
+	}
+
+	return tst
+}
+
+func (s *ExprContext) Pipeline_term_expr(i int) IPipeline_term_exprContext {
+	var t = s.GetTypedRuleContext(reflect.TypeOf((*IPipeline_term_exprContext)(nil)).Elem(), i)
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IPipeline_term_exprContext)
+}
+
+func (s *ExprContext) AllPIPE() []antlr.TerminalNode {
+	return s.GetTokens(NitroParserPIPE)
+}
+
+func (s *ExprContext) PIPE(i int) antlr.TerminalNode {
+	return s.GetToken(NitroParserPIPE, i)
 }
 
 func (s *ExprContext) GetRuleContext() antlr.RuleContext {
@@ -4203,280 +4230,21 @@ func (s *ExprContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) s
 	return antlr.TreesStringTree(s, ruleNames, recog)
 }
 
-type Expr_pipelineContext struct {
-	*ExprContext
-}
-
-func NewExpr_pipelineContext(parser antlr.Parser, ctx antlr.ParserRuleContext) *Expr_pipelineContext {
-	var p = new(Expr_pipelineContext)
-
-	p.ExprContext = NewEmptyExprContext()
-	p.parser = parser
-	p.CopyFrom(ctx.(*ExprContext))
-
-	return p
-}
-
-func (s *Expr_pipelineContext) GetRuleContext() antlr.RuleContext {
-	return s
-}
-
-func (s *Expr_pipelineContext) Pipeline_expr() IPipeline_exprContext {
-	var t = s.GetTypedRuleContext(reflect.TypeOf((*IPipeline_exprContext)(nil)).Elem(), 0)
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IPipeline_exprContext)
-}
-
-func (s *Expr_pipelineContext) EnterRule(listener antlr.ParseTreeListener) {
+func (s *ExprContext) EnterRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(NitroParserListener); ok {
-		listenerT.EnterExpr_pipeline(s)
+		listenerT.EnterExpr(s)
 	}
 }
 
-func (s *Expr_pipelineContext) ExitRule(listener antlr.ParseTreeListener) {
+func (s *ExprContext) ExitRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(NitroParserListener); ok {
-		listenerT.ExitExpr_pipeline(s)
-	}
-}
-
-type Expr_binaryContext struct {
-	*ExprContext
-}
-
-func NewExpr_binaryContext(parser antlr.Parser, ctx antlr.ParserRuleContext) *Expr_binaryContext {
-	var p = new(Expr_binaryContext)
-
-	p.ExprContext = NewEmptyExprContext()
-	p.parser = parser
-	p.CopyFrom(ctx.(*ExprContext))
-
-	return p
-}
-
-func (s *Expr_binaryContext) GetRuleContext() antlr.RuleContext {
-	return s
-}
-
-func (s *Expr_binaryContext) Binary_expr() IBinary_exprContext {
-	var t = s.GetTypedRuleContext(reflect.TypeOf((*IBinary_exprContext)(nil)).Elem(), 0)
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IBinary_exprContext)
-}
-
-func (s *Expr_binaryContext) EnterRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(NitroParserListener); ok {
-		listenerT.EnterExpr_binary(s)
-	}
-}
-
-func (s *Expr_binaryContext) ExitRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(NitroParserListener); ok {
-		listenerT.ExitExpr_binary(s)
-	}
-}
-
-type Expr_short_lambdaContext struct {
-	*ExprContext
-}
-
-func NewExpr_short_lambdaContext(parser antlr.Parser, ctx antlr.ParserRuleContext) *Expr_short_lambdaContext {
-	var p = new(Expr_short_lambdaContext)
-
-	p.ExprContext = NewEmptyExprContext()
-	p.parser = parser
-	p.CopyFrom(ctx.(*ExprContext))
-
-	return p
-}
-
-func (s *Expr_short_lambdaContext) GetRuleContext() antlr.RuleContext {
-	return s
-}
-
-func (s *Expr_short_lambdaContext) Short_lambda_expr() IShort_lambda_exprContext {
-	var t = s.GetTypedRuleContext(reflect.TypeOf((*IShort_lambda_exprContext)(nil)).Elem(), 0)
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IShort_lambda_exprContext)
-}
-
-func (s *Expr_short_lambdaContext) EnterRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(NitroParserListener); ok {
-		listenerT.EnterExpr_short_lambda(s)
-	}
-}
-
-func (s *Expr_short_lambdaContext) ExitRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(NitroParserListener); ok {
-		listenerT.ExitExpr_short_lambda(s)
+		listenerT.ExitExpr(s)
 	}
 }
 
 func (p *NitroParser) Expr() (localctx IExprContext) {
 	localctx = NewExprContext(p, p.GetParserRuleContext(), p.GetState())
 	p.EnterRule(localctx, 54, NitroParserRULE_expr)
-
-	defer func() {
-		p.ExitRule()
-	}()
-
-	defer func() {
-		if err := recover(); err != nil {
-			if v, ok := err.(antlr.RecognitionException); ok {
-				localctx.SetException(v)
-				p.GetErrorHandler().ReportError(p, v)
-				p.GetErrorHandler().Recover(p, v)
-			} else {
-				panic(err)
-			}
-		}
-	}()
-
-	p.SetState(312)
-	p.GetErrorHandler().Sync(p)
-	switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 18, p.GetParserRuleContext()) {
-	case 1:
-		localctx = NewExpr_binaryContext(p, localctx)
-		p.EnterOuterAlt(localctx, 1)
-		{
-			p.SetState(309)
-			p.binary_expr(0)
-		}
-
-	case 2:
-		localctx = NewExpr_short_lambdaContext(p, localctx)
-		p.EnterOuterAlt(localctx, 2)
-		{
-			p.SetState(310)
-			p.Short_lambda_expr()
-		}
-
-	case 3:
-		localctx = NewExpr_pipelineContext(p, localctx)
-		p.EnterOuterAlt(localctx, 3)
-		{
-			p.SetState(311)
-			p.Pipeline_expr()
-		}
-
-	}
-
-	return localctx
-}
-
-// IPipeline_exprContext is an interface to support dynamic dispatch.
-type IPipeline_exprContext interface {
-	antlr.ParserRuleContext
-
-	// GetParser returns the parser.
-	GetParser() antlr.Parser
-
-	// IsPipeline_exprContext differentiates from other interfaces.
-	IsPipeline_exprContext()
-}
-
-type Pipeline_exprContext struct {
-	*antlr.BaseParserRuleContext
-	parser antlr.Parser
-}
-
-func NewEmptyPipeline_exprContext() *Pipeline_exprContext {
-	var p = new(Pipeline_exprContext)
-	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
-	p.RuleIndex = NitroParserRULE_pipeline_expr
-	return p
-}
-
-func (*Pipeline_exprContext) IsPipeline_exprContext() {}
-
-func NewPipeline_exprContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *Pipeline_exprContext {
-	var p = new(Pipeline_exprContext)
-
-	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
-
-	p.parser = parser
-	p.RuleIndex = NitroParserRULE_pipeline_expr
-
-	return p
-}
-
-func (s *Pipeline_exprContext) GetParser() antlr.Parser { return s.parser }
-
-func (s *Pipeline_exprContext) Binary_expr() IBinary_exprContext {
-	var t = s.GetTypedRuleContext(reflect.TypeOf((*IBinary_exprContext)(nil)).Elem(), 0)
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IBinary_exprContext)
-}
-
-func (s *Pipeline_exprContext) AllPIPE() []antlr.TerminalNode {
-	return s.GetTokens(NitroParserPIPE)
-}
-
-func (s *Pipeline_exprContext) PIPE(i int) antlr.TerminalNode {
-	return s.GetToken(NitroParserPIPE, i)
-}
-
-func (s *Pipeline_exprContext) AllPrimary_expr() []IPrimary_exprContext {
-	var ts = s.GetTypedRuleContexts(reflect.TypeOf((*IPrimary_exprContext)(nil)).Elem())
-	var tst = make([]IPrimary_exprContext, len(ts))
-
-	for i, t := range ts {
-		if t != nil {
-			tst[i] = t.(IPrimary_exprContext)
-		}
-	}
-
-	return tst
-}
-
-func (s *Pipeline_exprContext) Primary_expr(i int) IPrimary_exprContext {
-	var t = s.GetTypedRuleContext(reflect.TypeOf((*IPrimary_exprContext)(nil)).Elem(), i)
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IPrimary_exprContext)
-}
-
-func (s *Pipeline_exprContext) GetRuleContext() antlr.RuleContext {
-	return s
-}
-
-func (s *Pipeline_exprContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
-	return antlr.TreesStringTree(s, ruleNames, recog)
-}
-
-func (s *Pipeline_exprContext) EnterRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(NitroParserListener); ok {
-		listenerT.EnterPipeline_expr(s)
-	}
-}
-
-func (s *Pipeline_exprContext) ExitRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(NitroParserListener); ok {
-		listenerT.ExitPipeline_expr(s)
-	}
-}
-
-func (p *NitroParser) Pipeline_expr() (localctx IPipeline_exprContext) {
-	localctx = NewPipeline_exprContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 56, NitroParserRULE_pipeline_expr)
 	var _la int
 
 	defer func() {
@@ -4497,26 +4265,203 @@ func (p *NitroParser) Pipeline_expr() (localctx IPipeline_exprContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(314)
-		p.binary_expr(0)
+		p.SetState(309)
+		p.Pipeline_term_expr()
 	}
-	p.SetState(317)
+	p.SetState(314)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	for ok := true; ok; ok = _la == NitroParserPIPE {
+	for _la == NitroParserPIPE {
 		{
-			p.SetState(315)
+			p.SetState(310)
 			p.Match(NitroParserPIPE)
 		}
 		{
-			p.SetState(316)
-			p.primary_expr(0)
+			p.SetState(311)
+			p.Pipeline_term_expr()
 		}
 
-		p.SetState(319)
+		p.SetState(316)
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
+	}
+
+	return localctx
+}
+
+// IPipeline_term_exprContext is an interface to support dynamic dispatch.
+type IPipeline_term_exprContext interface {
+	antlr.ParserRuleContext
+
+	// GetParser returns the parser.
+	GetParser() antlr.Parser
+
+	// IsPipeline_term_exprContext differentiates from other interfaces.
+	IsPipeline_term_exprContext()
+}
+
+type Pipeline_term_exprContext struct {
+	*antlr.BaseParserRuleContext
+	parser antlr.Parser
+}
+
+func NewEmptyPipeline_term_exprContext() *Pipeline_term_exprContext {
+	var p = new(Pipeline_term_exprContext)
+	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
+	p.RuleIndex = NitroParserRULE_pipeline_term_expr
+	return p
+}
+
+func (*Pipeline_term_exprContext) IsPipeline_term_exprContext() {}
+
+func NewPipeline_term_exprContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *Pipeline_term_exprContext {
+	var p = new(Pipeline_term_exprContext)
+
+	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
+
+	p.parser = parser
+	p.RuleIndex = NitroParserRULE_pipeline_term_expr
+
+	return p
+}
+
+func (s *Pipeline_term_exprContext) GetParser() antlr.Parser { return s.parser }
+
+func (s *Pipeline_term_exprContext) CopyFrom(ctx *Pipeline_term_exprContext) {
+	s.BaseParserRuleContext.CopyFrom(ctx.BaseParserRuleContext)
+}
+
+func (s *Pipeline_term_exprContext) GetRuleContext() antlr.RuleContext {
+	return s
+}
+
+func (s *Pipeline_term_exprContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+	return antlr.TreesStringTree(s, ruleNames, recog)
+}
+
+type Pipeline_term_expr_short_lambdaContext struct {
+	*Pipeline_term_exprContext
+}
+
+func NewPipeline_term_expr_short_lambdaContext(parser antlr.Parser, ctx antlr.ParserRuleContext) *Pipeline_term_expr_short_lambdaContext {
+	var p = new(Pipeline_term_expr_short_lambdaContext)
+
+	p.Pipeline_term_exprContext = NewEmptyPipeline_term_exprContext()
+	p.parser = parser
+	p.CopyFrom(ctx.(*Pipeline_term_exprContext))
+
+	return p
+}
+
+func (s *Pipeline_term_expr_short_lambdaContext) GetRuleContext() antlr.RuleContext {
+	return s
+}
+
+func (s *Pipeline_term_expr_short_lambdaContext) Short_lambda_expr() IShort_lambda_exprContext {
+	var t = s.GetTypedRuleContext(reflect.TypeOf((*IShort_lambda_exprContext)(nil)).Elem(), 0)
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IShort_lambda_exprContext)
+}
+
+func (s *Pipeline_term_expr_short_lambdaContext) EnterRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(NitroParserListener); ok {
+		listenerT.EnterPipeline_term_expr_short_lambda(s)
+	}
+}
+
+func (s *Pipeline_term_expr_short_lambdaContext) ExitRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(NitroParserListener); ok {
+		listenerT.ExitPipeline_term_expr_short_lambda(s)
+	}
+}
+
+type Pipeline_term_expr_binaryContext struct {
+	*Pipeline_term_exprContext
+}
+
+func NewPipeline_term_expr_binaryContext(parser antlr.Parser, ctx antlr.ParserRuleContext) *Pipeline_term_expr_binaryContext {
+	var p = new(Pipeline_term_expr_binaryContext)
+
+	p.Pipeline_term_exprContext = NewEmptyPipeline_term_exprContext()
+	p.parser = parser
+	p.CopyFrom(ctx.(*Pipeline_term_exprContext))
+
+	return p
+}
+
+func (s *Pipeline_term_expr_binaryContext) GetRuleContext() antlr.RuleContext {
+	return s
+}
+
+func (s *Pipeline_term_expr_binaryContext) Binary_expr() IBinary_exprContext {
+	var t = s.GetTypedRuleContext(reflect.TypeOf((*IBinary_exprContext)(nil)).Elem(), 0)
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IBinary_exprContext)
+}
+
+func (s *Pipeline_term_expr_binaryContext) EnterRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(NitroParserListener); ok {
+		listenerT.EnterPipeline_term_expr_binary(s)
+	}
+}
+
+func (s *Pipeline_term_expr_binaryContext) ExitRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(NitroParserListener); ok {
+		listenerT.ExitPipeline_term_expr_binary(s)
+	}
+}
+
+func (p *NitroParser) Pipeline_term_expr() (localctx IPipeline_term_exprContext) {
+	localctx = NewPipeline_term_exprContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 56, NitroParserRULE_pipeline_term_expr)
+
+	defer func() {
+		p.ExitRule()
+	}()
+
+	defer func() {
+		if err := recover(); err != nil {
+			if v, ok := err.(antlr.RecognitionException); ok {
+				localctx.SetException(v)
+				p.GetErrorHandler().ReportError(p, v)
+				p.GetErrorHandler().Recover(p, v)
+			} else {
+				panic(err)
+			}
+		}
+	}()
+
+	p.SetState(319)
+	p.GetErrorHandler().Sync(p)
+
+	switch p.GetTokenStream().LA(1) {
+	case NitroParserFALSE, NitroParserFUNC, NitroParserNOT, NitroParserTRUE, NitroParserADD, NitroParserSUB, NitroParserOPAREN, NitroParserOBRACKET, NitroParserOCURLY, NitroParserNUMBER, NitroParserID, NitroParserSTRING:
+		localctx = NewPipeline_term_expr_binaryContext(p, localctx)
+		p.EnterOuterAlt(localctx, 1)
+		{
+			p.SetState(317)
+			p.binary_expr(0)
+		}
+
+	case NitroParserLAMBDA:
+		localctx = NewPipeline_term_expr_short_lambdaContext(p, localctx)
+		p.EnterOuterAlt(localctx, 2)
+		{
+			p.SetState(318)
+			p.Short_lambda_expr()
+		}
+
+	default:
+		panic(antlr.NewNoViableAltException(p, nil, nil, nil, nil, nil))
 	}
 
 	return localctx

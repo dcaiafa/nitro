@@ -10,14 +10,12 @@ import (
 )
 
 func fromjson(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
-	if len(args) < 1 {
-		return nil, errNotEnoughArgs
+	input, err := getReaderArg(args, 0)
+	if err != nil {
+		return nil, err
 	}
 
-	input, err := ToReader(ctx, args[0])
-	if err != nil {
-		return nil, fmt.Errorf("invalid argument #1: %w", err)
-	}
+	defer CloseReader(input)
 
 	v, err := ParseJSON(input)
 	if err != nil {

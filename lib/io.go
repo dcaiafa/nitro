@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strings"
 
 	"github.com/dcaiafa/nitro"
 )
@@ -38,14 +37,9 @@ func Stdout(ctx context.Context) io.Writer {
 	return stdout
 }
 
-func ToReader(ctx context.Context, v nitro.Value) (io.Reader, error) {
-	switch v := v.(type) {
-	case io.Reader:
-		return v, nil
-	case nitro.String:
-		return strings.NewReader(v.String()), nil
-	default:
-		return nil, fmt.Errorf("Value %v is not readable", nitro.TypeName(v))
+func CloseReader(r io.Reader) {
+	if c, ok := r.(io.Closer); ok {
+		c.Close()
 	}
 }
 

@@ -183,29 +183,27 @@ func (s *BaseNitroParserListener) EnterDefer_stmt(ctx *Defer_stmtContext) {}
 // ExitDefer_stmt is called when production defer_stmt is exited.
 func (s *BaseNitroParserListener) ExitDefer_stmt(ctx *Defer_stmtContext) {}
 
-// EnterExpr_binary is called when production expr_binary is entered.
-func (s *BaseNitroParserListener) EnterExpr_binary(ctx *Expr_binaryContext) {}
+// EnterExpr is called when production expr is entered.
+func (s *BaseNitroParserListener) EnterExpr(ctx *ExprContext) {}
 
-// ExitExpr_binary is called when production expr_binary is exited.
-func (s *BaseNitroParserListener) ExitExpr_binary(ctx *Expr_binaryContext) {}
+// ExitExpr is called when production expr is exited.
+func (s *BaseNitroParserListener) ExitExpr(ctx *ExprContext) {}
 
-// EnterExpr_short_lambda is called when production expr_short_lambda is entered.
-func (s *BaseNitroParserListener) EnterExpr_short_lambda(ctx *Expr_short_lambdaContext) {}
+// EnterPipeline_term_expr_binary is called when production pipeline_term_expr_binary is entered.
+func (s *BaseNitroParserListener) EnterPipeline_term_expr_binary(ctx *Pipeline_term_expr_binaryContext) {
+}
 
-// ExitExpr_short_lambda is called when production expr_short_lambda is exited.
-func (s *BaseNitroParserListener) ExitExpr_short_lambda(ctx *Expr_short_lambdaContext) {}
+// ExitPipeline_term_expr_binary is called when production pipeline_term_expr_binary is exited.
+func (s *BaseNitroParserListener) ExitPipeline_term_expr_binary(ctx *Pipeline_term_expr_binaryContext) {
+}
 
-// EnterExpr_pipeline is called when production expr_pipeline is entered.
-func (s *BaseNitroParserListener) EnterExpr_pipeline(ctx *Expr_pipelineContext) {}
+// EnterPipeline_term_expr_short_lambda is called when production pipeline_term_expr_short_lambda is entered.
+func (s *BaseNitroParserListener) EnterPipeline_term_expr_short_lambda(ctx *Pipeline_term_expr_short_lambdaContext) {
+}
 
-// ExitExpr_pipeline is called when production expr_pipeline is exited.
-func (s *BaseNitroParserListener) ExitExpr_pipeline(ctx *Expr_pipelineContext) {}
-
-// EnterPipeline_expr is called when production pipeline_expr is entered.
-func (s *BaseNitroParserListener) EnterPipeline_expr(ctx *Pipeline_exprContext) {}
-
-// ExitPipeline_expr is called when production pipeline_expr is exited.
-func (s *BaseNitroParserListener) ExitPipeline_expr(ctx *Pipeline_exprContext) {}
+// ExitPipeline_term_expr_short_lambda is called when production pipeline_term_expr_short_lambda is exited.
+func (s *BaseNitroParserListener) ExitPipeline_term_expr_short_lambda(ctx *Pipeline_term_expr_short_lambdaContext) {
+}
 
 // EnterBinary_expr is called when production binary_expr is entered.
 func (s *BaseNitroParserListener) EnterBinary_expr(ctx *Binary_exprContext) {}

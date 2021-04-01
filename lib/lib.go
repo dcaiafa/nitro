@@ -14,4 +14,6 @@ func RegisterAll(c *nitro.Compiler) {
 	c.AddExternalFn("lines", lines)
 	c.AddExternalFn("print", print)
 	c.AddExternalFn("fromjson", fromjson)
+	c.AddExternalFn("open", open)
+	c.AddExternalFn("readall", readall)
 }
