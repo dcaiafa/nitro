@@ -63,3 +63,17 @@ func getEnumeratorArg(ctx context.Context, args []runtime.Value, ndx int) (nitro
 
 	return v, nil
 }
+
+func getCallableArg(ctx context.Context, args []runtime.Value, ndx int) (nitro.Value, error) {
+	if ndx >= len(args) {
+		return nil, errNotEnoughArgs
+	}
+
+	switch v := args[ndx].(type) {
+	case *nitro.Closure, nitro.ExternFn, *nitro.Func:
+		return v, nil
+
+	default:
+		return nil, fmt.Errorf("argument %v is not callable", args[ndx])
+	}
+}

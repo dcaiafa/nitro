@@ -37,18 +37,18 @@ func Next(ctx context.Context, e Value, n int) ([]Value, bool, error) {
 		return nil, false, err
 	}
 
-	hasValue, ok := ret[len(ret)-1].(Bool)
+	hasValue, ok := ret[0].(Bool)
 	if !ok {
 		return nil, false, fmt.Errorf(
-			"enumerator's last return value must be a Bool, but instead it was %q",
-			ret[len(ret)-1].Type())
+			"enumerator's first return value must be a Bool, but instead it was %q",
+			ret[0].Type())
 	}
 
 	if !hasValue.Bool() {
 		return nil, false, nil
 	}
 
-	return ret[:len(ret)-1], true, nil
+	return ret[1:], true, nil
 }
 
 func Call(ctx context.Context, callable Value, args []Value, retN int) ([]Value, error) {

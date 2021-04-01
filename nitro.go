@@ -21,6 +21,7 @@ type (
 	Program  = runtime.Program
 	Frame    = runtime.FrameInfo
 	Closure  = runtime.Closure
+	Func     = runtime.Fn
 
 	RuntimeError = runtime.RuntimeError
 
