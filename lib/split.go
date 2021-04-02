@@ -1,5 +1,13 @@
 package lib
 
+import (
+	"context"
+	"fmt"
+	"strings"
+
+	"github.com/dcaiafa/nitro"
+)
+
 func fnSplit(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
 	if len(args) < 2 {
 		return nil, errNotEnoughArgs
@@ -12,16 +20,17 @@ func fnSplit(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, ret
 
 	n := -1
 	if len(args) >= 3 {
-		n, err = getIntArg(args, 2)
+		intArg, err := getIntArg(args, 2)
 		if err != nil {
 			return nil, err
 		}
+		n = int(intArg)
 	}
 
 	var parts []string
 	switch sep := args[1].(type) {
 	case nitro.String:
-		parts = strings.SplitN(str, sep, n)
+		parts = strings.SplitN(str, sep.String(), n)
 
 	case *nitro.Regex:
 		parts = sep.Split(str, n)
@@ -33,7 +42,9 @@ func fnSplit(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, ret
 	}
 
 	a := nitro.NewArrayWithCapacity(len(parts))
-	for _, :w
+	for _, part := range parts {
+		a.Append(nitro.NewString(part))
+	}
 
-
+	return []nitro.Value{a}, nil
 }

@@ -20,4 +20,5 @@ func RegisterAll(c *nitro.Compiler) {
 	c.AddExternalFn("readall", readall)
 	c.AddExternalFn("tojson", fnToJSON)
 	c.AddExternalFn("match", fnMatch)
+	c.AddExternalFn("split", fnSplit)
 }
