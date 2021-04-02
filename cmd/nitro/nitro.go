@@ -52,7 +52,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	err = nitro.Run(context.Background(), compiled, nil)
+	machine := nitro.NewMachine(compiled)
+	err = machine.Run(context.Background())
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)

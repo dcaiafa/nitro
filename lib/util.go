@@ -77,6 +77,18 @@ func getReaderArg(args []runtime.Value, ndx int) (io.Reader, error) {
 	}
 }
 
+func getWriterArg(args []runtime.Value, ndx int) (io.Writer, error) {
+	if ndx >= len(args) {
+		return nil, errNotEnoughArgs
+	}
+	switch v := args[ndx].(type) {
+	case io.Writer:
+		return v, nil
+	default:
+		return nil, fmt.Errorf("argument %v is not writable", nitro.TypeName(v))
+	}
+}
+
 func getEnumeratorArg(ctx context.Context, args []runtime.Value, ndx int) (nitro.Value, error) {
 	if ndx >= len(args) {
 		return nil, errNotEnoughArgs

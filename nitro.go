@@ -10,6 +10,8 @@ import (
 )
 
 type (
+	Machine = runtime.Machine
+
 	Array    = runtime.Array
 	Bool     = runtime.Bool
 	Closure  = runtime.Closure
@@ -33,6 +35,10 @@ type (
 
 var ErrCannotCallNil = runtime.ErrCannotCallNil
 
+func NewMachine(p *Program) *Machine {
+	return runtime.NewMachine(p)
+}
+
 func MakeEnumerator(ctx context.Context, v Value) (Value, error) {
 	return runtime.MakeEnumerator(ctx, v)
 }
@@ -47,6 +53,14 @@ func Call(ctx context.Context, callable Value, args []Value, retN int) ([]Value,
 
 func NewConsoleErrLogger() ErrLogger {
 	return &errlogger.ConsoleErrLogger{}
+}
+
+func SetUserData(ctx context.Context, k, v interface{}) {
+	runtime.MachineFromContext(ctx).SetUserData(k, v)
+}
+
+func GetUserData(ctx context.Context, k interface{}) interface{} {
+	return runtime.MachineFromContext(ctx).GetUserData(k)
 }
 
 func TypeName(v Value) string                      { return runtime.TypeName(v) }

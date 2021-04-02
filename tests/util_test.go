@@ -70,7 +70,15 @@ func run(prog string, params map[string]nitro.Value) (output string, err error) 
 		return "", err
 	}
 
-	err = nitro.Run(context.Background(), compiled, params)
+	machine := nitro.NewMachine(compiled)
+	for n, v := range params {
+		err = machine.SetParam(n, v)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	err = machine.Run(context.Background())
 	if err != nil {
 		return "", err
 	}

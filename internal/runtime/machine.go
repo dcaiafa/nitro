@@ -88,40 +88,38 @@ type Machine struct {
 	callStack []*frame
 	program   *Program
 	globals   []Value
-	reqParamN int
 	frame     *frame
+	userData  map[interface{}]interface{}
 }
 
 func NewMachine(prog *Program) *Machine {
 	return &Machine{
-		program:   prog,
-		globals:   make([]Value, prog.globals),
-		reqParamN: prog.reqParamN,
+		program:  prog,
+		globals:  make([]Value, prog.globals),
+		userData: make(map[interface{}]interface{}),
 	}
 }
 
-func (m *Machine) Run(
-	ctx context.Context,
-	params map[string]Value,
-) error {
+func (m *Machine) SetUserData(key, value interface{}) {
+	m.userData[key] = value
+}
+
+func (m *Machine) GetUserData(key interface{}) interface{} {
+	return m.userData[key]
+}
+
+func (m *Machine) SetParam(n string, v Value) error {
+	param := m.program.params[n]
+	if param == nil {
+		return fmt.Errorf("invalid parameter: %s", n)
+	}
+	m.globals[param.global] = v
+	return nil
+}
+
+func (m *Machine) Run(ctx context.Context) error {
 	ctx = context.WithValue(ctx, &machineContextKey, m)
-
-	for paramName, paramValue := range params {
-		param := m.program.params[paramName]
-		if param == nil {
-			return fmt.Errorf("invalid parameter: %s", paramName)
-		}
-		if param.required {
-			m.reqParamN--
-		}
-		m.globals[param.global] = paramValue
-	}
-	if m.reqParamN != 0 {
-		return fmt.Errorf("required parameters not set")
-	}
-
 	_, err := m.runFunc(ctx, &m.program.fns[0], nil, nil, 0)
-
 	return err
 }
 

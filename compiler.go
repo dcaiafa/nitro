@@ -1,7 +1,6 @@
 package nitro
 
 import (
-	"context"
 	"io/ioutil"
 
 	"github.com/dcaiafa/nitro/internal/ast"
@@ -84,8 +83,4 @@ func (c *Compiler) Compile(filename string, errLogger errlogger.ErrLogger) (*run
 	}
 
 	return ctx.Emitter().ToProgram(), nil
-}
-
-func Run(ctx context.Context, prog *Program, params map[string]Value) error {
-	return runtime.NewMachine(prog).Run(ctx, params)
 }

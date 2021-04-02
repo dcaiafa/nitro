@@ -26,6 +26,13 @@ func (a *Array) Push(v Value) {
 	a.array = append(a.array, v)
 }
 
+func (a *Array) Back() Value {
+	if len(a.array) == 0 {
+		return nil
+	}
+	return a.array[len(a.array)-1]
+}
+
 func (a *Array) Get(index int) Value {
 	if index >= len(a.array) {
 		return nil
