@@ -104,6 +104,9 @@ type NitroParserListener interface {
 	// EnterUnary_expr is called when entering the unary_expr production.
 	EnterUnary_expr(c *Unary_exprContext)
 
+	// EnterPrimary_expr_regex is called when entering the primary_expr_regex production.
+	EnterPrimary_expr_regex(c *Primary_expr_regexContext)
+
 	// EnterPrimary_expr_object is called when entering the primary_expr_object production.
 	EnterPrimary_expr_object(c *Primary_expr_objectContext)
 
@@ -307,6 +310,9 @@ type NitroParserListener interface {
 
 	// ExitUnary_expr is called when exiting the unary_expr production.
 	ExitUnary_expr(c *Unary_exprContext)
+
+	// ExitPrimary_expr_regex is called when exiting the primary_expr_regex production.
+	ExitPrimary_expr_regex(c *Primary_expr_regexContext)
 
 	// ExitPrimary_expr_object is called when exiting the primary_expr_object production.
 	ExitPrimary_expr_object(c *Primary_expr_objectContext)

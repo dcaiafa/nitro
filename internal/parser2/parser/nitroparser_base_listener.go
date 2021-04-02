@@ -217,6 +217,12 @@ func (s *BaseNitroParserListener) EnterUnary_expr(ctx *Unary_exprContext) {}
 // ExitUnary_expr is called when production unary_expr is exited.
 func (s *BaseNitroParserListener) ExitUnary_expr(ctx *Unary_exprContext) {}
 
+// EnterPrimary_expr_regex is called when production primary_expr_regex is entered.
+func (s *BaseNitroParserListener) EnterPrimary_expr_regex(ctx *Primary_expr_regexContext) {}
+
+// ExitPrimary_expr_regex is called when production primary_expr_regex is exited.
+func (s *BaseNitroParserListener) ExitPrimary_expr_regex(ctx *Primary_expr_regexContext) {}
+
 // EnterPrimary_expr_object is called when production primary_expr_object is entered.
 func (s *BaseNitroParserListener) EnterPrimary_expr_object(ctx *Primary_expr_objectContext) {}
 

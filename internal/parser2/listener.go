@@ -554,6 +554,7 @@ func (l *listener) ExitUnary_expr(ctx *parser.Unary_exprContext) {
 //             | object_literal                           # primary_expr_object
 //             | array_literal                            # primary_expr_array
 //             | simple_literal                           # primary_expr_literal
+//             | REGEX                                    # primary_expr_regex
 //             | '(' expr ')'                             # primary_expr_parenthesis
 //             ;
 
@@ -606,6 +607,12 @@ func (l *listener) ExitPrimary_expr_array(ctx *parser.Primary_expr_arrayContext)
 
 func (l *listener) ExitPrimary_expr_literal(ctx *parser.Primary_expr_literalContext) {
 	l.put(ctx, l.takeExpr(ctx.Simple_literal()))
+}
+
+func (l *listener) ExitPrimary_expr_regex(ctx *parser.Primary_expr_regexContext) {
+	l.put(ctx, &ast.RegexLiteral{
+		Regex: ctx.REGEX().GetText(),
+	})
 }
 
 func (l *listener) ExitPrimary_expr_parenthesis(ctx *parser.Primary_expr_parenthesisContext) {

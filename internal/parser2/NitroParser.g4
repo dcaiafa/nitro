@@ -98,6 +98,7 @@ primary_expr: ID                                       # primary_expr_simple_ref
             | object_literal                           # primary_expr_object
             | array_literal                            # primary_expr_array
             | simple_literal                           # primary_expr_literal
+            | REGEX                                    # primary_expr_regex
             | '(' expr ')'                             # primary_expr_parenthesis
             ;
 
