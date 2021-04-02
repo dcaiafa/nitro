@@ -15,9 +15,10 @@ a | b() | c()
 
 1 + 2 | b() | c()
 
+# This is cool.
 print(in() | fromjson() | &d -> d.id)
 
-c(b(a))
+c(b(a)) # and so is this
 
 try
 	json_lines() | 
