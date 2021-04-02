@@ -48,24 +48,33 @@ func fnToJSON(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, re
 		return nil, err
 	}
 
-	marshaler := jsonMarshaler{}
-	err = marshaler.marshal(args[0])
+	jsonBytes, err := ToJSON(args[0], indent)
 	if err != nil {
 		return nil, err
 	}
 
-	buf := marshaler.buf.Bytes()
+	return []nitro.Value{nitro.NewString(string(jsonBytes))}, nil
+}
+
+func ToJSON(v nitro.Value, indent string) ([]byte, error) {
+	marshaler := jsonMarshaler{}
+	err := marshaler.marshal(v)
+	if err != nil {
+		return nil, err
+	}
+
+	jsonBytes := marshaler.buf.Bytes()
 
 	if indent != "" {
-		newBuf := bytes.Buffer{}
-		err = json.Indent(&newBuf, buf, "", indent)
+		buf := bytes.Buffer{}
+		err = json.Indent(&buf, jsonBytes, "", indent)
 		if err != nil {
 			return nil, err
 		}
-		buf = newBuf.Bytes()
+		jsonBytes = buf.Bytes()
 	}
 
-	return []nitro.Value{nitro.NewString(string(buf))}, nil
+	return jsonBytes, nil
 }
 
 type jsonMarshaler struct {

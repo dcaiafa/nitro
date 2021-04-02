@@ -11,6 +11,26 @@ import (
 	"github.com/dcaiafa/nitro/lib"
 )
 
+func emit(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+	stdout := lib.Stdout(ctx)
+	if len(args) < 1 {
+		return nil, fmt.Errorf("not enough arguments")
+	}
+	json, err := lib.ToJSON(args[0], "  ")
+	if err != nil {
+		return nil, err
+	}
+	_, err = stdout.Write(json)
+	if err != nil {
+		return nil, err
+	}
+	_, err = fmt.Fprintln(stdout, "")
+	if err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
+
 func main() {
 	flag.Parse()
 
@@ -24,6 +44,7 @@ func main() {
 	compiler.SetDiag(true)
 
 	lib.RegisterAll(compiler)
+	compiler.AddExternalFn("emit", emit)
 
 	compiled, err := compiler.Compile(filename, nitro.NewConsoleErrLogger())
 	if err != nil {

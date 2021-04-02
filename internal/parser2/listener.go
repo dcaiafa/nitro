@@ -193,7 +193,7 @@ func (l *listener) ExitStmts(ctx *parser.StmtsContext) {
 //     | if_stmt ';'
 //     | func_stmt ';'
 //     | return_stmt ';'
-//     | primary_expr ';'
+//     | expr ';'
 //     | try_catch_stmt ';'
 //     | throw_stmt ';'
 //     | defer_stmt ';'
@@ -212,6 +212,21 @@ func (l *listener) ExitStmt(ctx *parser.StmtContext) {
 	} else if s = l.takeAST(ctx.Throw_stmt()); s != nil {
 	} else if s = l.takeAST(ctx.Defer_stmt()); s != nil {
 	} else if e := l.takeExpr(ctx.Expr()); e != nil {
+		if objLit, ok := e.(*ast.ObjectLiteral); ok {
+			emit := token.Token{
+				Pos:  objLit.Pos(),
+				Type: token.String,
+				Str:  "emit",
+			}
+			emitRef := &ast.SimpleRef{ID: emit}
+			emitRef.SetPos(objLit.Pos())
+			e = &ast.FuncCallExpr{
+				Target: emitRef,
+				Args:   ast.Exprs{objLit},
+				RetN:   0,
+			}
+			e.SetPos(objLit.Pos())
+		}
 		s = &ast.ExprStmt{Expr: e}
 	}
 	if s != nil {
