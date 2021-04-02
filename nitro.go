@@ -2,6 +2,7 @@ package nitro
 
 import (
 	"context"
+	"regexp"
 
 	"github.com/dcaiafa/nitro/internal/errlogger"
 	"github.com/dcaiafa/nitro/internal/runtime"
@@ -9,19 +10,20 @@ import (
 )
 
 type (
+	Array    = runtime.Array
+	Bool     = runtime.Bool
+	Closure  = runtime.Closure
+	ExternFn = runtime.ExternFn
+	Float    = runtime.Float
+	Frame    = runtime.FrameInfo
+	Func     = runtime.Fn
+	Int      = runtime.Int
+	Object   = runtime.Object
+	Program  = runtime.Program
+	Regex    = runtime.Regex
+	String   = runtime.String
 	Value    = runtime.Value
 	ValueRef = runtime.ValueRef
-	String   = runtime.String
-	Int      = runtime.Int
-	Float    = runtime.Float
-	Bool     = runtime.Bool
-	Object   = runtime.Object
-	Array    = runtime.Array
-	ExternFn = runtime.ExternFn
-	Program  = runtime.Program
-	Frame    = runtime.FrameInfo
-	Closure  = runtime.Closure
-	Func     = runtime.Fn
 
 	RuntimeError = runtime.RuntimeError
 
@@ -55,4 +57,6 @@ func NewBool(v bool) Bool                          { return runtime.NewBool(v) }
 func NewValueRef(ref *Value) ValueRef              { return runtime.NewValueRef(ref) }
 func NewClosure(f ExternFn, c []ValueRef) *Closure { return runtime.NewClosure(f, c) }
 func NewArray() *Array                             { return runtime.NewArray() }
+func NewArrayWithCapacity(c int) *Array            { return runtime.NewArrayWithCapacity(c) }
 func NewObject() *Object                           { return runtime.NewObject() }
+func NewRegex(r *regexp.Regexp) *Regex             { return runtime.NewRegex(r) }

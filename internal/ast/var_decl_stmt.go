@@ -27,7 +27,7 @@ func (s *VarDeclStmt) RunPass(ctx *Context, pass Pass) {
 		if len(s.InitValues) != 0 {
 			if len(s.Vars) != len(s.InitValues) {
 				if funcCall, ok := s.InitValues[0].(*FuncCallExpr); ok && len(s.InitValues) == 1 {
-					funcCall.RetN = len(s.InitValues)
+					funcCall.RetN = len(s.Vars)
 				} else {
 					ctx.Failf(s.Pos(), "assigment mismatch: %v variables but %v values",
 						len(s.Vars), len(s.InitValues))

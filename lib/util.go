@@ -49,6 +49,19 @@ func getObjectArg(args []runtime.Value, ndx int) (*nitro.Object, error) {
 	return v, nil
 }
 
+func getRegexArg(args []runtime.Value, ndx int) (*nitro.Regex, error) {
+	if ndx >= len(args) {
+		return nil, errNotEnoughArgs
+	}
+	v, ok := args[ndx].(*runtime.Regex)
+	if !ok {
+		return nil, fmt.Errorf(
+			"expected argument %d to be Regex, but it is %v",
+			ndx+1, args[ndx].Type())
+	}
+	return v, nil
+}
+
 func getReaderArg(args []runtime.Value, ndx int) (io.Reader, error) {
 	if ndx >= len(args) {
 		return nil, errNotEnoughArgs
