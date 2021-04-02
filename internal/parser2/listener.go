@@ -611,7 +611,7 @@ func (l *listener) ExitPrimary_expr_literal(ctx *parser.Primary_expr_literalCont
 
 func (l *listener) ExitPrimary_expr_regex(ctx *parser.Primary_expr_regexContext) {
 	l.put(ctx, &ast.RegexLiteral{
-		Regex: ctx.REGEX().GetText(),
+		RegexDef: ctx.REGEX().GetText(),
 	})
 }
 
