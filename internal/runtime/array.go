@@ -22,7 +22,7 @@ func NewArrayWithCapacity(c int) *Array {
 
 func (a *Array) Type() string { return "Array" }
 
-func (a *Array) Append(v Value) {
+func (a *Array) Push(v Value) {
 	a.array = append(a.array, v)
 }
 

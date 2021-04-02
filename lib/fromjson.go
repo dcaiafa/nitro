@@ -59,7 +59,7 @@ func (p *jsonParser) parseValue() (nitro.Value, error) {
 				if err != nil {
 					return nil, err
 				}
-				a.Append(v)
+				a.Push(v)
 			}
 			_, err := p.dec.Token()
 			if err != nil {

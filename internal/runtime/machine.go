@@ -412,7 +412,7 @@ func (m *Machine) resume(ctx context.Context) (ret []Value, err error) {
 		case OpArrayAppendNoPop:
 			value := m.pop()
 			array := m.peek(0).(*Array)
-			array.Append(value)
+			array.Push(value)
 
 		case OpRet:
 			if m.frame.ExpRetN > len(m.frame.Stack) {

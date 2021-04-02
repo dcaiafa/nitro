@@ -83,4 +83,10 @@ func TestArrayLiteral(t *testing.T) {
 		}
 		print(r)
 		`, `{names: [{first: "alice", last: "smith"} {first: "alice", last: "hunter"} {first: "bob", last: "smith"} {first: "bob", last: "hunter"}]}`)
+
+	RunSubO(t, "push", `
+		var a = ["foo"]
+		push(a, "bar")
+		print(a)
+	`, `[foo bar]`)
 }
