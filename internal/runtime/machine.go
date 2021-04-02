@@ -254,13 +254,13 @@ func (m *Machine) resume(ctx context.Context) (ret []Value, err error) {
 			m.frame.IP = int(instr.operand1) - 1
 
 		case OpJumpIfTrue:
-			v := coerceToBool(m.pop())
+			v := CoerceToBool(m.pop())
 			if v {
 				m.frame.IP = int(instr.operand1) - 1
 			}
 
 		case OpJumpIfFalse:
-			v := coerceToBool(m.pop())
+			v := CoerceToBool(m.pop())
 			if !v {
 				m.frame.IP = int(instr.operand1) - 1
 			}
@@ -354,7 +354,7 @@ func (m *Machine) resume(ctx context.Context) (ret []Value, err error) {
 
 		case OpNot:
 			term := m.pop()
-			m.push(NewBool(!coerceToBool(term)))
+			m.push(NewBool(!CoerceToBool(term)))
 
 		case OpUnaryMinus:
 			term := m.pop()

@@ -30,7 +30,7 @@ func getStringArg(args []runtime.Value, ndx int) (string, error) {
 	v, ok := args[ndx].(runtime.String)
 	if !ok {
 		return "", fmt.Errorf(
-			"expected argument %d to be Int, but it is %v",
+			"expected argument %d to be String, but it is %v",
 			ndx+1, args[ndx].Type())
 	}
 	return v.String(), nil

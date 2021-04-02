@@ -2,7 +2,6 @@ package lib
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/dcaiafa/nitro"
 )
@@ -17,8 +16,6 @@ func fnMatch(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, ret
 	if err != nil {
 		return nil, err
 	}
-
-	fmt.Println(regex.String())
 
 	if retN == 1 {
 		ok := regex.MatchString(str)

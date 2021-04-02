@@ -60,3 +60,4 @@ func NewArray() *Array                             { return runtime.NewArray() }
 func NewArrayWithCapacity(c int) *Array            { return runtime.NewArrayWithCapacity(c) }
 func NewObject() *Object                           { return runtime.NewObject() }
 func NewRegex(r *regexp.Regexp) *Regex             { return runtime.NewRegex(r) }
+func CoerceToBool(v Value) bool                    { return runtime.CoerceToBool(v) }

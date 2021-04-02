@@ -112,7 +112,7 @@ func evalBinOpString(op BinOp, operand1, operand2 string) (Value, error) {
 	}
 }
 
-func coerceToBool(v Value) bool {
+func CoerceToBool(v Value) bool {
 	switch v := v.(type) {
 	case Bool:
 		return v.Bool()
