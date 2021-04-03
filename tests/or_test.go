@@ -9,20 +9,20 @@ func TestOr(t *testing.T) {
 	RunSubO(t, "true_true", `print(123 or 456)`, `123`)
 
 	RunSubO(t, "short_circuit", `
-		func f(b)
+		func f(b) {
 			print("f", b)
 			return b
-		end
+		}
 		print(f(true) or f(true))
 `, `
 f true
 true`)
 
 	RunSubO(t, "dont_short_circuit", `
-		func f(b)
+		func f(b) {
 			print("f", b)
 			return b
-		end
+		}
 		print(f(false) or f(true))
 `, `
 f false

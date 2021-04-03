@@ -5,13 +5,13 @@ import "testing"
 func TestTryCatch(t *testing.T) {
 	RunSubO(t, "same_frame", `
 	print(1)
-	try
+	try {
 		print(2)
 		("throw")()
 		print(3)
-	catch
+	} catch {
 		print(4)
-	end
+	}
   print(5)
 	`, `
 1
@@ -21,22 +21,22 @@ func TestTryCatch(t *testing.T) {
 `)
 
 	RunSubO(t, "diff_frame", `
-	func g()
+	func g() {
 		print("g1")
 		("throw")()
 		print("g2")
-	end
-	func f() 
+	}
+	func f() {
 		print("f1")
-		try
+		try {
 			print("f2")
 			print("from g:" + g())
 			print("f3")
-		catch
+		} catch {
 			print("f4")
-		end
+		}
 		print("f5")
-	end
+	}
 	f()
 	`, `
 f1
@@ -47,35 +47,35 @@ f5
 `)
 
 	RunSubO(t, "cascading", `
-	func g()
+	func g() {
 		print("g1")
 		throw "boom"
 		print("g2")
-	end
-	func f() 
+	}
+	func f() {
 		var x = 0
 		print("f1")
-		try
+		try {
 			print("f2")
 			x = "f4"
 			print("from g:" + g())
 			print("f3")
-		catch e
+		} catch e {
 			print(x)
 			throw e
-		end
+		}
 		print("f5")
-	end
-	func x() 
+	}
+	func x() {
 		var i = 0
-		try
+		try {
 			i = 1
 			f()
 			i = 2
-		catch e
+		} catch e {
 			print(e)
-		end
-	end
+		}
+	}
 	x()
 	`, `
 f1
@@ -91,13 +91,13 @@ Runtime error: boom
 
 	RunSubO(t, "catch_error", `
 	var x
-	try
+	try {
 		x = "hi"
 		throw "nope"
 		x = "bye"
-	catch e
+	} catch e {
 		print(e.error, x)
-	end`, `
+	}`, `
 nope hi
 `)
 }

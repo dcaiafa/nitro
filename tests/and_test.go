@@ -9,20 +9,20 @@ func TestAnd(t *testing.T) {
 	RunSubO(t, "true_true", `print(true and 123)`, `123`)
 
 	RunSubO(t, "short_circuit", `
-		func f(b)
+		func f(b) {
 			print("f", b)
 			return b
-		end
+		}
 		print(f(false) and f(true))
 `, `
 f false
 false`)
 
 	RunSubO(t, "dont_short_circuit", `
-		func f(b)
+		func f(b) {
 			print("f", b)
 			return b
-		end
+		}
 		print(f(true) and f(false))
 `, `
 f true

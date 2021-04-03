@@ -8,90 +8,90 @@ import (
 
 func TestFn(t *testing.T) {
 	RunSubO(t, "no_args", `
-		func f() 
+		func f() {
       print("X")
-		end
+		}
 		f()
 `, `X`)
 
 	RunSubO(t, "ret1_stmt", `
-		func f(a, b) 
+		func f(a, b) {
 			return a + b
-		end
+		}
 		f(1, 2)
 		print("done")
 `, `done`)
 
 	RunSubO(t, "ret1_var_decl", `
-		func f(a, b) 
+		func f(a, b) {
 			return a + b
-		end
+		}
 		var x = f(1, 2)
 		print(x)
 `, `3`)
 
 	RunSubO(t, "ret1_assign", `
-		func f(a, b) 
+		func f(a, b) {
 			return a + b
-		end
+		}
 		var x
 		x = f(1, 2)
 		print(x)
 `, `3`)
 
 	RunSubO(t, "ret1_expr", `
-		func f(a, b) 
+		func f(a, b) {
 			return a + b
-		end
+		}
 		var x
 		x = f(1, 2)
 		print(x)
 `, `3`)
 
 	RunSubO(t, "local_vars", `
-		func f(a, b) 
+		func f(a, b) {
 			var x = a + b
 			return x + 1
-		end
+		}
 		print(f(1, 2))
 `, `4`)
 
 	RunSubO(t, "sub_func", `
-		func X(a, b) 
-			func Y(x, y)
+		func X(a, b) {
+			func Y(x, y) {
       	return x + y
-			end
+			}
 			return Y(a+1, b+1)
-		end
+		}
 		print(X(1, 2))
 `, `5`)
 
 	RunSubO(t, "sub_func_cap", `
-		func x() 
+		func x() {
 			var a = 0
-			func y() 
+			func y() {
       	a = a + 1
 				return a
-			end
+			}
 			return y
-		end
+		}
 		var f1 = x()
 		var f2 = x()
 		print(f1(), f2(), f1(), f2())
 `, `1 1 2 2`)
 
 	RunSubO(t, "sub_func_multi", `
-		func x() 
+		func x() {
 			var a = 0
-			var f = func() 
-				return func()
+			var f = func() {
+				return func() {
         	a = a + 1
 					return a
-				end
-			end
+				}
+			}
 			a = 10
 			return f
-		end
+		}
 		var f1 = x()()
 		var f2 = x()()
 		print(f1(), f2(), f1(), f2())
@@ -102,17 +102,17 @@ func TestFn(t *testing.T) {
 	`, `3`)
 
 	RunSubO(t, "lambda_as_arg", `
-		func apply(f, v)
+		func apply(f, v) {
 			return f(v)
-		end
+		}
 		print(apply(&x->x+1, 10))
 	`, `11`)
 
 	RunSubO(t, "lambda_with_capture", `
 		var n = 3
-		func apply(f, v)
+		func apply(f, v) {
 			return f(v)
-		end
+		}
 		print(apply(&x->x+n, 10))
 		n = 4
 		print(apply(&x->x+n, 10))
@@ -126,13 +126,13 @@ func TestFn(t *testing.T) {
 	`, `{name: "bob"}`)
 
 	RunSubO(t, "recursive", `
-		func fib(n)
-    	if n <= 1 
+		func fib(n) {
+    	if n <= 1 {
 				return 1
-			else
+			} else {
 				return fib(n-2) + fib(n-1)
-			end
-		end
+			}
+		}
 		print(fib(6))
 	`, `13`)
 

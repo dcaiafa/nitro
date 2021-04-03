@@ -5,18 +5,18 @@ import "testing"
 func TestForStmt(t *testing.T) {
 	RunSubO(t, "for_iter", `
 		var i = 0
-		func iter(n)
-			return func()
+		func iter(n) {
+			return func() {
 				i = i + 1
-				if i > n
+				if i > n {
 					return false, 0
-				end
+				}
 				return true, i
-			end
-		end
-		for x in iter(3)
+			}
+		}
+		for x in iter(3) {
     	print(x)
-		end
+		}
 	`, `
 1
 2
@@ -24,9 +24,9 @@ func TestForStmt(t *testing.T) {
 `)
 
 	RunSubO(t, "for_array", `
-		for x in ["foo", "bar"]
+		for x in ["foo", "bar"] {
     	print(x)
-		end
+		}
 	`, `
 foo
 bar
@@ -34,9 +34,9 @@ bar
 
 	RunSubO(t, "for_array_empty", `
 		print("begin")
-		for x in []
+		for x in [] {
     	print(x)
-		end
+		}
 		print("end")
 	`, `
 begin
@@ -48,9 +48,9 @@ end
 			x: 1
 			y: { z: 2 }
 		}
-		for k, v in d 
+		for k, v in d {
 			print(k, v)
-		end
+		}
 	`, `
 x 1
 y {z: 2}
@@ -61,9 +61,9 @@ y {z: 2}
 			x: 1
 			y: { z: 2 }
 		}
-		for k in d 
+		for k in d {
 			print(k)
-		end
+		}
 	`, `
 x
 y
@@ -71,9 +71,9 @@ y
 
 	RunSubO(t, "for_object_empty", `
 		print("begin")
-		for k, v in {}
+		for k, v in {} {
 			print(k, v)
-		end
+		}
 		print("end")
 	`, `
 begin

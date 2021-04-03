@@ -11,15 +11,15 @@ import (
 func TestErrorStack(t *testing.T) {
 	const prog = `
 	var x
-	func h()
+	func h() {
 		x()
-	end
-	func g()
+	}
+	func g() {
 		h()
-	end
-	func f()
+	}
+	func f() {
 		g()
-	end
+	}
 	f()
 `
 

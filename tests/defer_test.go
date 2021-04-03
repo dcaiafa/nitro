@@ -9,12 +9,12 @@ func TestDefer(t *testing.T) {
 	`, `1`)
 
 	RunSubO(t, "from_func", `
-		func f() 
+		func f() {
 			var x = 1
       defer print(x)
 			print(x)
 			x = x + 1
-		end
+		}
 		f()
 	`, `
 1
@@ -22,13 +22,13 @@ func TestDefer(t *testing.T) {
 `)
 
 	RunSubO(t, "multi", `
-		func f()
+		func f() {
 			var x = 1
 			defer print("bye")
 			defer print(x)
 			print(x)
 			x = x + 1
-		end
+		}
 		f()
 `, `
 1
@@ -37,21 +37,21 @@ bye
 `)
 
 	RunSubO(t, "exception", `
-		func f()
+		func f() {
 			var x = 1
-			defer func()
+			defer func() {
 				print("bye from", x)
-			end()
+			}()
 			
 			print("bomb")
 			throw "boom"
-		end
+		}
 
-		try
+		try {
 			f()
-		catch e
+		} catch e {
 			print("it did go", e.error)
-		end
+		}
 `, `
 bomb
 bye from 1
