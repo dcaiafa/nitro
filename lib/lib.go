@@ -18,6 +18,7 @@ func RegisterAll(c *nitro.Compiler) {
 	c.AddExternalFn("readall", readall)
 	c.AddExternalFn("split", fnSplit)
 	c.AddExternalFn("tojson", fnToJSON)
+	c.AddExternalFn("close", fnClose)
 
 	c.AddExternalFn("out", fnOut)
 	c.AddExternalFn("pushout", fnPushOut)
@@ -28,7 +29,6 @@ func RegisterAll(c *nitro.Compiler) {
 	c.AddExternalFn("printall", fnPrintAll)
 
 	c.AddExternalFn("fopen", fnFOpen)
-	c.AddExternalFn("fclose", fnFClose)
 	c.AddExternalFn("fcreate", fnFCreate)
 	c.AddExternalFn("fremove", fnFRemove)
 	c.AddExternalFn("fremoveall", fnFRemoveAll)
