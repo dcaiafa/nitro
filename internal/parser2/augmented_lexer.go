@@ -52,7 +52,6 @@ func (l *augmentedLexer) NextToken() antlr.Token {
 			parser.NitroLexerNUMBER,
 			parser.NitroLexerSTRING,
 			parser.NitroLexerID,
-			parser.NitroLexerEND,
 			parser.NitroLexerTRUE,
 			parser.NitroLexerFALSE,
 			parser.NitroLexerCATCH,

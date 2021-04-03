@@ -14,26 +14,11 @@ type NitroParserListener interface {
 	// EnterModule is called when entering the module production.
 	EnterModule(c *ModuleContext)
 
-	// EnterMeta_section is called when entering the meta_section production.
-	EnterMeta_section(c *Meta_sectionContext)
-
-	// EnterMeta_entry is called when entering the meta_entry production.
-	EnterMeta_entry(c *Meta_entryContext)
-
-	// EnterMeta_object is called when entering the meta_object production.
-	EnterMeta_object(c *Meta_objectContext)
-
-	// EnterMeta_fields is called when entering the meta_fields production.
-	EnterMeta_fields(c *Meta_fieldsContext)
-
-	// EnterMeta_field is called when entering the meta_field production.
-	EnterMeta_field(c *Meta_fieldContext)
-
-	// EnterMeta_field_value is called when entering the meta_field_value production.
-	EnterMeta_field_value(c *Meta_field_valueContext)
-
 	// EnterStmts is called when entering the stmts production.
 	EnterStmts(c *StmtsContext)
+
+	// EnterStmt_list is called when entering the stmt_list production.
+	EnterStmt_list(c *Stmt_listContext)
 
 	// EnterStmt is called when entering the stmt production.
 	EnterStmt(c *StmtContext)
@@ -221,26 +206,11 @@ type NitroParserListener interface {
 	// ExitModule is called when exiting the module production.
 	ExitModule(c *ModuleContext)
 
-	// ExitMeta_section is called when exiting the meta_section production.
-	ExitMeta_section(c *Meta_sectionContext)
-
-	// ExitMeta_entry is called when exiting the meta_entry production.
-	ExitMeta_entry(c *Meta_entryContext)
-
-	// ExitMeta_object is called when exiting the meta_object production.
-	ExitMeta_object(c *Meta_objectContext)
-
-	// ExitMeta_fields is called when exiting the meta_fields production.
-	ExitMeta_fields(c *Meta_fieldsContext)
-
-	// ExitMeta_field is called when exiting the meta_field production.
-	ExitMeta_field(c *Meta_fieldContext)
-
-	// ExitMeta_field_value is called when exiting the meta_field_value production.
-	ExitMeta_field_value(c *Meta_field_valueContext)
-
 	// ExitStmts is called when exiting the stmts production.
 	ExitStmts(c *StmtsContext)
+
+	// ExitStmt_list is called when exiting the stmt_list production.
+	ExitStmt_list(c *Stmt_listContext)
 
 	// ExitStmt is called when exiting the stmt production.
 	ExitStmt(c *StmtContext)

@@ -3,7 +3,6 @@ import Strings;
 
 AND: 'and';
 ELSE: 'else';
-END: 'end';
 FALSE: 'false';
 FUNC: 'func';
 FOR: 'for';

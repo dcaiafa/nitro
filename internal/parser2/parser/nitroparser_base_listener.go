@@ -33,47 +33,17 @@ func (s *BaseNitroParserListener) EnterModule(ctx *ModuleContext) {}
 // ExitModule is called when production module is exited.
 func (s *BaseNitroParserListener) ExitModule(ctx *ModuleContext) {}
 
-// EnterMeta_section is called when production meta_section is entered.
-func (s *BaseNitroParserListener) EnterMeta_section(ctx *Meta_sectionContext) {}
-
-// ExitMeta_section is called when production meta_section is exited.
-func (s *BaseNitroParserListener) ExitMeta_section(ctx *Meta_sectionContext) {}
-
-// EnterMeta_entry is called when production meta_entry is entered.
-func (s *BaseNitroParserListener) EnterMeta_entry(ctx *Meta_entryContext) {}
-
-// ExitMeta_entry is called when production meta_entry is exited.
-func (s *BaseNitroParserListener) ExitMeta_entry(ctx *Meta_entryContext) {}
-
-// EnterMeta_object is called when production meta_object is entered.
-func (s *BaseNitroParserListener) EnterMeta_object(ctx *Meta_objectContext) {}
-
-// ExitMeta_object is called when production meta_object is exited.
-func (s *BaseNitroParserListener) ExitMeta_object(ctx *Meta_objectContext) {}
-
-// EnterMeta_fields is called when production meta_fields is entered.
-func (s *BaseNitroParserListener) EnterMeta_fields(ctx *Meta_fieldsContext) {}
-
-// ExitMeta_fields is called when production meta_fields is exited.
-func (s *BaseNitroParserListener) ExitMeta_fields(ctx *Meta_fieldsContext) {}
-
-// EnterMeta_field is called when production meta_field is entered.
-func (s *BaseNitroParserListener) EnterMeta_field(ctx *Meta_fieldContext) {}
-
-// ExitMeta_field is called when production meta_field is exited.
-func (s *BaseNitroParserListener) ExitMeta_field(ctx *Meta_fieldContext) {}
-
-// EnterMeta_field_value is called when production meta_field_value is entered.
-func (s *BaseNitroParserListener) EnterMeta_field_value(ctx *Meta_field_valueContext) {}
-
-// ExitMeta_field_value is called when production meta_field_value is exited.
-func (s *BaseNitroParserListener) ExitMeta_field_value(ctx *Meta_field_valueContext) {}
-
 // EnterStmts is called when production stmts is entered.
 func (s *BaseNitroParserListener) EnterStmts(ctx *StmtsContext) {}
 
 // ExitStmts is called when production stmts is exited.
 func (s *BaseNitroParserListener) ExitStmts(ctx *StmtsContext) {}
+
+// EnterStmt_list is called when production stmt_list is entered.
+func (s *BaseNitroParserListener) EnterStmt_list(ctx *Stmt_listContext) {}
+
+// ExitStmt_list is called when production stmt_list is exited.
+func (s *BaseNitroParserListener) ExitStmt_list(ctx *Stmt_listContext) {}
 
 // EnterStmt is called when production stmt is entered.
 func (s *BaseNitroParserListener) EnterStmt(ctx *StmtContext) {}

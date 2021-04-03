@@ -15,20 +15,39 @@ a | b() | c()
 
 1 + 2 | b() | c()
 
+if foo {
+	print("stuff")
+} else if other+x < 2 {
+	print("yay")
+} else if not nope {
+} else {
+	print("last resort")
+}
+
+for i in range(10) {
+	print(i)
+}
+for i in range(10) { print(i) }
+for i in range(10) { 
+	;
+}
+
+print(1); print2;;
+
 # This is cool.
 print(in() | fromjson() | &d -> d.id)
 
 c(b(a)) # and so is this
 
-try
+try {
 	json_lines() | 
 		join(json_lines("nodes.json"), ".metadata.node", ".node_name") |
 		select(&e->e.metadata.labels.team=="t2")
 	
 	throw "boom"
-catch e
+} catch e {
 	log("shit's on fire yo " + e)
-end
+}
 
 select(
   join(

@@ -143,33 +143,24 @@ func (l *listener) ExitStart(ctx *parser.StartContext) {
 	l.Module = l.takeAST(ctx.Module()).(*ast.Module)
 }
 
-// module: meta_section? stmts;
+// module: stmts;
 func (l *listener) ExitModule(ctx *parser.ModuleContext) {
 	m := &ast.Module{}
 	m.Block = l.takeAST(ctx.Stmts()).(*ast.StmtBlock)
 	l.put(ctx, m)
 }
 
-// meta_section: META meta_entry* END;
-func (l *listener) ExitMeta_section(ctx *parser.Meta_sectionContext) {}
-
-// meta_entry: ID meta_object;
-func (l *listener) ExitMeta_entry(ctx *parser.Meta_entryContext) {}
-
-// meta_object: '{' meta_fields? '}';
-func (l *listener) ExitMeta_object(ctx *parser.Meta_objectContext) {}
-
-// meta_fields: meta_field ((','|';') meta_field)*;
-func (l *listener) ExitMeta_fields(ctx *parser.Meta_fieldsContext) {}
-
-// meta_field: ID ':' meta_field_value;
-func (l *listener) ExitMeta_field(ctx *parser.Meta_fieldContext) {}
-
-// meta_field_value: STRING | NUMBER | TRUE | FALSE | meta_object;
-func (l *listener) ExitMeta_field_value(ctx *parser.Meta_field_valueContext) {}
+// stmts: stmt_list?;
+func (l *listener) ExitStmts(ctx *parser.StmtsContext) {
+	if ctx.Stmt_list() == nil {
+		l.put(ctx, &ast.StmtBlock{})
+		return
+	}
+	l.put(ctx, l.takeAST(ctx.Stmt_list()))
+}
 
 // stmts: stmt*;
-func (l *listener) ExitStmts(ctx *parser.StmtsContext) {
+func (l *listener) ExitStmt_list(ctx *parser.Stmt_listContext) {
 	allStmt := ctx.AllStmt()
 	stmts := make(ast.ASTs, 0, len(allStmt))
 	for _, stmtCtx := range allStmt {
