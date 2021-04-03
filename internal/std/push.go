@@ -14,13 +14,15 @@ func fnPush(ctx context.Context, caps []runtime.ValueRef, args []runtime.Value, 
 		return nil, errTooManyArgs
 	}
 
-	arr, ok := args[0].(*runtime.Array)
+	pushable, ok := args[0].(interface {
+		Push(v runtime.Value)
+	})
 	if !ok {
 		return nil, fmt.Errorf(
-			"expected Array in argument #1; instead got %q",
+			"argument %v does not support push",
 			runtime.TypeName(args[0]))
 	}
 
-	arr.Push(args[1])
+	pushable.Push(args[1])
 	return nil, nil
 }
