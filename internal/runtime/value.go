@@ -33,6 +33,7 @@ func NewString(v string) String { return String{v} }
 
 func (s String) String() string { return s.v }
 func (s String) Type() string   { return "String" }
+func (s String) Len() int       { return len(s.v) }
 
 type Int struct {
 	v int64
