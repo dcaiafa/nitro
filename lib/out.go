@@ -9,12 +9,20 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-type Writer struct {
+type writer struct {
 	io.Writer
 }
 
-func (w *Writer) String() string { return "<Writer>" }
-func (w *Writer) Type() string   { return "Writer" }
+func (w *writer) String() string { return "<Writer>" }
+func (w *writer) Type() string   { return "Writer" }
+
+func wrapWriter(w io.Writer) nitro.Value {
+	v, ok := w.(nitro.Value)
+	if ok {
+		return v
+	}
+	return &writer{w}
+}
 
 var stdoutUserDataKey = "stdout"
 
@@ -47,18 +55,19 @@ func PushOut(ctx context.Context, out io.Writer) {
 	outStack.stack = append(outStack.stack, out)
 }
 
-func PopOut(ctx context.Context) error {
+func PopOut(ctx context.Context) io.Writer {
 	outStack, ok := nitro.GetUserData(ctx, &stdoutUserDataKey).(*stdoutStack)
 	if !ok || len(outStack.stack) == 0 {
-		return fmt.Errorf("the stdout stack is empty")
+		return nil
 	}
+	prevOut := outStack.stack[len(outStack.stack)-1]
 	outStack.stack[len(outStack.stack)-1] = nil
 	outStack.stack = outStack.stack[:len(outStack.stack)-1]
-	return nil
+	return prevOut
 }
 
 func fnOut(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
-	return []nitro.Value{&Writer{Stdout(ctx)}}, nil
+	return []nitro.Value{wrapWriter(Stdout(ctx))}, nil
 }
 
 func fnPushOut(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
@@ -71,6 +80,9 @@ func fnPushOut(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, r
 }
 
 func fnPopOut(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
-	err := PopOut(ctx)
-	return nil, err
+	prevOut := PopOut(ctx)
+	if prevOut == nil {
+		return nil, fmt.Errorf("the stdout stack is empty")
+	}
+	return []nitro.Value{wrapWriter(prevOut)}, nil
 }

@@ -17,7 +17,7 @@ type File struct {
 func (f *File) String() string { return fmt.Sprintf("<File:%v>", f.File.Name()) }
 func (f *File) Type() string   { return "File" }
 
-func fnOpen(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func fnFOpen(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
 	filename, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -31,7 +31,7 @@ func fnOpen(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN
 	return []nitro.Value{&File{f}}, nil
 }
 
-func fnClose(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func fnFClose(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
 	if len(args) < 1 {
 		return nil, errNotEnoughArgs
 	}
@@ -51,7 +51,7 @@ func fnClose(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, ret
 	return nil, nil
 }
 
-func fnCreate(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func fnFCreate(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
 	filename, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -65,7 +65,7 @@ func fnCreate(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, re
 	return []nitro.Value{&File{f}}, nil
 }
 
-func fnRemove(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func fnFRemove(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
 	if len(args) < 1 {
 		return nil, errNotEnoughArgs
 	}
@@ -93,7 +93,7 @@ func fnRemove(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, re
 	return nil, nil
 }
 
-func fnRemoveAll(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func fnFRemoveAll(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
 	path, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -107,7 +107,7 @@ func fnRemoveAll(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value,
 	return nil, nil
 }
 
-func fnCreateTemp(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func fnFCreateTemp(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
 	pattern, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
