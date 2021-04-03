@@ -42,7 +42,7 @@ func (m *Main) AddParam(ctx *Context, param *meta.Param, pos token.Pos) bool {
 	return true
 }
 
-func (m *Main) AddModule(module *Module) {
+func (m *Main) AddModule(module AST) {
 	m.modules = append(m.modules, module)
 }
 

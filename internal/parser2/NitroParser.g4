@@ -2,6 +2,8 @@ parser grammar NitroParser;
 
 options { tokenVocab=NitroLexer; }
 
+short_prog: expr ';'? EOF;
+
 start: module EOF;
 
 module: stmts;

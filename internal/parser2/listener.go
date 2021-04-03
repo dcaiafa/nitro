@@ -138,6 +138,30 @@ func (l *listener) ExitEveryRule(ctx antlr.ParserRuleContext) {
 	ast.SetPos(l.tokenToPos(ctx.GetStart()))
 }
 
+func (l *listener) ExitShort_prog(ctx *parser.Short_progContext) {
+	expr := l.takeExpr(ctx.Expr())
+
+	emitRef := &ast.SimpleRef{
+		ID: token.Token{
+			Pos:  expr.Pos(),
+			Type: token.String,
+			Str:  "emit",
+		},
+	}
+
+	l.Module = &ast.Module{
+		Block: &ast.StmtBlock{
+			Stmts: ast.ASTs{
+				&ast.FuncCallExpr{
+					Target: emitRef,
+					Args:   ast.Exprs{expr},
+					RetN:   0,
+				},
+			},
+		},
+	}
+}
+
 // start: module;
 func (l *listener) ExitStart(ctx *parser.StartContext) {
 	l.Module = l.takeAST(ctx.Module()).(*ast.Module)

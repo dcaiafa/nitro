@@ -8,6 +8,9 @@ import "github.com/antlr/antlr4/runtime/Go/antlr"
 type NitroParserListener interface {
 	antlr.ParseTreeListener
 
+	// EnterShort_prog is called when entering the short_prog production.
+	EnterShort_prog(c *Short_progContext)
+
 	// EnterStart is called when entering the start production.
 	EnterStart(c *StartContext)
 
@@ -199,6 +202,9 @@ type NitroParserListener interface {
 
 	// EnterId_or_keyword is called when entering the id_or_keyword production.
 	EnterId_or_keyword(c *Id_or_keywordContext)
+
+	// ExitShort_prog is called when exiting the short_prog production.
+	ExitShort_prog(c *Short_progContext)
 
 	// ExitStart is called when exiting the start production.
 	ExitStart(c *StartContext)

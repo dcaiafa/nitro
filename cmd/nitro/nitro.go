@@ -31,25 +31,60 @@ func emit(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN i
 	return nil, nil
 }
 
+func emitShort(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+	e, err := nitro.MakeEnumerator(ctx, args[0])
+	if err == nil {
+		for {
+			v, ok, err := nitro.Next(ctx, e, 1)
+			if err != nil {
+				return nil, err
+			}
+			if !ok {
+				break
+			}
+			fmt.Println(v[0])
+		}
+	} else {
+		fmt.Println(args[0])
+	}
+	return nil, nil
+}
+
 func main() {
+	var (
+		flagE = flag.String("e", "", "")
+	)
 	flag.Parse()
 
-	if flag.NArg() == 0 {
+	if flag.NArg() == 0 && *flagE == "" {
 		log.Fatalf("<program> required")
 	}
 
 	filename := flag.Arg(0)
-
 	compiler := nitro.NewCompiler(nitro.NewNativeFileSystem())
 	compiler.SetDiag(true)
 
-	lib.RegisterAll(compiler)
-	compiler.AddExternalFn("emit", emit)
+	var err error
+	var compiled *nitro.Program
 
-	compiled, err := compiler.Compile(filename, nitro.NewConsoleErrLogger())
-	if err != nil {
-		// Error was already logged by ConsoleErrLogger.
-		os.Exit(1)
+	if *flagE != "" {
+		lib.RegisterAll(compiler)
+		compiler.AddExternalFn("emit", emitShort)
+
+		compiled, err = compiler.CompileShort(*flagE, nitro.NewConsoleErrLogger())
+		if err != nil {
+			// Error was already logged by ConsoleErrLogger.
+			os.Exit(1)
+		}
+	} else {
+		lib.RegisterAll(compiler)
+		compiler.AddExternalFn("emit", emit)
+
+		compiled, err = compiler.Compile(filename, nitro.NewConsoleErrLogger())
+		if err != nil {
+			// Error was already logged by ConsoleErrLogger.
+			os.Exit(1)
+		}
 	}
 
 	machine := nitro.NewMachine(compiled)

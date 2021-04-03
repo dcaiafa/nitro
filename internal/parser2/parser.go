@@ -21,7 +21,7 @@ var lexerPool = sync.Pool{
 	},
 }
 
-func Parse(filename string, input string, diagMode bool, errLogger errlogger.ErrLogger) (*ast.Module, error) {
+func ParseModule(filename string, input string, shortProg bool, diagMode bool, errLogger errlogger.ErrLogger) (*ast.Module, error) {
 	lexer := lexerPool.Get().(*augmentedLexer)
 	lexer.SetInputStream(antlr.NewInputStream(string(input)))
 
@@ -36,7 +36,13 @@ func Parse(filename string, input string, diagMode bool, errLogger errlogger.Err
 		nitroParser.AddErrorListener(antlr.NewDiagnosticErrorListener(true))
 	}
 	listener := newListener(filename, errListener)
-	parseTree := nitroParser.Start()
+	var parseTree antlr.Tree
+	if shortProg {
+		parseTree = nitroParser.Short_prog()
+	} else {
+		parseTree = nitroParser.Start()
+	}
+
 	parserPool.Put(nitroParser)
 	lexerPool.Put(lexer)
 	antlr.ParseTreeWalkerDefault.Walk(listener, parseTree)

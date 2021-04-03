@@ -48,7 +48,10 @@ func (c *Compiler) AddExternalFn(name string, fn runtime.ExternFn) {
 	c.externalFns[name] = fn
 }
 
-func (c *Compiler) Compile(filename string, errLogger errlogger.ErrLogger) (*runtime.Program, error) {
+func (c *Compiler) Compile(
+	filename string,
+	errLogger errlogger.ErrLogger,
+) (*runtime.Program, error) {
 	errLoggerWrapper := errlogger.NewErrLoggerBase(errLogger)
 
 	data, err := c.fileSystem.ReadFile(filename)
@@ -57,11 +60,32 @@ func (c *Compiler) Compile(filename string, errLogger errlogger.ErrLogger) (*run
 		return nil, errLoggerWrapper.Error()
 	}
 
-	module, err := parser2.Parse(filename, string(data), c.diag, errLoggerWrapper)
+	module, err := parser2.ParseModule(filename, string(data), false, c.diag, errLoggerWrapper)
 	if err != nil {
 		return nil, err
 	}
 
+	return c.compile(module, errLoggerWrapper)
+}
+
+func (c *Compiler) CompileShort(
+	shortProg string,
+	errLogger errlogger.ErrLogger,
+) (*runtime.Program, error) {
+	errLoggerWrapper := errlogger.NewErrLoggerBase(errLogger)
+
+	module, err := parser2.ParseModule("expr", shortProg, true, c.diag, errLoggerWrapper)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.compile(module, errLoggerWrapper)
+}
+
+func (c *Compiler) compile(
+	module *ast.Module,
+	errLoggerWrapper *errlogger.ErrLoggerWrapper,
+) (*runtime.Program, error) {
 	main := &ast.Main{}
 	main.AddModule(module)
 
