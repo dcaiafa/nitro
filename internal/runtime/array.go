@@ -40,6 +40,10 @@ func (a *Array) Get(index int) Value {
 	return a.array[index]
 }
 
+func (a *Array) Put(index int, v Value) {
+	a.array[index] = v
+}
+
 func (a *Array) Index(key Value) (Value, error) {
 	index, ok := key.(Int)
 	if !ok {

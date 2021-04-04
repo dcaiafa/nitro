@@ -33,6 +33,22 @@ type (
 	Pos       = token.Pos
 )
 
+type BinOp = runtime.BinOp
+
+const (
+	BinAdd  = runtime.BinAdd
+	BinSub  = runtime.BinSub
+	BinMult = runtime.BinMult
+	BinDiv  = runtime.BinDiv
+	BinMod  = runtime.BinMod
+	BinLT   = runtime.BinLT
+	BinLE   = runtime.BinLE
+	BinGT   = runtime.BinGT
+	BinGE   = runtime.BinGE
+	BinEq   = runtime.BinEq
+	BinNE   = runtime.BinNE
+)
+
 var ErrCannotCallNil = runtime.ErrCannotCallNil
 
 func NewMachine(p *Program) *Machine {
@@ -61,6 +77,10 @@ func SetUserData(ctx context.Context, k, v interface{}) {
 
 func GetUserData(ctx context.Context, k interface{}) interface{} {
 	return runtime.MachineFromContext(ctx).GetUserData(k)
+}
+
+func EvalBinOp(op BinOp, operand1, operand2 Value) (Value, error) {
+	return runtime.EvalBinOp(op, operand1, operand2)
 }
 
 func TypeName(v Value) string                      { return runtime.TypeName(v) }

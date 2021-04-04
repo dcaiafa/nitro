@@ -19,6 +19,8 @@ func RegisterAll(c *nitro.Compiler) {
 	c.AddExternalFn("split", fnSplit)
 	c.AddExternalFn("tojson", fnToJSON)
 	c.AddExternalFn("close", fnClose)
+	c.AddExternalFn("sort", fnSort)
+	c.AddExternalFn("toarray", fnToArray)
 
 	c.AddExternalFn("out", fnOut)
 	c.AddExternalFn("pushout", fnPushOut)
