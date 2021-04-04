@@ -3,6 +3,7 @@ package lib
 import (
 	"context"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -99,6 +100,84 @@ func fnFCreateTemp(ctx context.Context, caps []nitro.ValueRef, args []nitro.Valu
 	}
 
 	return []nitro.Value{&File{f}}, nil
+}
+
+func fnFList(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+	path, err := getStringArg(args, 0)
+	if err != nil {
+		return nil, err
+	}
+
+	var pattern string
+	if len(args) >= 2 {
+		pattern, err = getStringArg(args, 1)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	entries, err := os.ReadDir(path)
+	if err != nil {
+		return nil, err
+	}
+
+	result := nitro.NewArrayWithCapacity(len(entries))
+
+	for _, entry := range entries {
+		if pattern != "" {
+			ok, err := filepath.Match(pattern, entry.Name())
+			if err != nil {
+				return nil, err
+			}
+			if !ok {
+				continue
+			}
+		}
+		result.Push(nitro.NewString(filepath.Join(path, entry.Name())))
+	}
+
+	return []nitro.Value{result}, nil
+}
+
+func fnFCopy(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+	from, err := getStringArg(args, 0)
+	if err != nil {
+		return nil, err
+	}
+
+	to, err := getStringArg(args, 1)
+	if err != nil {
+		return nil, err
+	}
+
+	fi, err := os.Stat(to)
+	if err == nil && fi.IsDir() {
+		to = filepath.Join(to, filepath.Base(from))
+	}
+
+	fromF, err := os.Open(from)
+	if err != nil {
+		return nil, err
+	}
+	defer fromF.Close()
+
+	toF, err := os.Create(to)
+	if err != nil {
+		return nil, err
+	}
+	defer toF.Close()
+
+	_, err = io.Copy(toF, fromF)
+	if err != nil {
+		return nil, err
+	}
+
+	err = toF.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	return []nitro.Value{nitro.NewString(to)}, nil
 }
 
 func fnFPathBase(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {

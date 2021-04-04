@@ -33,9 +33,12 @@ func RegisterAll(c *nitro.Compiler) {
 	c.AddExternalFn("fremove", fnFRemove)
 	c.AddExternalFn("fremoveall", fnFRemoveAll)
 	c.AddExternalFn("fcreatetemp", fnFCreateTemp)
+	c.AddExternalFn("flist", fnFList)
+	c.AddExternalFn("fcopy", fnFCopy)
 	c.AddExternalFn("fpathbase", fnFPathBase)
 	c.AddExternalFn("fpathclean", fnFPathClean)
 	c.AddExternalFn("fpathdir", fnFPathDir)
 	c.AddExternalFn("fpathfromslash", fnFPathFromSlash)
+	c.AddExternalFn("fpathjoin", fnFPathJoin)
 	c.AddExternalFn("fpathjoin", fnFPathJoin)
 }
