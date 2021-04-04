@@ -44,4 +44,16 @@ func TestAssignment(t *testing.T) {
 		a = foo(1)
 		print(a)
 	`, `1`)
+
+	RunSubO(t, "nil", `
+		var a
+		a = 1
+		print(a)
+		a = nil
+		print(a)
+		`,
+		`
+1
+<nil>
+`)
 }

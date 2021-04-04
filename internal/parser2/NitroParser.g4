@@ -91,7 +91,7 @@ primary_expr: ID                                       # primary_expr_simple_ref
             | '(' expr ')'                             # primary_expr_parenthesis
             ;
 
-simple_literal: val=(STRING | NUMBER | TRUE | FALSE);
+simple_literal: val=(STRING | NUMBER | TRUE | FALSE | NIL);
 
 arg_list: expr (',' expr)*;
 
@@ -133,5 +133,5 @@ array_for: FOR for_vars ID expr '{' array_elems '}';
 id_or_keyword: 
     t=(ID | AND | ELSE | FALSE |
        FUNC | FOR | IF | META | NOT | OR | RETURN |
-       TRUE | VAR | WHILE | DEFER | TRY | CATCH | THROW)
+       TRUE | VAR | WHILE | DEFER | TRY | CATCH | THROW | NIL)
     ;

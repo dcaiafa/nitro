@@ -20,6 +20,9 @@ func (e *LiteralExpr) RunPass(ctx *Context, pass Pass) {
 		emitter := ctx.Emitter()
 
 		switch e.Val.Type {
+		case token.Nil:
+			emitter.Emit(e.Pos(), runtime.OpNil, 0, 0)
+
 		case token.Int:
 			if 0 <= e.Val.Int && e.Val.Int <= math.MaxUint16 {
 				emitter.Emit(e.Pos(), runtime.OpNewInt, uint32(e.Val.Int), 0)

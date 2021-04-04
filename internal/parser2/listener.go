@@ -34,6 +34,9 @@ func (l *listener) tokenToNitro(at antlr.Token) token.Token {
 
 	t := token.Token{}
 	switch at.GetTokenType() {
+	case parser.NitroLexerNIL:
+		t.Type = token.Nil
+
 	case parser.NitroLexerSTRING:
 		s := at.GetText()
 		s = s[1 : len(s)-1] // remove quotes

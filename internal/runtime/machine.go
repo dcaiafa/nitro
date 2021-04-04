@@ -32,6 +32,7 @@ const (
 	OpDup
 	OpPop
 	OpCall
+	OpNil
 	OpNewClosure
 	OpNewInt
 	OpNewBool
@@ -281,6 +282,9 @@ func (m *Machine) resume(ctx context.Context) (ret []Value, err error) {
 				return nil, err
 			}
 			m.frame.Stack = append(m.frame.Stack, rets[:expRetN]...)
+
+		case OpNil:
+			m.push(nil)
 
 		case OpNewClosure:
 			capN := int(instr.operand2)

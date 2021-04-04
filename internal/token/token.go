@@ -5,7 +5,8 @@ import "fmt"
 type Type int
 
 const (
-	Int Type = iota
+	Nil Type = iota
+	Int
 	Float
 	String
 	Bool

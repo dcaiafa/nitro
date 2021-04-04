@@ -2,22 +2,23 @@ lexer grammar NitroLexer;
 import Strings;
 
 AND: 'and';
+CATCH: 'catch';
+DEFER: 'defer';
 ELSE: 'else';
 FALSE: 'false';
-FUNC: 'func';
 FOR: 'for';
+FUNC: 'func';
 IF: 'if';
 META: 'meta';
+NIL: 'nil';
 NOT: 'not';
 OR: 'or';
 RETURN: 'return';
+THROW: 'throw';
 TRUE: 'true';
+TRY: 'try';
 VAR: 'var';
 WHILE: 'while';
-DEFER: 'defer';
-TRY: 'try';
-CATCH: 'catch';
-THROW: 'throw';
 
 ASSIGN: '=';
 EQ: '==';
