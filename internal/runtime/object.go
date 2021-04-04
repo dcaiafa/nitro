@@ -105,6 +105,15 @@ func (o *Object) GetNext(key Value) (nextKey Value, nextVal Value) {
 	return node.next.key, node.next.value
 }
 
+func (o *Object) Delete(key Value) {
+	node := o.data[key]
+	if node == nil {
+		return
+	}
+	node.Remove()
+	delete(o.data, key)
+}
+
 func (o *Object) ForEach(f func(k, v Value) bool) {
 	for n := o.list.next; n != o.list; n = n.next {
 		if !f(n.key, n.value) {

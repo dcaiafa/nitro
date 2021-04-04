@@ -123,4 +123,27 @@ func TestObjectOther(t *testing.T) {
 		var a = { b: { c: 123 }, d: 3 }
 		print(has(a, "b"), has(a, "c"), has(a.b, "c"), has(a.x.y.z, "w"))
 	`, `true false true false`)
+
+	RunSubO(t, "delete", `
+		var a = {
+			x: 1, y: 2, z: 3
+		}
+		delete(a, "x")
+		delete(a, "x")
+		print(a, len(a))
+		a.x = 4
+		print(a, len(a))
+		delete(a, "x")
+		delete(a, "y")
+		delete(a, "z")
+		print(a, len(a))
+		a.w = 5
+		delete(a.b, "nope")
+		print(a, len(a))
+	`, `
+{y: 2, z: 3} 2
+{y: 2, z: 3, x: 4} 3
+{} 0
+{w: 5} 1
+`)
 }
