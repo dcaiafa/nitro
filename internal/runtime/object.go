@@ -57,6 +57,11 @@ func (o *Object) Len() int {
 	return len(o.data)
 }
 
+func (o *Object) Has(k Value) bool {
+	_, ok := o.data[k]
+	return ok
+}
+
 func (o *Object) Put(k, v Value) {
 	n := o.data[k]
 	if n == nil {

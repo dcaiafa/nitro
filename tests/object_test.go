@@ -117,3 +117,10 @@ func TestObjectMemberAccess(t *testing.T) {
 		print(a)
 `, `{foo: "barr", other: 123, sub: {x: true, y: false, z: 123}, extra: {yay: "yo"}}`)
 }
+
+func TestObjectOther(t *testing.T) {
+	RunSubO(t, "has", `
+		var a = { b: { c: 123 }, d: 3 }
+		print(has(a, "b"), has(a, "c"), has(a.b, "c"), has(a.x.y.z, "w"))
+	`, `true false true false`)
+}
