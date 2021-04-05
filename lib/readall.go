@@ -17,7 +17,7 @@ func readall(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, ret
 
 	var input io.Reader
 	switch arg := args[0].(type) {
-	case *reader:
+	case io.Reader:
 		input = arg
 
 	case nitro.String:
