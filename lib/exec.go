@@ -22,7 +22,12 @@ type process struct {
 
 var _ io.Reader = (*process)(nil)
 
-func newProcess(ctx context.Context, name string, args []string, input io.Reader) *process {
+func newProcess(
+	ctx context.Context,
+	name string,
+	args []string,
+	input io.Reader,
+) *process {
 	return &process{
 		cmd:         exec.CommandContext(ctx, name, args...),
 		inputReader: input,
@@ -147,7 +152,13 @@ func (p *process) feedProcessUntilOutputAvailable() error {
 	}
 }
 
-func fnExec(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func fnExec(
+	ctx context.Context,
+	caps []nitro.ValueRef,
+	args []nitro.Value,
+	retN int,
+) ([]nitro.Value, error) {
+	var err error
 	var stdin io.Reader
 	var name string
 	var pargs []string
@@ -155,10 +166,15 @@ func fnExec(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN
 	if len(args) < 1 {
 		return nil, errNotEnoughArgs
 	}
-	if r, ok := args[0].(io.Reader); ok {
-		stdin = r
+
+	if _, ok := args[0].(nitro.String); !ok {
+		stdin, err = ToReader(ctx, args[0])
+		if err != nil {
+			return nil, err
+		}
 		args = args[1:]
 	}
+
 	if len(args) < 1 {
 		return nil, errNotEnoughArgs
 	}
@@ -183,7 +199,7 @@ func fnExec(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN
 
 	p := newProcess(ctx, name, pargs, stdin)
 
-	err := p.Run()
+	err = p.Run()
 	if err != nil {
 		return nil, err
 	}

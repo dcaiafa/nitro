@@ -115,3 +115,69 @@ func getCallableArg(ctx context.Context, args []runtime.Value, ndx int) (nitro.V
 		return nil, fmt.Errorf("argument %v is not callable", args[ndx])
 	}
 }
+
+type enumReader struct {
+	ctx context.Context
+	e   nitro.Value
+	buf ByteQueue
+}
+
+func (r *enumReader) String() string { return "EnumReader" }
+func (r *enumReader) Type() string   { return "EnumReader" }
+
+func (r *enumReader) Read(b []byte) (int, error) {
+	if len(b) == 0 {
+		return 0, nil
+	}
+
+	for len(r.buf.Peek()) < len(b) {
+		v, ok, err := nitro.Next(r.ctx, r.e, 1)
+		if err != nil {
+			return 0, err
+		}
+		if !ok {
+			break
+		}
+		str, ok := v[0].(nitro.String)
+		if !ok {
+			return 0, fmt.Errorf(
+				"cannot stream enumerator of %q",
+				nitro.TypeName(v[0]))
+		}
+		r.buf.Write([]byte(str.String()))
+		r.buf.Write([]byte{'\n'})
+	}
+
+	if len(r.buf.Peek()) == 0 {
+		return 0, io.EOF
+	}
+
+	n := len(r.buf.Peek())
+	if n > len(b) {
+		n = len(b)
+	}
+	copy(b, r.buf.Peek()[:n])
+	r.buf.Pop(n)
+	return n, nil
+}
+
+func ToReader(ctx context.Context, v runtime.Value) (io.Reader, error) {
+	switch v := v.(type) {
+	case io.Reader:
+		return v, nil
+
+	case nitro.String:
+		return strings.NewReader(v.String()), nil
+
+	case *nitro.Closure:
+		return &enumReader{
+			ctx: ctx,
+			e:   v,
+		}, nil
+
+	default:
+		return nil, fmt.Errorf(
+			"value of type %q is not streamable",
+			nitro.TypeName(v))
+	}
+}

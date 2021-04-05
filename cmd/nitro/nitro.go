@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"os"
 
@@ -44,9 +45,20 @@ func emitShort(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, r
 			}
 			fmt.Println(v[0])
 		}
-	} else {
-		fmt.Println(args[0])
+		return nil, nil
 	}
+
+	r, ok := args[0].(io.Reader)
+	if ok {
+		_, err := io.Copy(os.Stdout, r)
+		if err != nil {
+			return nil, err
+		}
+		return nil, nil
+	}
+
+	fmt.Println(args[0])
+
 	return nil, nil
 }
 
