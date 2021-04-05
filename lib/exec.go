@@ -10,28 +10,37 @@ import (
 )
 
 type process struct {
-	cmd        *exec.Cmd
-	processOut io.ReadCloser
+	cmd          *exec.Cmd
+	inputReader  io.Reader
+	input        chan interface{}
+	output       chan interface{}
+	outQueue     ByteQueue
+	stdin        io.WriteCloser
+	stdout       io.ReadCloser
+	outputClosed bool
 }
 
 var _ io.Reader = (*process)(nil)
 
-func newProcess(ctx context.Context, name string, args []string) *process {
+func newProcess(ctx context.Context, name string, args []string, input io.Reader) *process {
 	return &process{
-		cmd: exec.CommandContext(ctx, name, args...),
+		cmd:         exec.CommandContext(ctx, name, args...),
+		inputReader: input,
+		input:       make(chan interface{}, 1),
+		output:      make(chan interface{}, 1),
 	}
 }
 
 func (p *process) String() string { return "Process " + p.cmd.Path }
 func (p *process) Type() string   { return "Process" }
 
-func (p *process) SetStdin(stdin io.Reader) {
-	p.cmd.Stdin = stdin
-}
-
 func (p *process) Run() error {
 	var err error
-	p.processOut, err = p.cmd.StdoutPipe()
+	p.stdin, err = p.cmd.StdinPipe()
+	if err != nil {
+		return err
+	}
+	p.stdout, err = p.cmd.StdoutPipe()
 	if err != nil {
 		return err
 	}
@@ -39,22 +48,103 @@ func (p *process) Run() error {
 	if err != nil {
 		return err
 	}
+
+	if p.inputReader != nil {
+		go func() {
+			for {
+				buf := make([]byte, 512)
+				n, err := p.inputReader.Read(buf)
+				if err == io.EOF {
+					close(p.input)
+					return
+				} else if err != nil {
+					p.input <- err
+					close(p.input)
+					return
+				}
+				p.input <- buf[:n]
+			}
+		}()
+	} else {
+		close(p.input)
+	}
+
+	go func() {
+		for {
+			buf := make([]byte, 512)
+			n, err := p.stdout.Read(buf)
+			if err == io.EOF {
+				close(p.output)
+				return
+			} else if err != nil {
+				p.output <- err
+				close(p.output)
+				return
+			}
+			p.output <- buf[:n]
+		}
+	}()
+
 	return nil
 }
 
 func (p *process) Read(b []byte) (int, error) {
-	n, err := p.processOut.Read(b)
-	if err == nil {
-		return n, nil
+	if len(p.outQueue.Peek()) == 0 {
+		err := p.feedProcessUntilOutputAvailable()
+		if err != nil {
+			return 0, err
+		}
 	}
-	if err != io.EOF {
-		return n, err
+	if len(p.outQueue.Peek()) == 0 {
+		return 0, io.EOF
 	}
-	err = p.cmd.Wait()
-	if err != nil {
-		return n, err
+	n := len(p.outQueue.Peek())
+	if n > len(b) {
+		n = len(b)
 	}
-	return n, io.EOF
+	copy(b, p.outQueue.Peek()[:n])
+	p.outQueue.Pop(n)
+	return n, nil
+}
+
+func (p *process) feedProcessUntilOutputAvailable() error {
+	input := p.input
+
+	for {
+		if len(p.outQueue.Peek()) > 0 {
+			return nil
+		}
+
+		select {
+		case bufOrErr, ok := <-input:
+			if !ok {
+				input = nil
+				p.stdin.Close()
+				continue
+			}
+			switch bufOrErr := bufOrErr.(type) {
+			case []byte:
+				_, err := p.stdin.Write(bufOrErr)
+				if err != nil {
+					return err
+				}
+			case error:
+				return bufOrErr
+			}
+
+		case bufOrErr, ok := <-p.output:
+			if !ok {
+				// Output was closed, wait for process to finish.
+				return p.cmd.Wait()
+			}
+			switch bufOrErr := bufOrErr.(type) {
+			case []byte:
+				p.outQueue.Write(bufOrErr)
+			case error:
+				return bufOrErr
+			}
+		}
+	}
 }
 
 func fnExec(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
@@ -91,11 +181,7 @@ func fnExec(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN
 			nitro.TypeName(args[0]))
 	}
 
-	p := newProcess(ctx, name, pargs)
-
-	if stdin != nil {
-		p.SetStdin(stdin)
-	}
+	p := newProcess(ctx, name, pargs, stdin)
 
 	err := p.Run()
 	if err != nil {
