@@ -10,7 +10,10 @@ import (
 )
 
 func lines(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
-	input, err := getReaderArg(args, 0)
+	if len(args) < 1 {
+		return nil, errNotEnoughArgs
+	}
+	input, err := ToReader(ctx, args[0])
 	if err != nil {
 		return nil, fmt.Errorf("invalid argument #1: %w", err)
 	}

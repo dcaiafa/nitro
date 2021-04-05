@@ -30,6 +30,7 @@ func RegisterAll(c *nitro.Compiler) {
 	c.AddExternalFn("print", fnPrint)
 	c.AddExternalFn("printf", fnPrint)
 	c.AddExternalFn("printall", fnPrintAll)
+	c.AddExternalFn("sprintf", fnSprintf)
 
 	c.AddExternalFn("fopen", fnFOpen)
 	c.AddExternalFn("fcreate", fnFCreate)

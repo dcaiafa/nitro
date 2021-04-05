@@ -62,21 +62,6 @@ func getRegexArg(args []runtime.Value, ndx int) (*nitro.Regex, error) {
 	return v, nil
 }
 
-func getReaderArg(args []runtime.Value, ndx int) (io.Reader, error) {
-	if ndx >= len(args) {
-		return nil, errNotEnoughArgs
-	}
-
-	switch v := args[ndx].(type) {
-	case io.Reader:
-		return v, nil
-	case nitro.String:
-		return strings.NewReader(v.String()), nil
-	default:
-		return nil, fmt.Errorf("argument %v is not readable", nitro.TypeName(v))
-	}
-}
-
 func getWriterArg(args []runtime.Value, ndx int) (io.Writer, error) {
 	if ndx >= len(args) {
 		return nil, errNotEnoughArgs
