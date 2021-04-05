@@ -93,7 +93,7 @@ primary_expr: ID                                       # primary_expr_simple_ref
 
 simple_literal: val=(STRING | NUMBER | TRUE | FALSE | NIL);
 
-arg_list: expr (',' expr)*;
+arg_list: expr (',' expr)* ','?;
 
 lvalue_expr: ID                          # lvalue_expr_simple_ref
            | primary_expr '.' ID         # lvalue_expr_member_access

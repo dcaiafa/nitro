@@ -23,12 +23,14 @@ func RegisterAll(c *nitro.Compiler) {
 	c.AddExternalFn("toarray", fnToArray)
 	c.AddExternalFn("exec", fnExec)
 
+	c.AddExternalFn("trim", fnTrim)
+
 	c.AddExternalFn("out", fnOut)
 	c.AddExternalFn("pushout", fnPushOut)
 	c.AddExternalFn("popout", fnPopOut)
 
 	c.AddExternalFn("print", fnPrint)
-	c.AddExternalFn("printf", fnPrint)
+	c.AddExternalFn("printf", fnPrintf)
 	c.AddExternalFn("printall", fnPrintAll)
 	c.AddExternalFn("sprintf", fnSprintf)
 
