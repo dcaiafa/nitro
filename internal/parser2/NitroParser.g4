@@ -93,7 +93,7 @@ primary_expr: ID                                       # primary_expr_simple_ref
 
 simple_literal: val=(STRING | NUMBER | TRUE | FALSE | NIL);
 
-arg_list: expr (',' expr)* ','?;
+arg_list: expr (',' expr)* (','|';')?;
 
 lvalue_expr: ID                          # lvalue_expr_simple_ref
            | primary_expr '.' ID         # lvalue_expr_member_access
@@ -105,7 +105,7 @@ lambda_expr: FUNC '(' param_list? ')' '{' stmts '}';
 short_lambda_expr: '&' param_list? '->' binary_expr;
 
 object_literal: '{' object_fields '}';
-object_fields: (object_field ((','|';') object_field)* (','|';')*)?;
+object_fields: (object_field ((','|';') object_field)* (','|';')?)?;
 
 object_field: id_or_keyword ':' expr     # object_field_id_key
             | '[' expr ']' ':' expr      # object_field_expr_key

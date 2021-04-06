@@ -85,6 +85,11 @@ select(
 			]
 		}
 	}
+
+emit(
+{
+}
+)
 		`
 
 	module, err := ParseModule("test.nitro", prog, false, true, &errlogger.ConsoleErrLogger{})
