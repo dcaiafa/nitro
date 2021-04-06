@@ -91,7 +91,7 @@ func NewBool(v bool) Bool                          { return runtime.NewBool(v) }
 func NewValueRef(ref *Value) ValueRef              { return runtime.NewValueRef(ref) }
 func NewClosure(f ExternFn, c []ValueRef) *Closure { return runtime.NewClosure(f, c) }
 func NewArray() *Array                             { return runtime.NewArray() }
-func NewArrayWithCapacity(c int) *Array            { return runtime.NewArrayWithCapacity(c) }
+func NewArrayFromSlice(s []Value) *Array           { return runtime.NewArrayWithSlice(s) }
 func NewObject() *Object                           { return runtime.NewObject() }
 func NewRegex(r *regexp.Regexp) *Regex             { return runtime.NewRegex(r) }
 func CoerceToBool(v Value) bool                    { return runtime.CoerceToBool(v) }

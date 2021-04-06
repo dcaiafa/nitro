@@ -35,6 +35,38 @@ func (s String) String() string { return s.v }
 func (s String) Type() string   { return "String" }
 func (s String) Len() int       { return len(s.v) }
 
+func (s String) Slice(b, e Value) (Value, error) {
+	bi, ok := b.(Int)
+	ei, ok2 := e.(Int)
+	if !ok || !ok2 {
+		return nil, fmt.Errorf(
+			"slice indices must be Int; instead they are %q and %q",
+			TypeName(b), TypeName(e))
+	}
+
+	begin := int(bi.Int64())
+	end := int(ei.Int64())
+
+	if begin < 0 {
+		return nil, fmt.Errorf(
+			"invalid slice begin index %v; begin index must be >= 0",
+			begin)
+	}
+
+	if end < 0 {
+		end = len(s.v) - end
+	}
+	if end > len(s.v) {
+		end = len(s.v)
+	}
+	if end < begin {
+		begin = 0
+		end = 0
+	}
+
+	return NewString(s.v[begin:end]), nil
+}
+
 type Int struct {
 	v int64
 }

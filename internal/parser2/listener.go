@@ -792,7 +792,7 @@ func (l *listener) ExitObject_for(ctx *parser.Object_forContext) {
 	l.put(ctx, &ast.ForStmt{
 		ForVars:  l.takeASTs(ctx.For_vars()),
 		IterExpr: l.takeExpr(ctx.Expr()),
-		Block:    l.takeASTs(ctx.Object_fields()),
+		Block:    l.takeAST(ctx.Object_fields()),
 	})
 }
 

@@ -25,7 +25,7 @@ func fnMatch(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, ret
 		if matches == nil {
 			return []nitro.Value{nitro.NewBool(false), nil}, nil
 		}
-		a := nitro.NewArrayWithCapacity(len(matches))
+		a := nitro.NewArrayFromSlice(make([]nitro.Value, 0, len(matches)))
 		for _, match := range matches {
 			a.Push(nitro.NewString(match))
 		}

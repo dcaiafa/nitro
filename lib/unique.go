@@ -25,7 +25,7 @@ func fnUnique(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, re
 		set[v[0]] = true
 	}
 
-	arr := nitro.NewArrayWithCapacity(len(set))
+	arr := nitro.NewArrayFromSlice(make([]nitro.Value, 0, len(set)))
 	for v := range set {
 		arr.Push(v)
 	}

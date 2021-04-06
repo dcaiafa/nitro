@@ -43,6 +43,16 @@ func TestObjectLiteral(t *testing.T) {
 		print(f("other"))
 `, `{foo: "bar", other: 123, sub: {x: true, y: false}}`)
 
+	RunSubO(t, "for", `
+		print(
+			{
+				for k in ["a", "b", "c"] {
+					[k]: true
+				}
+			}
+		)
+	`, `{a: true, b: true, c: true}`)
+
 	RunSubO(t, "if", `
 		func f(a, b) {
 			return {

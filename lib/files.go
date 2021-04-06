@@ -121,7 +121,7 @@ func fnFList(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, ret
 		return nil, err
 	}
 
-	result := nitro.NewArrayWithCapacity(len(entries))
+	result := nitro.NewArrayFromSlice(make([]nitro.Value, 0, len(entries)))
 
 	for _, entry := range entries {
 		if pattern != "" {

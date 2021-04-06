@@ -66,6 +66,7 @@ const (
 	OpThrow
 	OpDefer
 	OpNext
+	OpSlice
 )
 
 type Instr struct {
@@ -496,6 +497,24 @@ func (m *Machine) resume(ctx context.Context) (ret []Value, err error) {
 				m.frame.IP = jumpTo - 1
 			}
 			m.discardN((argN-1)*2 + 1)
+
+		case OpSlice:
+			end := m.pop()
+			begin := m.pop()
+			target := m.pop()
+
+			sliceable, ok := target.(interface {
+				Slice(begin Value, end Value) (Value, error)
+			})
+			if !ok {
+				return nil, fmt.Errorf("cannot slice %q", TypeName(target))
+			}
+
+			res, err := sliceable.Slice(begin, end)
+			if err != nil {
+				return nil, err
+			}
+			m.push(res)
 
 		default:
 			panic("invalid instruction")

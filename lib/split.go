@@ -41,7 +41,7 @@ func fnSplit(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, ret
 			nitro.TypeName(sep))
 	}
 
-	a := nitro.NewArrayWithCapacity(len(parts))
+	a := nitro.NewArrayFromSlice(make([]nitro.Value, 0, len(parts)))
 	for _, part := range parts {
 		a.Push(nitro.NewString(part))
 	}

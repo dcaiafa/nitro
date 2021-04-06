@@ -47,5 +47,4 @@ func RegisterAll(c *nitro.Compiler) {
 	c.AddExternalFn("fpathdir", fnFPathDir)
 	c.AddExternalFn("fpathfromslash", fnFPathFromSlash)
 	c.AddExternalFn("fpathjoin", fnFPathJoin)
-	c.AddExternalFn("fpathjoin", fnFPathJoin)
 }
