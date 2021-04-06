@@ -22,6 +22,7 @@ func RegisterAll(c *nitro.Compiler) {
 	c.AddExternalFn("sort", fnSort)
 	c.AddExternalFn("toarray", fnToArray)
 	c.AddExternalFn("exec", fnExec)
+	c.AddExternalFn("unique", fnUnique)
 
 	c.AddExternalFn("trim", fnTrim)
 
