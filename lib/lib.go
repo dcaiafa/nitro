@@ -23,6 +23,7 @@ func RegisterAll(c *nitro.Compiler) {
 	c.AddExternalFn("toarray", fnToArray)
 	c.AddExternalFn("exec", fnExec)
 	c.AddExternalFn("unique", fnUnique)
+	c.AddExternalFn("skip", fnSkip)
 
 	c.AddExternalFn("trim", fnTrim)
 
@@ -40,6 +41,7 @@ func RegisterAll(c *nitro.Compiler) {
 	c.AddExternalFn("fremove", fnFRemove)
 	c.AddExternalFn("fremoveall", fnFRemoveAll)
 	c.AddExternalFn("fcreatetemp", fnFCreateTemp)
+	c.AddExternalFn("fexists", fnFExists)
 	c.AddExternalFn("flist", fnFList)
 	c.AddExternalFn("fcopy", fnFCopy)
 	c.AddExternalFn("fpathbase", fnFPathBase)

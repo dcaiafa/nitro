@@ -2,6 +2,7 @@ package lib
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -100,6 +101,22 @@ func fnFCreateTemp(ctx context.Context, caps []nitro.ValueRef, args []nitro.Valu
 	}
 
 	return []nitro.Value{&File{f}}, nil
+}
+
+func fnFExists(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+	path, err := getStringArg(args, 0)
+	if err != nil {
+		return nil, err
+	}
+	_, err = os.Lstat(path)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return []nitro.Value{nitro.NewBool(false)}, nil
+		}
+		return nil, err
+	}
+
+	return []nitro.Value{nitro.NewBool(true)}, nil
 }
 
 func fnFList(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
