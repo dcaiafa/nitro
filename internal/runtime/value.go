@@ -54,7 +54,7 @@ func (s String) Slice(b, e Value) (Value, error) {
 	}
 
 	if end < 0 {
-		end = len(s.v) - end
+		end = len(s.v) + end
 	}
 	if end > len(s.v) {
 		end = len(s.v)

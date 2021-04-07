@@ -103,7 +103,7 @@ func (a *Array) Slice(b, e Value) (Value, error) {
 	}
 
 	if end < 0 {
-		end = len(a.array) - end
+		end = len(a.array) + end
 	}
 	if end > len(a.array) {
 		end = len(a.array)
