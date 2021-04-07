@@ -23,7 +23,7 @@ func (s *ForStmt) Scope() *symbol.Scope {
 func (s *ForStmt) RunPass(ctx *Context, pass Pass) {
 	if pass == Check {
 		s.scope = symbol.NewScope()
-		s.iter = AddVariable(ctx, "$iter", s.IterExpr.Pos())
+		s.iter = AddVariableToScope(ctx, s.scope, "$iter", s.IterExpr.Pos())
 	}
 
 	ctx.RunPassChild(s, s.ForVars, pass)

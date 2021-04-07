@@ -7,12 +7,16 @@ import (
 )
 
 func AddVariable(ctx *Context, name string, pos token.Pos) symbol.Symbol {
+	return AddVariableToScope(ctx, ctx.CurrentScope(), name, pos)
+}
+
+func AddVariableToScope(ctx *Context, scope *symbol.Scope, name string, pos token.Pos) symbol.Symbol {
 	fn := ctx.CurrentFunc()
 	if fn != nil {
 		l := fn.NewLocal()
 		l.SetName(name)
 		l.SetPos(pos)
-		if !ctx.CurrentScope().PutSymbol(ctx, l) {
+		if !scope.PutSymbol(ctx, l) {
 			return nil
 		}
 		return l
@@ -21,7 +25,7 @@ func AddVariable(ctx *Context, name string, pos token.Pos) symbol.Symbol {
 	g := ctx.Main().NewGlobal()
 	g.SetName(name)
 	g.SetPos(pos)
-	if !ctx.CurrentScope().PutSymbol(ctx, g) {
+	if !scope.PutSymbol(ctx, g) {
 		return nil
 	}
 
