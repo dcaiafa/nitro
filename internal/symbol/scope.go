@@ -19,12 +19,13 @@ func (s *Scope) GetSymbol(name string) Symbol {
 }
 
 func (s *Scope) PutSymbol(l errlogger.ErrLogger, sym Symbol) bool {
-	if s.symbols[sym.Name()] != nil {
+	existing := s.symbols[sym.Name()]
+	if existing != nil {
 		l.Failf(
 			sym.Pos(),
 			"There is already something named %q in the current scope.",
 			sym.Name())
-		l.Detailf(sym.Pos(), "%q was previously declared here.", sym.Name())
+		l.Detailf(existing.Pos(), "%q was previously declared here.", sym.Name())
 		return false
 	}
 	s.symbols[sym.Name()] = sym
