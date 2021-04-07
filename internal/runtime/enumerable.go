@@ -7,12 +7,12 @@ import (
 
 type Enumerable interface {
 	Value
-	Enumerate() *Closure
+	Enumerate() *Enumerator
 }
 
 func MakeEnumerator(m *Machine, v Value) (Value, error) {
 	switch v := v.(type) {
-	case *Closure:
+	case *Enumerator:
 		return v, nil
 	case Enumerable:
 		return v.Enumerate(), nil
@@ -22,7 +22,7 @@ func MakeEnumerator(m *Machine, v Value) (Value, error) {
 }
 
 func Next(m *Machine, e Value, n int) ([]Value, bool, error) {
-	c, ok := e.(*Closure)
+	c, ok := e.(*Enumerator)
 	if !ok {
 		return nil, false, fmt.Errorf("not an enumerator")
 	}

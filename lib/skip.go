@@ -10,7 +10,7 @@ func fnSkip(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN in
 	if len(args) < 2 {
 		return nil, fmt.Errorf("not enough arguments")
 	}
-	e, err := getEnumeratorArg(m, args, 0)
+	inEnum, err := getEnumeratorArg(m, args, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -19,19 +19,19 @@ func fnSkip(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN in
 		return nil, err
 	}
 
-	skipIter := &skipIter{e: e, skip: int(skip)}
+	skipEnum := &skipEnum{inEnum: inEnum, skip: int(skip)}
 
-	return []nitro.Value{nitro.NewClosure(skipIter.Next, nil)}, nil
+	return []nitro.Value{nitro.NewEnumerator(skipEnum.Next, nil)}, nil
 }
 
-type skipIter struct {
-	e    nitro.Value
-	skip int
+type skipEnum struct {
+	inEnum nitro.Value
+	skip   int
 }
 
-func (i *skipIter) Next(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func (i *skipEnum) Next(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
 	for {
-		v, ok, err := nitro.Next(m, i.e, 1)
+		v, ok, err := nitro.Next(m, i.inEnum, 1)
 		if err != nil {
 			return nil, err
 		}

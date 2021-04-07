@@ -67,7 +67,7 @@ func Range(m *runtime.Machine, caps []runtime.ValueRef, args []runtime.Value, ex
 		stepValue    runtime.Value = runtime.NewInt(step)
 	)
 
-	c := runtime.NewClosure(rangeIter, []runtime.ValueRef{
+	c := runtime.NewEnumerator(rangeIter, []runtime.ValueRef{
 		runtime.NewValueRef(&currentValue),
 		runtime.NewValueRef(&endValue),
 		runtime.NewValueRef(&stepValue),

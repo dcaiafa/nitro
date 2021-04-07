@@ -39,6 +39,8 @@ type Object struct {
 	list *objectNode
 }
 
+var _ Enumerable = (*Object)(nil)
+
 func NewObject() *Object {
 	return NewObjectWithCapacity(0)
 }
@@ -125,10 +127,10 @@ func (o *Object) String() string {
 	return formatObject(o)
 }
 
-func (o *Object) Enumerate() *Closure {
+func (o *Object) Enumerate() *Enumerator {
 	var obj Value = o
 	nextKey, _ := obj.(*Object).GetFirst()
-	return NewClosure(
+	return NewEnumerator(
 		objectIter,
 		[]ValueRef{NewValueRef(&obj), NewValueRef(&nextKey)})
 }

@@ -5,7 +5,7 @@ import (
 )
 
 func fnFilter(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
-	e, err := getEnumeratorArg(m, args, 0)
+	inEnum, err := getEnumeratorArg(m, args, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -15,24 +15,24 @@ func fnFilter(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN 
 		return nil, err
 	}
 
-	iter := &filterIter{
-		iter: e,
-		test: test,
+	filterEnum := &filterEnum{
+		inEnum: inEnum,
+		test:   test,
 	}
 
-	closure := nitro.NewClosure(iter.Next, nil)
+	outEnum := nitro.NewEnumerator(filterEnum.Next, nil)
 
-	return []nitro.Value{closure}, nil
+	return []nitro.Value{outEnum}, nil
 }
 
-type filterIter struct {
-	iter nitro.Value
-	test nitro.Value
+type filterEnum struct {
+	inEnum nitro.Value
+	test   nitro.Value
 }
 
-func (i *filterIter) Next(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func (i *filterEnum) Next(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
 	for {
-		v, ok, err := nitro.Next(m, i.iter, 1)
+		v, ok, err := nitro.Next(m, i.inEnum, 1)
 		if err != nil {
 			return nil, err
 		}

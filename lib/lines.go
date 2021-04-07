@@ -22,9 +22,8 @@ func lines(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int
 		scanner: bufio.NewScanner(input),
 	}
 
-	closure := nitro.NewClosure(l.Next, nil)
-
-	return []nitro.Value{closure}, nil
+	outEnum := nitro.NewEnumerator(l.Next, nil)
+	return []nitro.Value{outEnum}, nil
 }
 
 type linesState struct {

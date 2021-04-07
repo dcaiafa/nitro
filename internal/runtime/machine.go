@@ -144,39 +144,45 @@ func (m *Machine) Call(
 	args []Value,
 	expRetN int,
 ) ([]Value, error) {
-	var rets []Value
-	var err error
-	switch callable := callable.(type) {
-	case *Closure:
-		if callable.extFn != nil {
-			rets, err = callable.extFn(m, callable.caps, args, expRetN)
-			if err != nil {
-				return nil, err
-			}
-			if len(rets) < expRetN {
-				return nil, fmt.Errorf("expected at least %v returned values", expRetN)
-			}
-		} else {
-			rets, err = m.runFunc(callable.fn, args, callable.caps, expRetN)
-			if err != nil {
-				return nil, err
-			}
-		}
-
-	case *Fn:
-		rets, err = m.runFunc(callable, args, nil, expRetN)
+	callFn := func(fn *Fn, caps []ValueRef) ([]Value, error) {
+		rets, err := m.runFunc(fn, args, caps, expRetN)
 		if err != nil {
 			return nil, err
 		}
+		return rets, nil
+	}
 
-	case ExternFn:
-		rets, err = callable(m, nil, args, expRetN)
+	callExtFn := func(extFn ExternFn, caps []ValueRef) ([]Value, error) {
+		rets, err := extFn(m, caps, args, expRetN)
 		if err != nil {
 			return nil, err
 		}
 		if len(rets) < expRetN {
 			return nil, fmt.Errorf("expected at least %v returned values", expRetN)
 		}
+		return rets, nil
+	}
+
+	callClosure := func(closure *Closure) ([]Value, error) {
+		if closure.extFn != nil {
+			return callExtFn(closure.extFn, closure.caps)
+		} else {
+			return callFn(closure.fn, closure.caps)
+		}
+	}
+
+	switch callable := callable.(type) {
+	case *Closure:
+		return callClosure(callable)
+
+	case *Enumerator:
+		return callClosure(callable.Closure)
+
+	case *Fn:
+		return callFn(callable, nil)
+
+	case ExternFn:
+		return callExtFn(callable, nil)
 
 	default:
 		if callable == nil {
@@ -184,7 +190,6 @@ func (m *Machine) Call(
 		}
 		return nil, fmt.Errorf("cannot call type %q", TypeName(callable))
 	}
-	return rets, nil
 }
 
 func (m *Machine) runFrame(frame *frame) (rets []Value, err error) {
@@ -437,7 +442,7 @@ func (m *Machine) resume() (ret []Value, err error) {
 		case OpMakeIter:
 			v := m.peek(0)
 			switch v := v.(type) {
-			case *Closure:
+			case *Enumerator:
 				// Ready to go.
 			case Enumerable:
 				m.pop()

@@ -4,17 +4,7 @@ import "testing"
 
 func TestForStmt(t *testing.T) {
 	RunSubO(t, "for_iter", `
-		var i = 0
-		func iter(n) {
-			return func() {
-				i = i + 1
-				if i > n {
-					return false, 0
-				}
-				return true, i
-			}
-		}
-		for x in iter(3) {
+		for x in range(1,4) {
     	print(x)
 		}
 	`, `
