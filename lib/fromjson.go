@@ -1,7 +1,6 @@
 package lib
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -9,11 +8,11 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-func fromjson(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func fromjson(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
 	if len(args) < 0 {
 		return nil, errNotEnoughArgs
 	}
-	input, err := ToReader(ctx, args[0])
+	input, err := ToReader(m, args[0])
 	if err != nil {
 		return nil, err
 	}

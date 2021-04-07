@@ -80,26 +80,26 @@ type FrameInfo struct {
 	Line     int
 }
 
-var machineContextKey = "runtime.Machine"
-
-func MachineFromContext(ctx context.Context) *Machine {
-	return ctx.Value(&machineContextKey).(*Machine)
-}
-
 type Machine struct {
-	callStack []*frame
+	ctx       context.Context
 	program   *Program
 	globals   []Value
+	callStack []*frame
 	frame     *frame
 	userData  map[interface{}]interface{}
 }
 
-func NewMachine(prog *Program) *Machine {
+func NewMachine(ctx context.Context, prog *Program) *Machine {
 	return &Machine{
+		ctx:      ctx,
 		program:  prog,
 		globals:  make([]Value, prog.globals),
 		userData: make(map[interface{}]interface{}),
 	}
+}
+
+func (m *Machine) Context() context.Context {
+	return m.ctx
 }
 
 func (m *Machine) SetUserData(key, value interface{}) {
@@ -119,14 +119,12 @@ func (m *Machine) SetParam(n string, v Value) error {
 	return nil
 }
 
-func (m *Machine) Run(ctx context.Context) error {
-	ctx = context.WithValue(ctx, &machineContextKey, m)
-	_, err := m.runFunc(ctx, &m.program.fns[0], nil, nil, 0)
+func (m *Machine) Run() error {
+	_, err := m.runFunc(&m.program.fns[0], nil, nil, 0)
 	return err
 }
 
 func (m *Machine) runFunc(
-	ctx context.Context,
 	fn *Fn,
 	args []Value,
 	captures []ValueRef,
@@ -138,11 +136,10 @@ func (m *Machine) runFunc(
 	frame.Args = args
 	frame.ExpRetN = retN
 	frame.Captures = captures
-	return m.runFrame(ctx, frame)
+	return m.runFrame(frame)
 }
 
-func (m *Machine) runCallable(
-	ctx context.Context,
+func (m *Machine) Call(
 	callable Value,
 	args []Value,
 	expRetN int,
@@ -152,7 +149,7 @@ func (m *Machine) runCallable(
 	switch callable := callable.(type) {
 	case *Closure:
 		if callable.extFn != nil {
-			rets, err = callable.extFn(ctx, callable.caps, args, expRetN)
+			rets, err = callable.extFn(m, callable.caps, args, expRetN)
 			if err != nil {
 				return nil, err
 			}
@@ -160,20 +157,20 @@ func (m *Machine) runCallable(
 				return nil, fmt.Errorf("expected at least %v returned values", expRetN)
 			}
 		} else {
-			rets, err = m.runFunc(ctx, callable.fn, args, callable.caps, expRetN)
+			rets, err = m.runFunc(callable.fn, args, callable.caps, expRetN)
 			if err != nil {
 				return nil, err
 			}
 		}
 
 	case *Fn:
-		rets, err = m.runFunc(ctx, callable, args, nil, expRetN)
+		rets, err = m.runFunc(callable, args, nil, expRetN)
 		if err != nil {
 			return nil, err
 		}
 
 	case ExternFn:
-		rets, err = callable(ctx, nil, args, expRetN)
+		rets, err = callable(m, nil, args, expRetN)
 		if err != nil {
 			return nil, err
 		}
@@ -190,14 +187,14 @@ func (m *Machine) runCallable(
 	return rets, nil
 }
 
-func (m *Machine) runFrame(ctx context.Context, frame *frame) (rets []Value, err error) {
+func (m *Machine) runFrame(frame *frame) (rets []Value, err error) {
 	m.callStack = append(m.callStack, frame)
 	m.frame = frame
 
 	defer func() {
 		for i := len(m.frame.Defers) - 1; i >= 0; i-- {
 			deferred := m.frame.Defers[i]
-			_, derr := m.runCallable(ctx, deferred, nil, 0)
+			_, derr := m.Call(deferred, nil, 0)
 			if derr != nil {
 				if err == nil {
 					// TODO: combine errors
@@ -214,7 +211,7 @@ func (m *Machine) runFrame(ctx context.Context, frame *frame) (rets []Value, err
 	}()
 
 	for {
-		ret, err := m.resume(ctx)
+		ret, err := m.resume()
 		if err == nil {
 			return ret, nil
 		}
@@ -243,7 +240,7 @@ func (m *Machine) runFrame(ctx context.Context, frame *frame) (rets []Value, err
 	}
 }
 
-func (m *Machine) resume(ctx context.Context) (ret []Value, err error) {
+func (m *Machine) resume() (ret []Value, err error) {
 	for {
 		instr := m.frame.Instrs[m.frame.IP]
 
@@ -278,7 +275,7 @@ func (m *Machine) resume(ctx context.Context) (ret []Value, err error) {
 			args := make([]Value, argN)
 			copy(args, m.popN(argN))
 			callable := m.pop()
-			rets, err := m.runCallable(ctx, callable, args, expRetN)
+			rets, err := m.Call(callable, args, expRetN)
 			if err != nil {
 				return nil, err
 			}

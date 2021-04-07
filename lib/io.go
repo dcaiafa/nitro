@@ -1,7 +1,6 @@
 package lib
 
 import (
-	"context"
 	"io"
 	"os"
 
@@ -29,6 +28,6 @@ func CloseReader(r io.Reader) {
 	}
 }
 
-func in(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func in(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
 	return []nitro.Value{wrapReader(os.Stdin)}, nil
 }

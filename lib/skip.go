@@ -1,17 +1,16 @@
 package lib
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/dcaiafa/nitro"
 )
 
-func fnSkip(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func fnSkip(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
 	if len(args) < 2 {
 		return nil, fmt.Errorf("not enough arguments")
 	}
-	e, err := getEnumeratorArg(ctx, args, 0)
+	e, err := getEnumeratorArg(m, args, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -30,9 +29,9 @@ type skipIter struct {
 	skip int
 }
 
-func (i *skipIter) Next(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func (i *skipIter) Next(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
 	for {
-		v, ok, err := nitro.Next(ctx, i.e, 1)
+		v, ok, err := nitro.Next(m, i.e, 1)
 		if err != nil {
 			return nil, err
 		}

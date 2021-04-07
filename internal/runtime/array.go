@@ -1,7 +1,6 @@
 package runtime
 
 import (
-	"context"
 	"fmt"
 	"math"
 )
@@ -132,7 +131,7 @@ func (a *Array) Enumerate() *Closure {
 		[]ValueRef{NewValueRef(&arr), NewValueRef(&next)})
 }
 
-func arrayIter(ctx context.Context, caps []ValueRef, args []Value, expRetN int) ([]Value, error) {
+func arrayIter(m *Machine, caps []ValueRef, args []Value, expRetN int) ([]Value, error) {
 	var (
 		arr  = (*caps[0].Ref).(*Array)
 		next = (*caps[1].Ref).(Int)

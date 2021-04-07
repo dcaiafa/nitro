@@ -1,7 +1,6 @@
 package lib
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -10,7 +9,7 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-func fnClose(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func fnClose(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
 	if len(args) < 1 {
 		return nil, errNotEnoughArgs
 	}

@@ -1,7 +1,6 @@
 package lib
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"os"
@@ -30,8 +29,8 @@ type stdoutStack struct {
 	stack []io.Writer
 }
 
-func Stdout(ctx context.Context) io.Writer {
-	outStack, ok := nitro.GetUserData(ctx, &stdoutUserDataKey).(*stdoutStack)
+func Stdout(m *nitro.Machine) io.Writer {
+	outStack, ok := m.GetUserData(&stdoutUserDataKey).(*stdoutStack)
 	if ok {
 		if len(outStack.stack) != 0 {
 			return outStack.stack[len(outStack.stack)-1].(io.Writer)
@@ -46,17 +45,17 @@ func SetStdout(m *nitro.Machine, w io.Writer) {
 	m.SetUserData(&stdoutUserDataKey, outStack)
 }
 
-func PushOut(ctx context.Context, out io.Writer) {
-	outStack, ok := nitro.GetUserData(ctx, &stdoutUserDataKey).(*stdoutStack)
+func PushOut(m *nitro.Machine, out io.Writer) {
+	outStack, ok := m.GetUserData(&stdoutUserDataKey).(*stdoutStack)
 	if !ok {
 		outStack = &stdoutStack{}
-		nitro.SetUserData(ctx, &stdoutUserDataKey, outStack)
+		m.SetUserData(&stdoutUserDataKey, outStack)
 	}
 	outStack.stack = append(outStack.stack, out)
 }
 
-func PopOut(ctx context.Context) io.Writer {
-	outStack, ok := nitro.GetUserData(ctx, &stdoutUserDataKey).(*stdoutStack)
+func PopOut(m *nitro.Machine) io.Writer {
+	outStack, ok := m.GetUserData(&stdoutUserDataKey).(*stdoutStack)
 	if !ok || len(outStack.stack) == 0 {
 		return nil
 	}
@@ -66,21 +65,21 @@ func PopOut(ctx context.Context) io.Writer {
 	return prevOut
 }
 
-func fnOut(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
-	return []nitro.Value{wrapWriter(Stdout(ctx))}, nil
+func fnOut(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+	return []nitro.Value{wrapWriter(Stdout(m))}, nil
 }
 
-func fnPushOut(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func fnPushOut(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
 	out, err := getWriterArg(args, 0)
 	if err != nil {
 		return nil, err
 	}
-	PushOut(ctx, out)
+	PushOut(m, out)
 	return nil, nil
 }
 
-func fnPopOut(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
-	prevOut := PopOut(ctx)
+func fnPopOut(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+	prevOut := PopOut(m)
 	if prevOut == nil {
 		return nil, fmt.Errorf("the stdout stack is empty")
 	}

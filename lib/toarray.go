@@ -1,17 +1,15 @@
 package lib
 
 import (
-	"context"
-
 	"github.com/dcaiafa/nitro"
 )
 
-func fnToArray(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func fnToArray(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
 	if len(args) < 1 {
 		return nil, errNotEnoughArgs
 	}
 
-	arr, err := ToArray(ctx, args[0])
+	arr, err := ToArray(m, args[0])
 	if err != nil {
 		return nil, err
 	}
@@ -19,19 +17,19 @@ func fnToArray(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, r
 	return []nitro.Value{arr}, nil
 }
 
-func ToArray(ctx context.Context, v nitro.Value) (*nitro.Array, error) {
+func ToArray(m *nitro.Machine, v nitro.Value) (*nitro.Array, error) {
 	if arr, ok := v.(*nitro.Array); ok {
 		return arr, nil
 	}
 
-	e, err := nitro.MakeEnumerator(ctx, v)
+	e, err := nitro.MakeEnumerator(m, v)
 	if err != nil {
 		return nil, err
 	}
 
 	arr := nitro.NewArray()
 	for {
-		v, ok, err := nitro.Next(ctx, e, 1)
+		v, ok, err := nitro.Next(m, e, 1)
 		if err != nil {
 			return nil, err
 		}

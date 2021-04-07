@@ -1,7 +1,6 @@
 package runtime
 
 import (
-	"context"
 	"log"
 	"reflect"
 	"strconv"
@@ -211,7 +210,7 @@ func (of *objectFormatter) str(s string) {
 	of.w.WriteString(s)
 }
 
-func objectIter(ctx context.Context, caps []ValueRef, args []Value, expRetN int) ([]Value, error) {
+func objectIter(m *Machine, caps []ValueRef, args []Value, expRetN int) ([]Value, error) {
 	var (
 		obj = (*caps[0].Ref).(*Object)
 		key = *caps[1].Ref

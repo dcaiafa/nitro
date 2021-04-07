@@ -1,7 +1,6 @@
 package lib
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"os/exec"
@@ -23,13 +22,13 @@ type process struct {
 var _ io.Reader = (*process)(nil)
 
 func newProcess(
-	ctx context.Context,
+	m *nitro.Machine,
 	name string,
 	args []string,
 	input io.Reader,
 ) *process {
 	return &process{
-		cmd:         exec.CommandContext(ctx, name, args...),
+		cmd:         exec.CommandContext(m.Context(), name, args...),
 		inputReader: input,
 		input:       make(chan interface{}, 1),
 		output:      make(chan interface{}, 1),
@@ -153,7 +152,7 @@ func (p *process) feedProcessUntilOutputAvailable() error {
 }
 
 func fnExec(
-	ctx context.Context,
+	m *nitro.Machine,
 	caps []nitro.ValueRef,
 	args []nitro.Value,
 	retN int,
@@ -168,7 +167,7 @@ func fnExec(
 	}
 
 	if _, ok := args[0].(nitro.String); !ok {
-		stdin, err = ToReader(ctx, args[0])
+		stdin, err = ToReader(m, args[0])
 		if err != nil {
 			return nil, err
 		}
@@ -197,7 +196,7 @@ func fnExec(
 			nitro.TypeName(args[0]))
 	}
 
-	p := newProcess(ctx, name, pargs, stdin)
+	p := newProcess(m, name, pargs, stdin)
 
 	err = p.Run()
 	if err != nil {

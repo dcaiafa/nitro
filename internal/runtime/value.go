@@ -1,7 +1,6 @@
 package runtime
 
 import (
-	"context"
 	"fmt"
 	"strconv"
 )
@@ -126,7 +125,7 @@ func (c *Closure) String() string { return "<func>" }
 func (c *Closure) Type() string   { return "Func" }
 
 type ExternFn func(
-	ctx context.Context,
+	m *Machine,
 	caps []ValueRef,
 	args []Value,
 	retN int,

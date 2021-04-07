@@ -1,13 +1,12 @@
 package std
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/dcaiafa/nitro/internal/runtime"
 )
 
-func fnHas(ctx context.Context, caps []runtime.ValueRef, args []runtime.Value, expRetN int) ([]runtime.Value, error) {
+func fnHas(m *runtime.Machine, caps []runtime.ValueRef, args []runtime.Value, expRetN int) ([]runtime.Value, error) {
 	if len(args) < 2 {
 		return nil, errNotEnoughArgs
 	}

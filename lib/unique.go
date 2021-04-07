@@ -1,13 +1,11 @@
 package lib
 
 import (
-	"context"
-
 	"github.com/dcaiafa/nitro"
 )
 
-func fnUnique(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
-	e, err := getEnumeratorArg(ctx, args, 0)
+func fnUnique(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+	e, err := getEnumeratorArg(m, args, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -15,7 +13,7 @@ func fnUnique(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, re
 	set := make(map[nitro.Value]bool)
 
 	for {
-		v, ok, err := nitro.Next(ctx, e, 1)
+		v, ok, err := nitro.Next(m, e, 1)
 		if err != nil {
 			return nil, err
 		}

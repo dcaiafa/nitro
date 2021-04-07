@@ -1,14 +1,13 @@
 package lib
 
 import (
-	"context"
 	"fmt"
 	"strings"
 
 	"github.com/dcaiafa/nitro"
 )
 
-func fnSplit(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func fnSplit(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
 	if len(args) < 2 {
 		return nil, errNotEnoughArgs
 	}

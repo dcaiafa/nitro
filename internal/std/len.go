@@ -1,7 +1,6 @@
 package std
 
 import (
-	"context"
 	"errors"
 	"fmt"
 
@@ -13,7 +12,7 @@ var (
 	errTooManyArgs   = errors.New("too many arguments")
 )
 
-func Len(ctx context.Context, caps []runtime.ValueRef, args []runtime.Value, expRetN int) ([]runtime.Value, error) {
+func Len(m *runtime.Machine, caps []runtime.ValueRef, args []runtime.Value, expRetN int) ([]runtime.Value, error) {
 	if len(args) == 0 {
 		return nil, errNotEnoughArgs
 	}

@@ -50,7 +50,7 @@ func run(prog string, params map[string]nitro.Value) (output string, err error) 
 
 	compiler.AddExternalFn(
 		"print",
-		func(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, expRetN int) ([]nitro.Value, error) {
+		func(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, expRetN int) ([]nitro.Value, error) {
 			iargs := valuesToInterface(args)
 			fmt.Fprintln(outBuilder, iargs...)
 			return nil, nil
@@ -58,7 +58,7 @@ func run(prog string, params map[string]nitro.Value) (output string, err error) 
 
 	compiler.AddExternalFn(
 		"printf",
-		func(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, expRetN int) ([]nitro.Value, error) {
+		func(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, expRetN int) ([]nitro.Value, error) {
 			msg := args[0].(nitro.String)
 			iargs := valuesToInterface(args[1:])
 			fmt.Fprintf(outBuilder, msg.String()+"\n", iargs...)
@@ -70,7 +70,7 @@ func run(prog string, params map[string]nitro.Value) (output string, err error) 
 		return "", err
 	}
 
-	machine := nitro.NewMachine(compiled)
+	machine := nitro.NewMachine(context.Background(), compiled)
 	for n, v := range params {
 		err = machine.SetParam(n, v)
 		if err != nil {
@@ -78,7 +78,7 @@ func run(prog string, params map[string]nitro.Value) (output string, err error) 
 		}
 	}
 
-	err = machine.Run(context.Background())
+	err = machine.Run()
 	if err != nil {
 		return "", err
 	}

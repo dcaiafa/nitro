@@ -1,17 +1,15 @@
 package lib
 
 import (
-	"context"
-
 	"github.com/dcaiafa/nitro"
 )
 
-func fnMap(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
-	iter, err := getEnumeratorArg(ctx, args, 0)
+func fnMap(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+	iter, err := getEnumeratorArg(m, args, 0)
 	if err != nil {
 		return nil, err
 	}
-	fn, err := getCallableArg(ctx, args, 1)
+	fn, err := getCallableArg(args, 1)
 	if err != nil {
 		return nil, err
 	}
@@ -30,15 +28,15 @@ type mapIter struct {
 	fn   nitro.Value
 }
 
-func (i *mapIter) Next(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
-	v, ok, err := nitro.Next(ctx, i.iter, 1)
+func (i *mapIter) Next(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+	v, ok, err := nitro.Next(m, i.iter, 1)
 	if err != nil {
 		return nil, err
 	}
 	if !ok {
 		return []nitro.Value{nitro.NewBool(false), nil}, nil
 	}
-	res, err := nitro.Call(ctx, i.fn, v, 1)
+	res, err := m.Call(i.fn, v, 1)
 	if err != nil {
 		return nil, err
 	}

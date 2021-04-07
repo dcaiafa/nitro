@@ -51,32 +51,20 @@ const (
 
 var ErrCannotCallNil = runtime.ErrCannotCallNil
 
-func NewMachine(p *Program) *Machine {
-	return runtime.NewMachine(p)
+func NewMachine(ctx context.Context, p *Program) *Machine {
+	return runtime.NewMachine(ctx, p)
 }
 
-func MakeEnumerator(ctx context.Context, v Value) (Value, error) {
-	return runtime.MakeEnumerator(ctx, v)
+func MakeEnumerator(m *Machine, v Value) (Value, error) {
+	return runtime.MakeEnumerator(m, v)
 }
 
-func Next(ctx context.Context, e Value, n int) ([]Value, bool, error) {
-	return runtime.Next(ctx, e, n)
-}
-
-func Call(ctx context.Context, callable Value, args []Value, retN int) ([]Value, error) {
-	return runtime.Call(ctx, callable, args, retN)
+func Next(m *Machine, e Value, n int) ([]Value, bool, error) {
+	return runtime.Next(m, e, n)
 }
 
 func NewConsoleErrLogger() ErrLogger {
 	return &errlogger.ConsoleErrLogger{}
-}
-
-func SetUserData(ctx context.Context, k, v interface{}) {
-	runtime.MachineFromContext(ctx).SetUserData(k, v)
-}
-
-func GetUserData(ctx context.Context, k interface{}) interface{} {
-	return runtime.MachineFromContext(ctx).GetUserData(k)
 }
 
 func EvalBinOp(op BinOp, operand1, operand2 Value) (Value, error) {

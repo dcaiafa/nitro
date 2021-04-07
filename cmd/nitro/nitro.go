@@ -12,8 +12,8 @@ import (
 	"github.com/dcaiafa/nitro/lib"
 )
 
-func emit(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
-	stdout := lib.Stdout(ctx)
+func emit(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+	stdout := lib.Stdout(m)
 	if len(args) < 1 {
 		return nil, fmt.Errorf("not enough arguments")
 	}
@@ -32,11 +32,11 @@ func emit(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN i
 	return nil, nil
 }
 
-func emitShort(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
-	e, err := nitro.MakeEnumerator(ctx, args[0])
+func emitShort(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+	e, err := nitro.MakeEnumerator(m, args[0])
 	if err == nil {
 		for {
-			v, ok, err := nitro.Next(ctx, e, 1)
+			v, ok, err := nitro.Next(m, e, 1)
 			if err != nil {
 				return nil, err
 			}
@@ -99,8 +99,8 @@ func main() {
 		}
 	}
 
-	machine := nitro.NewMachine(compiled)
-	err = machine.Run(context.Background())
+	machine := nitro.NewMachine(context.Background(), compiled)
+	err = machine.Run()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)

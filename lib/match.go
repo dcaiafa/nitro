@@ -1,12 +1,10 @@
 package lib
 
 import (
-	"context"
-
 	"github.com/dcaiafa/nitro"
 )
 
-func fnMatch(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func fnMatch(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
 	str, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err

@@ -2,14 +2,13 @@ package lib
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
 
 	"github.com/dcaiafa/nitro"
 )
 
-func fnToJSON(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func fnToJSON(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
 	if len(args) < 1 {
 		return nil, errNotEnoughArgs
 	}

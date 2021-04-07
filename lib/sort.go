@@ -1,14 +1,13 @@
 package lib
 
 import (
-	"context"
 	"sort"
 
 	"github.com/dcaiafa/nitro"
 )
 
 type sorter struct {
-	ctx  context.Context
+	m    *nitro.Machine
 	arr  *nitro.Array
 	err  error
 	less nitro.Value
@@ -35,7 +34,7 @@ func (s *sorter) Less(i, j int) bool {
 		return res.(nitro.Bool).Bool()
 	}
 
-	res, err := nitro.Call(s.ctx, s.less, []nitro.Value{a, b}, 1)
+	res, err := s.m.Call(s.less, []nitro.Value{a, b}, 1)
 	if err != nil {
 		s.err = err
 		return false
@@ -50,24 +49,24 @@ func (s *sorter) Swap(i, j int) {
 	s.arr.Put(j, t)
 }
 
-func fnSort(ctx context.Context, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func fnSort(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
 	if len(args) < 1 {
 		return nil, errNotEnoughArgs
 	}
 
-	arr, err := ToArray(ctx, args[0])
+	arr, err := ToArray(m, args[0])
 	if err != nil {
 		return nil, err
 	}
 
 	s := &sorter{
-		ctx: ctx,
+		m:   m,
 		arr: arr,
 	}
 
 	if len(args) >= 2 {
 		var err error
-		s.less, err = getCallableArg(ctx, args, 1)
+		s.less, err = getCallableArg(args, 1)
 		if err != nil {
 			return nil, err
 		}

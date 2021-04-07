@@ -1,7 +1,6 @@
 package lib
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"strings"
@@ -74,12 +73,12 @@ func getWriterArg(args []runtime.Value, ndx int) (io.Writer, error) {
 	}
 }
 
-func getEnumeratorArg(ctx context.Context, args []runtime.Value, ndx int) (nitro.Value, error) {
+func getEnumeratorArg(m *nitro.Machine, args []runtime.Value, ndx int) (nitro.Value, error) {
 	if ndx >= len(args) {
 		return nil, errNotEnoughArgs
 	}
 
-	v, err := nitro.MakeEnumerator(ctx, args[ndx])
+	v, err := nitro.MakeEnumerator(m, args[ndx])
 	if err != nil {
 		return nil, fmt.Errorf("argument %v is not enumerable: %v", args[ndx], err)
 	}
@@ -87,7 +86,7 @@ func getEnumeratorArg(ctx context.Context, args []runtime.Value, ndx int) (nitro
 	return v, nil
 }
 
-func getCallableArg(ctx context.Context, args []runtime.Value, ndx int) (nitro.Value, error) {
+func getCallableArg(args []runtime.Value, ndx int) (nitro.Value, error) {
 	if ndx >= len(args) {
 		return nil, errNotEnoughArgs
 	}
@@ -102,7 +101,7 @@ func getCallableArg(ctx context.Context, args []runtime.Value, ndx int) (nitro.V
 }
 
 type enumReader struct {
-	ctx context.Context
+	m   *nitro.Machine
 	e   nitro.Value
 	buf ByteQueue
 }
@@ -116,7 +115,7 @@ func (r *enumReader) Read(b []byte) (int, error) {
 	}
 
 	for len(r.buf.Peek()) < len(b) {
-		v, ok, err := nitro.Next(r.ctx, r.e, 1)
+		v, ok, err := nitro.Next(r.m, r.e, 1)
 		if err != nil {
 			return 0, err
 		}
@@ -146,7 +145,7 @@ func (r *enumReader) Read(b []byte) (int, error) {
 	return n, nil
 }
 
-func ToReader(ctx context.Context, v runtime.Value) (io.Reader, error) {
+func ToReader(m *nitro.Machine, v runtime.Value) (io.Reader, error) {
 	switch v := v.(type) {
 	case io.Reader:
 		return v, nil
@@ -156,8 +155,8 @@ func ToReader(ctx context.Context, v runtime.Value) (io.Reader, error) {
 
 	case *nitro.Closure:
 		return &enumReader{
-			ctx: ctx,
-			e:   v,
+			m: m,
+			e: v,
 		}, nil
 
 	default:
