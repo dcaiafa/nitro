@@ -116,16 +116,6 @@ func CoerceToBool(v Value) bool {
 	switch v := v.(type) {
 	case Bool:
 		return v.Bool()
-	case Int:
-		return v.Int64() != 0
-	case Float:
-		return v.Float64() != 0
-	case String:
-		return len(v.String()) != 0
-	case *Object:
-		return v.Len() != 0
-	case *Array:
-		return v.Len() != 0
 	default:
 		return v != nil
 	}
