@@ -90,6 +90,12 @@ emit(
 {
 }
 )
+
+{
+	foo: x ? y : bar
+	bar: 1
+}
+
 		`
 
 	module, err := ParseModule("test.nitro", prog, false, true, &errlogger.ConsoleErrLogger{})

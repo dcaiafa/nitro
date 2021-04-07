@@ -32,6 +32,7 @@ SUB: '-';
 MUL: '*';
 DIV: '/';
 MOD: '%';
+QUESTION_MARK: '?';
 SEMICOLON: ';';
 COMMA: ',';
 COLON: ':';

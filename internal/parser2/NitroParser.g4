@@ -56,7 +56,8 @@ defer_stmt: DEFER primary_expr;
 
 // Expressions
 
-expr: expr '|' expr
+expr: <assoc=right> expr '?' expr ':' expr
+    | expr '|' expr
     | pipeline_term_expr
     ;
 
