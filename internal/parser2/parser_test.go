@@ -49,6 +49,10 @@ try {
 	log("shit's on fire yo " + e)
 }
 
+if cancel {
+	return
+}
+
 select(
   join(
 		json_lines(),
