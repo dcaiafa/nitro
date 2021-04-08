@@ -159,6 +159,12 @@ func (s *BaseNitroParserListener) EnterDefer_stmt(ctx *Defer_stmtContext) {}
 // ExitDefer_stmt is called when production defer_stmt is exited.
 func (s *BaseNitroParserListener) ExitDefer_stmt(ctx *Defer_stmtContext) {}
 
+// EnterYield_stmt is called when production yield_stmt is entered.
+func (s *BaseNitroParserListener) EnterYield_stmt(ctx *Yield_stmtContext) {}
+
+// ExitYield_stmt is called when production yield_stmt is exited.
+func (s *BaseNitroParserListener) ExitYield_stmt(ctx *Yield_stmtContext) {}
+
 // EnterExpr is called when production expr is entered.
 func (s *BaseNitroParserListener) EnterExpr(ctx *ExprContext) {}
 

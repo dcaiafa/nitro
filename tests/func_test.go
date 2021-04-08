@@ -80,6 +80,19 @@ func TestFn(t *testing.T) {
 		print(f1(), f2(), f1(), f2())
 `, `1 1 2 2`)
 
+	RunSubO(t, "sub_func_cap_arg", `
+		func x(a) {
+			func y() {
+      	a = a + 1
+				return a
+			}
+			return y
+		}
+		var f1 = x(10)
+		var f2 = x(20)
+		print(f1(), f2(), f1(), f2())
+`, `11 21 12 22`)
+
 	RunSubO(t, "sub_func_multi", `
 		func x() {
 			var a = 0

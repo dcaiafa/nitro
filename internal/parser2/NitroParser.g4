@@ -25,6 +25,7 @@ stmt: assignment_stmt
     | try_catch_stmt
     | throw_stmt
     | defer_stmt
+    | yield_stmt 
     ;
 
 assignment_stmt: assignment_lvalues '=' rvalues;
@@ -53,6 +54,8 @@ try_catch_stmt: TRY '{' stmts '}' CATCH ID? '{' stmts '}';
 throw_stmt: THROW expr;
 
 defer_stmt: DEFER primary_expr;
+
+yield_stmt: YIELD rvalues;
 
 // Expressions
 
@@ -132,7 +135,28 @@ array_else: ELSE '{' array_elems '}';
 array_for: FOR for_vars ID expr '{' array_elems '}';
 
 id_or_keyword: 
-    t=(ID | AND | ELSE | FALSE |
-       FUNC | FOR | IF | META | NOT | OR | RETURN |
-       TRUE | VAR | WHILE | DEFER | TRY | CATCH | THROW | NIL)
+    t=(
+      ID |
+
+      // Keywords
+      AND |
+      CATCH |
+      DEFER |
+      ELSE |
+      FALSE |
+      FOR |
+      FUNC |
+      IF |
+      META |
+      NIL |
+      NOT |
+      OR |
+      RETURN |
+      THROW |
+      TRUE |
+      TRY |
+      VAR |
+      WHILE |
+      YIELD
+    )
     ;

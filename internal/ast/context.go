@@ -11,6 +11,7 @@ type Pass int
 const (
 	Print Pass = iota
 
+	Rewrite
 	Check
 	Emit
 )

@@ -94,14 +94,18 @@ func (c *Compiler) compile(
 	}
 
 	ctx := ast.NewContext(errLoggerWrapper)
-	main.RunPass(ctx, ast.Check)
 
+	main.RunPass(ctx, ast.Rewrite)
+	if errLoggerWrapper.Error() != nil {
+		return nil, errLoggerWrapper.Error()
+	}
+
+	main.RunPass(ctx, ast.Check)
 	if errLoggerWrapper.Error() != nil {
 		return nil, errLoggerWrapper.Error()
 	}
 
 	main.RunPass(ctx, ast.Emit)
-
 	if errLoggerWrapper.Error() != nil {
 		return nil, errLoggerWrapper.Error()
 	}

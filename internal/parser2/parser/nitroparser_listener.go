@@ -77,6 +77,9 @@ type NitroParserListener interface {
 	// EnterDefer_stmt is called when entering the defer_stmt production.
 	EnterDefer_stmt(c *Defer_stmtContext)
 
+	// EnterYield_stmt is called when entering the yield_stmt production.
+	EnterYield_stmt(c *Yield_stmtContext)
+
 	// EnterExpr is called when entering the expr production.
 	EnterExpr(c *ExprContext)
 
@@ -271,6 +274,9 @@ type NitroParserListener interface {
 
 	// ExitDefer_stmt is called when exiting the defer_stmt production.
 	ExitDefer_stmt(c *Defer_stmtContext)
+
+	// ExitYield_stmt is called when exiting the yield_stmt production.
+	ExitYield_stmt(c *Yield_stmtContext)
 
 	// ExitExpr is called when exiting the expr production.
 	ExitExpr(c *ExprContext)

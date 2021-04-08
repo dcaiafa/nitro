@@ -19,6 +19,7 @@ TRUE: 'true';
 TRY: 'try';
 VAR: 'var';
 WHILE: 'while';
+YIELD: 'yield';
 
 ASSIGN: '=';
 EQ: '==';

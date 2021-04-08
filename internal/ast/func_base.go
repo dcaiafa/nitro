@@ -8,15 +8,17 @@ import (
 type Func struct {
 	astBase
 
-	Params    ASTs
-	Block     *StmtBlock
-	IsClosure bool
+	Params       ASTs
+	Block        *StmtBlock
+	IsClosure    bool
+	IsEnumerable bool
 
 	idxFunc    int
 	scope      *symbol.Scope
 	paramCount int
 	localCount int
 	captures   []*symbol.CaptureSymbol
+	enumerable bool
 }
 
 func (f *Func) RunPass(ctx *Context, pass Pass) {
@@ -37,6 +39,26 @@ func (f *Func) RunPass(ctx *Context, pass Pass) {
 	ctx.Pop()
 
 	switch pass {
+	case Rewrite:
+		if f.enumerable {
+			// func f(x, y) {         func g(x, y) {
+			//    yield x+y      =>     return f() {
+			// }                          yield x+y
+			//                          }
+			//                        }
+			enumerator := new(LambdaExpr)
+			enumerator.SetPos(f.Pos())
+			enumerator.Block = f.Block
+
+			f.Block = &StmtBlock{
+				Stmts: ASTs{
+					&ReturnStmt{
+						Values: Exprs{enumerator},
+					},
+				},
+			}
+		}
+
 	case Emit:
 		emitter := ctx.Emitter()
 		synthRet := len(f.Block.Stmts) == 0
@@ -57,6 +79,14 @@ func (f *Func) RunPass(ctx *Context, pass Pass) {
 			emitter.Emit(f.Pos(), runtime.OpNewClosure, uint32(f.idxFunc), uint16(len(f.captures)))
 		}
 	}
+}
+
+func (f *Func) MarkEnumerable() {
+	f.enumerable = true
+}
+
+func (f *Func) Enumerable() bool {
+	return f.enumerable
 }
 
 func (f *Func) IdxFunc() int {
