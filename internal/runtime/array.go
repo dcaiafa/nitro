@@ -123,10 +123,10 @@ func (a *Array) String() string {
 	return formatObject(a)
 }
 
-func (a *Array) Enumerate() *Enumerator {
+func (a *Array) Iterate() *Iterator {
 	var arr Value = a
 	var next Value = NewInt(0)
-	return NewEnumerator(
+	return NewIterator(
 		arrayIter,
 		[]ValueRef{NewValueRef(&arr), NewValueRef(&next)})
 }

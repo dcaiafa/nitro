@@ -5,7 +5,7 @@ import (
 )
 
 func fnUnique(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
-	e, err := getEnumeratorArg(m, args, 0)
+	e, err := getIterArg(m, args, 0)
 	if err != nil {
 		return nil, err
 	}

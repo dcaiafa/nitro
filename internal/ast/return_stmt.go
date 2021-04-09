@@ -18,14 +18,14 @@ func (s *ReturnStmt) RunPass(ctx *Context, pass Pass) {
 		if fn == nil && len(s.Values) != 0 {
 			ctx.Failf(s.Pos(), "cannot return values outside of function")
 			return
-		} else if fn != nil && fn.Enumerable() && len(s.Values) != 0 {
-			ctx.Failf(s.Pos(), "'return' can only be used without values in an enumerator")
+		} else if fn != nil && fn.IsIterator() && len(s.Values) != 0 {
+			ctx.Failf(s.Pos(), "'return' must provide no values in an iterator")
 			return
 		}
 
 		retOp := runtime.OpRet
-		if fn != nil && fn.Enumerable() {
-			retOp = runtime.OpEnumRet
+		if fn != nil && fn.IsIterator() {
+			retOp = runtime.OpIterRet
 		}
 
 		ctx.Emitter().Emit(s.Pos(), retOp, uint32(len(s.Values)), 0)

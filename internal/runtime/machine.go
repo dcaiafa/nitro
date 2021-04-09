@@ -67,8 +67,8 @@ const (
 	OpDefer
 	OpNext
 	OpSlice
-	OpYield
-	OpEnumRet
+	OpIterYield
+	OpIterRet
 	OpNewIter
 )
 
@@ -171,7 +171,7 @@ func (m *Machine) Call(
 			})
 		}
 
-	case *Enumerator:
+	case *Iterator:
 		if callable.extFn != nil {
 			return m.callExtFn(callable.extFn, args, callable.captures, expRetN)
 		} else {
@@ -185,7 +185,7 @@ func (m *Machine) Call(
 
 			return m.runFrame(&frame{
 				Fn:         callable.fn,
-				Enumerator: callable,
+				Iterator:   callable,
 				Captures:   callable.captures,
 				Locals:     callable.locals,
 				TryCatches: callable.tryCatches,
@@ -332,7 +332,7 @@ func (m *Machine) resume() (ret []Value, err error) {
 			for i, capture := range m.popN(capN) {
 				caps[i] = capture.(ValueRef)
 			}
-			iter := &Enumerator{
+			iter := &Iterator{
 				fn:       &m.program.fns[fn],
 				captures: caps,
 			}
@@ -478,11 +478,11 @@ func (m *Machine) resume() (ret []Value, err error) {
 		case OpMakeIter:
 			v := m.peek(0)
 			switch v := v.(type) {
-			case *Enumerator:
+			case *Iterator:
 				// Ready to go.
-			case Enumerable:
+			case Iterable:
 				m.pop()
-				m.push(v.Enumerate())
+				m.push(v.Iterate())
 			default:
 				return nil, fmt.Errorf("Cannot iterate over value of type %q", TypeName(v))
 			}
@@ -521,7 +521,7 @@ func (m *Machine) resume() (ret []Value, err error) {
 			has, ok := m.peek(argN - 1).(Bool)
 			if !ok {
 				return nil, fmt.Errorf(
-					"enumerator's first return value must be Bool; instead it is %q",
+					"iterator's first return value must be Bool; instead it is %q",
 					TypeName(m.peek(argN-1)))
 			}
 			if has.Bool() {
@@ -554,12 +554,12 @@ func (m *Machine) resume() (ret []Value, err error) {
 			}
 			m.push(res)
 
-		case OpYield:
+		case OpIterYield:
 			if m.frame.ExpRetN > len(m.frame.Stack) {
 				return nil, fmt.Errorf("error")
 			}
 
-			iter := m.frame.Enumerator
+			iter := m.frame.Iterator
 			iter.locals = m.frame.Locals
 			iter.tryCatches = m.frame.TryCatches
 			iter.defers = m.frame.Defers
@@ -568,8 +568,8 @@ func (m *Machine) resume() (ret []Value, err error) {
 			rets := m.frame.Stack[:m.frame.ExpRetN]
 			return rets, nil
 
-		case OpEnumRet:
-			m.frame.Enumerator.ip = -1
+		case OpIterRet:
+			m.frame.Iterator.ip = -1
 			rets := make([]Value, m.frame.ExpRetN)
 			if m.frame.ExpRetN > 0 {
 				rets[0] = NewBool(false)

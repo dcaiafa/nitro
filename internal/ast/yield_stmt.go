@@ -15,7 +15,7 @@ func (s *YieldStmt) RunPass(ctx *Context, pass Pass) {
 			ctx.Failf(s.Pos(), "cannot yield outside of a function")
 			return
 		}
-		fn.MarkEnumerable()
+		fn.MarkIterator()
 
 	case Emit:
 		ctx.Emitter().Emit(s.Pos(), runtime.OpNewBool, 1, 0)
@@ -24,6 +24,6 @@ func (s *YieldStmt) RunPass(ctx *Context, pass Pass) {
 	ctx.RunPassChild(s, s.Values, pass)
 
 	if pass == Emit {
-		ctx.Emitter().Emit(s.Pos(), runtime.OpYield, uint32(len(s.Values))+1, 0)
+		ctx.Emitter().Emit(s.Pos(), runtime.OpIterYield, uint32(len(s.Values))+1, 0)
 	}
 }

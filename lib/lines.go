@@ -17,21 +17,21 @@ func lines(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int
 		return nil, fmt.Errorf("invalid argument #1: %w", err)
 	}
 
-	l := &linesState{
+	l := &linesIter{
 		input:   input,
 		scanner: bufio.NewScanner(input),
 	}
 
-	outEnum := nitro.NewEnumerator(l.Next, nil)
-	return []nitro.Value{outEnum}, nil
+	outIter := nitro.NewIterator(l.Next, nil)
+	return []nitro.Value{outIter}, nil
 }
 
-type linesState struct {
+type linesIter struct {
 	input   io.Reader
 	scanner *bufio.Scanner
 }
 
-func (l *linesState) Next(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func (l *linesIter) Next(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
 	if !l.scanner.Scan() {
 		CloseReader(l.input)
 		if l.scanner.Err() != nil {

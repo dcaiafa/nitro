@@ -6,7 +6,7 @@ type tryCatch struct {
 
 type frame struct {
 	ExpRetN    int
-	Enumerator *Enumerator
+	Iterator *Iterator
 	Fn         *Fn
 	Instrs     []Instr
 	Args       []Value

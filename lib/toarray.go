@@ -22,7 +22,7 @@ func ToArray(m *nitro.Machine, v nitro.Value) (*nitro.Array, error) {
 		return arr, nil
 	}
 
-	e, err := nitro.MakeEnumerator(m, v)
+	e, err := nitro.MakeIterator(m, v)
 	if err != nil {
 		return nil, err
 	}

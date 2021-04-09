@@ -5,7 +5,7 @@ import (
 )
 
 func fnMap(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
-	inEnum, err := getEnumeratorArg(m, args, 0)
+	inIter, err := getIterArg(m, args, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -14,22 +14,22 @@ func fnMap(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int
 		return nil, err
 	}
 
-	mapEnum := &mapEnum{
-		inEnum: inEnum,
+	mapIter := &mapIter{
+		inIter: inIter,
 		fn:     fn,
 	}
 
-	outEnum := nitro.NewEnumerator(mapEnum.Next, nil)
-	return []nitro.Value{outEnum}, nil
+	outIter := nitro.NewIterator(mapIter.Next, nil)
+	return []nitro.Value{outIter}, nil
 }
 
-type mapEnum struct {
-	inEnum nitro.Value
+type mapIter struct {
+	inIter nitro.Value
 	fn     nitro.Value
 }
 
-func (i *mapEnum) Next(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
-	v, ok, err := nitro.Next(m, i.inEnum, 1)
+func (i *mapIter) Next(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+	v, ok, err := nitro.Next(m, i.inIter, 1)
 	if err != nil {
 		return nil, err
 	}

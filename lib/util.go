@@ -73,14 +73,14 @@ func getWriterArg(args []runtime.Value, ndx int) (io.Writer, error) {
 	}
 }
 
-func getEnumeratorArg(m *nitro.Machine, args []runtime.Value, ndx int) (nitro.Value, error) {
+func getIterArg(m *nitro.Machine, args []runtime.Value, ndx int) (nitro.Value, error) {
 	if ndx >= len(args) {
 		return nil, errNotEnoughArgs
 	}
 
-	v, err := nitro.MakeEnumerator(m, args[ndx])
+	v, err := nitro.MakeIterator(m, args[ndx])
 	if err != nil {
-		return nil, fmt.Errorf("argument %v is not enumerable: %v", args[ndx], err)
+		return nil, fmt.Errorf("argument %v is not iterable: %v", args[ndx], err)
 	}
 
 	return v, nil
@@ -100,16 +100,16 @@ func getCallableArg(args []runtime.Value, ndx int) (nitro.Value, error) {
 	}
 }
 
-type enumReader struct {
+type iterReader struct {
 	m   *nitro.Machine
 	e   nitro.Value
 	buf ByteQueue
 }
 
-func (r *enumReader) String() string { return "EnumReader" }
-func (r *enumReader) Type() string   { return "EnumReader" }
+func (r *iterReader) String() string { return "<IterReader>" }
+func (r *iterReader) Type() string   { return "IterReader" }
 
-func (r *enumReader) Read(b []byte) (int, error) {
+func (r *iterReader) Read(b []byte) (int, error) {
 	if len(b) == 0 {
 		return 0, nil
 	}
@@ -125,7 +125,7 @@ func (r *enumReader) Read(b []byte) (int, error) {
 		str, ok := v[0].(nitro.String)
 		if !ok {
 			return 0, fmt.Errorf(
-				"cannot stream enumerator of %q",
+				"cannot stream iterator of %q",
 				nitro.TypeName(v[0]))
 		}
 		r.buf.Write([]byte(str.String()))
@@ -153,8 +153,8 @@ func ToReader(m *nitro.Machine, v runtime.Value) (io.Reader, error) {
 	case nitro.String:
 		return strings.NewReader(v.String()), nil
 
-	case *nitro.Closure:
-		return &enumReader{
+	case *nitro.Iterator:
+		return &iterReader{
 			m: m,
 			e: v,
 		}, nil

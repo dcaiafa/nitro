@@ -8,17 +8,16 @@ import (
 type Func struct {
 	astBase
 
-	Params       ASTs
-	Block        *StmtBlock
-	IsClosure    bool
-	IsEnumerable bool
+	Params    ASTs
+	Block     *StmtBlock
+	IsClosure bool
 
 	idxFunc    int
 	scope      *symbol.Scope
 	paramCount int
 	localCount int
 	captures   []*symbol.CaptureSymbol
-	enumerable bool
+	isIterator bool
 }
 
 func (f *Func) RunPass(ctx *Context, pass Pass) {
@@ -40,22 +39,22 @@ func (f *Func) RunPass(ctx *Context, pass Pass) {
 
 	switch pass {
 	case Rewrite:
-		if f.enumerable {
-			// func f(x, y) {         func g(x, y) {
-			//    yield x+y      =>     return f() {
+		if f.isIterator {
+			// func f(x, y) {         func f(x, y) {
+			//    yield x+y      =>     return g() {
 			// }                          yield x+y
 			//                          }
 			//                        }
-			enumerator := new(LambdaExpr)
-			enumerator.SetPos(f.Pos())
-			enumerator.Block = f.Block
-			enumerator.enumerable = true
+			g := new(LambdaExpr)
+			g.SetPos(f.Pos())
+			g.Block = f.Block
+			g.isIterator = true
 
-			f.enumerable = false
+			f.isIterator = false
 			f.Block = &StmtBlock{
 				Stmts: ASTs{
 					&ReturnStmt{
-						Values: Exprs{enumerator},
+						Values: Exprs{g},
 					},
 				},
 			}
@@ -69,8 +68,8 @@ func (f *Func) RunPass(ctx *Context, pass Pass) {
 			synthRet = !hasReturnStmt
 		}
 		if synthRet {
-			if f.enumerable {
-				emitter.Emit(f.Pos(), runtime.OpEnumRet, 0, 0)
+			if f.isIterator {
+				emitter.Emit(f.Pos(), runtime.OpIterRet, 0, 0)
 			} else {
 				emitter.Emit(f.Pos(), runtime.OpRet, 0, 0)
 			}
@@ -82,7 +81,7 @@ func (f *Func) RunPass(ctx *Context, pass Pass) {
 				emitSymbolRefPush(f.Pos(), emitter, capture.Captured)
 			}
 			op := runtime.OpNewClosure
-			if f.enumerable {
+			if f.isIterator {
 				op = runtime.OpNewIter
 			}
 			emitter.Emit(f.Pos(), op, uint32(f.idxFunc), uint16(len(f.captures)))
@@ -90,12 +89,12 @@ func (f *Func) RunPass(ctx *Context, pass Pass) {
 	}
 }
 
-func (f *Func) MarkEnumerable() {
-	f.enumerable = true
+func (f *Func) MarkIterator() {
+	f.isIterator = true
 }
 
-func (f *Func) Enumerable() bool {
-	return f.enumerable
+func (f *Func) IsIterator() bool {
+	return f.isIterator
 }
 
 func (f *Func) IdxFunc() int {

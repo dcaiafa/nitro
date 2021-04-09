@@ -124,7 +124,7 @@ func NewClosure(extFn ExternFn, caps []ValueRef) *Closure {
 func (c *Closure) String() string { return "<func>" }
 func (c *Closure) Type() string   { return "Func" }
 
-type Enumerator struct {
+type Iterator struct {
 	fn         *Fn
 	extFn      ExternFn
 	captures   []ValueRef
@@ -134,11 +134,11 @@ type Enumerator struct {
 	ip         int
 }
 
-func (e *Enumerator) String() string { return "<Enumerator>" }
-func (e *Enumerator) Type() string   { return "Enumerator" }
+func (e *Iterator) String() string { return "<Iterator>" }
+func (e *Iterator) Type() string   { return "Iterator" }
 
-func NewEnumerator(extFn ExternFn, caps []ValueRef) *Enumerator {
-	return &Enumerator{
+func NewIterator(extFn ExternFn, caps []ValueRef) *Iterator {
+	return &Iterator{
 		extFn:    extFn,
 		captures: caps,
 	}

@@ -33,7 +33,7 @@ func emit(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int)
 }
 
 func emitShort(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
-	e, err := nitro.MakeEnumerator(m, args[0])
+	e, err := nitro.MakeIterator(m, args[0])
 	if err == nil {
 		for {
 			v, ok, err := nitro.Next(m, e, 1)

@@ -5,26 +5,26 @@ import (
 	"log"
 )
 
-type Enumerable interface {
+type Iterable interface {
 	Value
-	Enumerate() *Enumerator
+	Iterate() *Iterator
 }
 
-func MakeEnumerator(m *Machine, v Value) (Value, error) {
+func MakeIterator(m *Machine, v Value) (Value, error) {
 	switch v := v.(type) {
-	case *Enumerator:
+	case *Iterator:
 		return v, nil
-	case Enumerable:
-		return v.Enumerate(), nil
+	case Iterable:
+		return v.Iterate(), nil
 	default:
-		return nil, fmt.Errorf("Value of type %q %w", v.Type(), ErrIsNotEnumerable)
+		return nil, fmt.Errorf("Value of type %q %w", v.Type(), ErrIsNotIterable)
 	}
 }
 
 func Next(m *Machine, e Value, n int) ([]Value, bool, error) {
-	c, ok := e.(*Enumerator)
+	c, ok := e.(*Iterator)
 	if !ok {
-		return nil, false, fmt.Errorf("not an enumerator")
+		return nil, false, fmt.Errorf("not an iterator")
 	}
 
 	if n == 0 {
@@ -39,7 +39,7 @@ func Next(m *Machine, e Value, n int) ([]Value, bool, error) {
 	hasValue, ok := ret[0].(Bool)
 	if !ok {
 		return nil, false, fmt.Errorf(
-			"enumerator's first return value must be a Bool, but instead it was %q",
+			"iterator's first return value must be a Bool, but instead it was %q",
 			ret[0].Type())
 	}
 

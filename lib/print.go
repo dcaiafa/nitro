@@ -32,7 +32,7 @@ func fnPrintf(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, expRe
 
 func fnPrintAll(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, expRetN int) ([]nitro.Value, error) {
 	stdout := Stdout(m)
-	e, err := getEnumeratorArg(m, args, 0)
+	e, err := getIterArg(m, args, 0)
 	if err != nil {
 		return nil, err
 	}
