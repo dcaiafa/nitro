@@ -215,6 +215,7 @@ func (l *listener) ExitStmt_list(ctx *parser.Stmt_listContext) {
 //     | try_catch_stmt ';'
 //     | throw_stmt ';'
 //     | defer_stmt ';'
+//     | yield_stmt
 //     | ';'
 //     ;
 func (l *listener) ExitStmt(ctx *parser.StmtContext) {
@@ -229,6 +230,7 @@ func (l *listener) ExitStmt(ctx *parser.StmtContext) {
 	} else if s = l.takeAST(ctx.Try_catch_stmt()); s != nil {
 	} else if s = l.takeAST(ctx.Throw_stmt()); s != nil {
 	} else if s = l.takeAST(ctx.Defer_stmt()); s != nil {
+	} else if s = l.takeAST(ctx.Yield_stmt()); s != nil {
 	} else if e := l.takeExpr(ctx.Expr()); e != nil {
 		if objLit, ok := e.(*ast.ObjectLiteral); ok {
 			emit := token.Token{
@@ -431,6 +433,13 @@ func (l *listener) ExitDefer_stmt(ctx *parser.Defer_stmtContext) {
 			"Deferred expression must be a call")
 	}
 	l.put(ctx, ast.NewDeferStmt(callExpr))
+}
+
+// yield_stmt: YIELD rvalues;
+func (l *listener) ExitYield_stmt(ctx *parser.Yield_stmtContext) {
+	l.put(ctx, &ast.YieldStmt{
+		Values: l.takeExprs(ctx.Rvalues()),
+	})
 }
 
 // expr: expr '?' expr ':' expr

@@ -49,7 +49,9 @@ func (f *Func) RunPass(ctx *Context, pass Pass) {
 			enumerator := new(LambdaExpr)
 			enumerator.SetPos(f.Pos())
 			enumerator.Block = f.Block
+			enumerator.enumerable = true
 
+			f.enumerable = false
 			f.Block = &StmtBlock{
 				Stmts: ASTs{
 					&ReturnStmt{
@@ -67,16 +69,23 @@ func (f *Func) RunPass(ctx *Context, pass Pass) {
 			synthRet = !hasReturnStmt
 		}
 		if synthRet {
-			emitter.Emit(f.Pos(), runtime.OpRet, 0, 0)
+			if f.enumerable {
+				emitter.Emit(f.Pos(), runtime.OpEnumRet, 0, 0)
+			} else {
+				emitter.Emit(f.Pos(), runtime.OpRet, 0, 0)
+			}
 		}
 		emitter.PopFn()
 
 		if f.IsClosure {
-			// TODO: check if number of captures > 255 (can't fit in Operand2)
 			for _, capture := range f.captures {
 				emitSymbolRefPush(f.Pos(), emitter, capture.Captured)
 			}
-			emitter.Emit(f.Pos(), runtime.OpNewClosure, uint32(f.idxFunc), uint16(len(f.captures)))
+			op := runtime.OpNewClosure
+			if f.enumerable {
+				op = runtime.OpNewIter
+			}
+			emitter.Emit(f.Pos(), op, uint32(f.idxFunc), uint16(len(f.captures)))
 		}
 	}
 }
@@ -109,7 +118,8 @@ func (f *Func) NewParam() *symbol.ParamSymbol {
 
 func (f *Func) NewCapture(sym symbol.Symbol) *symbol.CaptureSymbol {
 	c := &symbol.CaptureSymbol{
-		Captured: sym,
+		Captured:   sym,
+		CaptureNdx: len(f.captures),
 	}
 	c.SetName(sym.Name())
 	c.SetPos(sym.Pos())

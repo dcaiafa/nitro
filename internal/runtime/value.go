@@ -108,22 +108,6 @@ func (r ValueRef) Refo() *Value   { return r.Ref }
 func (r ValueRef) String() string { return "&" + (*r.Ref).String() }
 func (r ValueRef) Type() string   { return "&" + (*r.Ref).Type() }
 
-type Enumerator struct {
-	*Closure
-}
-
-func (e *Enumerator) String() string { return "<Enumerator>" }
-func (e *Enumerator) Type() string   { return "Enumerator" }
-
-func NewEnumerator(extFn ExternFn, caps []ValueRef) *Enumerator {
-	return &Enumerator{
-		Closure: &Closure{
-			extFn: extFn,
-			caps:  caps,
-		},
-	}
-}
-
 type Closure struct {
 	fn    *Fn
 	extFn ExternFn
@@ -139,6 +123,26 @@ func NewClosure(extFn ExternFn, caps []ValueRef) *Closure {
 
 func (c *Closure) String() string { return "<func>" }
 func (c *Closure) Type() string   { return "Func" }
+
+type Enumerator struct {
+	fn         *Fn
+	extFn      ExternFn
+	captures   []ValueRef
+	locals     []Value
+	tryCatches []tryCatch
+	defers     []*Closure
+	ip         int
+}
+
+func (e *Enumerator) String() string { return "<Enumerator>" }
+func (e *Enumerator) Type() string   { return "Enumerator" }
+
+func NewEnumerator(extFn ExternFn, caps []ValueRef) *Enumerator {
+	return &Enumerator{
+		extFn:    extFn,
+		captures: caps,
+	}
+}
 
 type ExternFn func(
 	m *Machine,

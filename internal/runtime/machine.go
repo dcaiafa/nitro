@@ -67,6 +67,9 @@ const (
 	OpDefer
 	OpNext
 	OpSlice
+	OpYield
+	OpEnumRet
+	OpNewIter
 )
 
 type Instr struct {
@@ -130,7 +133,7 @@ func (m *Machine) runFunc(
 	captures []ValueRef,
 	retN int,
 ) ([]Value, error) {
-	frame := newFrame()
+	frame := &frame{}
 	frame.Fn = fn
 	frame.Instrs = fn.instrs
 	frame.Args = args
@@ -139,50 +142,68 @@ func (m *Machine) runFunc(
 	return m.runFrame(frame)
 }
 
+func (m *Machine) callExtFn(extFn ExternFn, args []Value, caps []ValueRef, retN int) ([]Value, error) {
+	rets, err := extFn(m, caps, args, retN)
+	if err != nil {
+		return nil, err
+	}
+	if len(rets) < retN {
+		return nil, fmt.Errorf("expected at least %v returned values", retN)
+	}
+	return rets, nil
+}
+
 func (m *Machine) Call(
 	callable Value,
 	args []Value,
 	expRetN int,
 ) ([]Value, error) {
-	callFn := func(fn *Fn, caps []ValueRef) ([]Value, error) {
-		rets, err := m.runFunc(fn, args, caps, expRetN)
-		if err != nil {
-			return nil, err
-		}
-		return rets, nil
-	}
-
-	callExtFn := func(extFn ExternFn, caps []ValueRef) ([]Value, error) {
-		rets, err := extFn(m, caps, args, expRetN)
-		if err != nil {
-			return nil, err
-		}
-		if len(rets) < expRetN {
-			return nil, fmt.Errorf("expected at least %v returned values", expRetN)
-		}
-		return rets, nil
-	}
-
-	callClosure := func(closure *Closure) ([]Value, error) {
-		if closure.extFn != nil {
-			return callExtFn(closure.extFn, closure.caps)
-		} else {
-			return callFn(closure.fn, closure.caps)
-		}
-	}
-
 	switch callable := callable.(type) {
 	case *Closure:
-		return callClosure(callable)
+		if callable.extFn != nil {
+			return m.callExtFn(callable.extFn, args, callable.caps, expRetN)
+		} else {
+			return m.runFrame(&frame{
+				Fn:       callable.fn,
+				Args:     args,
+				Captures: callable.caps,
+				ExpRetN:  expRetN,
+			})
+		}
 
 	case *Enumerator:
-		return callClosure(callable.Closure)
+		if callable.extFn != nil {
+			return m.callExtFn(callable.extFn, args, callable.captures, expRetN)
+		} else {
+			if callable.ip == -1 {
+				rets := make([]Value, expRetN)
+				if expRetN > 0 {
+					rets[0] = NewBool(false)
+				}
+				return rets, nil
+			}
+
+			return m.runFrame(&frame{
+				Fn:         callable.fn,
+				Enumerator: callable,
+				Captures:   callable.captures,
+				Locals:     callable.locals,
+				TryCatches: callable.tryCatches,
+				Defers:     callable.defers,
+				ExpRetN:    expRetN,
+				IP:         callable.ip,
+			})
+		}
 
 	case *Fn:
-		return callFn(callable, nil)
+		return m.runFrame(&frame{
+			Fn:      callable,
+			Args:    args,
+			ExpRetN: expRetN,
+		})
 
 	case ExternFn:
-		return callExtFn(callable, nil)
+		return m.callExtFn(callable, args, nil, expRetN)
 
 	default:
 		if callable == nil {
@@ -193,6 +214,8 @@ func (m *Machine) Call(
 }
 
 func (m *Machine) runFrame(frame *frame) (rets []Value, err error) {
+	frame.Instrs = frame.Fn.instrs
+
 	m.callStack = append(m.callStack, frame)
 	m.frame = frame
 
@@ -301,6 +324,19 @@ func (m *Machine) resume() (ret []Value, err error) {
 				caps: caps,
 			}
 			m.push(closure)
+
+		case OpNewIter:
+			capN := int(instr.operand2)
+			fn := int(instr.operand1)
+			caps := make([]ValueRef, capN)
+			for i, capture := range m.popN(capN) {
+				caps[i] = capture.(ValueRef)
+			}
+			iter := &Enumerator{
+				fn:       &m.program.fns[fn],
+				captures: caps,
+			}
+			m.push(iter)
 
 		case OpNewInt:
 			m.push(NewInt(int64(instr.operand1)))
@@ -517,6 +553,28 @@ func (m *Machine) resume() (ret []Value, err error) {
 				return nil, err
 			}
 			m.push(res)
+
+		case OpYield:
+			if m.frame.ExpRetN > len(m.frame.Stack) {
+				return nil, fmt.Errorf("error")
+			}
+
+			iter := m.frame.Enumerator
+			iter.locals = m.frame.Locals
+			iter.tryCatches = m.frame.TryCatches
+			iter.defers = m.frame.Defers
+			iter.ip = m.frame.IP + 1
+
+			rets := m.frame.Stack[:m.frame.ExpRetN]
+			return rets, nil
+
+		case OpEnumRet:
+			m.frame.Enumerator.ip = -1
+			rets := make([]Value, m.frame.ExpRetN)
+			if m.frame.ExpRetN > 0 {
+				rets[0] = NewBool(false)
+			}
+			return rets, nil
 
 		default:
 			panic("invalid instruction")

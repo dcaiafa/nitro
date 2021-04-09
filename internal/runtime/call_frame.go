@@ -6,6 +6,7 @@ type tryCatch struct {
 
 type frame struct {
 	ExpRetN    int
+	Enumerator *Enumerator
 	Fn         *Fn
 	Instrs     []Instr
 	Args       []Value
@@ -15,10 +16,6 @@ type frame struct {
 	TryCatches []tryCatch
 	Defers     []*Closure
 	IP         int
-}
-
-func newFrame() *frame {
-	return &frame{}
 }
 
 func (f *frame) Init(localN int) {

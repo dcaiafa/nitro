@@ -23,6 +23,11 @@ func (s *ReturnStmt) RunPass(ctx *Context, pass Pass) {
 			return
 		}
 
-		ctx.Emitter().Emit(s.Pos(), runtime.OpRet, uint32(len(s.Values)), 0)
+		retOp := runtime.OpRet
+		if fn != nil && fn.Enumerable() {
+			retOp = runtime.OpEnumRet
+		}
+
+		ctx.Emitter().Emit(s.Pos(), retOp, uint32(len(s.Values)), 0)
 	}
 }
