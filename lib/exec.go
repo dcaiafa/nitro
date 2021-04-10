@@ -3,13 +3,13 @@ package lib
 import (
 	"fmt"
 	"io"
-	"os/exec"
+	osexec "os/exec"
 
 	"github.com/dcaiafa/nitro"
 )
 
 type process struct {
-	cmd          *exec.Cmd
+	cmd          *osexec.Cmd
 	inputReader  io.Reader
 	input        chan interface{}
 	output       chan interface{}
@@ -28,7 +28,7 @@ func newProcess(
 	input io.Reader,
 ) *process {
 	return &process{
-		cmd:         exec.CommandContext(m.Context(), name, args...),
+		cmd:         osexec.CommandContext(m.Context(), name, args...),
 		inputReader: input,
 		input:       make(chan interface{}, 1),
 		output:      make(chan interface{}, 1),
@@ -151,7 +151,7 @@ func (p *process) feedProcessUntilOutputAvailable() error {
 	}
 }
 
-func fnExec(
+func exec(
 	m *nitro.Machine,
 	caps []nitro.ValueRef,
 	args []nitro.Value,

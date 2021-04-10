@@ -4,7 +4,7 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-func fnFilter(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func filter(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
 	inIter, err := getIterArg(m, args, 0)
 	if err != nil {
 		return nil, err

@@ -6,7 +6,7 @@ import (
 	"github.com/dcaiafa/nitro/internal/runtime"
 )
 
-func fnDelete(m *runtime.Machine, caps []runtime.ValueRef, args []runtime.Value, expRetN int) ([]runtime.Value, error) {
+func delete_(m *runtime.Machine, caps []runtime.ValueRef, args []runtime.Value, expRetN int) ([]runtime.Value, error) {
 	if len(args) < 2 {
 		return nil, errNotEnoughArgs
 	}

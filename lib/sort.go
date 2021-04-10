@@ -1,7 +1,7 @@
 package lib
 
 import (
-	"sort"
+	gosort "sort"
 
 	"github.com/dcaiafa/nitro"
 )
@@ -49,7 +49,7 @@ func (s *sorter) Swap(i, j int) {
 	s.arr.Put(j, t)
 }
 
-func fnSort(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func sort(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
 	if len(args) < 1 {
 		return nil, errNotEnoughArgs
 	}
@@ -72,7 +72,7 @@ func fnSort(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN in
 		}
 	}
 
-	sort.Sort(s)
+	gosort.Sort(s)
 
 	if s.err != nil {
 		return nil, s.err

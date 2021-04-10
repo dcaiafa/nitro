@@ -6,14 +6,14 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-func fnPrint(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, expRetN int) ([]nitro.Value, error) {
+func print(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, expRetN int) ([]nitro.Value, error) {
 	stdout := Stdout(m)
 	iargs := valuesToInterface(args)
 	fmt.Fprintln(stdout, iargs...)
 	return nil, nil
 }
 
-func fnPrintf(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, expRetN int) ([]nitro.Value, error) {
+func printf(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, expRetN int) ([]nitro.Value, error) {
 	if len(args) < 1 {
 		return nil, errNotEnoughArgs
 	}
@@ -30,7 +30,7 @@ func fnPrintf(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, expRe
 	return nil, nil
 }
 
-func fnPrintAll(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, expRetN int) ([]nitro.Value, error) {
+func printall(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, expRetN int) ([]nitro.Value, error) {
 	stdout := Stdout(m)
 	e, err := getIterArg(m, args, 0)
 	if err != nil {
@@ -49,7 +49,7 @@ func fnPrintAll(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, exp
 	return nil, nil
 }
 
-func fnSprintf(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, expRetN int) ([]nitro.Value, error) {
+func sprintf(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, expRetN int) ([]nitro.Value, error) {
 	if len(args) < 1 {
 		return nil, errNotEnoughArgs
 	}

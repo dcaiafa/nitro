@@ -6,7 +6,7 @@ import (
 	"github.com/dcaiafa/nitro/internal/runtime"
 )
 
-func fnPush(m *runtime.Machine, caps []runtime.ValueRef, args []runtime.Value, expRetN int) ([]runtime.Value, error) {
+func push(m *runtime.Machine, caps []runtime.ValueRef, args []runtime.Value, expRetN int) ([]runtime.Value, error) {
 	if len(args) < 2 {
 		return nil, errNotEnoughArgs
 	} else if len(args) > 2 {

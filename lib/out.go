@@ -65,11 +65,11 @@ func PopOut(m *nitro.Machine) io.Writer {
 	return prevOut
 }
 
-func fnOut(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func out(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
 	return []nitro.Value{wrapWriter(Stdout(m))}, nil
 }
 
-func fnPushOut(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func pushout(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
 	out, err := getWriterArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -78,7 +78,7 @@ func fnPushOut(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN
 	return nil, nil
 }
 
-func fnPopOut(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func popout(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
 	prevOut := PopOut(m)
 	if prevOut == nil {
 		return nil, fmt.Errorf("the stdout stack is empty")
