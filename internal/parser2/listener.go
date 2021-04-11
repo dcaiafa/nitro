@@ -330,11 +330,11 @@ func (l *listener) ExitFor_vars(ctx *parser.For_varsContext) {
 	l.put(ctx, vars)
 }
 
-// while_stmt: WHILE expr DO stmts END;
+// while_stmt: WHILE expr '{' stmts '}';
 func (l *listener) ExitWhile_stmt(ctx *parser.While_stmtContext) {
 	l.put(ctx, &ast.WhileStmt{
 		Predicate: l.takeExpr(ctx.Expr()),
-		Stmts:     l.takeASTs(ctx.Stmts()),
+		Block:     l.takeAST(ctx.Stmts()).(*ast.StmtBlock),
 	})
 }
 

@@ -80,13 +80,3 @@ func (exprs Exprs) Pos() token.Pos {
 }
 
 func (exprs Exprs) SetPos(pos token.Pos) {}
-
-type WhileStmt struct {
-	astBase
-	Predicate Expr
-	Stmts     ASTs
-}
-
-func (s *WhileStmt) RunPass(ctx *Context, pass Pass) {
-	panic("not implemented")
-}
