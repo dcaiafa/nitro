@@ -92,7 +92,7 @@ func getCallableArg(args []runtime.Value, ndx int) (nitro.Value, error) {
 	}
 
 	switch v := args[ndx].(type) {
-	case *nitro.Closure, nitro.ExternFn, *nitro.Func:
+	case nitro.Callable:
 		return v, nil
 
 	default:

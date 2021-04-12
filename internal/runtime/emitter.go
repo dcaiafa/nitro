@@ -70,6 +70,10 @@ func (e *Emitter) PopFn() {
 	e.fnStack = e.fnStack[:len(e.fnStack)-1]
 }
 
+func (e *Emitter) SetFuncMinArgs(n int) {
+	e.curFn().minArgs = n
+}
+
 func (e *Emitter) NewLabel() *Label {
 	return &Label{
 		fn:   e.curFn(),

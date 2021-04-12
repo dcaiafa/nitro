@@ -132,9 +132,9 @@ func NewValueRef(ref *Value) ValueRef {
 	return ValueRef{Ref: ref}
 }
 
-func (r ValueRef) Refo() *Value   { return r.Ref }
 func (r ValueRef) String() string { return "&" + (*r.Ref).String() }
 func (r ValueRef) Type() string   { return "&" + (*r.Ref).Type() }
+func (r ValueRef) Refo() *Value   { return r.Ref }
 
 type Closure struct {
 	fn    *Fn
@@ -188,6 +188,7 @@ func (f ExternFn) isCallable()    {}
 type Fn struct {
 	locations []Location
 	instrs    []Instr
+	minArgs   int
 }
 
 func (f *Fn) Type() string   { return "Func" }

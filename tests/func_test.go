@@ -149,6 +149,13 @@ func TestFn(t *testing.T) {
 		print(fib(6))
 	`, `13`)
 
+	RunSubO(t, "less_args", `
+		func f(a, b) {
+			print(a, b)
+		}
+    f(1)
+		`, `1 <nil>`)
+
 	RunSubErr(t, "err_call_nil", `
 			var a
 			a(2)

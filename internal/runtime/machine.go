@@ -161,11 +161,15 @@ func (m *Machine) Call(
 	switch callable := callable.(type) {
 	case *Closure:
 		if callable.extFn != nil {
-			return m.callExtFn(callable.extFn, args, callable.caps, expRetN)
+			return m.callExtFn(
+				callable.extFn,
+				copyArgs(args, 0),
+				callable.caps,
+				expRetN)
 		} else {
 			return m.runFrame(&frame{
 				Fn:       callable.fn,
-				Args:     args,
+				Args:     copyArgs(args, callable.fn.minArgs),
 				Captures: callable.caps,
 				ExpRetN:  expRetN,
 			})
@@ -173,7 +177,11 @@ func (m *Machine) Call(
 
 	case *Iterator:
 		if callable.extFn != nil {
-			return m.callExtFn(callable.extFn, args, callable.captures, expRetN)
+			return m.callExtFn(
+				callable.extFn,
+				copyArgs(args, 0),
+				callable.captures,
+				expRetN)
 		} else {
 			if callable.ip == -1 {
 				rets := make([]Value, expRetN)
@@ -198,7 +206,7 @@ func (m *Machine) Call(
 	case *Fn:
 		return m.runFrame(&frame{
 			Fn:      callable,
-			Args:    args,
+			Args:    copyArgs(args, callable.minArgs),
 			ExpRetN: expRetN,
 		})
 
@@ -300,8 +308,7 @@ func (m *Machine) resume() (ret []Value, err error) {
 		case OpCall:
 			expRetN := int(instr.operand2)
 			argN := int(instr.operand1)
-			args := make([]Value, argN)
-			copy(args, m.popN(argN))
+			args := m.popN(argN)
 			callable := m.pop()
 			rets, err := m.Call(callable, args, expRetN)
 			if err != nil {
@@ -645,4 +652,14 @@ func (m *Machine) popN(n int) []Value {
 
 func (m *Machine) discardN(n int) {
 	m.frame.Stack = m.frame.Stack[:len(m.frame.Stack)-n]
+}
+
+func copyArgs(args []Value, minArgs int) []Value {
+	n := len(args)
+	if n < minArgs {
+		n = minArgs
+	}
+	cargs := make([]Value, n)
+	copy(cargs, args)
+	return cargs
 }

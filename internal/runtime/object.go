@@ -63,6 +63,14 @@ func (o *Object) Has(k Value) bool {
 	return ok
 }
 
+func (o *Object) Get(k Value) (Value, bool) {
+	n, ok := o.data[k]
+	if !ok {
+		return nil, false
+	}
+	return n.value, true
+}
+
 func (o *Object) Put(k, v Value) {
 	n := o.data[k]
 	if n == nil {

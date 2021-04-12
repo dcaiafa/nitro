@@ -29,6 +29,7 @@ func (f *Func) RunPass(ctx *Context, pass Pass) {
 	case Emit:
 		emitter := ctx.Emitter()
 		emitter.PushFn(f.idxFunc)
+		emitter.SetFuncMinArgs(f.paramCount)
 		emitter.Emit(f.Pos(), runtime.OpInitCallFrame, uint32(f.localCount), 0)
 	}
 
