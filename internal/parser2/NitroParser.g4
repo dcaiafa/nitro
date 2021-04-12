@@ -101,7 +101,7 @@ primary_expr: ID                                       # primary_expr_simple_ref
             | '(' expr ')'                             # primary_expr_parenthesis
             ;
 
-simple_literal: val=(STRING | NUMBER | TRUE | FALSE | NIL);
+simple_literal: val=(STRING | NUMBER | CHAR | TRUE | FALSE | NIL);
 
 arg_list: expr (',' expr)* (','|';')?;
 

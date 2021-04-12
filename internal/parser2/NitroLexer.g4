@@ -55,6 +55,8 @@ NUMBER: [0-9]+ ('.' [0-9]+)?;
 ID: [a-zA-Z_] [a-zA-Z0-9_]*;
 REGEX: 'r`' ~[`]* '`';
 NEWLINE: '\r'? '\n';
+CHAR: '\'' (('\\' [nrt'\\]) | ~['\r\n\\]+) '\'';
+fragment HEX_DIGIT: [a-fA-F0-9];
 
 COMMENT: '#' ~[\n]* -> skip;
 WS: [ \t]+ -> skip;

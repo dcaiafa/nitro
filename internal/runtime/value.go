@@ -34,6 +34,28 @@ func (s String) String() string { return s.v }
 func (s String) Type() string   { return "String" }
 func (s String) Len() int       { return len(s.v) }
 
+func (s String) Index(key Value) (Value, error) {
+	idxValue, ok := key.(Int)
+	if !ok {
+		return nil, fmt.Errorf(
+			"cannot index string: index must be Int, but it is %v",
+			key.Type())
+	}
+
+	idx := int(idxValue.Int64())
+	if idx < 0 {
+		idx = len(s.v) + idx
+	}
+	if idx < 0 || idx >= len(s.v) {
+		return nil, nil
+	}
+	return NewInt(int64(s.v[idx])), nil
+}
+
+func (s String) IndexRef(key Value) (ValueRef, error) {
+	return NewValueRef(nil), fmt.Errorf("cannot modify string")
+}
+
 func (s String) Slice(b, e Value) (Value, error) {
 	bi, ok := b.(Int)
 	ei, ok2 := e.(Int)

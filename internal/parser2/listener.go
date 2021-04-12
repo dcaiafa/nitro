@@ -50,6 +50,19 @@ func (l *listener) tokenToNitro(at antlr.Token) token.Token {
 				"Invalid string literal: %v", err)
 		}
 
+	case parser.NitroLexerCHAR:
+		s := at.GetText()
+		s = s[1 : len(s)-1] // remove quotes
+		r, err := expandCharEscapeSequences(s)
+		if err != nil {
+			l.errListener.LogError(
+				at.GetLine(),
+				at.GetColumn(),
+				"Invalid string literal: %v", err)
+		}
+		t.Type = token.Int
+		t.Int = int64(r)
+
 	case parser.NitroLexerNUMBER:
 		if strings.IndexByte(at.GetText(), '.') == -1 {
 			t.Type = token.Int
@@ -58,6 +71,7 @@ func (l *listener) tokenToNitro(at antlr.Token) token.Token {
 			t.Type = token.Float
 			t.Float, _ = strconv.ParseFloat(at.GetText(), 64)
 		}
+
 	case parser.NitroLexerTRUE:
 		t.Type = token.Bool
 		t.Bool = true

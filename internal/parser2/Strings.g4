@@ -1,6 +1,6 @@
 lexer grammar Strings;
 
-LQUOTE: '"' -> more, mode(QSTR);
+LDQUOTE: '"' -> more, mode(QSTR);
 
 mode QSTR;
 
@@ -9,3 +9,5 @@ QUOTED_ESCAPE: '\\' ([nrt"\\] | ('x' HEX_DIGIT HEX_DIGIT)) -> more;
 fragment HEX_DIGIT: [a-fA-F0-9];
 
 STRING: '"' -> mode(DEFAULT_MODE);
+
+mode DEFAULT_MODE;
