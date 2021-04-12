@@ -11,3 +11,4 @@ fragment HEX_DIGIT: [a-fA-F0-9];
 STRING: '"' -> mode(DEFAULT_MODE);
 
 mode DEFAULT_MODE;
+

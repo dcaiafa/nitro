@@ -18,6 +18,12 @@ func TypeName(v Value) string {
 	return v.Type()
 }
 
+type Callable interface {
+	Value
+
+	isCallable()
+}
+
 type Indexable interface {
 	Value
 	Index(key Value) (Value, error)
@@ -145,6 +151,7 @@ func NewClosure(extFn ExternFn, caps []ValueRef) *Closure {
 
 func (c *Closure) String() string { return "<func>" }
 func (c *Closure) Type() string   { return "Func" }
+func (c *Closure) isCallable()    {}
 
 type Iterator struct {
 	fn         *Fn
@@ -158,6 +165,7 @@ type Iterator struct {
 
 func (e *Iterator) String() string { return "<Iterator>" }
 func (e *Iterator) Type() string   { return "Iterator" }
+func (e *Iterator) isCallable()    {}
 
 func NewIterator(extFn ExternFn, caps []ValueRef) *Iterator {
 	return &Iterator{
@@ -175,6 +183,7 @@ type ExternFn func(
 
 func (f ExternFn) String() string { return "<func>" }
 func (f ExternFn) Type() string   { return "Func" }
+func (f ExternFn) isCallable()    {}
 
 type Fn struct {
 	locations []Location
@@ -183,3 +192,4 @@ type Fn struct {
 
 func (f *Fn) Type() string   { return "Func" }
 func (f *Fn) String() string { return "<func>" }
+func (f *Fn) isCallable()    {}

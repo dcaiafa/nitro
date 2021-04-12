@@ -18,7 +18,7 @@ type File struct {
 func (f *File) String() string { return fmt.Sprintf("<File:%v>", f.File.Name()) }
 func (f *File) Type() string   { return "File" }
 
-func fopen(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func open(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
 	filename, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
