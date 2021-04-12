@@ -41,7 +41,7 @@ func valuesToInterface(values []nitro.Value) []interface{} {
 
 func run(prog string, params map[string]nitro.Value) (output string, err error) {
 	fs := make(MemoryFileSystem)
-	fs["main.ni"] = prog
+	fs["main.n"] = prog
 
 	outBuilder := &strings.Builder{}
 
@@ -65,7 +65,7 @@ func run(prog string, params map[string]nitro.Value) (output string, err error) 
 			return nil, nil
 		})
 
-	compiled, err := compiler.Compile("main.ni", &errlogger.ConsoleErrLogger{})
+	compiled, err := compiler.Compile("main.n", &errlogger.ConsoleErrLogger{})
 	if err != nil {
 		return "", err
 	}

@@ -7,6 +7,7 @@ type Compiler interface {
 }
 
 func Register(c Compiler) {
+	c.AddExternalFn("narg", narg)
 	c.AddExternalFn("len", Len)
 	c.AddExternalFn("range", Range)
 	c.AddExternalFn("push", push)

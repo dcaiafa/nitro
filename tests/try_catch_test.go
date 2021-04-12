@@ -83,10 +83,10 @@ f2
 g1
 f4
 Runtime error: boom
- main.ni:4
- main.ni:13
- main.ni:25
- main.ni:31
+ main.n:4
+ main.n:13
+ main.n:25
+ main.n:31
 `)
 
 	RunSubO(t, "catch_error", `

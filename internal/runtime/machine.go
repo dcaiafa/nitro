@@ -171,6 +171,7 @@ func (m *Machine) Call(
 				Fn:       callable.fn,
 				Args:     copyArgs(args, callable.fn.minArgs),
 				Captures: callable.caps,
+				ArgN:     len(args),
 				ExpRetN:  expRetN,
 			})
 		}
@@ -207,6 +208,7 @@ func (m *Machine) Call(
 		return m.runFrame(&frame{
 			Fn:      callable,
 			Args:    copyArgs(args, callable.minArgs),
+			ArgN:    len(args),
 			ExpRetN: expRetN,
 		})
 
@@ -597,6 +599,10 @@ func (m *Machine) GetDebugStack() []FrameInfo {
 		stack = append(stack, m.getDebugFrame(m.callStack[i]))
 	}
 	return stack
+}
+
+func (m *Machine) GetNArg() int {
+	return m.callStack[len(m.callStack)-1].ArgN
 }
 
 func (m *Machine) getDebugFrame(frame *frame) FrameInfo {

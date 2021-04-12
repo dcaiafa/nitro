@@ -9,6 +9,15 @@ func TestLen(t *testing.T) {
 	RunSubO(t, "string", `var a = "foobar"; print(len(a), len(""))`, `6 0`)
 }
 
+func TestNArg(t *testing.T) {
+	RunO(t, `
+		func f(x, y) {
+			return narg()
+		}
+		print(f(1,2), f(1), f(), f(1, 2, 3))
+	`, `2 1 0 3`)
+}
+
 func TestRange(t *testing.T) {
 	RunSubO(t, "end", `
 		for i in range(3) {
