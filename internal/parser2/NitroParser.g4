@@ -26,6 +26,8 @@ stmt: assignment_stmt      # stmt_assignment
     | throw_stmt           # stmt_throw
     | defer_stmt           # stmt_defer
     | yield_stmt           # stmt_yield
+    | break_stmt           # stmt_break
+    | continue_stmt        # stmt_continue
     ;
 
 assignment_stmt: assignment_lvalues '=' rvalues;
@@ -56,6 +58,10 @@ throw_stmt: THROW expr;
 defer_stmt: DEFER primary_expr;
 
 yield_stmt: YIELD rvalues;
+
+break_stmt: BREAK;
+
+continue_stmt: CONTINUE;
 
 // Expressions
 
@@ -142,6 +148,7 @@ id_or_keyword:
       AND |
       BREAK | 
       CATCH |
+      CONTINUE |
       DEFER |
       ELSE |
       FALSE |

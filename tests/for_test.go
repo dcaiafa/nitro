@@ -3,7 +3,7 @@ package tests
 import "testing"
 
 func TestForStmt(t *testing.T) {
-	RunSubO(t, "for_iter", `
+	RunSubO(t, "iter", `
 		for x in range(1,4) {
     	print(x)
 		}
@@ -11,6 +11,33 @@ func TestForStmt(t *testing.T) {
 1
 2
 3
+`)
+
+	RunSubO(t, "break", `
+		for x in range(1,10) {
+			if x == 5 {
+				break
+			}
+    	print(x)
+		}
+	`, `
+1
+2
+3
+4
+`)
+
+	RunSubO(t, "continue", `
+		for x in range(1,5) {
+			if x == 2 {
+				continue
+			}
+    	print(x)
+		}
+	`, `
+1
+3
+4
 `)
 
 	RunSubO(t, "for_array", `

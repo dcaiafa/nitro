@@ -4,6 +4,7 @@ import Strings;
 AND: 'and';
 BREAK: 'break';
 CATCH: 'catch';
+CONTINUE: 'continue';
 DEFER: 'defer';
 ELSE: 'else';
 FALSE: 'false';

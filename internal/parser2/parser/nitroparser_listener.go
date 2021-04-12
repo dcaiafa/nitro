@@ -59,6 +59,12 @@ type NitroParserListener interface {
 	// EnterStmt_yield is called when entering the stmt_yield production.
 	EnterStmt_yield(c *Stmt_yieldContext)
 
+	// EnterStmt_break is called when entering the stmt_break production.
+	EnterStmt_break(c *Stmt_breakContext)
+
+	// EnterStmt_continue is called when entering the stmt_continue production.
+	EnterStmt_continue(c *Stmt_continueContext)
+
 	// EnterAssignment_stmt is called when entering the assignment_stmt production.
 	EnterAssignment_stmt(c *Assignment_stmtContext)
 
@@ -112,6 +118,12 @@ type NitroParserListener interface {
 
 	// EnterYield_stmt is called when entering the yield_stmt production.
 	EnterYield_stmt(c *Yield_stmtContext)
+
+	// EnterBreak_stmt is called when entering the break_stmt production.
+	EnterBreak_stmt(c *Break_stmtContext)
+
+	// EnterContinue_stmt is called when entering the continue_stmt production.
+	EnterContinue_stmt(c *Continue_stmtContext)
 
 	// EnterExpr is called when entering the expr production.
 	EnterExpr(c *ExprContext)
@@ -290,6 +302,12 @@ type NitroParserListener interface {
 	// ExitStmt_yield is called when exiting the stmt_yield production.
 	ExitStmt_yield(c *Stmt_yieldContext)
 
+	// ExitStmt_break is called when exiting the stmt_break production.
+	ExitStmt_break(c *Stmt_breakContext)
+
+	// ExitStmt_continue is called when exiting the stmt_continue production.
+	ExitStmt_continue(c *Stmt_continueContext)
+
 	// ExitAssignment_stmt is called when exiting the assignment_stmt production.
 	ExitAssignment_stmt(c *Assignment_stmtContext)
 
@@ -343,6 +361,12 @@ type NitroParserListener interface {
 
 	// ExitYield_stmt is called when exiting the yield_stmt production.
 	ExitYield_stmt(c *Yield_stmtContext)
+
+	// ExitBreak_stmt is called when exiting the break_stmt production.
+	ExitBreak_stmt(c *Break_stmtContext)
+
+	// ExitContinue_stmt is called when exiting the continue_stmt production.
+	ExitContinue_stmt(c *Continue_stmtContext)
 
 	// ExitExpr is called when exiting the expr production.
 	ExitExpr(c *ExprContext)

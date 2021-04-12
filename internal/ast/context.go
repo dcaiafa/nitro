@@ -82,6 +82,17 @@ func (c *Context) CurrentFunc() *Func {
 	return nil
 }
 
+func (c *Context) Len() int {
+	return len(c.stack)
+}
+
+func (c *Context) Peek(n int) AST {
+	if n >= len(c.stack) {
+		return nil
+	}
+	return c.stack[len(c.stack)-n-1]
+}
+
 func (c *Context) Main() *Main {
 	for i := len(c.stack) - 1; i >= 0; i-- {
 		ast := c.stack[i]

@@ -123,6 +123,18 @@ func (s *BaseNitroParserListener) EnterStmt_yield(ctx *Stmt_yieldContext) {}
 // ExitStmt_yield is called when production stmt_yield is exited.
 func (s *BaseNitroParserListener) ExitStmt_yield(ctx *Stmt_yieldContext) {}
 
+// EnterStmt_break is called when production stmt_break is entered.
+func (s *BaseNitroParserListener) EnterStmt_break(ctx *Stmt_breakContext) {}
+
+// ExitStmt_break is called when production stmt_break is exited.
+func (s *BaseNitroParserListener) ExitStmt_break(ctx *Stmt_breakContext) {}
+
+// EnterStmt_continue is called when production stmt_continue is entered.
+func (s *BaseNitroParserListener) EnterStmt_continue(ctx *Stmt_continueContext) {}
+
+// ExitStmt_continue is called when production stmt_continue is exited.
+func (s *BaseNitroParserListener) ExitStmt_continue(ctx *Stmt_continueContext) {}
+
 // EnterAssignment_stmt is called when production assignment_stmt is entered.
 func (s *BaseNitroParserListener) EnterAssignment_stmt(ctx *Assignment_stmtContext) {}
 
@@ -230,6 +242,18 @@ func (s *BaseNitroParserListener) EnterYield_stmt(ctx *Yield_stmtContext) {}
 
 // ExitYield_stmt is called when production yield_stmt is exited.
 func (s *BaseNitroParserListener) ExitYield_stmt(ctx *Yield_stmtContext) {}
+
+// EnterBreak_stmt is called when production break_stmt is entered.
+func (s *BaseNitroParserListener) EnterBreak_stmt(ctx *Break_stmtContext) {}
+
+// ExitBreak_stmt is called when production break_stmt is exited.
+func (s *BaseNitroParserListener) ExitBreak_stmt(ctx *Break_stmtContext) {}
+
+// EnterContinue_stmt is called when production continue_stmt is entered.
+func (s *BaseNitroParserListener) EnterContinue_stmt(ctx *Continue_stmtContext) {}
+
+// ExitContinue_stmt is called when production continue_stmt is exited.
+func (s *BaseNitroParserListener) ExitContinue_stmt(ctx *Continue_stmtContext) {}
 
 // EnterExpr is called when production expr is entered.
 func (s *BaseNitroParserListener) EnterExpr(ctx *ExprContext) {}

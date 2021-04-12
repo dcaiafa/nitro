@@ -205,17 +205,19 @@ func (l *listener) ExitStmt_list(ctx *parser.Stmt_listContext) {
 }
 
 // stmt: assignment_stmt      # stmt_assignment
-// | var_decl_stmt        # stmt_var_dec
-// | for_stmt             # stmt_for
-// | while_stmt           # stmt_while
-// | if_stmt              # stmt_if
-// | func_stmt            # stmt_func
-// | return_stmt          # stmt_return
-// | expr                 # stmt_expr
-// | try_catch_stmt       # stmt_try_catch
-// | throw_stmt           # stmt_throw
-// | defer_stmt           # stmt_defer
-// | yield_stmt           # stmt_yield
+//     | var_decl_stmt        # stmt_var_dec
+//     | for_stmt             # stmt_for
+//     | while_stmt           # stmt_while
+//     | if_stmt              # stmt_if
+//     | func_stmt            # stmt_func
+//     | return_stmt          # stmt_return
+//     | expr                 # stmt_expr
+//     | try_catch_stmt       # stmt_try_catch
+//     | throw_stmt           # stmt_throw
+//     | defer_stmt           # stmt_defer
+//     | yield_stmt           # stmt_yield
+//     | break_stmt           # stmt_break
+//     | continue_stmt        # stmt_continue
 // ;
 
 func (l *listener) ExitStmt_assignment(ctx *parser.Stmt_assignmentContext) {
@@ -280,6 +282,14 @@ func (l *listener) ExitStmt_defer(ctx *parser.Stmt_deferContext) {
 
 func (l *listener) ExitStmt_yield(ctx *parser.Stmt_yieldContext) {
 	l.put(ctx, l.takeAST(ctx.Yield_stmt()))
+}
+
+func (l *listener) ExitStmt_break(ctx *parser.Stmt_breakContext) {
+	l.put(ctx, l.takeAST(ctx.Break_stmt()))
+}
+
+func (l *listener) ExitStmt_continue(ctx *parser.Stmt_continueContext) {
+	l.put(ctx, l.takeAST(ctx.Continue_stmt()))
 }
 
 // assignment_stmt: assignment_lvalues '=' rvalues;
@@ -468,6 +478,16 @@ func (l *listener) ExitYield_stmt(ctx *parser.Yield_stmtContext) {
 	l.put(ctx, &ast.YieldStmt{
 		Values: l.takeExprs(ctx.Rvalues()),
 	})
+}
+
+// break_stmt: BREAK;
+func (l *listener) ExitBreak_stmt(ctx *parser.Break_stmtContext) {
+	l.put(ctx, &ast.BreakStmt{})
+}
+
+// continue_stmt: CONTINUE;
+func (l *listener) ExitContinue_stmt(ctx *parser.Continue_stmtContext) {
+	l.put(ctx, &ast.ContinueStmt{})
 }
 
 // expr: expr '?' expr ':' expr
