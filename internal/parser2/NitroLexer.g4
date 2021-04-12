@@ -2,6 +2,7 @@ lexer grammar NitroLexer;
 import Strings;
 
 AND: 'and';
+BREAK: 'break';
 CATCH: 'catch';
 DEFER: 'defer';
 ELSE: 'else';

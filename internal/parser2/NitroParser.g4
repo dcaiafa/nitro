@@ -14,18 +14,18 @@ stmts: stmt_list? ';'*;
 
 stmt_list: stmt (';'+ stmt)*;
 
-stmt: assignment_stmt
-    | var_decl_stmt
-    | for_stmt
-    | while_stmt
-    | if_stmt
-    | func_stmt
-    | return_stmt
-    | expr
-    | try_catch_stmt
-    | throw_stmt
-    | defer_stmt
-    | yield_stmt 
+stmt: assignment_stmt      # stmt_assignment
+    | var_decl_stmt        # stmt_var_dec
+    | for_stmt             # stmt_for
+    | while_stmt           # stmt_while
+    | if_stmt              # stmt_if
+    | func_stmt            # stmt_func
+    | return_stmt          # stmt_return
+    | expr                 # stmt_expr
+    | try_catch_stmt       # stmt_try_catch
+    | throw_stmt           # stmt_throw
+    | defer_stmt           # stmt_defer
+    | yield_stmt           # stmt_yield
     ;
 
 assignment_stmt: assignment_lvalues '=' rvalues;
@@ -140,6 +140,7 @@ id_or_keyword:
 
       // Keywords
       AND |
+      BREAK | 
       CATCH |
       DEFER |
       ELSE |

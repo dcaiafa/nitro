@@ -51,11 +51,77 @@ func (s *BaseNitroParserListener) EnterStmt_list(ctx *Stmt_listContext) {}
 // ExitStmt_list is called when production stmt_list is exited.
 func (s *BaseNitroParserListener) ExitStmt_list(ctx *Stmt_listContext) {}
 
-// EnterStmt is called when production stmt is entered.
-func (s *BaseNitroParserListener) EnterStmt(ctx *StmtContext) {}
+// EnterStmt_assignment is called when production stmt_assignment is entered.
+func (s *BaseNitroParserListener) EnterStmt_assignment(ctx *Stmt_assignmentContext) {}
 
-// ExitStmt is called when production stmt is exited.
-func (s *BaseNitroParserListener) ExitStmt(ctx *StmtContext) {}
+// ExitStmt_assignment is called when production stmt_assignment is exited.
+func (s *BaseNitroParserListener) ExitStmt_assignment(ctx *Stmt_assignmentContext) {}
+
+// EnterStmt_var_dec is called when production stmt_var_dec is entered.
+func (s *BaseNitroParserListener) EnterStmt_var_dec(ctx *Stmt_var_decContext) {}
+
+// ExitStmt_var_dec is called when production stmt_var_dec is exited.
+func (s *BaseNitroParserListener) ExitStmt_var_dec(ctx *Stmt_var_decContext) {}
+
+// EnterStmt_for is called when production stmt_for is entered.
+func (s *BaseNitroParserListener) EnterStmt_for(ctx *Stmt_forContext) {}
+
+// ExitStmt_for is called when production stmt_for is exited.
+func (s *BaseNitroParserListener) ExitStmt_for(ctx *Stmt_forContext) {}
+
+// EnterStmt_while is called when production stmt_while is entered.
+func (s *BaseNitroParserListener) EnterStmt_while(ctx *Stmt_whileContext) {}
+
+// ExitStmt_while is called when production stmt_while is exited.
+func (s *BaseNitroParserListener) ExitStmt_while(ctx *Stmt_whileContext) {}
+
+// EnterStmt_if is called when production stmt_if is entered.
+func (s *BaseNitroParserListener) EnterStmt_if(ctx *Stmt_ifContext) {}
+
+// ExitStmt_if is called when production stmt_if is exited.
+func (s *BaseNitroParserListener) ExitStmt_if(ctx *Stmt_ifContext) {}
+
+// EnterStmt_func is called when production stmt_func is entered.
+func (s *BaseNitroParserListener) EnterStmt_func(ctx *Stmt_funcContext) {}
+
+// ExitStmt_func is called when production stmt_func is exited.
+func (s *BaseNitroParserListener) ExitStmt_func(ctx *Stmt_funcContext) {}
+
+// EnterStmt_return is called when production stmt_return is entered.
+func (s *BaseNitroParserListener) EnterStmt_return(ctx *Stmt_returnContext) {}
+
+// ExitStmt_return is called when production stmt_return is exited.
+func (s *BaseNitroParserListener) ExitStmt_return(ctx *Stmt_returnContext) {}
+
+// EnterStmt_expr is called when production stmt_expr is entered.
+func (s *BaseNitroParserListener) EnterStmt_expr(ctx *Stmt_exprContext) {}
+
+// ExitStmt_expr is called when production stmt_expr is exited.
+func (s *BaseNitroParserListener) ExitStmt_expr(ctx *Stmt_exprContext) {}
+
+// EnterStmt_try_catch is called when production stmt_try_catch is entered.
+func (s *BaseNitroParserListener) EnterStmt_try_catch(ctx *Stmt_try_catchContext) {}
+
+// ExitStmt_try_catch is called when production stmt_try_catch is exited.
+func (s *BaseNitroParserListener) ExitStmt_try_catch(ctx *Stmt_try_catchContext) {}
+
+// EnterStmt_throw is called when production stmt_throw is entered.
+func (s *BaseNitroParserListener) EnterStmt_throw(ctx *Stmt_throwContext) {}
+
+// ExitStmt_throw is called when production stmt_throw is exited.
+func (s *BaseNitroParserListener) ExitStmt_throw(ctx *Stmt_throwContext) {}
+
+// EnterStmt_defer is called when production stmt_defer is entered.
+func (s *BaseNitroParserListener) EnterStmt_defer(ctx *Stmt_deferContext) {}
+
+// ExitStmt_defer is called when production stmt_defer is exited.
+func (s *BaseNitroParserListener) ExitStmt_defer(ctx *Stmt_deferContext) {}
+
+// EnterStmt_yield is called when production stmt_yield is entered.
+func (s *BaseNitroParserListener) EnterStmt_yield(ctx *Stmt_yieldContext) {}
+
+// ExitStmt_yield is called when production stmt_yield is exited.
+func (s *BaseNitroParserListener) ExitStmt_yield(ctx *Stmt_yieldContext) {}
 
 // EnterAssignment_stmt is called when production assignment_stmt is entered.
 func (s *BaseNitroParserListener) EnterAssignment_stmt(ctx *Assignment_stmtContext) {}

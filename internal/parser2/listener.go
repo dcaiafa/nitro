@@ -204,54 +204,82 @@ func (l *listener) ExitStmt_list(ctx *parser.Stmt_listContext) {
 	l.put(ctx, block)
 }
 
-// stmt: assignment_stmt ';'
-//     | var_decl_stmt ';'
-//     | for_stmt ';'
-//     | while_stmt ';'
-//     | if_stmt ';'
-//     | func_stmt ';'
-//     | return_stmt ';'
-//     | expr ';'
-//     | try_catch_stmt ';'
-//     | throw_stmt ';'
-//     | defer_stmt ';'
-//     | yield_stmt
-//     | ';'
-//     ;
-func (l *listener) ExitStmt(ctx *parser.StmtContext) {
-	var s ast.AST
-	if s = l.takeAST(ctx.Assignment_stmt()); s != nil {
-	} else if s = l.takeAST(ctx.Var_decl_stmt()); s != nil {
-	} else if s = l.takeAST(ctx.For_stmt()); s != nil {
-	} else if s = l.takeAST(ctx.While_stmt()); s != nil {
-	} else if s = l.takeAST(ctx.If_stmt()); s != nil {
-	} else if s = l.takeAST(ctx.Func_stmt()); s != nil {
-	} else if s = l.takeAST(ctx.Return_stmt()); s != nil {
-	} else if s = l.takeAST(ctx.Try_catch_stmt()); s != nil {
-	} else if s = l.takeAST(ctx.Throw_stmt()); s != nil {
-	} else if s = l.takeAST(ctx.Defer_stmt()); s != nil {
-	} else if s = l.takeAST(ctx.Yield_stmt()); s != nil {
-	} else if e := l.takeExpr(ctx.Expr()); e != nil {
-		if objLit, ok := e.(*ast.ObjectLiteral); ok {
-			emit := token.Token{
-				Pos:  objLit.Pos(),
-				Type: token.String,
-				Str:  "emit",
-			}
-			emitRef := &ast.SimpleRef{ID: emit}
-			emitRef.SetPos(objLit.Pos())
-			e = &ast.FuncCallExpr{
-				Target: emitRef,
-				Args:   ast.Exprs{objLit},
-				RetN:   0,
-			}
-			e.SetPos(objLit.Pos())
+// stmt: assignment_stmt      # stmt_assignment
+// | var_decl_stmt        # stmt_var_dec
+// | for_stmt             # stmt_for
+// | while_stmt           # stmt_while
+// | if_stmt              # stmt_if
+// | func_stmt            # stmt_func
+// | return_stmt          # stmt_return
+// | expr                 # stmt_expr
+// | try_catch_stmt       # stmt_try_catch
+// | throw_stmt           # stmt_throw
+// | defer_stmt           # stmt_defer
+// | yield_stmt           # stmt_yield
+// ;
+
+func (l *listener) ExitStmt_assignment(ctx *parser.Stmt_assignmentContext) {
+	l.put(ctx, l.takeAST(ctx.Assignment_stmt()))
+}
+
+func (l *listener) ExitStmt_var_dec(ctx *parser.Stmt_var_decContext) {
+	l.put(ctx, l.takeAST(ctx.Var_decl_stmt()))
+}
+
+func (l *listener) ExitStmt_for(ctx *parser.Stmt_forContext) {
+	l.put(ctx, l.takeAST(ctx.For_stmt()))
+}
+
+func (l *listener) ExitStmt_while(ctx *parser.Stmt_whileContext) {
+	l.put(ctx, l.takeAST(ctx.While_stmt()))
+}
+
+func (l *listener) ExitStmt_if(ctx *parser.Stmt_ifContext) {
+	l.put(ctx, l.takeAST(ctx.If_stmt()))
+}
+
+func (l *listener) ExitStmt_func(ctx *parser.Stmt_funcContext) {
+	l.put(ctx, l.takeAST(ctx.Func_stmt()))
+}
+
+func (l *listener) ExitStmt_return(ctx *parser.Stmt_returnContext) {
+	l.put(ctx, l.takeAST(ctx.Return_stmt()))
+}
+
+func (l *listener) ExitStmt_expr(ctx *parser.Stmt_exprContext) {
+	e := l.takeExpr(ctx.Expr())
+	if objLit, ok := e.(*ast.ObjectLiteral); ok {
+		emit := token.Token{
+			Pos:  objLit.Pos(),
+			Type: token.String,
+			Str:  "emit",
 		}
-		s = &ast.ExprStmt{Expr: e}
+		emitRef := &ast.SimpleRef{ID: emit}
+		emitRef.SetPos(objLit.Pos())
+		e = &ast.FuncCallExpr{
+			Target: emitRef,
+			Args:   ast.Exprs{objLit},
+			RetN:   0,
+		}
+		e.SetPos(objLit.Pos())
 	}
-	if s != nil {
-		l.put(ctx, s)
-	}
+	l.put(ctx, &ast.ExprStmt{Expr: e})
+}
+
+func (l *listener) ExitStmt_try_catch(ctx *parser.Stmt_try_catchContext) {
+	l.put(ctx, l.takeAST(ctx.Try_catch_stmt()))
+}
+
+func (l *listener) ExitStmt_throw(ctx *parser.Stmt_throwContext) {
+	l.put(ctx, l.takeAST(ctx.Throw_stmt()))
+}
+
+func (l *listener) ExitStmt_defer(ctx *parser.Stmt_deferContext) {
+	l.put(ctx, l.takeAST(ctx.Defer_stmt()))
+}
+
+func (l *listener) ExitStmt_yield(ctx *parser.Stmt_yieldContext) {
+	l.put(ctx, l.takeAST(ctx.Yield_stmt()))
 }
 
 // assignment_stmt: assignment_lvalues '=' rvalues;

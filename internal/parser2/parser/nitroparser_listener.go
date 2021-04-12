@@ -23,8 +23,41 @@ type NitroParserListener interface {
 	// EnterStmt_list is called when entering the stmt_list production.
 	EnterStmt_list(c *Stmt_listContext)
 
-	// EnterStmt is called when entering the stmt production.
-	EnterStmt(c *StmtContext)
+	// EnterStmt_assignment is called when entering the stmt_assignment production.
+	EnterStmt_assignment(c *Stmt_assignmentContext)
+
+	// EnterStmt_var_dec is called when entering the stmt_var_dec production.
+	EnterStmt_var_dec(c *Stmt_var_decContext)
+
+	// EnterStmt_for is called when entering the stmt_for production.
+	EnterStmt_for(c *Stmt_forContext)
+
+	// EnterStmt_while is called when entering the stmt_while production.
+	EnterStmt_while(c *Stmt_whileContext)
+
+	// EnterStmt_if is called when entering the stmt_if production.
+	EnterStmt_if(c *Stmt_ifContext)
+
+	// EnterStmt_func is called when entering the stmt_func production.
+	EnterStmt_func(c *Stmt_funcContext)
+
+	// EnterStmt_return is called when entering the stmt_return production.
+	EnterStmt_return(c *Stmt_returnContext)
+
+	// EnterStmt_expr is called when entering the stmt_expr production.
+	EnterStmt_expr(c *Stmt_exprContext)
+
+	// EnterStmt_try_catch is called when entering the stmt_try_catch production.
+	EnterStmt_try_catch(c *Stmt_try_catchContext)
+
+	// EnterStmt_throw is called when entering the stmt_throw production.
+	EnterStmt_throw(c *Stmt_throwContext)
+
+	// EnterStmt_defer is called when entering the stmt_defer production.
+	EnterStmt_defer(c *Stmt_deferContext)
+
+	// EnterStmt_yield is called when entering the stmt_yield production.
+	EnterStmt_yield(c *Stmt_yieldContext)
 
 	// EnterAssignment_stmt is called when entering the assignment_stmt production.
 	EnterAssignment_stmt(c *Assignment_stmtContext)
@@ -221,8 +254,41 @@ type NitroParserListener interface {
 	// ExitStmt_list is called when exiting the stmt_list production.
 	ExitStmt_list(c *Stmt_listContext)
 
-	// ExitStmt is called when exiting the stmt production.
-	ExitStmt(c *StmtContext)
+	// ExitStmt_assignment is called when exiting the stmt_assignment production.
+	ExitStmt_assignment(c *Stmt_assignmentContext)
+
+	// ExitStmt_var_dec is called when exiting the stmt_var_dec production.
+	ExitStmt_var_dec(c *Stmt_var_decContext)
+
+	// ExitStmt_for is called when exiting the stmt_for production.
+	ExitStmt_for(c *Stmt_forContext)
+
+	// ExitStmt_while is called when exiting the stmt_while production.
+	ExitStmt_while(c *Stmt_whileContext)
+
+	// ExitStmt_if is called when exiting the stmt_if production.
+	ExitStmt_if(c *Stmt_ifContext)
+
+	// ExitStmt_func is called when exiting the stmt_func production.
+	ExitStmt_func(c *Stmt_funcContext)
+
+	// ExitStmt_return is called when exiting the stmt_return production.
+	ExitStmt_return(c *Stmt_returnContext)
+
+	// ExitStmt_expr is called when exiting the stmt_expr production.
+	ExitStmt_expr(c *Stmt_exprContext)
+
+	// ExitStmt_try_catch is called when exiting the stmt_try_catch production.
+	ExitStmt_try_catch(c *Stmt_try_catchContext)
+
+	// ExitStmt_throw is called when exiting the stmt_throw production.
+	ExitStmt_throw(c *Stmt_throwContext)
+
+	// ExitStmt_defer is called when exiting the stmt_defer production.
+	ExitStmt_defer(c *Stmt_deferContext)
+
+	// ExitStmt_yield is called when exiting the stmt_yield production.
+	ExitStmt_yield(c *Stmt_yieldContext)
 
 	// ExitAssignment_stmt is called when exiting the assignment_stmt production.
 	ExitAssignment_stmt(c *Assignment_stmtContext)
