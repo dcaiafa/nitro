@@ -9,6 +9,7 @@ import (
 var errNotEnoughArgs = errors.New("not enough arguments")
 
 func RegisterAll(c *nitro.Compiler) {
+	c.AddExternalFn("avg", avg)
 	c.AddExternalFn("close", close_)
 	c.AddExternalFn("exec", exec)
 	c.AddExternalFn("fcopy", fcopy)
@@ -28,6 +29,7 @@ func RegisterAll(c *nitro.Compiler) {
 	c.AddExternalFn("in", in)
 	c.AddExternalFn("lines", lines)
 	c.AddExternalFn("map", fnMap)
+	c.AddExternalFn("mapreduce", mapreduce)
 	c.AddExternalFn("match", fnMatch)
 	c.AddExternalFn("open", open)
 	c.AddExternalFn("out", out)
@@ -46,5 +48,4 @@ func RegisterAll(c *nitro.Compiler) {
 	c.AddExternalFn("tojson", tojson)
 	c.AddExternalFn("trim", trim)
 	c.AddExternalFn("unique", unique)
-	c.AddExternalFn("mapreduce", mapreduce)
 }

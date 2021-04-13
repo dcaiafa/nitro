@@ -22,6 +22,19 @@ func getIntArg(args []runtime.Value, ndx int) (int64, error) {
 	return v.Int64(), nil
 }
 
+func getBoolArg(args []runtime.Value, ndx int) (bool, error) {
+	if ndx >= len(args) {
+		return false, errNotEnoughArgs
+	}
+	v, ok := args[ndx].(runtime.Bool)
+	if !ok {
+		return false, fmt.Errorf(
+			"expected argument %d to be Bool, but it is %v",
+			ndx+1, args[ndx].Type())
+	}
+	return v.Bool(), nil
+}
+
 func getStringArg(args []runtime.Value, ndx int) (string, error) {
 	if ndx >= len(args) {
 		return "", errNotEnoughArgs
