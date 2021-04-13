@@ -28,12 +28,14 @@ func (fs *nativeFileSystem) ReadFile(name string) ([]byte, error) {
 type Compiler struct {
 	fileSystem  FileSystem
 	diag        bool
+	main        *ast.Main
 	externalFns map[string]runtime.ExternFn
 }
 
 func NewCompiler(fileSystem FileSystem) *Compiler {
 	c := &Compiler{
 		fileSystem:  fileSystem,
+		main:        &ast.Main{},
 		externalFns: make(map[string]runtime.ExternFn),
 	}
 	std.Register(c)
@@ -45,7 +47,7 @@ func (c *Compiler) SetDiag(diag bool) {
 }
 
 func (c *Compiler) AddExternalFn(name string, fn runtime.ExternFn) {
-	c.externalFns[name] = fn
+	c.main.AddExternalFn(name, fn)
 }
 
 func (c *Compiler) Compile(
@@ -86,26 +88,21 @@ func (c *Compiler) compile(
 	module *ast.Module,
 	errLoggerWrapper *errlogger.ErrLoggerWrapper,
 ) (*runtime.Program, error) {
-	main := &ast.Main{}
-	main.AddModule(module)
-
-	for name, extFn := range c.externalFns {
-		main.AddExternalFn(name, extFn)
-	}
+	c.main.AddModule(module)
 
 	ctx := ast.NewContext(errLoggerWrapper)
 
-	main.RunPass(ctx, ast.Rewrite)
+	c.main.RunPass(ctx, ast.Rewrite)
 	if errLoggerWrapper.Error() != nil {
 		return nil, errLoggerWrapper.Error()
 	}
 
-	main.RunPass(ctx, ast.Check)
+	c.main.RunPass(ctx, ast.Check)
 	if errLoggerWrapper.Error() != nil {
 		return nil, errLoggerWrapper.Error()
 	}
 
-	main.RunPass(ctx, ast.Emit)
+	c.main.RunPass(ctx, ast.Emit)
 	if errLoggerWrapper.Error() != nil {
 		return nil, errLoggerWrapper.Error()
 	}

@@ -39,7 +39,7 @@ func NewEmitter() *Emitter {
 	}
 }
 
-func (e *Emitter) AddParam(
+func (e *Emitter) AddGlobalParam(
 	name string,
 	global int,
 	typ symbol.Type,
