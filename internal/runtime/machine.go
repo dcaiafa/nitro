@@ -308,15 +308,36 @@ func (m *Machine) resume() (ret []Value, err error) {
 			m.discardN(int(instr.operand1))
 
 		case OpCall:
-			expRetN := int(instr.operand2)
-			argN := int(instr.operand1)
-			args := m.popN(argN)
+			nret := int(instr.operand2)
+			narg := int(instr.operand1 & 0x7fffffff)
+			args := m.popN(narg)
+
+			expand := (instr.operand1 & 0x80000000) != 0
+			if expand {
+				if len(args) == 0 {
+					return nil, errors.New("OpCall: expand bit is set, but no args")
+				}
+				lastArg := args[len(args)-1]
+				args = args[:len(args)-1]
+				if lastArg != nil {
+					arr, ok := lastArg.(*Array)
+					if !ok {
+						return nil, fmt.Errorf(
+							"cannot expand %q argument",
+							TypeName(lastArg))
+					}
+					for i := 0; i < arr.Len(); i++ {
+						args = append(args, arr.Get(i))
+					}
+				}
+			}
+
 			callable := m.pop()
-			rets, err := m.Call(callable, args, expRetN)
+			rets, err := m.Call(callable, args, nret)
 			if err != nil {
 				return nil, err
 			}
-			m.frame.Stack = append(m.frame.Stack, rets[:expRetN]...)
+			m.frame.Stack = append(m.frame.Stack, rets[:nret]...)
 
 		case OpNil:
 			m.push(nil)

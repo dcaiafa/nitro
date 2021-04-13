@@ -88,17 +88,17 @@ unary_expr: op=NOT unary_expr
           | primary_expr
           ;
 
-primary_expr: ID                                       # primary_expr_simple_ref
-            | primary_expr '.' ID                      # primary_expr_member_access
-            | primary_expr '[' expr ']'                # primary_expr_index
-            | primary_expr '[' b=expr? ':' e=expr? ']' # primary_expr_slice
-            | primary_expr '(' arg_list? ')'           # primary_expr_call
-            | lambda_expr                              # primary_expr_lambda
-            | object_literal                           # primary_expr_object
-            | array_literal                            # primary_expr_array
-            | simple_literal                           # primary_expr_literal
-            | REGEX                                    # primary_expr_regex
-            | '(' expr ')'                             # primary_expr_parenthesis
+primary_expr: ID                                         # primary_expr_simple_ref
+            | primary_expr '.' ID                        # primary_expr_member_access
+            | primary_expr '[' expr ']'                  # primary_expr_index
+            | primary_expr '[' b=expr? ':' e=expr? ']'   # primary_expr_slice
+            | primary_expr '(' (arg_list '...'? )? ')'   # primary_expr_call
+            | lambda_expr                                # primary_expr_lambda
+            | object_literal                             # primary_expr_object
+            | array_literal                              # primary_expr_array
+            | simple_literal                             # primary_expr_literal
+            | REGEX                                      # primary_expr_regex
+            | '(' expr ')'                               # primary_expr_parenthesis
             ;
 
 simple_literal: val=(STRING | NUMBER | CHAR | TRUE | FALSE | NIL);

@@ -7,6 +7,7 @@ type FuncCallExpr struct {
 	Target Expr
 	Args   Exprs
 	RetN   int
+	Expand bool
 }
 
 func (c *FuncCallExpr) isExpr() {}
@@ -18,6 +19,10 @@ func (c *FuncCallExpr) RunPass(ctx *Context, pass Pass) {
 	ctx.Pop()
 
 	if pass == Emit {
-		ctx.Emitter().Emit(c.Pos(), runtime.OpCall, uint32(len(c.Args)), uint16(c.RetN))
+		operand1 := uint32(len(c.Args))
+		if c.Expand {
+			operand1 |= 0x80000000
+		}
+		ctx.Emitter().Emit(c.Pos(), runtime.OpCall, operand1, uint16(c.RetN))
 	}
 }

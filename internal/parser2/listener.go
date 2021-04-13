@@ -690,6 +690,7 @@ func (l *listener) ExitPrimary_expr_call(ctx *parser.Primary_expr_callContext) {
 		Target: l.takeExpr(ctx.Primary_expr()),
 		Args:   l.takeExprs(ctx.Arg_list()),
 		RetN:   1,
+		Expand: ctx.EXPAND() != nil,
 	})
 }
 
