@@ -10,7 +10,7 @@ module: meta_directive* stmts;
 
 // Meta
 
-meta_directive: META ID ID ('=' simple_literal)? ('[' meta_attribs ']')? ';';
+meta_directive: META ID ID ('=' expr)? ('[' meta_attribs ']')? ';';
 meta_attribs: meta_attrib ((','|';') meta_attrib)* (','|';')?;
 meta_attrib: id_or_keyword ('=' simple_literal)?;
 

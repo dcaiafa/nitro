@@ -208,8 +208,8 @@ func (l *listener) ExitMeta_directive(ctx *parser.Meta_directiveContext) {
 		Name: ctx.ID(1).GetText(),
 	}
 
-	if ctx.Simple_literal() != nil {
-		param.Default = l.takeExpr(ctx.Simple_literal())
+	if ctx.Expr() != nil {
+		param.Default = l.takeExpr(ctx.Expr())
 	}
 
 	l.put(ctx, param)

@@ -1,7 +1,7 @@
 package meta
 
 type Metadata struct {
-	Params []Param
+	Params []*Param
 }
 
 type Param struct {

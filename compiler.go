@@ -107,5 +107,8 @@ func (c *Compiler) compile(
 		return nil, errLoggerWrapper.Error()
 	}
 
-	return ctx.Emitter().ToProgram(), nil
+	program := ctx.Emitter().ToProgram()
+	program.Metadata = c.main.Metadata()
+
+	return program, nil
 }

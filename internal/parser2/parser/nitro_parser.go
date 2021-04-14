@@ -107,7 +107,7 @@ var parserATN = []uint16{
 	2, 2, 2, 122, 120, 3, 2, 2, 2, 122, 123, 3, 2, 2, 2, 123, 125, 3, 2, 2,
 	2, 124, 122, 3, 2, 2, 2, 125, 126, 5, 14, 8, 2, 126, 7, 3, 2, 2, 2, 127,
 	128, 7, 13, 2, 2, 128, 129, 7, 52, 2, 2, 129, 132, 7, 52, 2, 2, 130, 131,
-	7, 24, 2, 2, 131, 133, 5, 70, 36, 2, 132, 130, 3, 2, 2, 2, 132, 133, 3,
+	7, 24, 2, 2, 131, 133, 5, 60, 31, 2, 132, 130, 3, 2, 2, 2, 132, 133, 3,
 	2, 2, 2, 133, 138, 3, 2, 2, 2, 134, 135, 7, 43, 2, 2, 135, 136, 5, 10,
 	6, 2, 136, 137, 7, 44, 2, 2, 137, 139, 3, 2, 2, 2, 138, 134, 3, 2, 2, 2,
 	138, 139, 3, 2, 2, 2, 139, 140, 3, 2, 2, 2, 140, 141, 7, 37, 2, 2, 141,
@@ -881,14 +881,14 @@ func (s *Meta_directiveContext) ASSIGN() antlr.TerminalNode {
 	return s.GetToken(NitroParserASSIGN, 0)
 }
 
-func (s *Meta_directiveContext) Simple_literal() ISimple_literalContext {
-	var t = s.GetTypedRuleContext(reflect.TypeOf((*ISimple_literalContext)(nil)).Elem(), 0)
+func (s *Meta_directiveContext) Expr() IExprContext {
+	var t = s.GetTypedRuleContext(reflect.TypeOf((*IExprContext)(nil)).Elem(), 0)
 
 	if t == nil {
 		return nil
 	}
 
-	return t.(ISimple_literalContext)
+	return t.(IExprContext)
 }
 
 func (s *Meta_directiveContext) OBRACKET() antlr.TerminalNode {
@@ -974,7 +974,7 @@ func (p *NitroParser) Meta_directive() (localctx IMeta_directiveContext) {
 		}
 		{
 			p.SetState(129)
-			p.Simple_literal()
+			p.expr(0)
 		}
 
 	}

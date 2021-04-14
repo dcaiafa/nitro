@@ -15,6 +15,7 @@ type Main struct {
 
 	rootScope *symbol.Scope
 	globals   int
+	metadata  *meta.Metadata
 }
 
 func (m *Main) AddExternalFn(name string, extFn runtime.ExternFn) {
@@ -34,6 +35,7 @@ func (m *Main) AddGlobalParam(ctx *Context, param *meta.Param, pos token.Pos) sy
 		return nil
 	}
 	ctx.Emitter().AddGlobalParam(param.Name, g.GlobalNdx)
+	m.metadata.Params = append(m.metadata.Params, param)
 	return g
 }
 
@@ -56,6 +58,7 @@ func (m *Main) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Check:
 		m.rootScope = symbol.NewScope()
+		m.metadata = new(meta.Metadata)
 
 	case Emit:
 		ctx.Emitter().SetGlobalCount(m.globals)
@@ -65,4 +68,8 @@ func (m *Main) RunPass(ctx *Context, pass Pass) {
 	m.externalFns.RunPass(ctx, pass)
 	m.modules.RunPass(ctx, pass)
 	ctx.Pop()
+}
+
+func (m *Main) Metadata() *meta.Metadata {
+	return m.metadata
 }
