@@ -118,6 +118,22 @@ func fexists(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN i
 	return []nitro.Value{nitro.NewBool(true)}, nil
 }
 
+func fisdir(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+	path, err := getStringArg(args, 0)
+	if err != nil {
+		return nil, err
+	}
+	fi, err := os.Lstat(path)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return []nitro.Value{nitro.NewBool(false)}, nil
+		}
+		return nil, err
+	}
+
+	return []nitro.Value{nitro.NewBool(fi.IsDir())}, nil
+}
+
 func flist(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
 	path, err := getStringArg(args, 0)
 	if err != nil {

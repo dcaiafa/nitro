@@ -17,7 +17,7 @@ func getIntArg(args []runtime.Value, ndx int) (int64, error) {
 	if !ok {
 		return 0, fmt.Errorf(
 			"expected argument %d to be Int, but it is %v",
-			ndx+1, args[ndx].Type())
+			ndx+1, nitro.TypeName(args[ndx]))
 	}
 	return v.Int64(), nil
 }
@@ -30,7 +30,7 @@ func getBoolArg(args []runtime.Value, ndx int) (bool, error) {
 	if !ok {
 		return false, fmt.Errorf(
 			"expected argument %d to be Bool, but it is %v",
-			ndx+1, args[ndx].Type())
+			ndx+1, nitro.TypeName(args[ndx]))
 	}
 	return v.Bool(), nil
 }
@@ -43,7 +43,7 @@ func getStringArg(args []runtime.Value, ndx int) (string, error) {
 	if !ok {
 		return "", fmt.Errorf(
 			"expected argument %d to be String, but it is %v",
-			ndx+1, args[ndx].Type())
+			ndx+1, nitro.TypeName(args[ndx]))
 	}
 	return v.String(), nil
 }
@@ -56,7 +56,7 @@ func getObjectArg(args []runtime.Value, ndx int) (*nitro.Object, error) {
 	if !ok {
 		return nil, fmt.Errorf(
 			"expected argument %d to be Object, but it is %v",
-			ndx+1, args[ndx].Type())
+			ndx+1, nitro.TypeName(args[ndx]))
 	}
 	return v, nil
 }
@@ -69,7 +69,7 @@ func getRegexArg(args []runtime.Value, ndx int) (*nitro.Regex, error) {
 	if !ok {
 		return nil, fmt.Errorf(
 			"expected argument %d to be Regex, but it is %v",
-			ndx+1, args[ndx].Type())
+			ndx+1, nitro.TypeName(args[ndx]))
 	}
 	return v, nil
 }
