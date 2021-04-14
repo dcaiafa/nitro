@@ -10,6 +10,7 @@ import (
 
 	"github.com/dcaiafa/nitro"
 	"github.com/dcaiafa/nitro/internal/errlogger"
+	"github.com/dcaiafa/nitro/internal/runtime"
 )
 
 type MemoryFileSystem map[string]string
@@ -106,6 +107,28 @@ func RunSubO(t *testing.T, name string, prog string, expectedOutput string) {
 	t.Run(name, func(t *testing.T) {
 		t.Helper()
 		RunO(t, prog, expectedOutput)
+	})
+}
+
+func RunPO(t *testing.T, prog string, params map[string]runtime.Value, expectedOutput string) {
+	t.Helper()
+
+	expectedOutput = strings.Trim(expectedOutput, "\r\n\t ")
+
+	output, err := run(prog, params)
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
+
+	if output != expectedOutput {
+		t.Fatalf("Expected output:\n%v\nActual:\n%v", expectedOutput, output)
+	}
+}
+
+func RunSubPO(t *testing.T, name string, prog string, params map[string]runtime.Value, expectedOutput string) {
+	t.Run(name, func(t *testing.T) {
+		t.Helper()
+		RunPO(t, prog, params, expectedOutput)
 	})
 }
 

@@ -6,7 +6,13 @@ short_prog: expr ';'? EOF;
 
 start: module EOF;
 
-module: stmts;
+module: meta_directive* stmts;
+
+// Meta
+
+meta_directive: META ID ID ('=' simple_literal)? ('[' meta_attribs ']')? ';';
+meta_attribs: meta_attrib ((','|';') meta_attrib)* (','|';')?;
+meta_attrib: id_or_keyword ('=' simple_literal)?;
 
 // Statements
 

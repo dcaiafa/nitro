@@ -1,7 +1,6 @@
 package runtime
 
 import (
-	"github.com/dcaiafa/nitro/internal/symbol"
 	"github.com/dcaiafa/nitro/internal/token"
 )
 
@@ -12,10 +11,7 @@ type Label struct {
 }
 
 type Param struct {
-	global       int
-	typ          symbol.Type
-	required     bool
-	defaultValue Value
+	global int
 }
 
 type Emitter struct {
@@ -42,18 +38,9 @@ func NewEmitter() *Emitter {
 func (e *Emitter) AddGlobalParam(
 	name string,
 	global int,
-	typ symbol.Type,
-	required bool,
-	defaultValue Value,
 ) {
 	e.params[name] = &Param{
-		global:       global,
-		typ:          typ,
-		required:     required,
-		defaultValue: defaultValue,
-	}
-	if required {
-		e.reqParamN++
+		global: global,
 	}
 }
 

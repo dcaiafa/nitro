@@ -9,6 +9,9 @@ import (
 
 func TestHelloWorld(t *testing.T) {
 	prog := `
+meta param disable_drm = false [type="any", required, desc="Disable DRM"]
+meta param has_cc = true
+
 lines() | split("\t")
 
 a | b() | c()

@@ -17,6 +17,15 @@ type NitroParserListener interface {
 	// EnterModule is called when entering the module production.
 	EnterModule(c *ModuleContext)
 
+	// EnterMeta_directive is called when entering the meta_directive production.
+	EnterMeta_directive(c *Meta_directiveContext)
+
+	// EnterMeta_attribs is called when entering the meta_attribs production.
+	EnterMeta_attribs(c *Meta_attribsContext)
+
+	// EnterMeta_attrib is called when entering the meta_attrib production.
+	EnterMeta_attrib(c *Meta_attribContext)
+
 	// EnterStmts is called when entering the stmts production.
 	EnterStmts(c *StmtsContext)
 
@@ -259,6 +268,15 @@ type NitroParserListener interface {
 
 	// ExitModule is called when exiting the module production.
 	ExitModule(c *ModuleContext)
+
+	// ExitMeta_directive is called when exiting the meta_directive production.
+	ExitMeta_directive(c *Meta_directiveContext)
+
+	// ExitMeta_attribs is called when exiting the meta_attribs production.
+	ExitMeta_attribs(c *Meta_attribsContext)
+
+	// ExitMeta_attrib is called when exiting the meta_attrib production.
+	ExitMeta_attrib(c *Meta_attribContext)
 
 	// ExitStmts is called when exiting the stmts production.
 	ExitStmts(c *StmtsContext)

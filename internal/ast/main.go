@@ -26,22 +26,15 @@ func (m *Main) AddExternalFn(name string, extFn runtime.ExternFn) {
 		})
 }
 
-func (m *Main) AddGlobalParam(ctx *Context, param *meta.Param, pos token.Pos) bool {
+func (m *Main) AddGlobalParam(ctx *Context, param *meta.Param, pos token.Pos) symbol.Symbol {
 	g := m.NewGlobal()
 	g.SetName(param.Name)
 	g.SetPos(pos)
-	if !m.Scope().PutSymbol(ctx, g) {
-		return false
+	if !m.rootScope.PutSymbol(ctx, g) {
+		return nil
 	}
-
-	ctx.Emitter().AddGlobalParam(
-		param.Name,
-		g.GlobalNdx,
-		param.Type,
-		param.Required,
-		param.Default)
-
-	return true
+	ctx.Emitter().AddGlobalParam(param.Name, g.GlobalNdx)
+	return g
 }
 
 func (m *Main) AddModule(module AST) {

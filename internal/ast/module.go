@@ -8,6 +8,7 @@ import (
 type Module struct {
 	astBase
 
+	Meta  ASTs
 	Block *StmtBlock
 
 	scope *symbol.Scope
@@ -30,6 +31,7 @@ func (m *Module) RunPass(ctx *Context, pass Pass) {
 		emitter.Emit(m.Pos(), runtime.OpInitCallFrame, 0, 0)
 	}
 
+	ctx.RunPassChild(m, m.Meta, pass)
 	ctx.RunPassChild(m, m.Block, pass)
 
 	switch pass {

@@ -36,7 +36,6 @@ func (l *listener) tokenToNitro(at antlr.Token) token.Token {
 	switch at.GetTokenType() {
 	case parser.NitroLexerNIL:
 		t.Type = token.Nil
-
 	case parser.NitroLexerSTRING:
 		s := at.GetText()
 		s = s[1 : len(s)-1] // remove quotes
@@ -49,7 +48,6 @@ func (l *listener) tokenToNitro(at antlr.Token) token.Token {
 				at.GetColumn(),
 				"Invalid string literal: %v", err)
 		}
-
 	case parser.NitroLexerCHAR:
 		s := at.GetText()
 		s = s[1 : len(s)-1] // remove quotes
@@ -58,11 +56,10 @@ func (l *listener) tokenToNitro(at antlr.Token) token.Token {
 			l.errListener.LogError(
 				at.GetLine(),
 				at.GetColumn(),
-				"Invalid string literal: %v", err)
+				"Invalid character literal: %v", err)
 		}
 		t.Type = token.Int
 		t.Int = int64(r)
-
 	case parser.NitroLexerNUMBER:
 		if strings.IndexByte(at.GetText(), '.') == -1 {
 			t.Type = token.Int
@@ -71,7 +68,6 @@ func (l *listener) tokenToNitro(at antlr.Token) token.Token {
 			t.Type = token.Float
 			t.Float, _ = strconv.ParseFloat(at.GetText(), 64)
 		}
-
 	case parser.NitroLexerTRUE:
 		t.Type = token.Bool
 		t.Bool = true
@@ -184,12 +180,44 @@ func (l *listener) ExitStart(ctx *parser.StartContext) {
 	l.Module = l.takeAST(ctx.Module()).(*ast.Module)
 }
 
-// module: stmts;
+// module: meta_directive* stmts;
 func (l *listener) ExitModule(ctx *parser.ModuleContext) {
 	m := &ast.Module{}
+
+	allMeta := ctx.AllMeta_directive()
+	m.Meta = make(ast.ASTs, 0, len(allMeta))
+	for _, meta := range allMeta {
+		m.Meta = append(m.Meta, l.takeAST(meta))
+	}
+
 	m.Block = l.takeAST(ctx.Stmts()).(*ast.StmtBlock)
 	l.put(ctx, m)
 }
+
+func (l *listener) ExitMeta_directive(ctx *parser.Meta_directiveContext) {
+	if ctx.ID(0).GetText() != "param" {
+		l.errListener.LogError(
+			ctx.ID(0).GetSymbol().GetLine(),
+			ctx.ID(0).GetSymbol().GetColumn(),
+			"Unsupported metadata type %q",
+			ctx.ID(0).GetText())
+		return
+	}
+
+	param := &ast.MetaParam{
+		Name: ctx.ID(1).GetText(),
+	}
+
+	if ctx.Simple_literal() != nil {
+		param.Default = l.takeExpr(ctx.Simple_literal())
+	}
+
+	l.put(ctx, param)
+}
+
+func (l *listener) ExitMeta_attribs(ctx *parser.Meta_attribsContext) {}
+
+func (l *listener) ExitMeta_attrib(ctx *parser.Meta_attribContext) {}
 
 // stmts: stmt_list?;
 func (l *listener) ExitStmts(ctx *parser.StmtsContext) {
