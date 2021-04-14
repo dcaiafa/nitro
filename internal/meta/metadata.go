@@ -6,4 +6,6 @@ type Metadata struct {
 
 type Param struct {
 	Name string
+	Type string
+	Desc string
 }

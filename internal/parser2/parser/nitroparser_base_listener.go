@@ -57,6 +57,12 @@ func (s *BaseNitroParserListener) EnterMeta_attrib(ctx *Meta_attribContext) {}
 // ExitMeta_attrib is called when production meta_attrib is exited.
 func (s *BaseNitroParserListener) ExitMeta_attrib(ctx *Meta_attribContext) {}
 
+// EnterMeta_literal is called when production meta_literal is entered.
+func (s *BaseNitroParserListener) EnterMeta_literal(ctx *Meta_literalContext) {}
+
+// ExitMeta_literal is called when production meta_literal is exited.
+func (s *BaseNitroParserListener) ExitMeta_literal(ctx *Meta_literalContext) {}
+
 // EnterStmts is called when production stmts is entered.
 func (s *BaseNitroParserListener) EnterStmts(ctx *StmtsContext) {}
 

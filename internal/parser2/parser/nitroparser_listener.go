@@ -26,6 +26,9 @@ type NitroParserListener interface {
 	// EnterMeta_attrib is called when entering the meta_attrib production.
 	EnterMeta_attrib(c *Meta_attribContext)
 
+	// EnterMeta_literal is called when entering the meta_literal production.
+	EnterMeta_literal(c *Meta_literalContext)
+
 	// EnterStmts is called when entering the stmts production.
 	EnterStmts(c *StmtsContext)
 
@@ -277,6 +280,9 @@ type NitroParserListener interface {
 
 	// ExitMeta_attrib is called when exiting the meta_attrib production.
 	ExitMeta_attrib(c *Meta_attribContext)
+
+	// ExitMeta_literal is called when exiting the meta_literal production.
+	ExitMeta_literal(c *Meta_literalContext)
 
 	// ExitStmts is called when exiting the stmts production.
 	ExitStmts(c *StmtsContext)

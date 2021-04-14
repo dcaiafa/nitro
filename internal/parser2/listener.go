@@ -8,6 +8,7 @@ import (
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 	"github.com/dcaiafa/nitro/internal/ast"
 	"github.com/dcaiafa/nitro/internal/parser2/parser"
+	"github.com/dcaiafa/nitro/internal/runtime"
 	"github.com/dcaiafa/nitro/internal/token"
 )
 
@@ -212,12 +213,53 @@ func (l *listener) ExitMeta_directive(ctx *parser.Meta_directiveContext) {
 		param.Default = l.takeExpr(ctx.Expr())
 	}
 
+	if ctx.Meta_attribs() != nil {
+		param.Attribs = l.takeASTs(ctx.Meta_attribs())
+	}
+
 	l.put(ctx, param)
 }
 
-func (l *listener) ExitMeta_attribs(ctx *parser.Meta_attribsContext) {}
+func (l *listener) ExitMeta_attribs(ctx *parser.Meta_attribsContext) {
+	allAttribs := ctx.AllMeta_attrib()
+	attribs := make(ast.ASTs, 0, len(allAttribs))
+	for _, attrib := range allAttribs {
+		attribs = append(attribs, l.takeAST(attrib))
+	}
+	l.put(ctx, attribs)
+}
 
-func (l *listener) ExitMeta_attrib(ctx *parser.Meta_attribContext) {}
+func (l *listener) ExitMeta_attrib(ctx *parser.Meta_attribContext) {
+	idOrKeyw, _ := l.take(ctx.Id_or_keyword())
+	attrib := &ast.MetaAttrib{
+		Name: idOrKeyw.(string),
+	}
+	if ctx.Meta_literal() != nil {
+		v, _ := l.take(ctx.Meta_literal())
+		attrib.Value = v.(runtime.Value)
+	}
+	l.put(ctx, attrib)
+}
+
+func (l *listener) ExitMeta_literal(ctx *parser.Meta_literalContext) {
+	var v runtime.Value
+	t := l.tokenToNitro(ctx.GetVal())
+	switch t.Type {
+	case token.Nil:
+		v = nil
+	case token.Int:
+		v = runtime.NewInt(t.Int)
+	case token.Float:
+		v = runtime.NewFloat(t.Float)
+	case token.String:
+		v = runtime.NewString(t.Str)
+	case token.Bool:
+		v = runtime.NewBool(t.Bool)
+	default:
+		panic("unreachable")
+	}
+	l.put(ctx, v)
+}
 
 // stmts: stmt_list?;
 func (l *listener) ExitStmts(ctx *parser.StmtsContext) {
