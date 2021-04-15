@@ -128,7 +128,8 @@ func (a *Array) Iterate() *Iterator {
 	var next Value = NewInt(0)
 	return NewIterator(
 		arrayIter,
-		[]ValueRef{NewValueRef(&arr), NewValueRef(&next)})
+		[]ValueRef{NewValueRef(&arr), NewValueRef(&next)},
+		1)
 }
 
 func arrayIter(m *Machine, caps []ValueRef, args []Value, expRetN int) ([]Value, error) {

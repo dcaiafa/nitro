@@ -28,6 +28,7 @@ func RegisterAll(c *nitro.Compiler) {
 	c.AddExternalFn("fremove", fremove)
 	c.AddExternalFn("fremoveall", fremoveall)
 	c.AddExternalFn("fromjson", fromjson)
+	c.AddExternalFn("hasprefix", hasprefix)
 	c.AddExternalFn("in", in)
 	c.AddExternalFn("lines", lines)
 	c.AddExternalFn("map", fnMap)
@@ -48,6 +49,7 @@ func RegisterAll(c *nitro.Compiler) {
 	c.AddExternalFn("sprintf", sprintf)
 	c.AddExternalFn("toarray", toarray)
 	c.AddExternalFn("tojson", tojson)
+	c.AddExternalFn("top", top)
 	c.AddExternalFn("trim", trim)
 	c.AddExternalFn("unique", unique)
 }

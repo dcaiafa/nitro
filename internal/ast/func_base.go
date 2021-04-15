@@ -17,7 +17,7 @@ type Func struct {
 	paramCount int
 	localCount int
 	captures   []*symbol.CaptureSymbol
-	isIterator bool
+	iterRets   int
 }
 
 func (f *Func) RunPass(ctx *Context, pass Pass) {
@@ -40,7 +40,7 @@ func (f *Func) RunPass(ctx *Context, pass Pass) {
 
 	switch pass {
 	case Rewrite:
-		if f.isIterator {
+		if f.iterRets > 0 {
 			// func f(x, y) {         func f(x, y) {
 			//    yield x+y      =>     return g() {
 			// }                          yield x+y
@@ -49,9 +49,9 @@ func (f *Func) RunPass(ctx *Context, pass Pass) {
 			g := new(LambdaExpr)
 			g.SetPos(f.Pos())
 			g.Block = f.Block
-			g.isIterator = true
+			g.iterRets = f.iterRets
 
-			f.isIterator = false
+			f.iterRets = 0
 			f.Block = &StmtBlock{
 				Stmts: ASTs{
 					&ReturnStmt{
@@ -69,7 +69,7 @@ func (f *Func) RunPass(ctx *Context, pass Pass) {
 			synthRet = !hasReturnStmt
 		}
 		if synthRet {
-			if f.isIterator {
+			if f.iterRets > 0 {
 				emitter.Emit(f.Pos(), runtime.OpIterRet, 0, 0)
 			} else {
 				emitter.Emit(f.Pos(), runtime.OpRet, 0, 0)
@@ -82,20 +82,24 @@ func (f *Func) RunPass(ctx *Context, pass Pass) {
 				emitSymbolRefPush(f.Pos(), emitter, capture.Captured)
 			}
 			op := runtime.OpNewClosure
-			if f.isIterator {
+			operand1 := uint32(f.idxFunc)
+			operand2 := uint16(len(f.captures))
+			if f.iterRets > 0 {
+				// TODO: enforce limit on nret, func count.
 				op = runtime.OpNewIter
+				operand1 |= uint32(f.iterRets) << 24
 			}
-			emitter.Emit(f.Pos(), op, uint32(f.idxFunc), uint16(len(f.captures)))
+			emitter.Emit(f.Pos(), op, operand1, operand2)
 		}
 	}
 }
 
-func (f *Func) MarkIterator() {
-	f.isIterator = true
+func (f *Func) SetIteratorNRet(nret int) {
+	f.iterRets = nret
 }
 
-func (f *Func) IsIterator() bool {
-	return f.isIterator
+func (f *Func) IteratorNRet() int {
+	return f.iterRets
 }
 
 func (f *Func) IdxFunc() int {

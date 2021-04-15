@@ -10,7 +10,7 @@ type Iterable interface {
 	Iterate() *Iterator
 }
 
-func MakeIterator(m *Machine, v Value) (Value, error) {
+func MakeIterator(m *Machine, v Value) (*Iterator, error) {
 	switch v := v.(type) {
 	case *Iterator:
 		return v, nil

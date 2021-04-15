@@ -18,13 +18,13 @@ func (s *ReturnStmt) RunPass(ctx *Context, pass Pass) {
 		if fn == nil && len(s.Values) != 0 {
 			ctx.Failf(s.Pos(), "cannot return values outside of function")
 			return
-		} else if fn != nil && fn.IsIterator() && len(s.Values) != 0 {
-			ctx.Failf(s.Pos(), "'return' must provide no values in an iterator")
+		} else if fn != nil && fn.IteratorNRet() > 0 && len(s.Values) != 0 {
+			ctx.Failf(s.Pos(), "'return' must return no values when inside an iterator")
 			return
 		}
 
 		retOp := runtime.OpRet
-		if fn != nil && fn.IsIterator() {
+		if fn != nil && fn.IteratorNRet() > 0 {
 			retOp = runtime.OpIterRet
 		}
 

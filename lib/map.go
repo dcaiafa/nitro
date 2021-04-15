@@ -19,17 +19,17 @@ func fnMap(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int
 		fn:     fn,
 	}
 
-	outIter := nitro.NewIterator(mapIter.Next, nil)
+	outIter := nitro.NewIterator(mapIter.Next, nil, 1)
 	return []nitro.Value{outIter}, nil
 }
 
 type mapIter struct {
-	inIter nitro.Value
+	inIter *nitro.Iterator
 	fn     nitro.Value
 }
 
 func (i *mapIter) Next(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
-	v, ok, err := nitro.Next(m, i.inIter, 1)
+	v, ok, err := nitro.Next(m, i.inIter, i.inIter.NRet())
 	if err != nil {
 		return nil, err
 	}

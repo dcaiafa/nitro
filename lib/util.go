@@ -86,7 +86,7 @@ func getWriterArg(args []runtime.Value, ndx int) (io.Writer, error) {
 	}
 }
 
-func getIterArg(m *nitro.Machine, args []runtime.Value, ndx int) (nitro.Value, error) {
+func getIterArg(m *nitro.Machine, args []runtime.Value, ndx int) (*nitro.Iterator, error) {
 	if ndx >= len(args) {
 		return nil, errNotEnoughArgs
 	}

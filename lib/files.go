@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -140,35 +141,36 @@ func flist(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int
 		return nil, err
 	}
 
-	var pattern string
-	if len(args) >= 2 {
-		pattern, err = getStringArg(args, 1)
-		if err != nil {
-			return nil, err
-		}
-	}
-
 	entries, err := os.ReadDir(path)
 	if err != nil {
 		return nil, err
 	}
 
-	result := nitro.NewArrayFromSlice(make([]nitro.Value, 0, len(entries)))
-
-	for _, entry := range entries {
-		if pattern != "" {
-			ok, err := filepath.Match(pattern, entry.Name())
-			if err != nil {
-				return nil, err
-			}
-			if !ok {
-				continue
-			}
-		}
-		result.Push(nitro.NewString(filepath.Join(path, entry.Name())))
+	iter := &flistIter{
+		root:    path,
+		entries: entries,
 	}
 
-	return []nitro.Value{result}, nil
+	return []nitro.Value{nitro.NewIterator(iter.Next, nil, 2)}, nil
+}
+
+type flistIter struct {
+	root    string
+	entries []fs.DirEntry
+}
+
+func (i *flistIter) Next(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+	if len(i.entries) == 0 {
+		return []nitro.Value{nitro.NewBool(false), nil, nil}, nil
+	}
+
+	res := []nitro.Value{
+		nitro.NewBool(true),
+		nitro.NewString(filepath.Join(i.root, i.entries[0].Name())),
+		nitro.NewBool(i.entries[0].IsDir())}
+
+	i.entries = i.entries[1:]
+	return res, nil
 }
 
 func fcopy(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {

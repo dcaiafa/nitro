@@ -140,7 +140,8 @@ func (o *Object) Iterate() *Iterator {
 	nextKey, _ := obj.(*Object).GetFirst()
 	return NewIterator(
 		objectIter,
-		[]ValueRef{NewValueRef(&obj), NewValueRef(&nextKey)})
+		[]ValueRef{NewValueRef(&obj), NewValueRef(&nextKey)},
+		2)
 }
 
 type objectFormatter struct {

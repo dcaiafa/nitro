@@ -22,7 +22,7 @@ func lines(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int
 		scanner: bufio.NewScanner(input),
 	}
 
-	outIter := nitro.NewIterator(l.Next, nil)
+	outIter := nitro.NewIterator(l.Next, nil, 1)
 	return []nitro.Value{outIter}, nil
 }
 
