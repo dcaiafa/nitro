@@ -17,7 +17,7 @@ func top(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) 
 		nLeft:  int(count),
 	}
 
-	return []nitro.Value{nitro.NewIterator(iter.Next, nil, inIter.NRet())}, nil
+	return []nitro.Value{nitro.NewIterator(iter.Next, nil, inIter.IterNRet())}, nil
 }
 
 type topIter struct {

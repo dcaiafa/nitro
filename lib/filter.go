@@ -20,7 +20,7 @@ func filter(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN in
 		test:   test,
 	}
 
-	outIter := nitro.NewIterator(filterIter.Next, nil, inIter.NRet())
+	outIter := nitro.NewIterator(filterIter.Next, nil, inIter.IterNRet())
 
 	return []nitro.Value{outIter}, nil
 }
@@ -32,7 +32,7 @@ type filterIter struct {
 
 func (i *filterIter) Next(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
 	for {
-		v, ok, err := nitro.Next(m, i.inIter, i.inIter.NRet())
+		v, ok, err := nitro.Next(m, i.inIter, i.inIter.IterNRet())
 		if err != nil {
 			return nil, err
 		}

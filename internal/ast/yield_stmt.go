@@ -15,14 +15,14 @@ func (s *YieldStmt) RunPass(ctx *Context, pass Pass) {
 			ctx.Failf(s.Pos(), "cannot yield outside of a function")
 			return
 		}
-		if fn.IteratorNRet() != 0 && fn.IteratorNRet() != len(s.Values) {
+		if fn.IterNRet() != 0 && fn.IterNRet() != len(s.Values) {
 			ctx.Failf(
 				s.Pos(),
 				"all yield statements inside an iterator must return the same "+
 					"number of values")
 			return
 		}
-		fn.SetIteratorNRet(len(s.Values))
+		fn.SetIterNRet(len(s.Values))
 
 	case Emit:
 		ctx.Emitter().Emit(s.Pos(), runtime.OpNewBool, 1, 0)

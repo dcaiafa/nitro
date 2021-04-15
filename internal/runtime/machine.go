@@ -358,7 +358,7 @@ func (m *Machine) resume() (ret []Value, err error) {
 		case OpNewIter:
 			capN := int(instr.operand2)
 			fn := int(instr.operand1 & 0x00ffffff)
-			nret := int(instr.operand1 & 0xff000000 >> 24)
+			iterNRet := int(instr.operand1 & 0xff000000 >> 24)
 			caps := make([]ValueRef, capN)
 			for i, capture := range m.popN(capN) {
 				caps[i] = capture.(ValueRef)
@@ -366,7 +366,7 @@ func (m *Machine) resume() (ret []Value, err error) {
 			iter := &Iterator{
 				fn:       &m.program.fns[fn],
 				captures: caps,
-				nret:     nret,
+				iterNRet: iterNRet,
 			}
 			m.push(iter)
 

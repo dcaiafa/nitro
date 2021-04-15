@@ -29,7 +29,7 @@ type mapIter struct {
 }
 
 func (i *mapIter) Next(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
-	v, ok, err := nitro.Next(m, i.inIter, i.inIter.NRet())
+	v, ok, err := nitro.Next(m, i.inIter, i.inIter.IterNRet())
 	if err != nil {
 		return nil, err
 	}

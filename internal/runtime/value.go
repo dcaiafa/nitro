@@ -157,7 +157,7 @@ type Iterator struct {
 	fn         *Fn
 	extFn      ExternFn
 	captures   []ValueRef
-	nret       int
+	iterNRet   int
 	locals     []Value
 	tryCatches []tryCatch
 	defers     []*Closure
@@ -167,13 +167,13 @@ type Iterator struct {
 func (e *Iterator) String() string { return "<Iterator>" }
 func (e *Iterator) Type() string   { return "Iterator" }
 func (e *Iterator) isCallable()    {}
-func (e *Iterator) NRet() int      { return e.nret }
+func (e *Iterator) IterNRet() int  { return e.iterNRet }
 
 func NewIterator(extFn ExternFn, caps []ValueRef, nret int) *Iterator {
 	return &Iterator{
 		extFn:    extFn,
 		captures: caps,
-		nret:     nret,
+		iterNRet: nret,
 	}
 }
 
