@@ -3,6 +3,9 @@ package tests
 import "testing"
 
 func TestBinaryExpr(t *testing.T) {
+	RunSubO(t, "nil/eq", `print(nil == nil)`, `true`)
+	RunSubO(t, "nil/ne", `print(nil != nil)`, `false`)
+
 	RunSubO(t, "int/add", `print(1+2)`, `3`)
 	RunSubO(t, "int/sub", `print(1-2)`, `-1`)
 	RunSubO(t, "int/mul", `print(2*3)`, `6`)

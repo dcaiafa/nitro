@@ -4,9 +4,9 @@ import "testing"
 
 func TestArrayLiteral(t *testing.T) {
 	RunSubO(t, "literal", `
-		var a = [1, "hello", true]
+		var a = [1, "hello", nil, true]
 		print(a)
-	`, `[1 hello true]`)
+	`, `[1 hello <nil> true]`)
 
 	RunSubO(t, "empty_literal", `
 		var a = []

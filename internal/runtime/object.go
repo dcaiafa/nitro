@@ -2,7 +2,6 @@ package runtime
 
 import (
 	"log"
-	"reflect"
 	"strconv"
 	"strings"
 )
@@ -208,12 +207,12 @@ func (of *objectFormatter) format(v Value) {
 			} else {
 				first = false
 			}
-			of.str(v.Get(i).String())
+			of.str(ToString(v.Get(i)))
 		}
 		of.str("]")
 
 	default:
-		of.str("<" + reflect.TypeOf(v).String() + ">")
+		of.str(ToString(v))
 	}
 }
 

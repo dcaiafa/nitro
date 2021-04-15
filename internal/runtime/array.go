@@ -46,7 +46,7 @@ func (a *Array) Index(key Value) (Value, error) {
 	if !ok {
 		return nil, fmt.Errorf(
 			"cannot index array: index must be Int, but it is %v",
-			key.Type())
+			TypeName(key))
 	}
 	if index.Int64() < 0 || index.Int64() > math.MaxInt32 {
 		return nil, fmt.Errorf(
@@ -66,7 +66,7 @@ func (a *Array) IndexRef(key Value) (ValueRef, error) {
 	if !ok {
 		return ValueRef{}, fmt.Errorf(
 			"cannot index array: index must be Int, but it is %v",
-			key.Type())
+			TypeName(key))
 	}
 	if index.Int64() < 0 || index.Int64() > math.MaxInt32 {
 		return ValueRef{}, fmt.Errorf(

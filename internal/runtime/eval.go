@@ -6,6 +6,17 @@ import (
 )
 
 func EvalBinOp(op BinOp, operand1, operand2 Value) (Value, error) {
+	if operand1 == nil || operand2 == nil {
+		if op == BinEq {
+			return NewBool(operand1 == operand2), nil
+		} else if op == BinNE {
+			return NewBool(operand1 != operand2), nil
+		} else {
+			return nil, fmt.Errorf(
+				"could not evaluate binary expression with nil operand")
+		}
+	}
+
 	switch operand1 := operand1.(type) {
 	case Int:
 		switch operand2 := operand2.(type) {
@@ -30,7 +41,7 @@ func EvalBinOp(op BinOp, operand1, operand2 Value) (Value, error) {
 
 	return nil, fmt.Errorf(
 		"could not evaluate binary expression: type %v is incompatible with type %v",
-		operand1.Type(), operand2.Type())
+		TypeName(operand1), TypeName(operand2))
 }
 
 func evalBinOpInt(op BinOp, operand1, operand2 int64) (Value, error) {

@@ -17,7 +17,7 @@ func MakeIterator(m *Machine, v Value) (*Iterator, error) {
 	case Iterable:
 		return v.Iterate(), nil
 	default:
-		return nil, fmt.Errorf("Value of type %q %w", v.Type(), ErrIsNotIterable)
+		return nil, fmt.Errorf("Value of type %q %w", TypeName(v), ErrIsNotIterable)
 	}
 }
 
@@ -40,7 +40,7 @@ func Next(m *Machine, e Value, n int) ([]Value, bool, error) {
 	if !ok {
 		return nil, false, fmt.Errorf(
 			"iterator's first return value must be a Bool, but instead it was %q",
-			ret[0].Type())
+			TypeName(ret[0]))
 	}
 
 	if !hasValue.Bool() {

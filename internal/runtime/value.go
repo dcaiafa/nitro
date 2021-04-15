@@ -133,7 +133,7 @@ func NewValueRef(ref *Value) ValueRef {
 }
 
 func (r ValueRef) String() string { return "&" + (*r.Ref).String() }
-func (r ValueRef) Type() string   { return "&" + (*r.Ref).Type() }
+func (r ValueRef) Type() string   { return "&" + TypeName(*r.Ref) }
 func (r ValueRef) Refo() *Value   { return r.Ref }
 
 type Closure struct {
@@ -197,3 +197,10 @@ type Fn struct {
 func (f *Fn) Type() string   { return "Func" }
 func (f *Fn) String() string { return "<func>" }
 func (f *Fn) isCallable()    {}
+
+func ToString(v Value) string {
+	if v == nil {
+		return "<nil>"
+	}
+	return v.String()
+}

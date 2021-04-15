@@ -516,7 +516,8 @@ func (m *Machine) resume() (ret []Value, err error) {
 				m.pop()
 				m.push(v.Iterate())
 			default:
-				return nil, fmt.Errorf("Cannot iterate over value of type %q", TypeName(v))
+				return nil, fmt.Errorf(
+					"cannot iterate over value of type %q", TypeName(v))
 			}
 
 		case OpBeginTry:
