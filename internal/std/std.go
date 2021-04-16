@@ -7,10 +7,11 @@ type Compiler interface {
 }
 
 func Register(c Compiler) {
-	c.AddExternalFn("narg", narg)
-	c.AddExternalFn("len", Len)
-	c.AddExternalFn("range", Range)
-	c.AddExternalFn("push", push)
-	c.AddExternalFn("has", has)
+	c.AddExternalFn("args", args)
 	c.AddExternalFn("delete", delete_)
+	c.AddExternalFn("has", has)
+	c.AddExternalFn("len", Len)
+	c.AddExternalFn("narg", narg)
+	c.AddExternalFn("push", push)
+	c.AddExternalFn("range", Range)
 }

@@ -2,6 +2,7 @@ package lib
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/dcaiafa/nitro"
 )
@@ -46,6 +47,28 @@ func printall(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, expRe
 		}
 		fmt.Fprintln(stdout, valuesToInterface(v)...)
 	}
+	return nil, nil
+}
+
+func log(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, expRetN int) ([]nitro.Value, error) {
+	iargs := valuesToInterface(args)
+	fmt.Fprintln(os.Stderr, iargs...)
+	return nil, nil
+}
+
+func logf(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, expRetN int) ([]nitro.Value, error) {
+	if len(args) < 1 {
+		return nil, errNotEnoughArgs
+	}
+
+	format, err := getStringArg(args, 0)
+	if err != nil {
+		return nil, err
+	}
+
+	iargs := valuesToInterface(args[1:])
+	fmt.Fprintf(os.Stderr, format+"\n", iargs...)
+
 	return nil, nil
 }
 

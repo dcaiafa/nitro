@@ -629,6 +629,10 @@ func (m *Machine) GetNArg() int {
 	return m.callStack[len(m.callStack)-1].ArgN
 }
 
+func (m *Machine) GetArgs() []Value {
+	return m.callStack[len(m.callStack)-1].Args
+}
+
 func (m *Machine) getDebugFrame(frame *frame) FrameInfo {
 	loc := m.getLocation(frame.Fn, frame.IP)
 	if loc == nil {

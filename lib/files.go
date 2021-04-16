@@ -75,6 +75,40 @@ func fremove(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN i
 	return nil, nil
 }
 
+func write(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+	if len(args) < 2 {
+		return nil, errNotEnoughArgs
+	}
+	var writer io.Writer
+	switch arg := args[0].(type) {
+	case nitro.String:
+		f, err := os.Create(arg.String())
+		if err != nil {
+			return nil, err
+		}
+		defer f.Close()
+		writer = f
+
+	case io.Writer:
+		writer = arg
+
+	default:
+		return nil, fmt.Errorf("invalid arg 2")
+	}
+
+	reader, err := ToReader(m, args[1])
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = io.Copy(writer, reader)
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, nil
+}
+
 func fremoveall(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
 	path, err := getStringArg(args, 0)
 	if err != nil {

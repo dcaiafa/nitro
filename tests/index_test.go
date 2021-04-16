@@ -19,4 +19,9 @@ func TestIndexExpr(t *testing.T) {
 		o.a.b = "fur"
 		print(o["a"]["b"], o["a"]["c"], o["a"]["z"], o["z"]["a"])
 	`, `fur bar <nil> <nil>`)
+
+	RunSubO(t, "nil", `
+		var a
+		print(a[1])
+	`, `<nil>`)
 }
