@@ -30,6 +30,24 @@ type Indexable interface {
 	IndexRef(key Value) (ValueRef, error)
 }
 
+type Evaluator interface {
+	Value
+	EvalBinOp(op BinOp, operand Value) (Value, error)
+	EvalUnaryMinus() (Value, error)
+}
+
+type nilValue struct{}
+
+func (v nilValue) String() string { return "<nil>" }
+func (v nilValue) Type() string   { return "nil" }
+
+func wrapNil(v Value) Value {
+	if v == nil {
+		return nilValue{}
+	}
+	return v
+}
+
 type String struct {
 	v string
 }
@@ -94,6 +112,44 @@ func (s String) Slice(b, e Value) (Value, error) {
 	return NewString(s.v[begin:end]), nil
 }
 
+func (s String) EvalBinOp(op BinOp, operand Value) (Value, error) {
+	if op == BinEq {
+		return NewBool(s == operand), nil
+	} else if op == BinNE {
+		return NewBool(s != operand), nil
+	}
+
+	operandStr, ok := operand.(String)
+	if !ok {
+		return nil, fmt.Errorf(
+			"invalid operation between string and %v",
+			TypeName(operand))
+	}
+
+	switch op {
+	case BinAdd:
+		return NewString(s.v + operandStr.String()), nil
+	case BinLT:
+		return NewBool(s.v < operandStr.String()), nil
+	case BinLE:
+		return NewBool(s.v <= operandStr.String()), nil
+	case BinGT:
+		return NewBool(s.v > operandStr.String()), nil
+	case BinGE:
+		return NewBool(s.v >= operandStr.String()), nil
+	case BinEq:
+		return NewBool(s.v == operandStr.String()), nil
+	case BinNE:
+		return NewBool(s.v != operandStr.String()), nil
+	default:
+		return nil, fmt.Errorf("operator not supported by string")
+	}
+}
+
+func (s String) EvalUnaryMinus() (Value, error) {
+	return nil, fmt.Errorf("operator not supported by string")
+}
+
 type Int struct {
 	v int64
 }
@@ -104,6 +160,52 @@ func (i Int) Int64() int64   { return i.v }
 func (i Int) String() string { return strconv.FormatInt(i.v, 10) }
 func (i Int) Type() string   { return "Int" }
 
+func (i Int) EvalBinOp(op BinOp, operand Value) (Value, error) {
+	operandInt, ok := operand.(Int)
+	if !ok {
+		if operandFloat, ok := operand.(Float); ok {
+			return NewFloat(float64(i.v)).EvalBinOp(op, operandFloat)
+		}
+	}
+
+	if op == BinEq {
+		return NewBool(i == operandInt), nil
+	} else if op == BinNE {
+		return NewBool(i != operandInt), nil
+	}
+
+	switch op {
+	case BinAdd:
+		return NewInt(i.v + operandInt.Int64()), nil
+	case BinSub:
+		return NewInt(i.v - operandInt.Int64()), nil
+	case BinMult:
+		return NewInt(i.v * operandInt.Int64()), nil
+	case BinDiv:
+		return NewInt(i.v / operandInt.Int64()), nil
+	case BinMod:
+		return NewInt(i.v % operandInt.Int64()), nil
+	case BinLT:
+		return NewBool(i.v < operandInt.Int64()), nil
+	case BinLE:
+		return NewBool(i.v <= operandInt.Int64()), nil
+	case BinGT:
+		return NewBool(i.v > operandInt.Int64()), nil
+	case BinGE:
+		return NewBool(i.v >= operandInt.Int64()), nil
+	case BinEq:
+		return NewBool(i.v == operandInt.Int64()), nil
+	case BinNE:
+		return NewBool(i.v != operandInt.Int64()), nil
+	default:
+		return nil, fmt.Errorf("operator not supported by int")
+	}
+}
+
+func (i Int) EvalUnaryMinus() (Value, error) {
+	return NewInt(-i.v), nil
+}
+
 type Float struct {
 	v float64
 }
@@ -113,6 +215,50 @@ func NewFloat(v float64) Float { return Float{v} }
 func (f Float) Float64() float64 { return f.v }
 func (f Float) String() string   { return strconv.FormatFloat(f.v, 'g', -1, 64) }
 func (f Float) Type() string     { return "Float" }
+
+func (f Float) EvalBinOp(op BinOp, operand Value) (Value, error) {
+	operandFloat, ok := operand.(Float)
+	if !ok {
+		if operandInt, ok := operand.(Int); ok {
+			operandFloat = NewFloat(float64(operandInt.Int64()))
+		}
+	}
+
+	if op == BinEq {
+		return NewBool(f == operandFloat), nil
+	} else if op == BinNE {
+		return NewBool(f != operandFloat), nil
+	}
+
+	switch op {
+	case BinAdd:
+		return NewFloat(f.v + operandFloat.Float64()), nil
+	case BinSub:
+		return NewFloat(f.v - operandFloat.Float64()), nil
+	case BinMult:
+		return NewFloat(f.v * operandFloat.Float64()), nil
+	case BinDiv:
+		return NewFloat(f.v / operandFloat.Float64()), nil
+	case BinLT:
+		return NewBool(f.v < operandFloat.Float64()), nil
+	case BinLE:
+		return NewBool(f.v <= operandFloat.Float64()), nil
+	case BinGT:
+		return NewBool(f.v > operandFloat.Float64()), nil
+	case BinGE:
+		return NewBool(f.v >= operandFloat.Float64()), nil
+	case BinEq:
+		return NewBool(f.v == operandFloat.Float64()), nil
+	case BinNE:
+		return NewBool(f.v != operandFloat.Float64()), nil
+	default:
+		return nil, fmt.Errorf("operator not supported by float")
+	}
+}
+
+func (f Float) EvalUnaryMinus() (Value, error) {
+	return NewFloat(-f.v), nil
+}
 
 type Bool struct {
 	v bool
@@ -203,4 +349,28 @@ func ToString(v Value) string {
 		return "<nil>"
 	}
 	return v.String()
+}
+
+func CoerceToBool(v Value) bool {
+	switch v := v.(type) {
+	case Bool:
+		return v.Bool()
+	default:
+		return v != nil
+	}
+}
+
+func EvalBinOp(op BinOp, operand1, operand2 Value) (Value, error) {
+	evaluator, ok := operand1.(Evaluator)
+	if ok {
+		return evaluator.EvalBinOp(op, operand2)
+	} else if op == BinEq {
+		return NewBool(operand1 == operand2), nil
+	} else if op == BinNE {
+		return NewBool(operand1 != operand2), nil
+	} else {
+		return nil, fmt.Errorf(
+			"left value with type %q does not support binary operation",
+			TypeName(operand1))
+	}
 }

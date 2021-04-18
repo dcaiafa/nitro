@@ -419,10 +419,12 @@ func (m *Machine) resume() (ret []Value, err error) {
 			operand2 := m.pop()
 			operand1 := m.pop()
 			op := BinOp(instr.operand1)
+
 			res, err := EvalBinOp(op, operand1, operand2)
 			if err != nil {
 				return nil, err
 			}
+
 			m.push(res)
 
 		case OpNot:
