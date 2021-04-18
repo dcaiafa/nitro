@@ -6,7 +6,10 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-var errNotEnoughArgs = errors.New("not enough arguments")
+var (
+	errNotEnoughArgs = errors.New("not enough arguments")
+	errTooManyArgs   = errors.New("too many arguments")
+)
 
 func RegisterAll(c *nitro.Compiler) {
 	c.AddExternalFn("avg", avg)

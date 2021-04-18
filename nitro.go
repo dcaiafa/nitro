@@ -12,22 +12,23 @@ import (
 type (
 	Machine = runtime.Machine
 
-	Array    = runtime.Array
-	Bool     = runtime.Bool
-	Closure  = runtime.Closure
-	Iterator = runtime.Iterator
-	ExternFn = runtime.ExternFn
-	Float    = runtime.Float
-	Frame    = runtime.FrameInfo
-	Func     = runtime.Fn
-	Int      = runtime.Int
-	Object   = runtime.Object
-	Program  = runtime.Program
-	Regex    = runtime.Regex
-	String   = runtime.String
-	Value    = runtime.Value
-	ValueRef = runtime.ValueRef
-	Callable = runtime.Callable
+	Array     = runtime.Array
+	Bool      = runtime.Bool
+	Closure   = runtime.Closure
+	Iterator  = runtime.Iterator
+	ExternFn  = runtime.ExternFn
+	Float     = runtime.Float
+	Frame     = runtime.FrameInfo
+	Func      = runtime.Fn
+	Int       = runtime.Int
+	Object    = runtime.Object
+	Program   = runtime.Program
+	Regex     = runtime.Regex
+	String    = runtime.String
+	Value     = runtime.Value
+	ValueRef  = runtime.ValueRef
+	Callable  = runtime.Callable
+	Indexable = runtime.Indexable
 
 	RuntimeError = runtime.RuntimeError
 

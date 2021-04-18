@@ -99,7 +99,7 @@ func getIterArg(m *nitro.Machine, args []runtime.Value, ndx int) (*nitro.Iterato
 	return v, nil
 }
 
-func getCallableArg(args []runtime.Value, ndx int) (nitro.Value, error) {
+func getCallableArg(args []runtime.Value, ndx int) (nitro.Callable, error) {
 	if ndx >= len(args) {
 		return nil, errNotEnoughArgs
 	}
