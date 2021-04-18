@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math/rand"
 	"os"
+	"time"
 
 	"github.com/dcaiafa/nitro"
 	"github.com/dcaiafa/nitro/lib"
@@ -71,6 +73,8 @@ func main() {
 	if flag.NArg() == 0 && *flagE == "" {
 		log.Fatalf("<program> required")
 	}
+
+	rand.Seed(time.Now().Unix())
 
 	filename := flag.Arg(0)
 	compiler := nitro.NewCompiler(nitro.NewNativeFileSystem())
