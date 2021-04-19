@@ -79,7 +79,7 @@ func (b *catchBlock) RunPass(ctx *Context, pass Pass) {
 	case Emit:
 		if b.catchSym != nil {
 			emitSymbolRefPush(b.stmts.Pos(), ctx.Emitter(), b.catchSym)
-			ctx.Emitter().Emit(b.stmts.Pos(), runtime.OpSwapStack, 1, 0)
+			ctx.Emitter().Emit(b.stmts.Pos(), runtime.OpSwap, 1, 0)
 			ctx.Emitter().Emit(b.stmts.Pos(), runtime.OpStore, 1, 0)
 		} else {
 			ctx.Emitter().Emit(b.stmts.Pos(), runtime.OpPop, 1, 0)

@@ -62,7 +62,7 @@ const (
 	OpMakeIter
 	OpBeginTry
 	OpEndTry
-	OpSwapStack
+	OpSwap
 	OpThrow
 	OpDefer
 	OpNext
@@ -81,6 +81,26 @@ type Instr struct {
 type FrameInfo struct {
 	Filename string
 	Line     int
+}
+
+type tryCatch struct {
+	CatchAddr int
+}
+
+type frame struct {
+	nRet       int
+	nArg       int
+	iter       *Iterator
+	fn         *Fn
+	extFn      ExternFn
+	instrs     []Instr
+	args       []Value
+	caps       []ValueRef
+	locals     []Value
+	stack      []Value
+	tryCatches []tryCatch
+	defers     []*Closure
+	ip         int
 }
 
 type Machine struct {
@@ -134,11 +154,11 @@ func (m *Machine) runFunc(
 	retN int,
 ) ([]Value, error) {
 	frame := &frame{}
-	frame.Fn = fn
-	frame.Instrs = fn.instrs
-	frame.Args = args
-	frame.ExpRetN = retN
-	frame.Captures = captures
+	frame.fn = fn
+	frame.instrs = fn.instrs
+	frame.args = args
+	frame.nRet = retN
+	frame.caps = captures
 	return m.runFrame(frame)
 }
 
@@ -168,11 +188,11 @@ func (m *Machine) Call(
 				expRetN)
 		} else {
 			return m.runFrame(&frame{
-				Fn:       callable.fn,
-				Args:     copyArgs(args, callable.fn.minArgs),
-				Captures: callable.caps,
-				ArgN:     len(args),
-				ExpRetN:  expRetN,
+				fn:   callable.fn,
+				args: copyArgs(args, callable.fn.minArgs),
+				caps: callable.caps,
+				nArg: len(args),
+				nRet: expRetN,
 			})
 		}
 
@@ -193,23 +213,23 @@ func (m *Machine) Call(
 			}
 
 			return m.runFrame(&frame{
-				Fn:         callable.fn,
-				Iterator:   callable,
-				Captures:   callable.captures,
-				Locals:     callable.locals,
-				TryCatches: callable.tryCatches,
-				Defers:     callable.defers,
-				ExpRetN:    expRetN,
-				IP:         callable.ip,
+				fn:         callable.fn,
+				iter:       callable,
+				caps:       callable.captures,
+				locals:     callable.locals,
+				tryCatches: callable.tryCatches,
+				defers:     callable.defers,
+				nRet:       expRetN,
+				ip:         callable.ip,
 			})
 		}
 
 	case *Fn:
 		return m.runFrame(&frame{
-			Fn:      callable,
-			Args:    copyArgs(args, callable.minArgs),
-			ArgN:    len(args),
-			ExpRetN: expRetN,
+			fn:   callable,
+			args: copyArgs(args, callable.minArgs),
+			nArg: len(args),
+			nRet: expRetN,
 		})
 
 	case ExternFn:
@@ -224,14 +244,14 @@ func (m *Machine) Call(
 }
 
 func (m *Machine) runFrame(frame *frame) (rets []Value, err error) {
-	frame.Instrs = frame.Fn.instrs
+	frame.instrs = frame.fn.instrs
 
 	m.callStack = append(m.callStack, frame)
 	m.frame = frame
 
 	defer func() {
-		for i := len(m.frame.Defers) - 1; i >= 0; i-- {
-			deferred := m.frame.Defers[i]
+		for i := len(m.frame.defers) - 1; i >= 0; i-- {
+			deferred := m.frame.defers[i]
 			_, derr := m.Call(deferred, nil, 0)
 			if derr != nil {
 				if err == nil {
@@ -267,37 +287,37 @@ func (m *Machine) runFrame(frame *frame) (rets []Value, err error) {
 
 		err = rerr
 
-		if len(m.frame.TryCatches) == 0 {
+		if len(m.frame.tryCatches) == 0 {
 			return nil, err
 		}
 
-		tryCatch := m.frame.TryCatches[len(m.frame.TryCatches)-1]
-		m.frame.TryCatches = m.frame.TryCatches[:len(m.frame.TryCatches)-1]
-		m.frame.IP = tryCatch.CatchAddr
-		m.frame.Stack = append(m.frame.Stack[:0], rerr)
+		tryCatch := m.frame.tryCatches[len(m.frame.tryCatches)-1]
+		m.frame.tryCatches = m.frame.tryCatches[:len(m.frame.tryCatches)-1]
+		m.frame.ip = tryCatch.CatchAddr
+		m.frame.stack = append(m.frame.stack[:0], rerr)
 	}
 }
 
 func (m *Machine) resume() (ret []Value, err error) {
 	for {
-		instr := m.frame.Instrs[m.frame.IP]
+		instr := m.frame.instrs[m.frame.ip]
 
 		switch instr.op {
 		case OpNop:
 
 		case OpJump:
-			m.frame.IP = int(instr.operand1) - 1
+			m.frame.ip = int(instr.operand1) - 1
 
 		case OpJumpIfTrue:
 			v := CoerceToBool(m.pop())
 			if v {
-				m.frame.IP = int(instr.operand1) - 1
+				m.frame.ip = int(instr.operand1) - 1
 			}
 
 		case OpJumpIfFalse:
 			v := CoerceToBool(m.pop())
 			if !v {
-				m.frame.IP = int(instr.operand1) - 1
+				m.frame.ip = int(instr.operand1) - 1
 			}
 
 		case OpDup:
@@ -337,7 +357,7 @@ func (m *Machine) resume() (ret []Value, err error) {
 			if err != nil {
 				return nil, err
 			}
-			m.frame.Stack = append(m.frame.Stack, rets[:nret]...)
+			m.frame.stack = append(m.frame.stack, rets[:nret]...)
 
 		case OpNil:
 			m.push(nil)
@@ -389,22 +409,22 @@ func (m *Machine) resume() (ret []Value, err error) {
 			m.push(ValueRef{&m.globals[int(instr.operand1)]})
 
 		case OpLoadLocal:
-			m.push(m.frame.Locals[int(instr.operand1)])
+			m.push(m.frame.locals[int(instr.operand1)])
 
 		case OpLoadLocalRef:
-			m.push(ValueRef{&m.frame.Locals[int(instr.operand1)]})
+			m.push(ValueRef{&m.frame.locals[int(instr.operand1)]})
 
 		case OpLoadArg:
-			m.push(m.frame.Args[int(instr.operand1)])
+			m.push(m.frame.args[int(instr.operand1)])
 
 		case OpLoadArgRef:
-			m.push(ValueRef{&m.frame.Args[int(instr.operand1)]})
+			m.push(ValueRef{&m.frame.args[int(instr.operand1)]})
 
 		case OpLoadCapture:
-			m.push(*m.frame.Captures[int(instr.operand1)].Ref)
+			m.push(*m.frame.caps[int(instr.operand1)].Ref)
 
 		case OpLoadCaptureRef:
-			m.push(m.frame.Captures[int(instr.operand1)])
+			m.push(m.frame.caps[int(instr.operand1)])
 
 		case OpLoadFn:
 			m.push(&m.program.fns[int(instr.operand1)])
@@ -490,10 +510,10 @@ func (m *Machine) resume() (ret []Value, err error) {
 			array.Push(value)
 
 		case OpRet:
-			if m.frame.ExpRetN > len(m.frame.Stack) {
+			if m.frame.nRet > len(m.frame.stack) {
 				return nil, fmt.Errorf("error")
 			}
-			rets := m.frame.Stack[:m.frame.ExpRetN]
+			rets := m.frame.stack[:m.frame.nRet]
 			return rets, nil
 
 		case OpStore:
@@ -507,7 +527,7 @@ func (m *Machine) resume() (ret []Value, err error) {
 
 		case OpInitCallFrame:
 			localN := instr.operand1
-			m.frame.Init(int(localN))
+			m.frame.locals = make([]Value, localN)
 
 		case OpMakeIter:
 			v := m.peek(0)
@@ -523,20 +543,20 @@ func (m *Machine) resume() (ret []Value, err error) {
 			}
 
 		case OpBeginTry:
-			m.frame.TryCatches = append(m.frame.TryCatches, tryCatch{
+			m.frame.tryCatches = append(m.frame.tryCatches, tryCatch{
 				CatchAddr: int(instr.operand1),
 			})
 
 		case OpEndTry:
-			m.frame.TryCatches = m.frame.TryCatches[:len(m.frame.TryCatches)-1]
-			m.frame.IP = int(instr.operand1) - 1
+			m.frame.tryCatches = m.frame.tryCatches[:len(m.frame.tryCatches)-1]
+			m.frame.ip = int(instr.operand1) - 1
 
-		case OpSwapStack:
-			i1 := len(m.frame.Stack) - 1
+		case OpSwap:
+			i1 := len(m.frame.stack) - 1
 			i2 := i1 - int(instr.operand1)
-			t := m.frame.Stack[i2]
-			m.frame.Stack[i2] = m.frame.Stack[i1]
-			m.frame.Stack[i1] = t
+			t := m.frame.stack[i2]
+			m.frame.stack[i2] = m.frame.stack[i1]
+			m.frame.stack[i1] = t
 
 		case OpThrow:
 			errVal := m.pop()
@@ -548,7 +568,7 @@ func (m *Machine) resume() (ret []Value, err error) {
 
 		case OpDefer:
 			deferClosure := m.pop().(*Closure)
-			m.frame.Defers = append(m.frame.Defers, deferClosure)
+			m.frame.defers = append(m.frame.defers, deferClosure)
 
 		case OpNext:
 			jumpTo := int(instr.operand1)
@@ -567,7 +587,7 @@ func (m *Machine) resume() (ret []Value, err error) {
 					*rval.Ref = val
 				}
 			} else {
-				m.frame.IP = jumpTo - 1
+				m.frame.ip = jumpTo - 1
 			}
 			m.discardN((argN-1)*2 + 1)
 
@@ -590,23 +610,23 @@ func (m *Machine) resume() (ret []Value, err error) {
 			m.push(res)
 
 		case OpIterYield:
-			if m.frame.ExpRetN > len(m.frame.Stack) {
+			if m.frame.nRet > len(m.frame.stack) {
 				return nil, fmt.Errorf("error")
 			}
 
-			iter := m.frame.Iterator
-			iter.locals = m.frame.Locals
-			iter.tryCatches = m.frame.TryCatches
-			iter.defers = m.frame.Defers
-			iter.ip = m.frame.IP + 1
+			iter := m.frame.iter
+			iter.locals = m.frame.locals
+			iter.tryCatches = m.frame.tryCatches
+			iter.defers = m.frame.defers
+			iter.ip = m.frame.ip + 1
 
-			rets := m.frame.Stack[:m.frame.ExpRetN]
+			rets := m.frame.stack[:m.frame.nRet]
 			return rets, nil
 
 		case OpIterRet:
-			m.frame.Iterator.ip = -1
-			rets := make([]Value, m.frame.ExpRetN)
-			if m.frame.ExpRetN > 0 {
+			m.frame.iter.ip = -1
+			rets := make([]Value, m.frame.nRet)
+			if m.frame.nRet > 0 {
 				rets[0] = NewBool(false)
 			}
 			return rets, nil
@@ -615,7 +635,7 @@ func (m *Machine) resume() (ret []Value, err error) {
 			panic("invalid instruction")
 		}
 
-		m.frame.IP++
+		m.frame.ip++
 	}
 }
 
@@ -628,15 +648,15 @@ func (m *Machine) GetDebugStack() []FrameInfo {
 }
 
 func (m *Machine) GetNArg() int {
-	return m.callStack[len(m.callStack)-1].ArgN
+	return m.callStack[len(m.callStack)-1].nArg
 }
 
 func (m *Machine) GetArgs() []Value {
-	return m.callStack[len(m.callStack)-1].Args
+	return m.callStack[len(m.callStack)-1].args
 }
 
 func (m *Machine) getDebugFrame(frame *frame) FrameInfo {
-	loc := m.getLocation(frame.Fn, frame.IP)
+	loc := m.getLocation(frame.fn, frame.ip)
 	if loc == nil {
 		return FrameInfo{
 			Filename: "???",
@@ -666,28 +686,28 @@ func (m *Machine) getLocation(fn *Fn, ip int) *Location {
 }
 
 func (m *Machine) push(v Value) {
-	m.frame.Stack = append(m.frame.Stack, v)
+	m.frame.stack = append(m.frame.stack, v)
 }
 
 func (m *Machine) pop() Value {
-	l := len(m.frame.Stack)
-	r := m.frame.Stack[l-1]
-	m.frame.Stack = m.frame.Stack[:l-1]
+	l := len(m.frame.stack)
+	r := m.frame.stack[l-1]
+	m.frame.stack = m.frame.stack[:l-1]
 	return r
 }
 
 func (m *Machine) peek(n int) Value {
-	return m.frame.Stack[len(m.frame.Stack)-1-n]
+	return m.frame.stack[len(m.frame.stack)-1-n]
 }
 
 func (m *Machine) popN(n int) []Value {
-	r := m.frame.Stack[len(m.frame.Stack)-n:]
-	m.frame.Stack = m.frame.Stack[:len(m.frame.Stack)-n]
+	r := m.frame.stack[len(m.frame.stack)-n:]
+	m.frame.stack = m.frame.stack[:len(m.frame.stack)-n]
 	return r
 }
 
 func (m *Machine) discardN(n int) {
-	m.frame.Stack = m.frame.Stack[:len(m.frame.Stack)-n]
+	m.frame.stack = m.frame.stack[:len(m.frame.stack)-n]
 }
 
 func copyArgs(args []Value, minArgs int) []Value {
