@@ -16,7 +16,7 @@ type (
 	Bool      = runtime.Bool
 	Closure   = runtime.Closure
 	Iterator  = runtime.Iterator
-	ExternFn  = runtime.ExternFn
+	ExternFn  = runtime.NativeFn
 	Float     = runtime.Float
 	Frame     = runtime.FrameInfo
 	Func      = runtime.Fn

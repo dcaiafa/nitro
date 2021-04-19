@@ -49,28 +49,28 @@ func run(prog string, params map[string]nitro.Value) (output string, err error) 
 	compiler := nitro.NewCompiler(fs)
 	compiler.SetDiag(true)
 
-	compiler.AddExternalFn(
+	compiler.AddNativeFn(
 		"print",
-		func(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, expRetN int) ([]nitro.Value, error) {
+		func(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 			iargs := valuesToInterface(args)
 			fmt.Fprintln(outBuilder, iargs...)
 			return nil, nil
 		})
 
-	compiler.AddExternalFn(
+	compiler.AddNativeFn(
 		"printf",
-		func(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, expRetN int) ([]nitro.Value, error) {
+		func(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 			msg := args[0].(nitro.String)
 			iargs := valuesToInterface(args[1:])
 			fmt.Fprintf(outBuilder, msg.String()+"\n", iargs...)
 			return nil, nil
 		})
 
-	compiler.AddExternalFn(
+	compiler.AddNativeFn(
 		"call",
-		func(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, expRetN int) ([]nitro.Value, error) {
+		func(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 			callable := args[0].(nitro.Callable)
-			return m.Call(callable, args, expRetN)
+			return m.Call(callable, args, nRet)
 		})
 
 	compiled, err := compiler.Compile("main.n", &errlogger.ConsoleErrLogger{})

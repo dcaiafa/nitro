@@ -2,7 +2,7 @@ package std
 
 import "github.com/dcaiafa/nitro/internal/runtime"
 
-func args(m *runtime.Machine, caps []runtime.ValueRef, args []runtime.Value, expRetN int) ([]runtime.Value, error) {
+func args(m *runtime.Machine, caps []runtime.ValueRef, args []runtime.Value, nRet int) ([]runtime.Value, error) {
 	frameArgs := m.GetArgs()
 	argsCopy := make([]runtime.Value, len(frameArgs))
 	copy(argsCopy, frameArgs)

@@ -220,14 +220,14 @@ func (of *objectFormatter) str(s string) {
 	of.w.WriteString(s)
 }
 
-func objectIter(m *Machine, caps []ValueRef, args []Value, expRetN int) ([]Value, error) {
+func objectIter(m *Machine, caps []ValueRef, args []Value, nRet int) ([]Value, error) {
 	var (
 		obj = (*caps[0].Ref).(*Object)
 		key = *caps[1].Ref
 	)
 
-	if expRetN != 2 && expRetN != 3 {
-		log.Fatalf("unexpected return count %v", expRetN)
+	if nRet != 2 && nRet != 3 {
+		log.Fatalf("unexpected return count %v", nRet)
 	}
 
 	val, err := obj.Index(key)
@@ -235,7 +235,7 @@ func objectIter(m *Machine, caps []ValueRef, args []Value, expRetN int) ([]Value
 		return nil, err
 	}
 	if val == nil {
-		if expRetN == 2 {
+		if nRet == 2 {
 			return []Value{NewBool(false), nil}, nil
 		} else {
 			return []Value{NewBool(false), nil, nil}, nil
@@ -245,7 +245,7 @@ func objectIter(m *Machine, caps []ValueRef, args []Value, expRetN int) ([]Value
 	nextKey, _ := obj.GetNext(key)
 	*caps[1].Ref = nextKey
 
-	if expRetN == 2 {
+	if nRet == 2 {
 		return []Value{NewBool(true), key}, nil
 	} else {
 		return []Value{NewBool(true), key, val}, nil

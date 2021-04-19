@@ -284,11 +284,11 @@ func (r ValueRef) Refo() *Value   { return r.Ref }
 
 type Closure struct {
 	fn    *Fn
-	extFn ExternFn
+	extFn NativeFn
 	caps  []ValueRef
 }
 
-func NewClosure(extFn ExternFn, caps []ValueRef) *Closure {
+func NewClosure(extFn NativeFn, caps []ValueRef) *Closure {
 	return &Closure{
 		extFn: extFn,
 		caps:  caps,
@@ -301,7 +301,7 @@ func (c *Closure) isCallable()    {}
 
 type Iterator struct {
 	fn         *Fn
-	extFn      ExternFn
+	extFn      NativeFn
 	captures   []ValueRef
 	iterNRet   int
 	locals     []Value
@@ -315,7 +315,7 @@ func (e *Iterator) Type() string   { return "Iterator" }
 func (e *Iterator) isCallable()    {}
 func (e *Iterator) IterNRet() int  { return e.iterNRet }
 
-func NewIterator(extFn ExternFn, caps []ValueRef, nret int) *Iterator {
+func NewIterator(extFn NativeFn, caps []ValueRef, nret int) *Iterator {
 	return &Iterator{
 		extFn:    extFn,
 		captures: caps,
@@ -323,16 +323,16 @@ func NewIterator(extFn ExternFn, caps []ValueRef, nret int) *Iterator {
 	}
 }
 
-type ExternFn func(
+type NativeFn func(
 	m *Machine,
 	caps []ValueRef,
 	args []Value,
 	retN int,
 ) ([]Value, error)
 
-func (f ExternFn) String() string { return "<func>" }
-func (f ExternFn) Type() string   { return "Func" }
-func (f ExternFn) isCallable()    {}
+func (f NativeFn) String() string { return "<func>" }
+func (f NativeFn) Type() string   { return "Func" }
+func (f NativeFn) isCallable()    {}
 
 type Fn struct {
 	name      int

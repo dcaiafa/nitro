@@ -29,14 +29,14 @@ type Compiler struct {
 	fileSystem  FileSystem
 	diag        bool
 	main        *ast.Main
-	externalFns map[string]runtime.ExternFn
+	externalFns map[string]runtime.NativeFn
 }
 
 func NewCompiler(fileSystem FileSystem) *Compiler {
 	c := &Compiler{
 		fileSystem:  fileSystem,
 		main:        &ast.Main{},
-		externalFns: make(map[string]runtime.ExternFn),
+		externalFns: make(map[string]runtime.NativeFn),
 	}
 	std.Register(c)
 	return c
@@ -46,8 +46,8 @@ func (c *Compiler) SetDiag(diag bool) {
 	c.diag = diag
 }
 
-func (c *Compiler) AddExternalFn(name string, fn runtime.ExternFn) {
-	c.main.AddExternalFn(name, fn)
+func (c *Compiler) AddNativeFn(name string, fn runtime.NativeFn) {
+	c.main.AddNativeFn(name, fn)
 }
 
 func (c *Compiler) Compile(

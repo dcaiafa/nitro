@@ -85,7 +85,7 @@ func main() {
 
 	if *flagE != "" {
 		lib.RegisterAll(compiler)
-		compiler.AddExternalFn("emit", emitShort)
+		compiler.AddNativeFn("emit", emitShort)
 
 		compiled, err = compiler.CompileShort(*flagE, nitro.NewConsoleErrLogger())
 		if err != nil {
@@ -94,7 +94,7 @@ func main() {
 		}
 	} else {
 		lib.RegisterAll(compiler)
-		compiler.AddExternalFn("emit", emit)
+		compiler.AddNativeFn("emit", emit)
 
 		compiled, err = compiler.Compile(filename, nitro.NewConsoleErrLogger())
 		if err != nil {

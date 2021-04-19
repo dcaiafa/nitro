@@ -50,7 +50,7 @@ const (
 	OpLoadCapture
 	OpLoadCaptureRef
 	OpLoadFn
-	OpLoadExternFn
+	OpLoadNativeFn
 	OpLoadLiteral
 	OpEvalBinOp
 	OpNot
@@ -96,7 +96,7 @@ type frame struct {
 	nArg       int
 	iter       *Iterator
 	fn         *Fn
-	extFn      ExternFn
+	extFn      NativeFn
 	instrs     []Instr
 	args       []Value
 	caps       []ValueRef
@@ -166,7 +166,7 @@ func (m *Machine) runFunc(
 	return m.runFrame(frame)
 }
 
-func (m *Machine) callExtFn(extFn ExternFn, args []Value, caps []ValueRef, retN int) ([]Value, error) {
+func (m *Machine) callExtFn(extFn NativeFn, args []Value, caps []ValueRef, retN int) ([]Value, error) {
 	frame := &frame{
 		nRet:  retN,
 		nArg:  len(args),
@@ -191,7 +191,7 @@ func (m *Machine) callExtFn(extFn ExternFn, args []Value, caps []ValueRef, retN 
 func (m *Machine) Call(
 	callable Value,
 	args []Value,
-	expRetN int,
+	nRet int,
 ) ([]Value, error) {
 	switch callable := callable.(type) {
 	case *Closure:
@@ -200,14 +200,14 @@ func (m *Machine) Call(
 				callable.extFn,
 				copyArgs(args, 0),
 				callable.caps,
-				expRetN)
+				nRet)
 		} else {
 			return m.runFrame(&frame{
 				fn:   callable.fn,
 				args: copyArgs(args, callable.fn.minArgs),
 				caps: callable.caps,
 				nArg: len(args),
-				nRet: expRetN,
+				nRet: nRet,
 			})
 		}
 
@@ -217,11 +217,11 @@ func (m *Machine) Call(
 				callable.extFn,
 				copyArgs(args, 0),
 				callable.captures,
-				expRetN)
+				nRet)
 		} else {
 			if callable.ip == -1 {
-				rets := make([]Value, expRetN)
-				if expRetN > 0 {
+				rets := make([]Value, nRet)
+				if nRet > 0 {
 					rets[0] = NewBool(false)
 				}
 				return rets, nil
@@ -234,7 +234,7 @@ func (m *Machine) Call(
 				locals:     callable.locals,
 				tryCatches: callable.tryCatches,
 				defers:     callable.defers,
-				nRet:       expRetN,
+				nRet:       nRet,
 				ip:         callable.ip,
 			})
 		}
@@ -244,11 +244,11 @@ func (m *Machine) Call(
 			fn:   callable,
 			args: copyArgs(args, callable.minArgs),
 			nArg: len(args),
-			nRet: expRetN,
+			nRet: nRet,
 		})
 
-	case ExternFn:
-		return m.callExtFn(callable, args, nil, expRetN)
+	case NativeFn:
+		return m.callExtFn(callable, args, nil, nRet)
 
 	default:
 		if callable == nil {
@@ -450,7 +450,7 @@ func (m *Machine) resume() (ret []Value, err error) {
 		case OpLoadFn:
 			m.push(&m.program.fns[int(instr.operand1)])
 
-		case OpLoadExternFn:
+		case OpLoadNativeFn:
 			m.push(m.program.extFns[int(instr.operand1)])
 
 		case OpLoadLiteral:

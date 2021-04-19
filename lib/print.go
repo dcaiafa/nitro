@@ -7,14 +7,14 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-func print(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, expRetN int) ([]nitro.Value, error) {
+func print(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	stdout := Stdout(m)
 	iargs := valuesToInterface(args)
 	fmt.Fprintln(stdout, iargs...)
 	return nil, nil
 }
 
-func printf(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, expRetN int) ([]nitro.Value, error) {
+func printf(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) < 1 {
 		return nil, errNotEnoughArgs
 	}
@@ -31,7 +31,7 @@ func printf(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, expRetN
 	return nil, nil
 }
 
-func printall(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, expRetN int) ([]nitro.Value, error) {
+func printall(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	stdout := Stdout(m)
 	e, err := getIterArg(m, args, 0)
 	if err != nil {
@@ -50,13 +50,13 @@ func printall(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, expRe
 	return nil, nil
 }
 
-func log(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, expRetN int) ([]nitro.Value, error) {
+func log(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	iargs := valuesToInterface(args)
 	fmt.Fprintln(os.Stderr, iargs...)
 	return nil, nil
 }
 
-func logf(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, expRetN int) ([]nitro.Value, error) {
+func logf(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) < 1 {
 		return nil, errNotEnoughArgs
 	}
@@ -72,7 +72,7 @@ func logf(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, expRetN i
 	return nil, nil
 }
 
-func sprintf(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, expRetN int) ([]nitro.Value, error) {
+func sprintf(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) < 1 {
 		return nil, errNotEnoughArgs
 	}
