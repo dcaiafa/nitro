@@ -44,8 +44,9 @@ func (e *Emitter) AddGlobalParam(
 	}
 }
 
-func (e *Emitter) NewFn() int {
-	e.fns = append(e.fns, Fn{})
+func (e *Emitter) NewFn(name string) int {
+	idxName := e.AddString(name)
+	e.fns = append(e.fns, Fn{name: idxName})
 	return len(e.fns) - 1
 }
 
@@ -106,6 +107,7 @@ func (e *Emitter) Emit(pos token.Pos, op OpCode, operand1 uint32, operand2 uint1
 			ip:       len(curFn.instrs) - 1,
 			filename: e.curFileID,
 			lineNum:  pos.Line,
+			fn:       curFn.name,
 		})
 	}
 }

@@ -58,7 +58,7 @@ f5
 		try {
 			print("f2")
 			x = "f4"
-			print("from g:" + g())
+			print("from g:" + call(g))
 			print("f3")
 		} catch e {
 			print(x)
@@ -83,10 +83,11 @@ f2
 g1
 f4
 Runtime error: boom
- main.n:4
- main.n:13
- main.n:25
- main.n:31
+ main.n:4 g
+ <builtin>:0 tests.run.func3
+ main.n:13 f
+ main.n:25 x
+ main.n:31 main
 `)
 
 	RunSubO(t, "catch_error", `

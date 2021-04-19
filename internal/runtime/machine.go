@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"reflect"
+	"runtime"
+	"strings"
 )
 
 type BinOp byte
@@ -81,6 +84,7 @@ type Instr struct {
 type FrameInfo struct {
 	Filename string
 	Line     int
+	Func     string
 }
 
 type tryCatch struct {
@@ -163,6 +167,16 @@ func (m *Machine) runFunc(
 }
 
 func (m *Machine) callExtFn(extFn ExternFn, args []Value, caps []ValueRef, retN int) ([]Value, error) {
+	frame := &frame{
+		nRet:  retN,
+		nArg:  len(args),
+		extFn: extFn,
+		args:  args,
+		caps:  caps,
+	}
+	m.pushFrame(frame)
+	defer m.popFrame()
+
 	rets, err := extFn(m, caps, args, retN)
 	if err != nil {
 		return nil, err
@@ -170,6 +184,7 @@ func (m *Machine) callExtFn(extFn ExternFn, args []Value, caps []ValueRef, retN 
 	if len(rets) < retN {
 		return nil, fmt.Errorf("expected at least %v returned values", retN)
 	}
+
 	return rets, nil
 }
 
@@ -243,11 +258,22 @@ func (m *Machine) Call(
 	}
 }
 
-func (m *Machine) runFrame(frame *frame) (rets []Value, err error) {
-	frame.instrs = frame.fn.instrs
-
+func (m *Machine) pushFrame(frame *frame) {
 	m.callStack = append(m.callStack, frame)
 	m.frame = frame
+}
+
+func (m *Machine) popFrame() {
+	m.callStack[len(m.callStack)-1] = nil
+	m.callStack = m.callStack[:len(m.callStack)-1]
+	if len(m.callStack) > 0 {
+		m.frame = m.callStack[len(m.callStack)-1]
+	}
+}
+
+func (m *Machine) runFrame(frame *frame) (rets []Value, err error) {
+	frame.instrs = frame.fn.instrs
+	m.pushFrame(frame)
 
 	defer func() {
 		for i := len(m.frame.defers) - 1; i >= 0; i-- {
@@ -260,12 +286,7 @@ func (m *Machine) runFrame(frame *frame) (rets []Value, err error) {
 				}
 			}
 		}
-
-		m.callStack[len(m.callStack)-1] = nil
-		m.callStack = m.callStack[:len(m.callStack)-1]
-		if len(m.callStack) > 0 {
-			m.frame = m.callStack[len(m.callStack)-1]
-		}
+		m.popFrame()
 	}()
 
 	for {
@@ -648,24 +669,55 @@ func (m *Machine) GetDebugStack() []FrameInfo {
 }
 
 func (m *Machine) GetNArg() int {
-	return m.callStack[len(m.callStack)-1].nArg
+	if len(m.callStack) < 2 {
+		return 0
+	}
+	return m.callStack[len(m.callStack)-2].nArg
 }
 
 func (m *Machine) GetArgs() []Value {
-	return m.callStack[len(m.callStack)-1].args
+	if len(m.callStack) < 2 {
+		return nil
+	}
+	return m.callStack[len(m.callStack)-2].args
 }
 
 func (m *Machine) getDebugFrame(frame *frame) FrameInfo {
-	loc := m.getLocation(frame.fn, frame.ip)
-	if loc == nil {
+	if frame.fn != nil {
+		loc := m.getLocation(frame.fn, frame.ip)
+		if loc == nil {
+			return FrameInfo{
+				Filename: "???",
+				Line:     0,
+				Func:     "???",
+			}
+		}
+		return FrameInfo{
+			Filename: m.program.literals[loc.filename].(String).String(),
+			Line:     loc.lineNum,
+			Func:     m.program.literals[loc.fn].(String).String(),
+		}
+	}
+
+	fn := runtime.FuncForPC(reflect.ValueOf(frame.extFn).Pointer())
+	if fn == nil {
 		return FrameInfo{
 			Filename: "???",
 			Line:     0,
+			Func:     "???",
 		}
 	}
+
+	fnName := fn.Name()
+	lastSlash := strings.LastIndexByte(fnName, '/')
+	if lastSlash != -1 {
+		fnName = fnName[lastSlash+1:]
+	}
+
 	return FrameInfo{
-		Filename: m.program.literals[loc.filename].(String).String(),
-		Line:     loc.lineNum,
+		Filename: "<builtin>",
+		Line:     0,
+		Func:     fnName,
 	}
 }
 

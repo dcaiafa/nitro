@@ -335,6 +335,7 @@ func (f ExternFn) Type() string   { return "Func" }
 func (f ExternFn) isCallable()    {}
 
 type Fn struct {
+	name      int
 	locations []Location
 	instrs    []Instr
 	minArgs   int

@@ -23,7 +23,7 @@ func (m *Module) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Check:
 		m.scope = symbol.NewScope()
-		m.fn = ctx.Emitter().NewFn()
+		m.fn = ctx.Emitter().NewFn("main")
 
 	case Emit:
 		emitter := ctx.Emitter()

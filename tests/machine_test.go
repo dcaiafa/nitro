@@ -31,10 +31,10 @@ func TestErrorStack(t *testing.T) {
 	require.True(t, errors.As(err, &rerr))
 
 	expectedStack := []nitro.Frame{
-		{Filename: "main.n", Line: 4},
-		{Filename: "main.n", Line: 7},
-		{Filename: "main.n", Line: 10},
-		{Filename: "main.n", Line: 12},
+		{Filename: "main.n", Line: 4, Func: "h"},
+		{Filename: "main.n", Line: 7, Func: "g"},
+		{Filename: "main.n", Line: 10, Func: "f"},
+		{Filename: "main.n", Line: 12, Func: "main"},
 	}
 
 	require.Equal(t, expectedStack, rerr.Stack)

@@ -66,6 +66,13 @@ func run(prog string, params map[string]nitro.Value) (output string, err error) 
 			return nil, nil
 		})
 
+	compiler.AddExternalFn(
+		"call",
+		func(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, expRetN int) ([]nitro.Value, error) {
+			callable := args[0].(nitro.Callable)
+			return m.Call(callable, args, expRetN)
+		})
+
 	compiled, err := compiler.Compile("main.n", &errlogger.ConsoleErrLogger{})
 	if err != nil {
 		return "", err

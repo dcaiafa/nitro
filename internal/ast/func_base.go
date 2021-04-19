@@ -11,6 +11,7 @@ type Func struct {
 	Params    ASTs
 	Block     *StmtBlock
 	IsClosure bool
+	DebugName string
 
 	idxFunc    int
 	scope      *symbol.Scope
@@ -24,7 +25,7 @@ func (f *Func) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Check:
 		f.scope = symbol.NewScope()
-		f.idxFunc = ctx.Emitter().NewFn()
+		f.idxFunc = ctx.Emitter().NewFn(f.DebugName)
 
 	case Emit:
 		emitter := ctx.Emitter()

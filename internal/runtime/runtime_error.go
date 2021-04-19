@@ -55,8 +55,9 @@ func (e *RuntimeError) Error() string {
 	}
 
 	for _, f := range e.Stack {
-		fmt.Fprintf(&str, "\n %v:%v", f.Filename, f.Line)
+		fmt.Fprintf(&str, "\n %v:%v %v", f.Filename, f.Line, f.Func)
 	}
+
 	return str.String()
 }
 

@@ -25,6 +25,7 @@ func (s *FuncStmt) RunPass(ctx *Context, pass Pass) {
 			s.sym = &symbol.FuncSymbol{}
 		}
 
+		s.Func.DebugName = s.Name
 		s.sym.SetName(s.Name)
 		s.sym.SetPos(s.Pos())
 		if !ctx.CurrentScope().PutSymbol(ctx, s.sym) {

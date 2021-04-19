@@ -33,6 +33,7 @@ func newDeferred(callExpr *FuncCallExpr) *deferred {
 			&ExprStmt{Expr: callExpr},
 		},
 	}
+	d.DebugName = "$defer"
 	d.IsClosure = true
 	return d
 }
