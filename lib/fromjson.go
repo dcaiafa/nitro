@@ -8,7 +8,7 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-func fromjson(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func fromjson(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) < 0 {
 		return nil, errNotEnoughArgs
 	}

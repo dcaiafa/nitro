@@ -155,13 +155,13 @@ func (m *Machine) runFunc(
 	fn *Fn,
 	args []Value,
 	captures []ValueRef,
-	retN int,
+	nRet int,
 ) ([]Value, error) {
 	frame := &frame{}
 	frame.fn = fn
 	frame.instrs = fn.instrs
 	frame.args = args
-	frame.nRet = retN
+	frame.nRet = nRet
 	frame.caps = captures
 	return m.runFrame(frame)
 }
@@ -170,10 +170,10 @@ func (m *Machine) callExtFn(
 	extFn NativeFn,
 	args []Value,
 	caps []ValueRef,
-	retN int,
+	nRet int,
 ) ([]Value, error) {
 	frame := &frame{
-		nRet:  retN,
+		nRet:  nRet,
 		nArg:  len(args),
 		extFn: extFn,
 		args:  args,
@@ -182,12 +182,12 @@ func (m *Machine) callExtFn(
 	m.pushFrame(frame)
 	defer m.popFrame()
 
-	rets, err := extFn(m, caps, args, retN)
+	rets, err := extFn(m, caps, args, nRet)
 	if err != nil {
 		return nil, err
 	}
-	if len(rets) < retN {
-		return nil, fmt.Errorf("expected at least %v returned values", retN)
+	if len(rets) < nRet {
+		return nil, fmt.Errorf("expected at least %v returned values", nRet)
 	}
 
 	return rets, nil

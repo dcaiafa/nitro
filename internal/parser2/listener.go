@@ -601,7 +601,7 @@ func (l *listener) ExitExpr(ctx *parser.ExprContext) {
 			fn.Args = append(ast.Exprs{left}, fn.Args...)
 			l.put(ctx, fn)
 
-		case *ast.LambdaExpr:
+		case *ast.AnonFuncExpr:
 			fnCall := &ast.FuncCallExpr{
 				Target: fn,
 				Args:   ast.Exprs{left},
@@ -834,7 +834,7 @@ func (l *listener) ExitLvalue_expr_index(ctx *parser.Lvalue_expr_indexContext) {
 
 // lambda_expr: FN '(' param_list? ')' stmts END;
 func (l *listener) ExitLambda_expr(ctx *parser.Lambda_exprContext) {
-	lambda := &ast.LambdaExpr{}
+	lambda := &ast.AnonFuncExpr{}
 	lambda.Params = l.takeASTs(ctx.Param_list())
 	lambda.Block = l.takeAST(ctx.Stmts()).(*ast.StmtBlock)
 	l.put(ctx, lambda)
@@ -842,7 +842,7 @@ func (l *listener) ExitLambda_expr(ctx *parser.Lambda_exprContext) {
 
 // short_lambda_expr: '&' param_list? '->' binary_expr;
 func (l *listener) ExitShort_lambda_expr(ctx *parser.Short_lambda_exprContext) {
-	lambda := &ast.LambdaExpr{}
+	lambda := &ast.AnonFuncExpr{}
 	lambda.Params = l.takeASTs(ctx.Param_list())
 	lambda.Block = &ast.StmtBlock{
 		Stmts: ast.ASTs{

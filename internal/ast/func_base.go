@@ -47,7 +47,7 @@ func (f *Func) RunPass(ctx *Context, pass Pass) {
 			// }                          yield x+y
 			//                          }
 			//                        }
-			g := new(LambdaExpr)
+			g := new(AnonFuncExpr)
 			g.SetPos(f.Pos())
 			g.Block = f.Block
 			g.iterNRet = f.iterNRet

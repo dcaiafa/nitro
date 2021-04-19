@@ -8,7 +8,7 @@ import (
 )
 
 var errAvgUsage = errors.New(
-	"invalid usage. Expected: avg(iter) or avg(accum, int|float)")
+	"invalid usage. Expected: avg(iter) or avg(accum, int|float?)")
 
 type avgAccum struct {
 	sum   float64
@@ -18,12 +18,12 @@ type avgAccum struct {
 func (a *avgAccum) String() string { return "<avg>" }
 func (a *avgAccum) Type() string   { return "avg" }
 
-func avg(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func avg(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) == 0 {
 		return nil, errAvgUsage
 	}
 
-	// Form 1: avg(accum, float|int)
+	// Form 1: avg(accum, float|int|nil)
 	accum, ok := args[0].(*avgAccum)
 	if ok || args[0] == nil {
 		if accum == nil {
@@ -105,4 +105,61 @@ func avg(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) 
 	}
 
 	return []nitro.Value{nitro.NewFloat(sum / float64(count))}, nil
+}
+
+var errMaxUsage = errors.New(
+	"invalid usage. Expected: max(int|float...) or max(iter)")
+
+func max(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	if len(args) == 0 {
+		return nil, errMaxUsage
+	}
+
+	iter, err := nitro.MakeIterator(m, args[0])
+	if err == nil {
+		var maxV nitro.Value
+		for {
+			v, ok, err := nitro.Next(m, iter, 1)
+			if err != nil {
+				return nil, err
+			}
+			if !ok {
+				break
+			}
+			if v[0] == nil {
+				continue
+			}
+			if maxV == nil {
+				maxV = v[0]
+				continue
+			}
+			isGT, err := evalCmpOp(nitro.BinGT, v[0], maxV)
+			if err != nil {
+				return nil, err
+			}
+			if isGT {
+				maxV = v[0]
+			}
+		}
+		return []nitro.Value{maxV}, nil
+	}
+
+	var maxV nitro.Value
+	for _, arg := range args {
+		if arg == nil {
+			continue
+		}
+		if maxV == nil {
+			maxV = arg
+			continue
+		}
+		isGT, err := evalCmpOp(nitro.BinGT, arg, maxV)
+		if err != nil {
+			return nil, err
+		}
+		if isGT {
+			maxV = arg
+		}
+	}
+	return []nitro.Value{maxV}, nil
 }

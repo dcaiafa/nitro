@@ -2,7 +2,7 @@ package lib
 
 import "github.com/dcaiafa/nitro"
 
-func mapreduce(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func mapreduce(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	iter, err := getIterArg(m, args, 0)
 	if err != nil {
 		return nil, err
@@ -47,7 +47,8 @@ func mapreduce(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN
 		}
 
 		accumRef, _ := res.IndexRef(mapKey[0])
-		accumRes, err := m.Call(reduceFn, []nitro.Value{*accumRef.Refo(), val[0]}, 1)
+		accumRes, err := m.Call(
+			reduceFn, []nitro.Value{*accumRef.Refo(), val[0]}, 1)
 		if err != nil {
 			return nil, err
 		}
@@ -57,7 +58,7 @@ func mapreduce(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN
 
 	err = nil
 	res.ForEach(func(k, accum nitro.Value) bool {
-		accumRes, callErr := m.Call(reduceFn, []nitro.Value{accum, nil}, 1)
+		accumRes, callErr := m.Call(reduceFn, []nitro.Value{accum}, 1)
 		if callErr != nil {
 			err = callErr
 			return false

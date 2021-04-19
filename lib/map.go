@@ -4,7 +4,7 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-func fnMap(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func mapp(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	inIter, err := getIterArg(m, args, 0)
 	if err != nil {
 		return nil, err
@@ -28,7 +28,7 @@ type mapIter struct {
 	fn     nitro.Value
 }
 
-func (i *mapIter) Next(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func (i *mapIter) Next(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	v, ok, err := nitro.Next(m, i.inIter, i.inIter.IterNRet())
 	if err != nil {
 		return nil, err

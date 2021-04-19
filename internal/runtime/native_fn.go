@@ -4,7 +4,7 @@ type NativeFn func(
 	m *Machine,
 	caps []ValueRef,
 	args []Value,
-	retN int,
+	nRet int,
 ) ([]Value, error)
 
 func (f NativeFn) String() string { return "<func>" }

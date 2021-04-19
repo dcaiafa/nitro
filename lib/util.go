@@ -178,3 +178,14 @@ func ToReader(m *nitro.Machine, v runtime.Value) (io.Reader, error) {
 			nitro.TypeName(v))
 	}
 }
+
+func iterDone(nRet int) ([]nitro.Value, error) {
+	if nRet < 1 {
+		// This should not be possible.
+		return nil, fmt.Errorf(
+			"iterator nRet < 1")
+	}
+	rets := make([]nitro.Value, nRet)
+	rets[0] = nitro.NewBool(false)
+	return rets, nil
+}

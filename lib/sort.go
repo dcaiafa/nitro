@@ -99,7 +99,7 @@ func (s *sorter) Swap(i, j int) {
 	s.arr.Put(j, t)
 }
 
-func sort(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func sort(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) < 1 {
 		return nil, errNotEnoughArgs
 	}

@@ -62,7 +62,7 @@ func (t Time) EvalUnaryMinus() (nitro.Value, error) {
 	return nil, fmt.Errorf("operation is not supported by time")
 }
 
-func parsetime(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func parsetime(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	timeStr, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -84,7 +84,7 @@ func parsetime(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN
 	return []nitro.Value{Time{time: t}}, nil
 }
 
-func timetounix(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func timetounix(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) < 1 {
 		return nil, errNotEnoughArgs
 	}
@@ -99,7 +99,7 @@ func timetounix(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, ret
 	return []nitro.Value{nitro.NewInt(timeArg.time.Unix())}, nil
 }
 
-func timetounixnano(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func timetounixnano(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) < 1 {
 		return nil, errNotEnoughArgs
 	}
@@ -114,7 +114,7 @@ func timetounixnano(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value,
 	return []nitro.Value{nitro.NewInt(timeArg.time.UnixNano())}, nil
 }
 
-func timefromunix(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func timefromunix(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	var err error
 	var sec, nano int64
 	sec, err = getIntArg(args, 0)

@@ -29,6 +29,7 @@ type (
 	ValueRef  = runtime.ValueRef
 	Callable  = runtime.Callable
 	Indexable = runtime.Indexable
+	Evaluator = runtime.Evaluator
 
 	RuntimeError = runtime.RuntimeError
 

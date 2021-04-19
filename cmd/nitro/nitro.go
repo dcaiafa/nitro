@@ -14,7 +14,7 @@ import (
 	"github.com/dcaiafa/nitro/lib"
 )
 
-func emit(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func emit(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	stdout := lib.Stdout(m)
 	if len(args) < 1 {
 		return nil, fmt.Errorf("not enough arguments")
@@ -34,7 +34,7 @@ func emit(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int)
 	return nil, nil
 }
 
-func emitShort(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func emitShort(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	e, err := nitro.MakeIterator(m, args[0])
 	if err == nil {
 		for {

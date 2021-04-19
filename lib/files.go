@@ -16,10 +16,10 @@ type File struct {
 	*os.File
 }
 
-func (f *File) String() string { return fmt.Sprintf("<File:%v>", f.File.Name()) }
+func (f *File) String() string { return fmt.Sprintf("File:%v", f.File.Name()) }
 func (f *File) Type() string   { return "File" }
 
-func open(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func open(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	filename, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -33,7 +33,7 @@ func open(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int)
 	return []nitro.Value{&File{f}}, nil
 }
 
-func fcreate(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func create(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	filename, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ func fcreate(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN i
 	return []nitro.Value{&File{f}}, nil
 }
 
-func fremove(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func rm(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) < 1 {
 		return nil, errNotEnoughArgs
 	}
@@ -75,12 +75,18 @@ func fremove(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN i
 	return nil, nil
 }
 
-func write(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func write(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) < 2 {
 		return nil, errNotEnoughArgs
 	}
+
+	reader, err := ToReader(m, args[0])
+	if err != nil {
+		return nil, err
+	}
+
 	var writer io.Writer
-	switch arg := args[0].(type) {
+	switch arg := args[1].(type) {
 	case nitro.String:
 		f, err := os.Create(arg.String())
 		if err != nil {
@@ -96,11 +102,6 @@ func write(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int
 		return nil, fmt.Errorf("invalid arg 2")
 	}
 
-	reader, err := ToReader(m, args[1])
-	if err != nil {
-		return nil, err
-	}
-
 	_, err = io.Copy(writer, reader)
 	if err != nil {
 		return nil, err
@@ -109,7 +110,7 @@ func write(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int
 	return nil, nil
 }
 
-func fremoveall(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func rmall(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	path, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -123,7 +124,7 @@ func fremoveall(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, ret
 	return nil, nil
 }
 
-func fcreatetemp(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func createtemp(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	pattern, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -137,7 +138,7 @@ func fcreatetemp(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, re
 	return []nitro.Value{&File{f}}, nil
 }
 
-func fexists(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func fileexists(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	path, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -153,7 +154,7 @@ func fexists(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN i
 	return []nitro.Value{nitro.NewBool(true)}, nil
 }
 
-func fisdir(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func isdir(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	path, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -169,7 +170,7 @@ func fisdir(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN in
 	return []nitro.Value{nitro.NewBool(fi.IsDir())}, nil
 }
 
-func flist(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func ls(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	path, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -180,7 +181,7 @@ func flist(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int
 		return nil, err
 	}
 
-	iter := &flistIter{
+	iter := &lsIter{
 		root:    path,
 		entries: entries,
 	}
@@ -188,12 +189,12 @@ func flist(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int
 	return []nitro.Value{nitro.NewIterator(iter.Next, nil, 2)}, nil
 }
 
-type flistIter struct {
+type lsIter struct {
 	root    string
 	entries []fs.DirEntry
 }
 
-func (i *flistIter) Next(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func (i *lsIter) Next(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(i.entries) == 0 {
 		return []nitro.Value{nitro.NewBool(false), nil, nil}, nil
 	}
@@ -207,7 +208,7 @@ func (i *flistIter) Next(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.V
 	return res, nil
 }
 
-func fcopy(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func cp(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	from, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -246,78 +247,4 @@ func fcopy(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int
 	}
 
 	return []nitro.Value{nitro.NewString(to)}, nil
-}
-
-func fpathbase(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
-	path, err := getStringArg(args, 0)
-	if err != nil {
-		return nil, err
-	}
-
-	base := filepath.Base(path)
-
-	return []nitro.Value{nitro.NewString(base)}, nil
-}
-
-func fpathclean(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
-	path, err := getStringArg(args, 0)
-	if err != nil {
-		return nil, err
-	}
-
-	cleanPath := filepath.Clean(path)
-
-	return []nitro.Value{nitro.NewString(cleanPath)}, nil
-}
-
-func fpathdir(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
-	path, err := getStringArg(args, 0)
-	if err != nil {
-		return nil, err
-	}
-
-	dir := filepath.Dir(path)
-
-	return []nitro.Value{nitro.NewString(dir)}, nil
-}
-
-func fpathext(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
-	path, err := getStringArg(args, 0)
-	if err != nil {
-		return nil, err
-	}
-
-	ext := filepath.Ext(path)
-
-	return []nitro.Value{nitro.NewString(ext)}, nil
-}
-
-func fpathfromslash(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
-	path, err := getStringArg(args, 0)
-	if err != nil {
-		return nil, err
-	}
-
-	fromSlash := filepath.FromSlash(path)
-
-	return []nitro.Value{nitro.NewString(fromSlash)}, nil
-}
-
-func fpathjoin(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
-	if len(args) < 2 {
-		return nil, errNotEnoughArgs
-	}
-
-	paths := make([]string, len(args))
-
-	var err error
-	for i := 0; i < len(args); i++ {
-		paths[i], err = getStringArg(args, i)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	path := filepath.Join(paths...)
-	return []nitro.Value{nitro.NewString(path)}, nil
 }

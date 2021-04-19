@@ -6,7 +6,7 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-func take(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func take(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) < 2 {
 		return nil, fmt.Errorf("not enough arguments")
 	}
@@ -29,11 +29,11 @@ type takeIter struct {
 	count  int
 }
 
-func (i *takeIter) Next(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func (i *takeIter) Next(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if i.count == 0 {
 		return append(
 			[]nitro.Value{nitro.NewBool(false)},
-			make([]nitro.Value, retN-1)...), nil
+			make([]nitro.Value, nRet-1)...), nil
 	}
 
 	v, ok, err := nitro.Next(m, i.inIter, i.inIter.IterNRet())
@@ -43,7 +43,7 @@ func (i *takeIter) Next(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Va
 	if !ok {
 		return append(
 			[]nitro.Value{nitro.NewBool(false)},
-			make([]nitro.Value, retN-1)...), nil
+			make([]nitro.Value, nRet-1)...), nil
 	}
 	i.count--
 	return append([]nitro.Value{nitro.NewBool(true)}, v...), nil

@@ -8,7 +8,7 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-func lines(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func lines(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) < 1 {
 		return nil, errNotEnoughArgs
 	}
@@ -29,21 +29,21 @@ func lines(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int
 type linesIter struct {
 	input   io.Reader
 	scanner *bufio.Scanner
+	idxLine int
 }
 
-func (l *linesIter) Next(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, retN int) ([]nitro.Value, error) {
+func (l *linesIter) Next(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if !l.scanner.Scan() {
 		CloseReader(l.input)
 		if l.scanner.Err() != nil {
 			return nil, l.scanner.Err()
 		}
-		return []nitro.Value{
-			nitro.NewBool(false),
-			nil,
-		}, nil
+		return iterDone(nRet)
 	}
+	l.idxLine++
 	return []nitro.Value{
 		nitro.NewBool(true),
 		nitro.NewString(l.scanner.Text()),
+		nitro.NewInt(int64(l.idxLine - 1)),
 	}, nil
 }

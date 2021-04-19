@@ -155,7 +155,7 @@ func exec(
 	m *nitro.Machine,
 	caps []nitro.ValueRef,
 	args []nitro.Value,
-	retN int,
+	nRet int,
 ) ([]nitro.Value, error) {
 	var err error
 	var stdin io.Reader
