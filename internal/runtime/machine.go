@@ -166,7 +166,12 @@ func (m *Machine) runFunc(
 	return m.runFrame(frame)
 }
 
-func (m *Machine) callExtFn(extFn NativeFn, args []Value, caps []ValueRef, retN int) ([]Value, error) {
+func (m *Machine) callExtFn(
+	extFn NativeFn,
+	args []Value,
+	caps []ValueRef,
+	retN int,
+) ([]Value, error) {
 	frame := &frame{
 		nRet:  retN,
 		nArg:  len(args),
@@ -303,7 +308,7 @@ func (m *Machine) runFrame(frame *frame) (rets []Value, err error) {
 		}
 
 		if rerr.Stack == nil {
-			rerr.Stack = m.GetDebugStack()
+			rerr.Stack = m.GetStackInfo()
 		}
 
 		err = rerr
@@ -660,10 +665,10 @@ func (m *Machine) resume() (ret []Value, err error) {
 	}
 }
 
-func (m *Machine) GetDebugStack() []FrameInfo {
+func (m *Machine) GetStackInfo() []FrameInfo {
 	stack := make([]FrameInfo, 0, len(m.callStack))
 	for i := len(m.callStack) - 1; i >= 0; i-- {
-		stack = append(stack, m.getDebugFrame(m.callStack[i]))
+		stack = append(stack, m.getFrameInfo(m.callStack[i]))
 	}
 	return stack
 }
@@ -682,7 +687,7 @@ func (m *Machine) GetArgs() []Value {
 	return m.callStack[len(m.callStack)-2].args
 }
 
-func (m *Machine) getDebugFrame(frame *frame) FrameInfo {
+func (m *Machine) getFrameInfo(frame *frame) FrameInfo {
 	if frame.fn != nil {
 		loc := m.getLocation(frame.fn, frame.ip)
 		if loc == nil {
@@ -760,14 +765,4 @@ func (m *Machine) popN(n int) []Value {
 
 func (m *Machine) discardN(n int) {
 	m.frame.stack = m.frame.stack[:len(m.frame.stack)-n]
-}
-
-func copyArgs(args []Value, minArgs int) []Value {
-	n := len(args)
-	if n < minArgs {
-		n = minArgs
-	}
-	cargs := make([]Value, n)
-	copy(cargs, args)
-	return cargs
 }
