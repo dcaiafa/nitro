@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -31,14 +32,17 @@ func (t Time) EvalBinOp(op nitro.BinOp, operand nitro.Value) (nitro.Value, error
 		}
 		return nitro.NewBool(res), nil
 
-	case nitro.BinLT, nitro.BinLE, nitro.BinGT, nitro.BinGE:
+	case nitro.BinSub, nitro.BinLT, nitro.BinLE, nitro.BinGT, nitro.BinGE:
 		operandTime, ok := operand.(Time)
 		if !ok {
 			return nil, fmt.Errorf(
 				"invalid operation between time and %v",
 				nitro.TypeName(operand))
 		}
+
 		switch op {
+		case nitro.BinSub:
+			return Duration{t.time.Sub(operandTime.time)}, nil
 		case nitro.BinLT:
 			return nitro.NewBool(t.time.Before(operandTime.time)), nil
 		case nitro.BinLE:
@@ -53,6 +57,15 @@ func (t Time) EvalBinOp(op nitro.BinOp, operand nitro.Value) (nitro.Value, error
 			panic("unreachable")
 		}
 
+	case nitro.BinAdd:
+		operandDur, ok := operand.(Duration)
+		if !ok {
+			return nil, fmt.Errorf(
+				"invalid operation between time and %v",
+				nitro.TypeName(operand))
+		}
+		return Time{t.time.Add(operandDur.dur)}, nil
+
 	default:
 		return nil, fmt.Errorf("operation is not supported by time")
 	}
@@ -60,6 +73,15 @@ func (t Time) EvalBinOp(op nitro.BinOp, operand nitro.Value) (nitro.Value, error
 
 func (t Time) EvalUnaryMinus() (nitro.Value, error) {
 	return nil, fmt.Errorf("operation is not supported by time")
+}
+
+var errNowUsage = errors.New("invalid usage. Expected now()")
+
+func now(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	if len(args) != 0 {
+		return nil, errNowUsage
+	}
+	return []nitro.Value{Time{time.Now()}}, nil
 }
 
 func parsetime(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
@@ -82,6 +104,31 @@ func parsetime(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet
 		return nil, err
 	}
 	return []nitro.Value{Time{time: t}}, nil
+}
+
+var errFormatTimeUsage = errors.New(
+	"invalid usage. Expected formattime(time, layout: string?)")
+
+func formattime(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	if len(args) < 1 {
+		return nil, errFormatTimeUsage
+	}
+	t, ok := args[0].(Time)
+	if !ok {
+		return nil, errFormatTimeUsage
+	}
+	layout := time.RFC3339
+	if len(args) == 2 {
+		layoutArg, ok := args[1].(nitro.String)
+		if !ok {
+			return nil, errFormatTimeUsage
+		}
+		layout = convertTimeLayout(layoutArg.String())
+	}
+
+	res := t.time.Format(layout)
+
+	return []nitro.Value{nitro.NewString(res)}, nil
 }
 
 func timetounix(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {

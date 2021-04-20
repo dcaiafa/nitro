@@ -20,6 +20,9 @@ func (f Float) EvalBinOp(op BinOp, operand Value) (Value, error) {
 	if !ok {
 		if operandInt, ok := operand.(Int); ok {
 			operandFloat = NewFloat(float64(operandInt.Int64()))
+		} else {
+			return nil, fmt.Errorf(
+				"invalid operation between float and %v", TypeName(operand))
 		}
 	}
 

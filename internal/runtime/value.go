@@ -62,16 +62,20 @@ func CoerceToBool(v Value) bool {
 }
 
 func EvalBinOp(op BinOp, operand1, operand2 Value) (Value, error) {
-	evaluator, ok := operand1.(Evaluator)
-	if ok {
-		return evaluator.EvalBinOp(op, operand2)
-	} else if op == BinEq {
+	if operand1 != nil && operand2 != nil {
+		evaluator, ok := operand1.(Evaluator)
+		if ok {
+			return evaluator.EvalBinOp(op, operand2)
+		}
+	}
+	switch op {
+	case BinEq:
 		return NewBool(operand1 == operand2), nil
-	} else if op == BinNE {
+	case BinNE:
 		return NewBool(operand1 != operand2), nil
-	} else {
+	default:
 		return nil, fmt.Errorf(
-			"left value with type %q does not support binary operation",
-			TypeName(operand1))
+			"operation not supported between %v and %v",
+			TypeName(operand1), TypeName(operand2))
 	}
 }

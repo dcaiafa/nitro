@@ -1,26 +1,38 @@
 package lib
 
-import "github.com/dcaiafa/nitro"
+import (
+	"errors"
+	"fmt"
+
+	"github.com/dcaiafa/nitro"
+)
+
+var errMapReduceUsage = errors.New(
+	`invalid usage. Expected mapreduce(iter, map:string|func, pick:string|func, reduce:func)`)
 
 func mapreduce(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	iter, err := getIterArg(m, args, 0)
-	if err != nil {
-		return nil, err
+	if len(args) != 4 {
+		return nil, errMapReduceUsage
 	}
 
-	mapFn, err := getCallableArg(args, 1)
+	iter, err := nitro.MakeIterator(m, args[0])
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("invalid argument 1: %w", err)
 	}
 
-	reducePickFn, err := getCallableArg(args, 2)
+	mapExpr, _, err := ParsePathExpr(args[1])
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("invalid argument 2: %w", err)
 	}
 
-	reduceFn, err := getCallableArg(args, 3)
+	pickExpr, _, err := ParsePathExpr(args[2])
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("invalid argument 3: %w", err)
+	}
+
+	reduceFn, ok := args[3].(nitro.Callable)
+	if !ok {
+		return nil, errMapReduceUsage
 	}
 
 	res := nitro.NewObject()
@@ -32,23 +44,26 @@ func mapreduce(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet
 		if !has {
 			break
 		}
-		mapKey, err := m.Call(mapFn, []nitro.Value{cur[0]}, 1)
+
+		mapKey, err := mapExpr.Eval(m, cur[0])
 		if err != nil {
 			return nil, err
 		}
-
-		val, err := m.Call(reducePickFn, []nitro.Value{cur[0]}, 1)
-		if err != nil {
-			return nil, err
-		}
-
-		if val[0] == nil {
+		if mapKey == nil {
 			continue
 		}
 
-		accumRef, _ := res.IndexRef(mapKey[0])
+		val, err := pickExpr.Eval(m, cur[0])
+		if err != nil {
+			return nil, err
+		}
+		if val == nil {
+			continue
+		}
+
+		accumRef, _ := res.IndexRef(mapKey)
 		accumRes, err := m.Call(
-			reduceFn, []nitro.Value{*accumRef.Refo(), val[0]}, 1)
+			reduceFn, []nitro.Value{*accumRef.Refo(), val}, 1)
 		if err != nil {
 			return nil, err
 		}
@@ -66,6 +81,10 @@ func mapreduce(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet
 		res.Put(k, accumRes[0])
 		return true
 	})
+
+	if err != nil {
+		return nil, fmt.Errorf("final reduce failed: %w", err)
+	}
 
 	return []nitro.Value{res}, nil
 }

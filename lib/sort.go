@@ -3,7 +3,6 @@ package lib
 import (
 	"fmt"
 	gosort "sort"
-	"strings"
 
 	"github.com/dcaiafa/nitro"
 )
@@ -35,11 +34,19 @@ func (s *sorter) Less(i, j int) bool {
 
 	if len(s.exprs) > 0 {
 		for i, expr := range s.exprs {
-			a, _ := expr.pathExpr.Eval(a)
+			a, err := expr.pathExpr.Eval(s.m, a)
+			if err != nil {
+				s.err = err
+				return false
+			}
 			if a == nil {
 				return !expr.desc
 			}
-			b, _ := expr.pathExpr.Eval(b)
+			b, err := expr.pathExpr.Eval(s.m, b)
+			if err != nil {
+				s.err = err
+				return false
+			}
 			if b == nil {
 				return expr.desc
 			}
@@ -121,20 +128,22 @@ func sort(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int)
 			if len(args) != 2 {
 				return nil, errTooManyArgs
 			}
+
 		case nitro.String:
 			s.exprs = make([]*sortExpr, 0, len(args)-1)
 			for _, arg := range args[1:] {
-				argStr := arg.String()
 				sortExpr := new(sortExpr)
-				if strings.HasSuffix(argStr, ",a") {
-					argStr = argStr[:len(argStr)-2]
-				} else if strings.HasSuffix(argStr, ",d") {
-					argStr = argStr[:len(argStr)-2]
-					sortExpr.desc = true
-				}
-				sortExpr.pathExpr, err = ParsePathExpr(argStr)
+				var extra string
+				sortExpr.pathExpr, extra, err = ParsePathExpr(arg)
 				if err != nil {
 					return nil, err
+				}
+				if len(extra) != 0 {
+					if extra == "d" {
+						sortExpr.desc = true
+					} else if extra != "a" {
+						return nil, fmt.Errorf("invalid sort qualifier %q", extra)
+					}
 				}
 				s.exprs = append(s.exprs, sortExpr)
 			}

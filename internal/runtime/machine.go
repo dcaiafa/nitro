@@ -171,7 +171,7 @@ func (m *Machine) callExtFn(
 	args []Value,
 	caps []ValueRef,
 	nRet int,
-) ([]Value, error) {
+) (rets []Value, err error) {
 	frame := &frame{
 		nRet:  nRet,
 		nArg:  len(args),
@@ -179,10 +179,26 @@ func (m *Machine) callExtFn(
 		args:  args,
 		caps:  caps,
 	}
+
 	m.pushFrame(frame)
 	defer m.popFrame()
 
-	rets, err := extFn(m, caps, args, nRet)
+	defer func() {
+		if err != nil {
+			rerr, ok := err.(*RuntimeError)
+			if !ok {
+				rerr = &RuntimeError{
+					Err: err,
+				}
+			}
+			if rerr.Stack == nil {
+				rerr.Stack = m.GetStackInfo()
+			}
+			err = rerr
+		}
+	}()
+
+	rets, err = extFn(m, caps, args, nRet)
 	if err != nil {
 		return nil, err
 	}

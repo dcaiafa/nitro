@@ -21,6 +21,8 @@ func (i Int) EvalBinOp(op BinOp, operand Value) (Value, error) {
 		if operandFloat, ok := operand.(Float); ok {
 			return NewFloat(float64(i.v)).EvalBinOp(op, operandFloat)
 		}
+		return nil, fmt.Errorf(
+			"invalid operation between int and %v", TypeName(operand))
 	}
 
 	if op == BinEq {

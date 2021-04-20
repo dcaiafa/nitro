@@ -26,13 +26,13 @@ func avg(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) 
 	// Form 1: avg(accum, float|int|nil)
 	accum, ok := args[0].(*avgAccum)
 	if ok || args[0] == nil {
+		if len(args) > 2 {
+			return nil, errAvgUsage
+		}
 		if accum == nil {
 			accum = new(avgAccum)
 		}
-		if len(args) != 2 {
-			return nil, errAvgUsage
-		}
-		if args[1] == nil {
+		if len(args) == 1 || args[1] == nil {
 			if accum.count <= 0 {
 				return nil, fmt.Errorf("accum.count is zero")
 			}
@@ -162,4 +162,61 @@ func max(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) 
 		}
 	}
 	return []nitro.Value{maxV}, nil
+}
+
+var errMinUsage = errors.New(
+	"invalid usage. Expected: min(int|float...) or max(iter)")
+
+func min(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	if len(args) == 0 {
+		return nil, errMinUsage
+	}
+
+	iter, err := nitro.MakeIterator(m, args[0])
+	if err == nil {
+		var minV nitro.Value
+		for {
+			v, ok, err := nitro.Next(m, iter, 1)
+			if err != nil {
+				return nil, err
+			}
+			if !ok {
+				break
+			}
+			if v[0] == nil {
+				continue
+			}
+			if minV == nil {
+				minV = v[0]
+				continue
+			}
+			isGT, err := evalCmpOp(nitro.BinLT, v[0], minV)
+			if err != nil {
+				return nil, err
+			}
+			if isGT {
+				minV = v[0]
+			}
+		}
+		return []nitro.Value{minV}, nil
+	}
+
+	var minV nitro.Value
+	for _, arg := range args {
+		if arg == nil {
+			continue
+		}
+		if minV == nil {
+			minV = arg
+			continue
+		}
+		isGT, err := evalCmpOp(nitro.BinLT, arg, minV)
+		if err != nil {
+			return nil, err
+		}
+		if isGT {
+			minV = arg
+		}
+	}
+	return []nitro.Value{minV}, nil
 }
