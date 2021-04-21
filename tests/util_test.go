@@ -13,9 +13,9 @@ import (
 	"github.com/dcaiafa/nitro/internal/runtime"
 )
 
-type MemoryFileSystem map[string]string
+type MemoryFileLoader map[string]string
 
-func (fs MemoryFileSystem) ReadFile(name string) ([]byte, error) {
+func (fs MemoryFileLoader) LoadFile(name string) ([]byte, error) {
 	data, ok := fs[name]
 	if !ok {
 		return nil, os.ErrNotExist
@@ -41,7 +41,7 @@ func valuesToInterface(values []nitro.Value) []interface{} {
 }
 
 func run(prog string, params map[string]nitro.Value) (output string, err error) {
-	fs := make(MemoryFileSystem)
+	fs := make(MemoryFileLoader)
 	fs["main.n"] = prog
 
 	outBuilder := &strings.Builder{}

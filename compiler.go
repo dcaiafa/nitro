@@ -11,30 +11,30 @@ import (
 	"github.com/dcaiafa/nitro/internal/token"
 )
 
-type FileSystem interface {
-	ReadFile(name string) ([]byte, error)
+type FileLoader interface {
+	LoadFile(name string) ([]byte, error)
 }
 
-type nativeFileSystem struct{}
+type nativeFileLoader struct{}
 
-func NewNativeFileSystem() FileSystem {
-	return &nativeFileSystem{}
+func NewNativeFileLoader() FileLoader {
+	return &nativeFileLoader{}
 }
 
-func (fs *nativeFileSystem) ReadFile(name string) ([]byte, error) {
+func (fs *nativeFileLoader) LoadFile(name string) ([]byte, error) {
 	return ioutil.ReadFile(name)
 }
 
 type Compiler struct {
-	fileSystem  FileSystem
+	fileLoader  FileLoader
 	diag        bool
 	main        *ast.Main
 	externalFns map[string]runtime.NativeFn
 }
 
-func NewCompiler(fileSystem FileSystem) *Compiler {
+func NewCompiler(fileLoader FileLoader) *Compiler {
 	c := &Compiler{
-		fileSystem:  fileSystem,
+		fileLoader:  fileLoader,
 		main:        &ast.Main{},
 		externalFns: make(map[string]runtime.NativeFn),
 	}
@@ -56,7 +56,7 @@ func (c *Compiler) Compile(
 ) (*runtime.Program, error) {
 	errLoggerWrapper := errlogger.NewErrLoggerBase(errLogger)
 
-	data, err := c.fileSystem.ReadFile(filename)
+	data, err := c.fileLoader.LoadFile(filename)
 	if err != nil {
 		errLoggerWrapper.Failf(token.Pos{}, "Failed to load %q: %v", filename, err)
 		return nil, errLoggerWrapper.Error()

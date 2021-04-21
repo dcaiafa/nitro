@@ -77,7 +77,7 @@ func main() {
 	rand.Seed(time.Now().Unix())
 
 	filename := flag.Arg(0)
-	compiler := nitro.NewCompiler(nitro.NewNativeFileSystem())
+	compiler := nitro.NewCompiler(nitro.NewNativeFileLoader())
 	compiler.SetDiag(true)
 
 	var err error
