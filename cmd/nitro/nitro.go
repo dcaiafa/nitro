@@ -8,6 +8,7 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"runtime/pprof"
 	"time"
 
 	"github.com/dcaiafa/nitro"
@@ -66,7 +67,8 @@ func emitShort(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet
 
 func main() {
 	var (
-		flagE = flag.String("e", "", "")
+		flagE          = flag.String("e", "", "")
+		flagCPUProfile = flag.String("cpu-profile", "", "")
 	)
 	flag.Parse()
 
@@ -101,6 +103,15 @@ func main() {
 			// Error was already logged by ConsoleErrLogger.
 			os.Exit(1)
 		}
+	}
+
+	if *flagCPUProfile != "" {
+		f, err := os.Create(*flagCPUProfile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
 	}
 
 	machine := nitro.NewMachine(context.Background(), compiled)
