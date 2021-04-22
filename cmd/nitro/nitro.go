@@ -64,10 +64,26 @@ func emitShort(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet
 	return nil, nil
 }
 
-func printUsage() {
-	fmt.Fprint(os.Stderr,
-		"nitro <flags> <program>\n"+
-			"nitro <flags> -e <inline-program>\n")
+func printSysUsage(flags *Flags) {
+	p := func(s string, arg ...interface{}) {
+		fmt.Fprintf(os.Stderr, s+"\n", arg...)
+	}
+
+	p("nitro <sys-opt> program.n <prog-opt>")
+	p("nitro <sys-opt> -n <inline-program>")
+	p("")
+	p("System Options:")
+	flags.Print(os.Stderr)
+	os.Exit(1)
+}
+
+func printProgUsage(flags *Flags) {
+	p := func(s string, arg ...interface{}) {
+		fmt.Fprintf(os.Stderr, s+"\n", arg...)
+	}
+
+	p("Options:")
+	flags.Print(os.Stderr)
 	os.Exit(1)
 }
 
@@ -78,12 +94,12 @@ func main() {
 
 	sysFlags := NewFlags()
 
-	flagE := sysFlags.AddFlag(&Flag{Name: "e", Sys: true, Desc: "Run short expression", Value: new(bool)})
+	flagN := sysFlags.AddFlag(&Flag{Name: "n", Sys: true, Desc: "Inline program", Value: new(bool)})
 	flagP := sysFlags.AddFlag(&Flag{Name: "p", Sys: true, Desc: "Create CPU profile", Value: new(string)})
 
 	args := os.Args[1:]
 	if len(args) == 0 {
-		printUsage()
+		printSysUsage(sysFlags)
 	}
 
 	args, err = sysFlags.Parse(args)
@@ -91,8 +107,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if len(args) == 0 {
-		printUsage()
+	if sysFlags.Help || len(args) == 0 {
+		printSysUsage(sysFlags)
 	}
 
 	target := args[0]
@@ -104,7 +120,7 @@ func main() {
 
 	var compiled *nitro.Program
 
-	if *flagE.Value.(*bool) {
+	if *flagN.Value.(*bool) {
 		compiler.AddNativeFn("emit", emitShort)
 
 		compiled, err = compiler.CompileShort(target, nitro.NewConsoleErrLogger())
@@ -131,6 +147,10 @@ func main() {
 	args, err = progFlags.Parse(args)
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	if progFlags.Help {
+		printProgUsage(progFlags)
 	}
 
 	if len(args) != 0 {

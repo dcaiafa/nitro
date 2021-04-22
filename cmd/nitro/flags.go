@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -18,24 +20,54 @@ type Flag struct {
 	Set      bool
 }
 
+func (f *Flag) FullName() string {
+	if f.Sys {
+		return "-" + f.Name
+	} else {
+		return "--" + f.Name
+	}
+}
+
 type Flags struct {
-	userFlags map[string]*Flag
-	sysFlags  map[string]*Flag
+	Help bool
+
+	flags map[string]*Flag
 }
 
 func NewFlags() *Flags {
 	return &Flags{
-		userFlags: make(map[string]*Flag),
-		sysFlags:  make(map[string]*Flag),
+		flags: make(map[string]*Flag),
 	}
 }
 
-func (f *Flags) AddFlag(flag *Flag) *Flag {
-	if flag.Sys {
-		f.sysFlags[flag.Name] = flag
-	} else {
-		f.userFlags[flag.Name] = flag
+func (f *Flags) Print(w io.Writer) {
+	flags := f.GetFlags()
+	maxWidth := 0
+	for _, f := range flags {
+		l := len(f.FullName())
+		if l > maxWidth {
+			maxWidth = l
+		}
 	}
+	fmtSpec := fmt.Sprintf("  %%-%ds %%s\n", maxWidth)
+	for _, f := range flags {
+		fmt.Fprintf(w, fmtSpec, f.FullName(), f.Desc)
+	}
+}
+
+func (f *Flags) GetFlags() []*Flag {
+	flags := make([]*Flag, 0, len(f.flags))
+	for _, flag := range f.flags {
+		flags = append(flags, flag)
+	}
+	sort.Slice(flags, func(i, j int) bool {
+		return flags[i].Name < flags[j].Name
+	})
+	return flags
+}
+
+func (f *Flags) AddFlag(flag *Flag) *Flag {
+	f.flags[flag.Name] = flag
 	return flag
 }
 
@@ -65,9 +97,9 @@ func (f *Flags) AddFlagsFromMetadata(md *nitro.Metadata) error {
 }
 
 func (f *Flags) GetNitroValues() map[string]nitro.Value {
-	values := make(map[string]nitro.Value, len(f.userFlags))
+	values := make(map[string]nitro.Value, len(f.flags))
 
-	for _, flag := range f.userFlags {
+	for _, flag := range f.flags {
 		if !flag.Set {
 			continue
 		}
@@ -94,6 +126,11 @@ func (f *Flags) Parse(args []string) ([]string, error) {
 		if !IsFlag(args[0]) {
 			break
 		}
+		if args[0] == "-h" || args[0] == "--help" {
+			f.Help = true
+			args = args[1:]
+			continue
+		}
 		args, err = f.parseFlag(args)
 		if err != nil {
 			return nil, err
@@ -112,9 +149,9 @@ func (f *Flags) parseFlag(args []string) ([]string, error) {
 		return nil, fmt.Errorf("invalid flag without name")
 	}
 
-	flagSet := f.sysFlags
+	isSys := true
 	if flagName[0] == '-' {
-		flagSet = f.userFlags
+		isSys = false
 		flagName = flagName[1:]
 	}
 
@@ -127,8 +164,8 @@ func (f *Flags) parseFlag(args []string) ([]string, error) {
 		hasValue = true
 	}
 
-	flag := flagSet[flagName]
-	if flag == nil {
+	flag := f.flags[flagName]
+	if flag == nil || flag.Sys != isSys {
 		return nil, fmt.Errorf("invalid flag %v", origFlag)
 	}
 
