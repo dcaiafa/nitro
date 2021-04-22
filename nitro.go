@@ -5,6 +5,7 @@ import (
 	"regexp"
 
 	"github.com/dcaiafa/nitro/internal/errlogger"
+	"github.com/dcaiafa/nitro/internal/meta"
 	"github.com/dcaiafa/nitro/internal/runtime"
 	"github.com/dcaiafa/nitro/internal/token"
 )
@@ -30,6 +31,7 @@ type (
 	Callable  = runtime.Callable
 	Indexable = runtime.Indexable
 	Evaluator = runtime.Evaluator
+	Metadata  = meta.Metadata
 
 	RuntimeError = runtime.RuntimeError
 

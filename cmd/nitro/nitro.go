@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -65,48 +64,82 @@ func emitShort(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet
 	return nil, nil
 }
 
-func main() {
-	var (
-		flagE          = flag.String("e", "", "")
-		flagCPUProfile = flag.String("cpu-profile", "", "")
-	)
-	flag.Parse()
+func printUsage() {
+	fmt.Fprint(os.Stderr,
+		"nitro <flags> <program>\n"+
+			"nitro <flags> -e <inline-program>\n")
+	os.Exit(1)
+}
 
-	if flag.NArg() == 0 && *flagE == "" {
-		log.Fatalf("<program> required")
-	}
+func main() {
+	var err error
 
 	rand.Seed(time.Now().Unix())
 
-	filename := flag.Arg(0)
+	sysFlags := NewFlags()
+
+	flagE := sysFlags.AddFlag(&Flag{Name: "e", Sys: true, Desc: "Run short expression", Value: new(bool)})
+	flagP := sysFlags.AddFlag(&Flag{Name: "p", Sys: true, Desc: "Create CPU profile", Value: new(string)})
+
+	args := os.Args[1:]
+	if len(args) == 0 {
+		printUsage()
+	}
+
+	args, err = sysFlags.Parse(args)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if len(args) == 0 {
+		printUsage()
+	}
+
+	target := args[0]
+	args = args[1:]
+
 	compiler := nitro.NewCompiler(nitro.NewNativeFileLoader())
 	compiler.SetDiag(true)
+	lib.RegisterAll(compiler)
 
-	var err error
 	var compiled *nitro.Program
 
-	if *flagE != "" {
-		lib.RegisterAll(compiler)
+	if *flagE.Value.(*bool) {
 		compiler.AddNativeFn("emit", emitShort)
 
-		compiled, err = compiler.CompileShort(*flagE, nitro.NewConsoleErrLogger())
+		compiled, err = compiler.CompileShort(target, nitro.NewConsoleErrLogger())
 		if err != nil {
 			// Error was already logged by ConsoleErrLogger.
 			os.Exit(1)
 		}
 	} else {
-		lib.RegisterAll(compiler)
 		compiler.AddNativeFn("emit", emit)
 
-		compiled, err = compiler.Compile(filename, nitro.NewConsoleErrLogger())
+		compiled, err = compiler.Compile(target, nitro.NewConsoleErrLogger())
 		if err != nil {
 			// Error was already logged by ConsoleErrLogger.
 			os.Exit(1)
 		}
 	}
 
-	if *flagCPUProfile != "" {
-		f, err := os.Create(*flagCPUProfile)
+	progFlags := NewFlags()
+	err = progFlags.AddFlagsFromMetadata(compiled.Metadata)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	args, err = progFlags.Parse(args)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if len(args) != 0 {
+		log.Fatalf("Invalid argument %v", args[0])
+	}
+
+	cpuProfile := *flagP.Value.(*string)
+	if cpuProfile != "" {
+		f, err := os.Create(cpuProfile)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -115,6 +148,15 @@ func main() {
 	}
 
 	machine := nitro.NewMachine(context.Background(), compiled)
+
+	nitroParams := progFlags.GetNitroValues()
+	for paramName, paramValue := range nitroParams {
+		err := machine.SetParam(paramName, paramValue)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
 	err = machine.Run()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
