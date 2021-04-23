@@ -5,7 +5,6 @@ type Iterator struct {
 	extFn      NativeFn
 	captures   []ValueRef
 	iterNRet   int
-	locals     []Value
 	tryCatches []tryCatch
 	defers     []*Closure
 	ip         int

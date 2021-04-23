@@ -158,3 +158,16 @@ func RunSubErr(t *testing.T, name string, prog string, expectedErr error) {
 		RunErr(t, prog, expectedErr)
 	})
 }
+
+func TestSimplest(t *testing.T) {
+	RunO(t, `
+		func f(x, y) {
+			print(x, y)
+			return x + y
+		}
+		print(f(1, 2))
+	`, `
+1 2
+3
+	`)
+}
