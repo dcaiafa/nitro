@@ -116,6 +116,7 @@ type Machine struct {
 	instrs    []Instr
 	sp        int
 	ip        int
+	framePool []*frame
 }
 
 func NewMachine(ctx context.Context, prog *Program) *Machine {
@@ -149,9 +150,9 @@ func (m *Machine) SetParam(n string, v Value) error {
 }
 
 func (m *Machine) Run() error {
-	return m.runFrame(&frame{
-		fn: &m.program.fns[0],
-	})
+	f := m.newFrame()
+	f.fn = &m.program.fns[0]
+	return m.runFrame(f)
 }
 
 func (m *Machine) Call(callable Value, args []Value, nret int) ([]Value, error) {
@@ -177,15 +178,14 @@ func (m *Machine) callExtFn(
 	narg int,
 	nret int,
 ) (err error) {
-	frame := &frame{
-		nRet:  nret,
-		nArg:  narg,
-		extFn: extFn,
-		caps:  caps,
-		bp:    m.sp,
-	}
+	f := m.newFrame()
+	f.nRet = nret
+	f.nArg = narg
+	f.extFn = extFn
+	f.caps = caps
+	f.bp = m.sp
 
-	m.pushFrame(frame)
+	m.pushFrame(f)
 	defer m.popFrame()
 
 	defer func() {
@@ -229,12 +229,12 @@ func (m *Machine) call(callable Value, narg int, nret int) error {
 		if callable.extFn != nil {
 			return m.callExtFn(callable.extFn, callable.caps, narg, nret)
 		} else {
-			return m.runFrame(&frame{
-				fn:   callable.fn,
-				caps: callable.caps,
-				nArg: narg,
-				nRet: nret,
-			})
+			f := m.newFrame()
+			f.fn = callable.fn
+			f.caps = callable.caps
+			f.nArg = narg
+			f.nRet = nret
+			return m.runFrame(f)
 		}
 
 	case *Iterator:
@@ -250,23 +250,24 @@ func (m *Machine) call(callable Value, narg int, nret int) error {
 				return nil
 			}
 
-			return m.runFrame(&frame{
-				fn:         callable.fn,
-				iter:       callable,
-				caps:       callable.captures,
-				tryCatches: callable.tryCatches,
-				defers:     callable.defers,
-				nRet:       nret,
-				ip:         callable.ip,
-			})
+			f := m.newFrame()
+			f.fn = callable.fn
+			f.iter = callable
+			f.caps = callable.captures
+			f.tryCatches = callable.tryCatches
+			f.defers = callable.defers
+			f.nRet = nret
+			f.ip = callable.ip
+
+			return m.runFrame(f)
 		}
 
 	case *Fn:
-		return m.runFrame(&frame{
-			fn:   callable,
-			nArg: narg,
-			nRet: nret,
-		})
+		f := m.newFrame()
+		f.fn = callable
+		f.nArg = narg
+		f.nRet = nret
+		return m.runFrame(f)
 
 	case NativeFn:
 		return m.callExtFn(callable, nil, narg, nret)
@@ -294,6 +295,10 @@ func (m *Machine) pushFrame(frame *frame) {
 }
 
 func (m *Machine) popFrame() {
+	f := m.callStack[len(m.callStack)-1]
+	*f = frame{}
+	m.framePool = append(m.framePool, f)
+
 	m.callStack[len(m.callStack)-1] = nil
 	m.callStack = m.callStack[:len(m.callStack)-1]
 	if len(m.callStack) > 0 {
@@ -301,6 +306,7 @@ func (m *Machine) popFrame() {
 		m.instrs = m.frame.fn.instrs
 		m.ip = m.frame.ip
 	}
+
 }
 
 func (m *Machine) runFrame(frame *frame) (err error) {
@@ -805,4 +811,14 @@ func (m *Machine) getLocation(fn *Fn, ip int) *Location {
 		}
 	}
 	return &locs[len(fn.locations)-1]
+}
+
+func (m *Machine) newFrame() *frame {
+	if len(m.framePool) == 0 {
+		return &frame{}
+	}
+
+	f := m.framePool[len(m.framePool)-1]
+	m.framePool = m.framePool[:len(m.framePool)-1]
+	return f
 }
