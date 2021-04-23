@@ -14,6 +14,14 @@ type RuntimeError struct {
 
 var _ error = (*RuntimeError)(nil)
 
+func (e *RuntimeError) EvalBinOp(op BinOp, operand Value) (Value, error) {
+	return nil, fmt.Errorf("error does not support this operation")
+}
+
+func (e *RuntimeError) EvalUnaryMinus() (Value, error) {
+	return nil, fmt.Errorf("error does not support this operation")
+}
+
 func (e *RuntimeError) Index(k Value) (Value, error) {
 	k, ok := k.(String)
 	if !ok {

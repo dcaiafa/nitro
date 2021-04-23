@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"fmt"
 	"io"
 	"os"
 
@@ -11,8 +12,16 @@ type reader struct {
 	io.Reader
 }
 
-func (r *reader) String() string { return "<Reader>" }
-func (r *reader) Type() string   { return "Reader" }
+func (r *reader) String() string { return "<reader>" }
+func (r *reader) Type() string   { return "reader" }
+
+func (r *reader) EvalBinOp(op nitro.BinOp, operand nitro.Value) (nitro.Value, error) {
+	return nil, fmt.Errorf("reader does not support this operation")
+}
+
+func (r *reader) EvalUnaryMinus() (nitro.Value, error) {
+	return nil, fmt.Errorf("reader does not support this operation")
+}
 
 func wrapReader(r io.Reader) nitro.Value {
 	v, ok := r.(nitro.Value)

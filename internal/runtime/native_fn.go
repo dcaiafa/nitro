@@ -1,5 +1,7 @@
 package runtime
 
+import "fmt"
+
 type NativeFn func(
 	m *Machine,
 	caps []ValueRef,
@@ -10,3 +12,11 @@ type NativeFn func(
 func (f NativeFn) String() string { return "<func>" }
 func (f NativeFn) Type() string   { return "Func" }
 func (f NativeFn) isCallable()    {}
+
+func (f NativeFn) EvalBinOp(op BinOp, operand Value) (Value, error) {
+	return nil, fmt.Errorf("func does not support this operation")
+}
+
+func (f NativeFn) EvalUnaryMinus() (Value, error) {
+	return nil, fmt.Errorf("func does not support this operation")
+}

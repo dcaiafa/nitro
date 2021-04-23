@@ -19,6 +19,14 @@ type File struct {
 func (f *File) String() string { return fmt.Sprintf("File:%v", f.File.Name()) }
 func (f *File) Type() string   { return "File" }
 
+func (f *File) EvalBinOp(op nitro.BinOp, operand nitro.Value) (nitro.Value, error) {
+	return nil, fmt.Errorf("file does not support this operation")
+}
+
+func (f *File) EvalUnaryMinus() (nitro.Value, error) {
+	return nil, fmt.Errorf("file does not support this operation")
+}
+
 func open(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	filename, err := getStringArg(args, 0)
 	if err != nil {

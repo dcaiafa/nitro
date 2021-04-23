@@ -1,6 +1,7 @@
 package runtime
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 	"strings"
@@ -52,6 +53,14 @@ func NewObjectWithCapacity(c int) *Object {
 }
 
 func (o *Object) Type() string { return "Object" }
+
+func (o *Object) EvalBinOp(op BinOp, operand Value) (Value, error) {
+	return nil, fmt.Errorf("object does not support this operation")
+}
+
+func (o *Object) EvalUnaryMinus() (Value, error) {
+	return nil, fmt.Errorf("object does not support this operation")
+}
 
 func (o *Object) Len() int {
 	return len(o.data)

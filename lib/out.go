@@ -12,8 +12,16 @@ type writer struct {
 	io.Writer
 }
 
-func (w *writer) String() string { return "<Writer>" }
-func (w *writer) Type() string   { return "Writer" }
+func (w *writer) String() string { return "<writer>" }
+func (w *writer) Type() string   { return "writer" }
+
+func (w *writer) EvalBinOp(op nitro.BinOp, operand nitro.Value) (nitro.Value, error) {
+	return nil, fmt.Errorf("writer does not support this operation")
+}
+
+func (w *writer) EvalUnaryMinus() (nitro.Value, error) {
+	return nil, fmt.Errorf("writer does not support this operation")
+}
 
 func wrapWriter(w io.Writer) nitro.Value {
 	v, ok := w.(nitro.Value)

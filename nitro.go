@@ -30,7 +30,6 @@ type (
 	ValueRef  = runtime.ValueRef
 	Callable  = runtime.Callable
 	Indexable = runtime.Indexable
-	Evaluator = runtime.Evaluator
 	Metadata  = meta.Metadata
 
 	RuntimeError = runtime.RuntimeError

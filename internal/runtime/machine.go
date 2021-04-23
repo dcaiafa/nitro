@@ -531,21 +531,9 @@ func (m *Machine) resume() (err error) {
 			if term == nil {
 				return errors.New("value is nil")
 			}
-			var res Value
-			switch term := term.(type) {
-			case Int:
-				res = NewInt(-term.Int64())
-			case Float:
-				res = NewFloat(-term.Float64())
-			case Evaluator:
-				res, err = term.EvalUnaryMinus()
-				if err != nil {
-					return err
-				}
-			default:
-				return fmt.Errorf(
-					"type %v does not support unary minus operation",
-					TypeName(term))
+			res, err := term.EvalUnaryMinus()
+			if err != nil {
+				return err
 			}
 			m.stack[m.sp-1] = res
 

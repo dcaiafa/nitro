@@ -6,7 +6,10 @@ import (
 
 type Value interface {
 	fmt.Stringer
+
 	Type() string
+	EvalBinOp(op BinOp, operand Value) (Value, error)
+	EvalUnaryMinus() (Value, error)
 }
 
 func TypeName(v Value) string {
@@ -27,12 +30,6 @@ type Indexable interface {
 	IndexRef(key Value) (ValueRef, error)
 }
 
-type Evaluator interface {
-	Value
-	EvalBinOp(op BinOp, operand Value) (Value, error)
-	EvalUnaryMinus() (Value, error)
-}
-
 type ValueRef struct {
 	Ref *Value
 }
@@ -44,6 +41,14 @@ func NewValueRef(ref *Value) ValueRef {
 func (r ValueRef) String() string { return "&" + (*r.Ref).String() }
 func (r ValueRef) Type() string   { return "&" + TypeName(*r.Ref) }
 func (r ValueRef) Refo() *Value   { return r.Ref }
+
+func (r ValueRef) EvalBinOp(op BinOp, operand Value) (Value, error) {
+	return nil, fmt.Errorf("ValueRef does not support this operation")
+}
+
+func (r ValueRef) EvalUnaryMinus() (Value, error) {
+	return nil, fmt.Errorf("ValueRef does not support this operation")
+}
 
 func ToString(v Value) string {
 	if v == nil {
@@ -63,11 +68,9 @@ func CoerceToBool(v Value) bool {
 
 func EvalBinOp(op BinOp, operand1, operand2 Value) (Value, error) {
 	if operand1 != nil && operand2 != nil {
-		evaluator, ok := operand1.(Evaluator)
-		if ok {
-			return evaluator.EvalBinOp(op, operand2)
-		}
+		return operand1.EvalBinOp(op, operand2)
 	}
+
 	switch op {
 	case BinEq:
 		return NewBool(operand1 == operand2), nil

@@ -38,6 +38,14 @@ func newProcess(
 func (p *process) String() string { return "Process " + p.cmd.Path }
 func (p *process) Type() string   { return "Process" }
 
+func (p *process) EvalBinOp(op nitro.BinOp, operand nitro.Value) (nitro.Value, error) {
+	return nil, fmt.Errorf("process does not support this operation")
+}
+
+func (p *process) EvalUnaryMinus() (nitro.Value, error) {
+	return nil, fmt.Errorf("process does not support this operation")
+}
+
 func (p *process) Run() error {
 	var err error
 	p.stdin, err = p.cmd.StdinPipe()
