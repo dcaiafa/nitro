@@ -111,6 +111,7 @@ func (m *jsonMarshaler) marshal(v nitro.Value) error {
 			return err
 		}
 		m.buf.Write(b)
+
 	case *nitro.Array:
 		m.buf.WriteByte('[')
 		for i := 0; i < v.Len(); i++ {
@@ -119,10 +120,11 @@ func (m *jsonMarshaler) marshal(v nitro.Value) error {
 			}
 			err := m.marshal(v.Get(i))
 			if err != nil {
-				return err
+				return fmt.Errorf("while marshaling array: %w", err)
 			}
 		}
 		m.buf.WriteByte(']')
+
 	case *nitro.Object:
 		m.buf.WriteByte('{')
 		var err error
@@ -134,21 +136,26 @@ func (m *jsonMarshaler) marshal(v nitro.Value) error {
 			i++
 			err = m.marshal(k)
 			if err != nil {
+				err = fmt.Errorf("while marshaling key: %w", err)
 				return false
 			}
 			m.buf.WriteByte(':')
 			err = m.marshal(v)
 			if err != nil {
+				err = fmt.Errorf(
+					"while marshaling value for key %q: %w",
+					k, err)
 				return false
 			}
 			return true
 		})
 		if err != nil {
-			return err
+			return fmt.Errorf("while marshaling object: %w", err)
 		}
 		m.buf.WriteByte('}')
+
 	default:
-		return fmt.Errorf("cannot marshal value %v to JSON", nitro.TypeName(v))
+		return fmt.Errorf("cannot marshal %v to JSON", nitro.TypeName(v))
 	}
 	return nil
 }

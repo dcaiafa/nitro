@@ -8,7 +8,7 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-func fromjson(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func parsejson(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) < 0 {
 		return nil, errNotEnoughArgs
 	}
@@ -19,7 +19,7 @@ func fromjson(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet 
 
 	defer CloseReader(input)
 
-	v, err := FromJSON(input)
+	v, err := ParseJSON(input)
 	if err != nil {
 		return nil, err
 	}
@@ -27,7 +27,7 @@ func fromjson(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet 
 	return []nitro.Value{v}, nil
 }
 
-func FromJSON(r io.Reader) (nitro.Value, error) {
+func ParseJSON(r io.Reader) (nitro.Value, error) {
 	parser := &jsonParser{
 		dec: json.NewDecoder(r),
 	}
