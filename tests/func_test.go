@@ -161,17 +161,15 @@ func TestFn(t *testing.T) {
 			a(2)
 		`, nitro.ErrCannotCallNil)
 
-	/*
-		RunSubO(t, "call_expand", `
+	RunSubO(t, "call_expand", `
 			print(1, [2, 3, 4]...)
 		`, `1 2 3 4`)
 
-		RunSubO(t, "call_expand_empty", `
+	RunSubO(t, "call_expand_empty", `
 			print(1, []...)
 		`, `1`)
 
-		RunSubO(t, "call_expand_nil", `
+	RunSubO(t, "call_expand_nil", `
 			print(1, nil...)
 		`, `1`)
-	*/
 }

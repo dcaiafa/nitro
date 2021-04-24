@@ -426,7 +426,22 @@ func (m *Machine) resume() (err error) {
 
 			expand := (instr.operand1 & 0x80000000) != 0
 			if expand {
-				panic("not implemented")
+				if narg == 0 {
+					return fmt.Errorf("assert: zero arguments in expansion")
+				}
+				lastArg := m.stack[m.sp-1]
+				if lastArg != nil {
+					arr, ok := lastArg.(*Array)
+					if !ok {
+						return fmt.Errorf("cannot expand %v argument", TypeName(lastArg))
+					}
+					copy(m.stack[m.sp-1:], arr.array)
+					m.sp += len(arr.array) - 1
+					narg += len(arr.array) - 1
+				} else {
+					m.sp--
+					narg--
+				}
 			}
 
 			callable := m.stack[m.sp-narg-1]
