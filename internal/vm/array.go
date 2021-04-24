@@ -140,7 +140,7 @@ func (a *Array) Iterate() *Iterator {
 		1)
 }
 
-func arrayIter(m *Machine, caps []ValueRef, args []Value, nRet int) ([]Value, error) {
+func arrayIter(m *VM, caps []ValueRef, args []Value, nRet int) ([]Value, error) {
 	var (
 		arr  = (*caps[0].Ref).(*Array)
 		next = (*caps[1].Ref).(Int)

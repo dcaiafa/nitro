@@ -10,7 +10,7 @@ type Iterable interface {
 	Iterate() *Iterator
 }
 
-func MakeIterator(m *Machine, v Value) (*Iterator, error) {
+func MakeIterator(m *VM, v Value) (*Iterator, error) {
 	switch v := v.(type) {
 	case *Iterator:
 		return v, nil
@@ -21,7 +21,7 @@ func MakeIterator(m *Machine, v Value) (*Iterator, error) {
 	}
 }
 
-func Next(m *Machine, e Value, n int) ([]Value, bool, error) {
+func Next(m *VM, e Value, n int) ([]Value, bool, error) {
 	c, ok := e.(*Iterator)
 	if !ok {
 		return nil, false, fmt.Errorf("not an iterator")

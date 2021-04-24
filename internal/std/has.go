@@ -6,7 +6,7 @@ import (
 	"github.com/dcaiafa/nitro/internal/vm"
 )
 
-func has(m *vm.Machine, caps []vm.ValueRef, args []vm.Value, nRet int) ([]vm.Value, error) {
+func has(m *vm.VM, caps []vm.ValueRef, args []vm.Value, nRet int) ([]vm.Value, error) {
 	if len(args) < 2 {
 		return nil, errNotEnoughArgs
 	}

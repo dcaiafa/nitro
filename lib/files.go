@@ -27,7 +27,7 @@ func (f *File) EvalUnaryMinus() (nitro.Value, error) {
 	return nil, fmt.Errorf("file does not support this operation")
 }
 
-func open(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func open(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	filename, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -41,7 +41,7 @@ func open(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int)
 	return []nitro.Value{&File{f}}, nil
 }
 
-func create(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func create(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	filename, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -55,7 +55,7 @@ func create(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet in
 	return []nitro.Value{&File{f}}, nil
 }
 
-func rm(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func rm(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) < 1 {
 		return nil, errNotEnoughArgs
 	}
@@ -83,7 +83,7 @@ func rm(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) (
 	return nil, nil
 }
 
-func write(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func write(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) < 2 {
 		return nil, errNotEnoughArgs
 	}
@@ -118,7 +118,7 @@ func write(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int
 	return nil, nil
 }
 
-func rmall(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func rmall(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	path, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -132,7 +132,7 @@ func rmall(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int
 	return nil, nil
 }
 
-func createtemp(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func createtemp(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	pattern, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -146,7 +146,7 @@ func createtemp(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRe
 	return []nitro.Value{&File{f}}, nil
 }
 
-func fileexists(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func fileexists(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	path, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -162,7 +162,7 @@ func fileexists(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRe
 	return []nitro.Value{nitro.NewBool(true)}, nil
 }
 
-func isdir(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func isdir(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	path, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -178,7 +178,7 @@ func isdir(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int
 	return []nitro.Value{nitro.NewBool(fi.IsDir())}, nil
 }
 
-func ls(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func ls(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	path, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -202,7 +202,7 @@ type lsIter struct {
 	entries []fs.DirEntry
 }
 
-func (i *lsIter) Next(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func (i *lsIter) Next(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(i.entries) == 0 {
 		return []nitro.Value{nitro.NewBool(false), nil, nil}, nil
 	}
@@ -216,7 +216,7 @@ func (i *lsIter) Next(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Valu
 	return res, nil
 }
 
-func cp(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func cp(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	from, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err

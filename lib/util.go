@@ -86,7 +86,7 @@ func getWriterArg(args []vm.Value, ndx int) (io.Writer, error) {
 	}
 }
 
-func getIterArg(m *nitro.Machine, args []vm.Value, ndx int) (*nitro.Iterator, error) {
+func getIterArg(m *nitro.VM, args []vm.Value, ndx int) (*nitro.Iterator, error) {
 	if ndx >= len(args) {
 		return nil, errNotEnoughArgs
 	}
@@ -114,7 +114,7 @@ func getCallableArg(args []vm.Value, ndx int) (nitro.Callable, error) {
 }
 
 type iterReader struct {
-	m   *nitro.Machine
+	m   *nitro.VM
 	e   nitro.Value
 	buf ByteQueue
 }
@@ -158,7 +158,7 @@ func (r *iterReader) Read(b []byte) (int, error) {
 	return n, nil
 }
 
-func ToReader(m *nitro.Machine, v vm.Value) (io.Reader, error) {
+func ToReader(m *nitro.VM, v vm.Value) (io.Reader, error) {
 	switch v := v.(type) {
 	case io.Reader:
 		return v, nil

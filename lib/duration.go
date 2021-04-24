@@ -65,7 +65,7 @@ func (d Duration) EvalUnaryMinus() (nitro.Value, error) {
 var errDurationUsage = errors.New(
 	`invalid usage. Expected: duration(int, "nanosecond"|"microsecond"|"millisecond"|"second"|"minute"|"hour"`)
 
-func dur(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func dur(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	count, err := getIntArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -87,7 +87,7 @@ func dur(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) 
 var errDurationToUsage = errors.New(
 	`invalid usage. Expected: durationto(duration, "nanosecond"|"microsecond"|"millisecond"|"second"|"minute"|"hour"`)
 
-func durto(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func durto(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) != 2 {
 		return nil, errDurationToUsage
 	}
@@ -112,7 +112,7 @@ func durto(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int
 var errDurationTruncateUsage = errors.New(
 	`invalid usage. Expected: durationtruncate(duration, mult: duration|"nanosecond"|"microsecond"|"millisecond"|"second"|"minute"|"hour")`)
 
-func truncdur(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func truncdur(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) != 2 {
 		return nil, errDurationTruncateUsage
 	}

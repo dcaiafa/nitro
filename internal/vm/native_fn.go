@@ -3,7 +3,7 @@ package vm
 import "fmt"
 
 type NativeFn func(
-	m *Machine,
+	m *VM,
 	caps []ValueRef,
 	args []Value,
 	nRet int,

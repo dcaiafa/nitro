@@ -4,7 +4,7 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-func match(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func match(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	str, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err

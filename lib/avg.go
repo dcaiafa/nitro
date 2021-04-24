@@ -26,7 +26,7 @@ func (a *avgAccum) EvalUnaryMinus() (nitro.Value, error) {
 	return nil, fmt.Errorf("avg does not support this operation")
 }
 
-func avg(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func avg(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) == 0 {
 		return nil, errAvgUsage
 	}
@@ -118,7 +118,7 @@ func avg(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) 
 var errMaxUsage = errors.New(
 	"invalid usage. Expected: max(int|float...) or max(iter)")
 
-func max(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func max(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) == 0 {
 		return nil, errMaxUsage
 	}
@@ -175,7 +175,7 @@ func max(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) 
 var errMinUsage = errors.New(
 	"invalid usage. Expected: min(int|float...) or max(iter)")
 
-func min(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func min(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) == 0 {
 		return nil, errMinUsage
 	}

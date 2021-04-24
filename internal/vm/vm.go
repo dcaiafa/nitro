@@ -109,7 +109,7 @@ type frame struct {
 	bp         int
 }
 
-type Machine struct {
+type VM struct {
 	ctx       context.Context
 	userData  map[interface{}]interface{}
 	program   *Program
@@ -125,8 +125,8 @@ type Machine struct {
 	preAllocStack [stackSize]Value
 }
 
-func NewMachine(ctx context.Context, prog *Program) *Machine {
-	m := &Machine{
+func NewVM(ctx context.Context, prog *Program) *VM {
+	m := &VM{
 		ctx:      ctx,
 		program:  prog,
 		globals:  make([]Value, prog.globals),
@@ -136,19 +136,19 @@ func NewMachine(ctx context.Context, prog *Program) *Machine {
 	return m
 }
 
-func (m *Machine) Context() context.Context {
+func (m *VM) Context() context.Context {
 	return m.ctx
 }
 
-func (m *Machine) SetUserData(key, value interface{}) {
+func (m *VM) SetUserData(key, value interface{}) {
 	m.userData[key] = value
 }
 
-func (m *Machine) GetUserData(key interface{}) interface{} {
+func (m *VM) GetUserData(key interface{}) interface{} {
 	return m.userData[key]
 }
 
-func (m *Machine) SetParam(n string, v Value) error {
+func (m *VM) SetParam(n string, v Value) error {
 	param := m.program.params[n]
 	if param == nil {
 		return fmt.Errorf("invalid parameter: %s", n)
@@ -157,13 +157,13 @@ func (m *Machine) SetParam(n string, v Value) error {
 	return nil
 }
 
-func (m *Machine) Run() error {
+func (m *VM) Run() error {
 	f := m.newFrame()
 	f.fn = &m.program.fns[0]
 	return m.runFrame(f)
 }
 
-func (m *Machine) Call(callable Value, args []Value, nret int) ([]Value, error) {
+func (m *VM) Call(callable Value, args []Value, nret int) ([]Value, error) {
 	sp := m.sp
 	copy(m.stack[m.sp:], args)
 	m.sp += len(args)
@@ -180,7 +180,7 @@ func (m *Machine) Call(callable Value, args []Value, nret int) ([]Value, error) 
 	return ret, nil
 }
 
-func (m *Machine) callExtFn(
+func (m *VM) callExtFn(
 	extFn NativeFn,
 	caps []ValueRef,
 	narg int,
@@ -231,7 +231,7 @@ func (m *Machine) callExtFn(
 	return nil
 }
 
-func (m *Machine) call(callable Value, narg int, nret int) error {
+func (m *VM) call(callable Value, narg int, nret int) error {
 	switch callable := callable.(type) {
 	case *Closure:
 		if callable.extFn != nil {
@@ -306,7 +306,7 @@ func (m *Machine) call(callable Value, narg int, nret int) error {
 	}
 }
 
-func (m *Machine) pushFrame(frame *frame) {
+func (m *VM) pushFrame(frame *frame) {
 	if len(m.callStack) > 0 {
 		m.frame.ip = m.ip
 	}
@@ -320,7 +320,7 @@ func (m *Machine) pushFrame(frame *frame) {
 	}
 }
 
-func (m *Machine) popFrame() {
+func (m *VM) popFrame() {
 	f := m.callStack[len(m.callStack)-1]
 	*f = frame{}
 	m.framePool = append(m.framePool, f)
@@ -337,7 +337,7 @@ func (m *Machine) popFrame() {
 	}
 }
 
-func (m *Machine) runFrame(frame *frame) (err error) {
+func (m *VM) runFrame(frame *frame) (err error) {
 	m.pushFrame(frame)
 
 	defer func() {
@@ -387,7 +387,7 @@ func (m *Machine) runFrame(frame *frame) (err error) {
 	}
 }
 
-func (m *Machine) resume() (err error) {
+func (m *VM) resume() (err error) {
 	for {
 		instr := m.instrs[m.ip]
 
@@ -838,7 +838,7 @@ func (m *Machine) resume() (err error) {
 	}
 }
 
-func (m *Machine) GetStackInfo() []FrameInfo {
+func (m *VM) GetStackInfo() []FrameInfo {
 	stack := make([]FrameInfo, 0, len(m.callStack))
 	for i := len(m.callStack) - 1; i >= 0; i-- {
 		stack = append(stack, m.getFrameInfo(m.callStack[i]))
@@ -846,14 +846,14 @@ func (m *Machine) GetStackInfo() []FrameInfo {
 	return stack
 }
 
-func (m *Machine) GetNArg() int {
+func (m *VM) GetNArg() int {
 	if len(m.callStack) < 2 {
 		return 0
 	}
 	return m.callStack[len(m.callStack)-2].nArg
 }
 
-func (m *Machine) GetArgs() []Value {
+func (m *VM) GetArgs() []Value {
 	if len(m.callStack) < 2 {
 		return nil
 	}
@@ -862,7 +862,7 @@ func (m *Machine) GetArgs() []Value {
 	return args
 }
 
-func (m *Machine) getFrameInfo(frame *frame) FrameInfo {
+func (m *VM) getFrameInfo(frame *frame) FrameInfo {
 	if frame.fn != nil {
 		loc := m.getLocation(frame.fn, frame.ip)
 		if loc == nil {
@@ -901,7 +901,7 @@ func (m *Machine) getFrameInfo(frame *frame) FrameInfo {
 	}
 }
 
-func (m *Machine) getLocation(fn *Fn, ip int) *Location {
+func (m *VM) getLocation(fn *Fn, ip int) *Location {
 	locs := fn.locations
 	if len(fn.locations) == 0 {
 		return nil
@@ -917,7 +917,7 @@ func (m *Machine) getLocation(fn *Fn, ip int) *Location {
 	return &locs[len(fn.locations)-1]
 }
 
-func (m *Machine) newFrame() *frame {
+func (m *VM) newFrame() *frame {
 	if len(m.framePool) == 0 {
 		return &frame{}
 	}

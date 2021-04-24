@@ -18,7 +18,7 @@ type PathExpr struct {
 	ops []pathOp
 }
 
-func (e *PathExpr) Eval(m *nitro.Machine, v nitro.Value) (nitro.Value, error) {
+func (e *PathExpr) Eval(m *nitro.VM, v nitro.Value) (nitro.Value, error) {
 	if e.fn != nil {
 		res, err := m.Call(e.fn, []nitro.Value{v}, 1)
 		if err != nil {

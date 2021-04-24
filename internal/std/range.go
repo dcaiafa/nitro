@@ -6,7 +6,7 @@ import (
 	"github.com/dcaiafa/nitro/internal/vm"
 )
 
-func Range(m *vm.Machine, caps []vm.ValueRef, args []vm.Value, nRet int) ([]vm.Value, error) {
+func Range(m *vm.VM, caps []vm.ValueRef, args []vm.Value, nRet int) ([]vm.Value, error) {
 	var err error
 	var start int64 = 0
 	var step int64 = 0
@@ -79,7 +79,7 @@ func Range(m *vm.Machine, caps []vm.ValueRef, args []vm.Value, nRet int) ([]vm.V
 	return []vm.Value{c}, nil
 }
 
-func rangeIter(m *vm.Machine, caps []vm.ValueRef, args []vm.Value, nRet int) ([]vm.Value, error) {
+func rangeIter(m *vm.VM, caps []vm.ValueRef, args []vm.Value, nRet int) ([]vm.Value, error) {
 	var (
 		cur  = ((*caps[0].Ref).(vm.Int)).Int64()
 		end  = ((*caps[1].Ref).(vm.Int)).Int64()

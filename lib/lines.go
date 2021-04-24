@@ -8,7 +8,7 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-func lines(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func lines(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) < 1 {
 		return nil, errNotEnoughArgs
 	}
@@ -32,7 +32,7 @@ type linesIter struct {
 	idxLine int
 }
 
-func (l *linesIter) Next(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func (l *linesIter) Next(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if !l.scanner.Scan() {
 		CloseReader(l.input)
 		if l.scanner.Err() != nil {

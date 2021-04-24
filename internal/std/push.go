@@ -6,7 +6,7 @@ import (
 	"github.com/dcaiafa/nitro/internal/vm"
 )
 
-func push(m *vm.Machine, caps []vm.ValueRef, args []vm.Value, nRet int) ([]vm.Value, error) {
+func push(m *vm.VM, caps []vm.ValueRef, args []vm.Value, nRet int) ([]vm.Value, error) {
 	if len(args) < 2 {
 		return nil, errNotEnoughArgs
 	} else if len(args) > 2 {

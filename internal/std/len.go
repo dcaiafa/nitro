@@ -12,7 +12,7 @@ var (
 	errTooManyArgs   = errors.New("too many arguments")
 )
 
-func Len(m *vm.Machine, caps []vm.ValueRef, args []vm.Value, nRet int) ([]vm.Value, error) {
+func Len(m *vm.VM, caps []vm.ValueRef, args []vm.Value, nRet int) ([]vm.Value, error) {
 	if len(args) == 0 {
 		return nil, errNotEnoughArgs
 	}

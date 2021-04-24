@@ -13,7 +13,7 @@ type sortExpr struct {
 }
 
 type sorter struct {
-	m     *nitro.Machine
+	m     *nitro.VM
 	arr   *nitro.Array
 	err   error
 	less  nitro.Callable
@@ -106,7 +106,7 @@ func (s *sorter) Swap(i, j int) {
 	s.arr.Put(j, t)
 }
 
-func sort(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func sort(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) < 1 {
 		return nil, errNotEnoughArgs
 	}

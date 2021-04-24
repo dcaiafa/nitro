@@ -4,7 +4,7 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-func unique(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func unique(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	e, err := getIterArg(m, args, 0)
 	if err != nil {
 		return nil, err

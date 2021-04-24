@@ -229,7 +229,7 @@ func (of *objectFormatter) str(s string) {
 	of.w.WriteString(s)
 }
 
-func objectIter(m *Machine, caps []ValueRef, args []Value, nRet int) ([]Value, error) {
+func objectIter(m *VM, caps []ValueRef, args []Value, nRet int) ([]Value, error) {
 	var (
 		obj = (*caps[0].Ref).(*Object)
 		key = *caps[1].Ref

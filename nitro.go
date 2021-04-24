@@ -6,12 +6,12 @@ import (
 
 	"github.com/dcaiafa/nitro/internal/errlogger"
 	"github.com/dcaiafa/nitro/internal/meta"
-	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/internal/token"
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
 type (
-	Machine = vm.Machine
+	VM = vm.VM
 
 	Array     = vm.Array
 	Bool      = vm.Bool
@@ -56,15 +56,15 @@ const (
 
 var ErrCannotCallNil = vm.ErrCannotCallNil
 
-func NewMachine(ctx context.Context, p *Program) *Machine {
-	return vm.NewMachine(ctx, p)
+func NewVM(ctx context.Context, p *Program) *VM {
+	return vm.NewVM(ctx, p)
 }
 
-func MakeIterator(m *Machine, v Value) (*Iterator, error) {
+func MakeIterator(m *VM, v Value) (*Iterator, error) {
 	return vm.MakeIterator(m, v)
 }
 
-func Next(m *Machine, e Value, n int) ([]Value, bool, error) {
+func Next(m *VM, e Value, n int) ([]Value, bool, error) {
 	return vm.Next(m, e, n)
 }
 

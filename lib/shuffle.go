@@ -3,7 +3,7 @@ package lib
 import "github.com/dcaiafa/nitro"
 import "math/rand"
 
-func shuffle(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func shuffle(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) < 1 {
 		return nil, errNotEnoughArgs
 	}

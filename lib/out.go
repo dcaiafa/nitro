@@ -37,7 +37,7 @@ type stdoutStack struct {
 	stack []io.Writer
 }
 
-func Stdout(m *nitro.Machine) io.Writer {
+func Stdout(m *nitro.VM) io.Writer {
 	outStack, ok := m.GetUserData(&stdoutUserDataKey).(*stdoutStack)
 	if ok {
 		if len(outStack.stack) != 0 {
@@ -47,13 +47,13 @@ func Stdout(m *nitro.Machine) io.Writer {
 	return os.Stdout
 }
 
-func SetStdout(m *nitro.Machine, w io.Writer) {
+func SetStdout(m *nitro.VM, w io.Writer) {
 	outStack := &stdoutStack{}
 	outStack.stack = []io.Writer{w}
 	m.SetUserData(&stdoutUserDataKey, outStack)
 }
 
-func PushOut(m *nitro.Machine, out io.Writer) {
+func PushOut(m *nitro.VM, out io.Writer) {
 	outStack, ok := m.GetUserData(&stdoutUserDataKey).(*stdoutStack)
 	if !ok {
 		outStack = &stdoutStack{}
@@ -62,7 +62,7 @@ func PushOut(m *nitro.Machine, out io.Writer) {
 	outStack.stack = append(outStack.stack, out)
 }
 
-func PopOut(m *nitro.Machine) io.Writer {
+func PopOut(m *nitro.VM) io.Writer {
 	outStack, ok := m.GetUserData(&stdoutUserDataKey).(*stdoutStack)
 	if !ok || len(outStack.stack) == 0 {
 		return nil
@@ -73,11 +73,11 @@ func PopOut(m *nitro.Machine) io.Writer {
 	return prevOut
 }
 
-func out(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func out(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	return []nitro.Value{wrapWriter(Stdout(m))}, nil
 }
 
-func pushout(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func pushout(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	out, err := getWriterArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -86,7 +86,7 @@ func pushout(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet i
 	return nil, nil
 }
 
-func popout(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func popout(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	prevOut := PopOut(m)
 	if prevOut == nil {
 		return nil, fmt.Errorf("the stdout stack is empty")

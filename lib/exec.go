@@ -22,7 +22,7 @@ type process struct {
 var _ io.Reader = (*process)(nil)
 
 func newProcess(
-	m *nitro.Machine,
+	m *nitro.VM,
 	name string,
 	args []string,
 	input io.Reader,
@@ -160,7 +160,7 @@ func (p *process) feedProcessUntilOutputAvailable() error {
 }
 
 func exec(
-	m *nitro.Machine,
+	m *nitro.VM,
 	caps []nitro.ValueRef,
 	args []nitro.Value,
 	nRet int,

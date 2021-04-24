@@ -14,7 +14,7 @@ import (
 	"github.com/dcaiafa/nitro/lib"
 )
 
-func emit(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func emit(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	stdout := lib.Stdout(m)
 	if len(args) < 1 {
 		return nil, fmt.Errorf("not enough arguments")
@@ -34,7 +34,7 @@ func emit(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int)
 	return nil, nil
 }
 
-func emitShort(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func emitShort(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	e, err := nitro.MakeIterator(m, args[0])
 	if err == nil {
 		for {
@@ -167,17 +167,17 @@ func main() {
 		defer pprof.StopCPUProfile()
 	}
 
-	machine := nitro.NewMachine(context.Background(), compiled)
+	vm := nitro.NewVM(context.Background(), compiled)
 
 	nitroParams := progFlags.GetNitroValues()
 	for paramName, paramValue := range nitroParams {
-		err := machine.SetParam(paramName, paramValue)
+		err := vm.SetParam(paramName, paramValue)
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
 
-	err = machine.Run()
+	err = vm.Run()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
