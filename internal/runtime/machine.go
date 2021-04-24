@@ -352,7 +352,8 @@ func (m *Machine) runFrame(frame *frame) (err error) {
 		tryCatch := m.frame.tryCatches[len(m.frame.tryCatches)-1]
 		m.frame.tryCatches = m.frame.tryCatches[:len(m.frame.tryCatches)-1]
 		m.ip = tryCatch.CatchAddr
-		m.sp = m.frame.bp + m.frame.nLocals
+		m.sp = m.frame.bp + m.frame.nLocals + 1
+		m.stack[m.sp-1] = rerr
 	}
 }
 
@@ -420,7 +421,7 @@ func (m *Machine) resume() (err error) {
 
 			var caps []ValueRef
 			if capN > 0 {
-				caps := make([]ValueRef, capN)
+				caps = make([]ValueRef, capN)
 				for i, capture := range m.stack[m.sp-capN : m.sp] {
 					caps[i] = capture.(ValueRef)
 				}
@@ -616,6 +617,10 @@ func (m *Machine) resume() (err error) {
 		case OpInitCallFrame:
 			m.frame.nLocals = int(instr.operand1)
 			m.frame.bp = m.sp
+			m.sp += m.frame.nLocals
+			for i := m.frame.bp; i < m.sp; i++ {
+				m.stack[i] = nil
+			}
 
 		case OpMakeIter:
 			v := m.stack[m.sp-1]
