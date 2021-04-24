@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"github.com/dcaiafa/nitro/internal/runtime"
+	"github.com/dcaiafa/nitro/internal/vm"
 	"regexp"
 )
 
@@ -21,7 +21,7 @@ func (l *RegexLiteral) RunPass(ctx *Context, pass Pass) {
 			ctx.Failf(l.Pos(), "Invalid regular expression: %v", err)
 			return
 		}
-		idxLiteral := ctx.Emitter().AddLiteral(runtime.NewRegex(r))
-		ctx.Emitter().Emit(l.Pos(), runtime.OpLoadLiteral, uint32(idxLiteral), 0)
+		idxLiteral := ctx.Emitter().AddLiteral(vm.NewRegex(r))
+		ctx.Emitter().Emit(l.Pos(), vm.OpLoadLiteral, uint32(idxLiteral), 0)
 	}
 }

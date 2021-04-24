@@ -1,6 +1,6 @@
 package ast
 
-import "github.com/dcaiafa/nitro/internal/runtime"
+import "github.com/dcaiafa/nitro/internal/vm"
 
 type TernaryExpr struct {
 	astBase
@@ -15,19 +15,19 @@ func (e *TernaryExpr) isExpr() {}
 func (e *TernaryExpr) RunPass(ctx *Context, pass Pass) {
 	ctx.RunPassChild(e, e.Condition, pass)
 
-	var elseLabel *runtime.Label
-	var endLabel *runtime.Label
+	var elseLabel *vm.Label
+	var endLabel *vm.Label
 	if pass == Emit {
 		emitter := ctx.Emitter()
 		elseLabel = emitter.NewLabel()
 		endLabel = emitter.NewLabel()
-		emitter.EmitJump(e.Pos(), runtime.OpJumpIfFalse, elseLabel, 0)
+		emitter.EmitJump(e.Pos(), vm.OpJumpIfFalse, elseLabel, 0)
 	}
 
 	ctx.RunPassChild(e, e.Then, pass)
 	if pass == Emit {
 		emitter := ctx.Emitter()
-		emitter.EmitJump(e.Pos(), runtime.OpJump, endLabel, 0)
+		emitter.EmitJump(e.Pos(), vm.OpJump, endLabel, 0)
 		emitter.ResolveLabel(elseLabel)
 	}
 

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/dcaiafa/nitro/internal/runtime"
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
 var (
@@ -12,13 +12,13 @@ var (
 	errTooManyArgs   = errors.New("too many arguments")
 )
 
-func Len(m *runtime.Machine, caps []runtime.ValueRef, args []runtime.Value, nRet int) ([]runtime.Value, error) {
+func Len(m *vm.Machine, caps []vm.ValueRef, args []vm.Value, nRet int) ([]vm.Value, error) {
 	if len(args) == 0 {
 		return nil, errNotEnoughArgs
 	}
 
 	if args[0] == nil {
-		return []runtime.Value{runtime.NewInt(0)}, nil
+		return []vm.Value{vm.NewInt(0)}, nil
 	}
 
 	v, ok := args[0].(interface {
@@ -27,8 +27,8 @@ func Len(m *runtime.Machine, caps []runtime.ValueRef, args []runtime.Value, nRet
 	if !ok {
 		return nil, fmt.Errorf(
 			"argument %v does not have length",
-			runtime.TypeName(args[0]))
+			vm.TypeName(args[0]))
 	}
 
-	return []runtime.Value{runtime.NewInt(int64(v.Len()))}, nil
+	return []vm.Value{vm.NewInt(int64(v.Len()))}, nil
 }

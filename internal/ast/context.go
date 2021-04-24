@@ -2,7 +2,7 @@ package ast
 
 import (
 	"github.com/dcaiafa/nitro/internal/errlogger"
-	"github.com/dcaiafa/nitro/internal/runtime"
+	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/internal/symbol"
 )
 
@@ -20,13 +20,13 @@ type Context struct {
 	Stack
 	*errlogger.ErrLoggerWrapper
 
-	emitter *runtime.Emitter
+	emitter *vm.Emitter
 }
 
 func NewContext(l *errlogger.ErrLoggerWrapper) *Context {
 	return &Context{
 		ErrLoggerWrapper: l,
-		emitter:          runtime.NewEmitter(),
+		emitter:          vm.NewEmitter(),
 	}
 }
 
@@ -113,7 +113,7 @@ func (c *Context) CurrentScope() *symbol.Scope {
 	return nil
 }
 
-func (c *Context) Emitter() *runtime.Emitter {
+func (c *Context) Emitter() *vm.Emitter {
 	return c.emitter
 }
 

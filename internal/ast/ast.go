@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"github.com/dcaiafa/nitro/internal/runtime"
+	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/internal/symbol"
 	"github.com/dcaiafa/nitro/internal/token"
 )
@@ -83,6 +83,6 @@ func (exprs Exprs) Pos() token.Pos {
 func (exprs Exprs) SetPos(pos token.Pos) {}
 
 type BreakContinueEmitter interface {
-	EmitBreak(pos token.Pos, emitter *runtime.Emitter)
-	EmitContinue(pos token.Pos, emitter *runtime.Emitter)
+	EmitBreak(pos token.Pos, emitter *vm.Emitter)
+	EmitContinue(pos token.Pos, emitter *vm.Emitter)
 }

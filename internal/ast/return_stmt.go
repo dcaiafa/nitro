@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"github.com/dcaiafa/nitro/internal/runtime"
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
 type ReturnStmt struct {
@@ -23,9 +23,9 @@ func (s *ReturnStmt) RunPass(ctx *Context, pass Pass) {
 			return
 		}
 
-		retOp := runtime.OpRet
+		retOp := vm.OpRet
 		if fn != nil && fn.IsIter() {
-			retOp = runtime.OpIterRet
+			retOp = vm.OpIterRet
 		}
 
 		ctx.Emitter().Emit(s.Pos(), retOp, uint32(len(s.Values)), 0)

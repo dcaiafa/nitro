@@ -1,6 +1,6 @@
 package ast
 
-import "github.com/dcaiafa/nitro/internal/runtime"
+import "github.com/dcaiafa/nitro/internal/vm"
 
 type Operator int
 
@@ -33,34 +33,34 @@ func (e *BinaryExpr) RunPass(ctx *Context, pass Pass) {
 
 	switch pass {
 	case Emit:
-		ctx.Emitter().Emit(e.Pos(), runtime.OpEvalBinOp, uint32(binOpAstToRuntime(e.Op)), 0)
+		ctx.Emitter().Emit(e.Pos(), vm.OpEvalBinOp, uint32(binOpAstToRuntime(e.Op)), 0)
 	}
 }
 
-func binOpAstToRuntime(op Operator) runtime.BinOp {
+func binOpAstToRuntime(op Operator) vm.BinOp {
 	switch op {
 	case BinOpPlus:
-		return runtime.BinAdd
+		return vm.BinAdd
 	case BinOpMinus:
-		return runtime.BinSub
+		return vm.BinSub
 	case BinOpMult:
-		return runtime.BinMult
+		return vm.BinMult
 	case BinOpDiv:
-		return runtime.BinDiv
+		return vm.BinDiv
 	case BinOpMod:
-		return runtime.BinMod
+		return vm.BinMod
 	case BinOpLT:
-		return runtime.BinLT
+		return vm.BinLT
 	case BinOpLE:
-		return runtime.BinLE
+		return vm.BinLE
 	case BinOpGT:
-		return runtime.BinGT
+		return vm.BinGT
 	case BinOpGE:
-		return runtime.BinGE
+		return vm.BinGE
 	case BinOpEq:
-		return runtime.BinEq
+		return vm.BinEq
 	case BinOpNE:
-		return runtime.BinNE
+		return vm.BinNE
 	default:
 		panic("invalid operator")
 	}

@@ -2,7 +2,7 @@ package ast
 
 import (
 	"github.com/dcaiafa/nitro/internal/meta"
-	"github.com/dcaiafa/nitro/internal/runtime"
+	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/internal/symbol"
 )
 
@@ -18,7 +18,7 @@ type MetaParam struct {
 }
 
 func (p *MetaParam) RunPass(ctx *Context, pass Pass) {
-	var skip *runtime.Label
+	var skip *vm.Label
 
 	if pass == Check {
 		p.param = &meta.Param{
@@ -30,14 +30,14 @@ func (p *MetaParam) RunPass(ctx *Context, pass Pass) {
 		if pass == Emit {
 			skip = ctx.Emitter().NewLabel()
 			emitSymbolPush(p.Pos(), ctx.Emitter(), p.globalSym)
-			ctx.Emitter().EmitJump(p.Pos(), runtime.OpJumpIfTrue, skip, 0)
+			ctx.Emitter().EmitJump(p.Pos(), vm.OpJumpIfTrue, skip, 0)
 			emitSymbolRefPush(p.Pos(), ctx.Emitter(), p.globalSym)
 		}
 
 		ctx.RunPassChild(p, p.Default, pass)
 
 		if pass == Emit {
-			ctx.Emitter().Emit(p.Pos(), runtime.OpStore, 1, 0)
+			ctx.Emitter().Emit(p.Pos(), vm.OpStore, 1, 0)
 			ctx.Emitter().ResolveLabel(skip)
 		}
 	}
@@ -56,7 +56,7 @@ type MetaAttrib struct {
 	astBase
 
 	Name  string
-	Value runtime.Value
+	Value vm.Value
 }
 
 func (a *MetaAttrib) RunPass(ctx *Context, pass Pass) {
@@ -64,7 +64,7 @@ func (a *MetaAttrib) RunPass(ctx *Context, pass Pass) {
 		paramAST := ctx.Parent().(*MetaParam)
 		switch a.Name {
 		case "type":
-			typeStr, ok := a.Value.(runtime.String)
+			typeStr, ok := a.Value.(vm.String)
 			if !ok {
 				ctx.Failf(a.Pos(), "'type' attribute value must be string")
 				return
@@ -72,7 +72,7 @@ func (a *MetaAttrib) RunPass(ctx *Context, pass Pass) {
 			paramAST.param.Type = typeStr.String()
 
 		case "desc":
-			descStr, ok := a.Value.(runtime.String)
+			descStr, ok := a.Value.(vm.String)
 			if !ok {
 				ctx.Failf(a.Pos(), "'desc' attribute value must be string")
 				return

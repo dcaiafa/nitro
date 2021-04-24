@@ -1,11 +1,11 @@
 package std
 
-import "github.com/dcaiafa/nitro/internal/runtime"
+import "github.com/dcaiafa/nitro/internal/vm"
 
-func args(m *runtime.Machine, caps []runtime.ValueRef, args []runtime.Value, nRet int) ([]runtime.Value, error) {
+func args(m *vm.Machine, caps []vm.ValueRef, args []vm.Value, nRet int) ([]vm.Value, error) {
 	frameArgs := m.GetArgs()
-	argsCopy := make([]runtime.Value, len(frameArgs))
+	argsCopy := make([]vm.Value, len(frameArgs))
 	copy(argsCopy, frameArgs)
-	res := runtime.NewArrayWithSlice(argsCopy)
-	return []runtime.Value{res}, nil
+	res := vm.NewArrayWithSlice(argsCopy)
+	return []vm.Value{res}, nil
 }

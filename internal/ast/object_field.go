@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"github.com/dcaiafa/nitro/internal/runtime"
+	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/internal/symbol"
 )
 
@@ -38,7 +38,7 @@ func (b *ObjectFieldBlock) RunPass(ctx *Context, pass Pass) {
 
 	switch pass {
 	case Emit:
-		ctx.Emitter().Emit(b.Pos(), runtime.OpPop, 1, 0)
+		ctx.Emitter().Emit(b.Pos(), vm.OpPop, 1, 0)
 	}
 }
 
@@ -58,7 +58,7 @@ func (s *ObjectField) RunPass(ctx *Context, pass Pass) {
 		if s.NameID != "" {
 			emitter := ctx.Emitter()
 			nameID := emitter.AddString(s.NameID)
-			emitter.Emit(s.Pos(), runtime.OpLoadLiteral, uint32(nameID), 0)
+			emitter.Emit(s.Pos(), vm.OpLoadLiteral, uint32(nameID), 0)
 		}
 	}
 
@@ -66,6 +66,6 @@ func (s *ObjectField) RunPass(ctx *Context, pass Pass) {
 
 	switch pass {
 	case Emit:
-		ctx.Emitter().Emit(s.Pos(), runtime.OpObjectPutNoPop, 0, 0)
+		ctx.Emitter().Emit(s.Pos(), vm.OpObjectPutNoPop, 0, 0)
 	}
 }

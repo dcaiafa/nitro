@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"github.com/dcaiafa/nitro/internal/runtime"
+	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/internal/symbol"
 	"github.com/dcaiafa/nitro/internal/token"
 )
@@ -28,19 +28,19 @@ func NewTryCatchStmt(
 }
 
 func (s *TryCatchStmt) RunPass(ctx *Context, pass Pass) {
-	var beginCatch, endCatch *runtime.Label
+	var beginCatch, endCatch *vm.Label
 
 	if pass == Emit {
 		e := ctx.Emitter()
 		beginCatch = e.NewLabel()
 		endCatch = e.NewLabel()
-		e.EmitJump(s.Pos(), runtime.OpBeginTry, beginCatch, 0)
+		e.EmitJump(s.Pos(), vm.OpBeginTry, beginCatch, 0)
 	}
 
 	ctx.RunPassChild(s, s.tryBlock, pass)
 
 	if pass == Emit {
-		ctx.Emitter().EmitJump(s.Pos(), runtime.OpEndTry, endCatch, 0)
+		ctx.Emitter().EmitJump(s.Pos(), vm.OpEndTry, endCatch, 0)
 	}
 
 	if pass == Emit {
@@ -79,10 +79,10 @@ func (b *catchBlock) RunPass(ctx *Context, pass Pass) {
 	case Emit:
 		if b.catchSym != nil {
 			emitSymbolRefPush(b.stmts.Pos(), ctx.Emitter(), b.catchSym)
-			ctx.Emitter().Emit(b.stmts.Pos(), runtime.OpSwap, 1, 0)
-			ctx.Emitter().Emit(b.stmts.Pos(), runtime.OpStore, 1, 0)
+			ctx.Emitter().Emit(b.stmts.Pos(), vm.OpSwap, 1, 0)
+			ctx.Emitter().Emit(b.stmts.Pos(), vm.OpStore, 1, 0)
 		} else {
-			ctx.Emitter().Emit(b.stmts.Pos(), runtime.OpPop, 1, 0)
+			ctx.Emitter().Emit(b.stmts.Pos(), vm.OpPop, 1, 0)
 		}
 	}
 

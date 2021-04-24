@@ -1,6 +1,6 @@
 package ast
 
-import "github.com/dcaiafa/nitro/internal/runtime"
+import "github.com/dcaiafa/nitro/internal/vm"
 
 type DeferStmt struct {
 	astBase
@@ -18,7 +18,7 @@ func (s *DeferStmt) RunPass(ctx *Context, pass Pass) {
 	ctx.RunPassChild(s, s.deferred, pass)
 
 	if pass == Emit {
-		ctx.Emitter().Emit(s.Pos(), runtime.OpDefer, 0, 0)
+		ctx.Emitter().Emit(s.Pos(), vm.OpDefer, 0, 0)
 	}
 }
 

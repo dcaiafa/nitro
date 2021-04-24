@@ -6,14 +6,14 @@ import (
 	"strings"
 
 	"github.com/dcaiafa/nitro"
-	"github.com/dcaiafa/nitro/internal/runtime"
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
-func getIntArg(args []runtime.Value, ndx int) (int64, error) {
+func getIntArg(args []vm.Value, ndx int) (int64, error) {
 	if ndx >= len(args) {
 		return 0, errNotEnoughArgs
 	}
-	v, ok := args[ndx].(runtime.Int)
+	v, ok := args[ndx].(vm.Int)
 	if !ok {
 		return 0, fmt.Errorf(
 			"expected argument %d to be Int, but it is %v",
@@ -22,11 +22,11 @@ func getIntArg(args []runtime.Value, ndx int) (int64, error) {
 	return v.Int64(), nil
 }
 
-func getBoolArg(args []runtime.Value, ndx int) (bool, error) {
+func getBoolArg(args []vm.Value, ndx int) (bool, error) {
 	if ndx >= len(args) {
 		return false, errNotEnoughArgs
 	}
-	v, ok := args[ndx].(runtime.Bool)
+	v, ok := args[ndx].(vm.Bool)
 	if !ok {
 		return false, fmt.Errorf(
 			"expected argument %d to be Bool, but it is %v",
@@ -35,11 +35,11 @@ func getBoolArg(args []runtime.Value, ndx int) (bool, error) {
 	return v.Bool(), nil
 }
 
-func getStringArg(args []runtime.Value, ndx int) (string, error) {
+func getStringArg(args []vm.Value, ndx int) (string, error) {
 	if ndx >= len(args) {
 		return "", errNotEnoughArgs
 	}
-	v, ok := args[ndx].(runtime.String)
+	v, ok := args[ndx].(vm.String)
 	if !ok {
 		return "", fmt.Errorf(
 			"expected argument %d to be String, but it is %v",
@@ -48,11 +48,11 @@ func getStringArg(args []runtime.Value, ndx int) (string, error) {
 	return v.String(), nil
 }
 
-func getObjectArg(args []runtime.Value, ndx int) (*nitro.Object, error) {
+func getObjectArg(args []vm.Value, ndx int) (*nitro.Object, error) {
 	if ndx >= len(args) {
 		return nil, errNotEnoughArgs
 	}
-	v, ok := args[ndx].(*runtime.Object)
+	v, ok := args[ndx].(*vm.Object)
 	if !ok {
 		return nil, fmt.Errorf(
 			"expected argument %d to be Object, but it is %v",
@@ -61,11 +61,11 @@ func getObjectArg(args []runtime.Value, ndx int) (*nitro.Object, error) {
 	return v, nil
 }
 
-func getRegexArg(args []runtime.Value, ndx int) (*nitro.Regex, error) {
+func getRegexArg(args []vm.Value, ndx int) (*nitro.Regex, error) {
 	if ndx >= len(args) {
 		return nil, errNotEnoughArgs
 	}
-	v, ok := args[ndx].(*runtime.Regex)
+	v, ok := args[ndx].(*vm.Regex)
 	if !ok {
 		return nil, fmt.Errorf(
 			"expected argument %d to be Regex, but it is %v",
@@ -74,7 +74,7 @@ func getRegexArg(args []runtime.Value, ndx int) (*nitro.Regex, error) {
 	return v, nil
 }
 
-func getWriterArg(args []runtime.Value, ndx int) (io.Writer, error) {
+func getWriterArg(args []vm.Value, ndx int) (io.Writer, error) {
 	if ndx >= len(args) {
 		return nil, errNotEnoughArgs
 	}
@@ -86,7 +86,7 @@ func getWriterArg(args []runtime.Value, ndx int) (io.Writer, error) {
 	}
 }
 
-func getIterArg(m *nitro.Machine, args []runtime.Value, ndx int) (*nitro.Iterator, error) {
+func getIterArg(m *nitro.Machine, args []vm.Value, ndx int) (*nitro.Iterator, error) {
 	if ndx >= len(args) {
 		return nil, errNotEnoughArgs
 	}
@@ -99,7 +99,7 @@ func getIterArg(m *nitro.Machine, args []runtime.Value, ndx int) (*nitro.Iterato
 	return v, nil
 }
 
-func getCallableArg(args []runtime.Value, ndx int) (nitro.Callable, error) {
+func getCallableArg(args []vm.Value, ndx int) (nitro.Callable, error) {
 	if ndx >= len(args) {
 		return nil, errNotEnoughArgs
 	}
@@ -158,7 +158,7 @@ func (r *iterReader) Read(b []byte) (int, error) {
 	return n, nil
 }
 
-func ToReader(m *nitro.Machine, v runtime.Value) (io.Reader, error) {
+func ToReader(m *nitro.Machine, v vm.Value) (io.Reader, error) {
 	switch v := v.(type) {
 	case io.Reader:
 		return v, nil

@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"github.com/dcaiafa/nitro/internal/runtime"
+	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/internal/symbol"
 )
 
@@ -29,8 +29,8 @@ func (s *ObjectLiteral) RunPass(ctx *Context, pass Pass) {
 
 	case Emit:
 		emitSymbolRefPush(s.Pos(), ctx.Emitter(), s.obj)
-		ctx.Emitter().Emit(s.Pos(), runtime.OpNewObject, 0, 0)
-		ctx.Emitter().Emit(s.Pos(), runtime.OpStore, 1, 0)
+		ctx.Emitter().Emit(s.Pos(), vm.OpNewObject, 0, 0)
+		ctx.Emitter().Emit(s.Pos(), vm.OpStore, 1, 0)
 	}
 
 	ctx.RunPassChild(s, s.FieldBlock, pass)

@@ -10,7 +10,7 @@ import (
 
 	"github.com/dcaiafa/nitro"
 	"github.com/dcaiafa/nitro/internal/errlogger"
-	"github.com/dcaiafa/nitro/internal/runtime"
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
 type MemoryFileLoader map[string]string
@@ -117,7 +117,7 @@ func RunSubO(t *testing.T, name string, prog string, expectedOutput string) {
 	})
 }
 
-func RunPO(t *testing.T, prog string, params map[string]runtime.Value, expectedOutput string) {
+func RunPO(t *testing.T, prog string, params map[string]vm.Value, expectedOutput string) {
 	t.Helper()
 
 	expectedOutput = strings.Trim(expectedOutput, "\r\n\t ")
@@ -132,7 +132,7 @@ func RunPO(t *testing.T, prog string, params map[string]runtime.Value, expectedO
 	}
 }
 
-func RunSubPO(t *testing.T, name string, prog string, params map[string]runtime.Value, expectedOutput string) {
+func RunSubPO(t *testing.T, name string, prog string, params map[string]vm.Value, expectedOutput string) {
 	t.Run(name, func(t *testing.T) {
 		t.Helper()
 		RunPO(t, prog, params, expectedOutput)

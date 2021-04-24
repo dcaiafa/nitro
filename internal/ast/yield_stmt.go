@@ -1,6 +1,6 @@
 package ast
 
-import "github.com/dcaiafa/nitro/internal/runtime"
+import "github.com/dcaiafa/nitro/internal/vm"
 
 type YieldStmt struct {
 	astBase
@@ -25,12 +25,12 @@ func (s *YieldStmt) RunPass(ctx *Context, pass Pass) {
 		fn.SetIterNRet(len(s.Values))
 
 	case Emit:
-		ctx.Emitter().Emit(s.Pos(), runtime.OpNewBool, 1, 0)
+		ctx.Emitter().Emit(s.Pos(), vm.OpNewBool, 1, 0)
 	}
 
 	ctx.RunPassChild(s, s.Values, pass)
 
 	if pass == Emit {
-		ctx.Emitter().Emit(s.Pos(), runtime.OpIterYield, uint32(len(s.Values))+1, 0)
+		ctx.Emitter().Emit(s.Pos(), vm.OpIterYield, uint32(len(s.Values))+1, 0)
 	}
 }

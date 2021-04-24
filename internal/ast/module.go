@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"github.com/dcaiafa/nitro/internal/runtime"
+	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/internal/symbol"
 )
 
@@ -28,7 +28,7 @@ func (m *Module) RunPass(ctx *Context, pass Pass) {
 	case Emit:
 		emitter := ctx.Emitter()
 		emitter.PushFn(m.fn)
-		emitter.Emit(m.Pos(), runtime.OpInitCallFrame, 0, 0)
+		emitter.Emit(m.Pos(), vm.OpInitCallFrame, 0, 0)
 	}
 
 	ctx.RunPassChild(m, m.Meta, pass)
@@ -42,7 +42,7 @@ func (m *Module) RunPass(ctx *Context, pass Pass) {
 			synthesizeReturn = !endsWithReturn
 		}
 		if synthesizeReturn {
-			ctx.Emitter().Emit(m.Pos(), runtime.OpRet, 0, 0)
+			ctx.Emitter().Emit(m.Pos(), vm.OpRet, 0, 0)
 		}
 
 		ctx.Emitter().PopFn()

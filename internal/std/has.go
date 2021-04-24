@@ -3,28 +3,28 @@ package std
 import (
 	"fmt"
 
-	"github.com/dcaiafa/nitro/internal/runtime"
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
-func has(m *runtime.Machine, caps []runtime.ValueRef, args []runtime.Value, nRet int) ([]runtime.Value, error) {
+func has(m *vm.Machine, caps []vm.ValueRef, args []vm.Value, nRet int) ([]vm.Value, error) {
 	if len(args) < 2 {
 		return nil, errNotEnoughArgs
 	}
 
 	if args[0] == nil {
-		return []runtime.Value{runtime.NewBool(false)}, nil
+		return []vm.Value{vm.NewBool(false)}, nil
 	}
 
 	obj, ok := args[0].(interface {
-		Has(k runtime.Value) bool
+		Has(k vm.Value) bool
 	})
 	if !ok {
 		return nil, fmt.Errorf(
 			"argument %v does not support 'has'",
-			runtime.TypeName(args[0]))
+			vm.TypeName(args[0]))
 	}
 
 	has := obj.Has(args[1])
 
-	return []runtime.Value{runtime.NewBool(has)}, nil
+	return []vm.Value{vm.NewBool(has)}, nil
 }

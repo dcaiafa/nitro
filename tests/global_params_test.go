@@ -3,7 +3,7 @@ package tests
 import (
 	"testing"
 
-	"github.com/dcaiafa/nitro/internal/runtime"
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
 func TestGlobalParams(t *testing.T) {
@@ -12,9 +12,9 @@ func TestGlobalParams(t *testing.T) {
 		meta param bar [type="int"]
 
 		print(foo, bar)
-	`, map[string]runtime.Value{
-		"foo": runtime.NewInt(3),
-		"bar": runtime.NewInt(2),
+	`, map[string]vm.Value{
+		"foo": vm.NewInt(3),
+		"bar": vm.NewInt(2),
 	}, `3 2`)
 
 	RunSubPO(t, "use_default", `
@@ -22,7 +22,7 @@ func TestGlobalParams(t *testing.T) {
 		meta param bar
 
 		print(foo, bar)
-	`, map[string]runtime.Value{
-		"bar": runtime.NewInt(2),
+	`, map[string]vm.Value{
+		"bar": vm.NewInt(2),
 	}, `1 2`)
 }

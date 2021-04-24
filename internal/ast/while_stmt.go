@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"github.com/dcaiafa/nitro/internal/runtime"
+	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/internal/token"
 )
 
@@ -11,12 +11,12 @@ type WhileStmt struct {
 	Predicate Expr
 	Block     *StmtBlock
 
-	begin *runtime.Label
-	end   *runtime.Label
+	begin *vm.Label
+	end   *vm.Label
 }
 
 func (s *WhileStmt) RunPass(ctx *Context, pass Pass) {
-	var emitter *runtime.Emitter
+	var emitter *vm.Emitter
 
 	if pass == Emit {
 		emitter = ctx.Emitter()
@@ -28,21 +28,21 @@ func (s *WhileStmt) RunPass(ctx *Context, pass Pass) {
 	ctx.RunPassChild(s, s.Predicate, pass)
 
 	if pass == Emit {
-		emitter.EmitJump(s.Predicate.Pos(), runtime.OpJumpIfFalse, s.end, 0)
+		emitter.EmitJump(s.Predicate.Pos(), vm.OpJumpIfFalse, s.end, 0)
 	}
 
 	ctx.RunPassChild(s, s.Block, pass)
 
 	if pass == Emit {
-		emitter.EmitJump(s.Block.Pos(), runtime.OpJump, s.begin, 0)
+		emitter.EmitJump(s.Block.Pos(), vm.OpJump, s.begin, 0)
 		emitter.ResolveLabel(s.end)
 	}
 }
 
-func (s *WhileStmt) EmitBreak(pos token.Pos, e *runtime.Emitter) {
-	e.EmitJump(pos, runtime.OpJump, s.end, 0)
+func (s *WhileStmt) EmitBreak(pos token.Pos, e *vm.Emitter) {
+	e.EmitJump(pos, vm.OpJump, s.end, 0)
 }
 
-func (s *WhileStmt) EmitContinue(pos token.Pos, e *runtime.Emitter) {
-	e.EmitJump(pos, runtime.OpJump, s.begin, 0)
+func (s *WhileStmt) EmitContinue(pos token.Pos, e *vm.Emitter) {
+	e.EmitJump(pos, vm.OpJump, s.begin, 0)
 }

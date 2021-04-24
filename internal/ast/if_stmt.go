@@ -1,12 +1,12 @@
 package ast
 
-import "github.com/dcaiafa/nitro/internal/runtime"
+import "github.com/dcaiafa/nitro/internal/vm"
 
 type IfStmt struct {
 	astBase
 	Sections ASTs
 
-	end *runtime.Label
+	end *vm.Label
 }
 
 func (s *IfStmt) RunPass(ctx *Context, pass Pass) {
@@ -28,7 +28,7 @@ type IfBlock struct {
 	Pred  Expr
 	Block AST
 
-	end *runtime.Label
+	end *vm.Label
 }
 
 func (b *IfBlock) RunPass(ctx *Context, pass Pass) {
@@ -45,7 +45,7 @@ func (b *IfBlock) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Emit:
 		if b.Pred != nil {
-			ctx.Emitter().EmitJump(b.Pos(), runtime.OpJumpIfFalse, b.end, 0)
+			ctx.Emitter().EmitJump(b.Pos(), vm.OpJumpIfFalse, b.end, 0)
 		}
 	}
 
@@ -54,7 +54,7 @@ func (b *IfBlock) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Emit:
 		ifStmtEnd := ctx.Parent().(*IfStmt).end
-		ctx.Emitter().EmitJump(b.Pos(), runtime.OpJump, ifStmtEnd, 0)
+		ctx.Emitter().EmitJump(b.Pos(), vm.OpJump, ifStmtEnd, 0)
 		ctx.Emitter().ResolveLabel(b.end)
 	}
 }

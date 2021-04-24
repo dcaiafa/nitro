@@ -3,10 +3,10 @@ package std
 import (
 	"fmt"
 
-	"github.com/dcaiafa/nitro/internal/runtime"
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
-func push(m *runtime.Machine, caps []runtime.ValueRef, args []runtime.Value, nRet int) ([]runtime.Value, error) {
+func push(m *vm.Machine, caps []vm.ValueRef, args []vm.Value, nRet int) ([]vm.Value, error) {
 	if len(args) < 2 {
 		return nil, errNotEnoughArgs
 	} else if len(args) > 2 {
@@ -14,12 +14,12 @@ func push(m *runtime.Machine, caps []runtime.ValueRef, args []runtime.Value, nRe
 	}
 
 	pushable, ok := args[0].(interface {
-		Push(v runtime.Value)
+		Push(v vm.Value)
 	})
 	if !ok {
 		return nil, fmt.Errorf(
 			"argument %v does not support push",
-			runtime.TypeName(args[0]))
+			vm.TypeName(args[0]))
 	}
 
 	pushable.Push(args[1])

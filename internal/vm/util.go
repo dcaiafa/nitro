@@ -1,4 +1,4 @@
-package runtime
+package vm
 
 func copyArgs(args []Value, minArgs int) []Value {
 	n := len(args)

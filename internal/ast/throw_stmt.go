@@ -1,6 +1,6 @@
 package ast
 
-import "github.com/dcaiafa/nitro/internal/runtime"
+import "github.com/dcaiafa/nitro/internal/vm"
 
 type ThrowStmt struct {
 	astBase
@@ -12,6 +12,6 @@ func (s *ThrowStmt) RunPass(ctx *Context, pass Pass) {
 	ctx.RunPassChild(s, s.Expr, pass)
 
 	if pass == Emit {
-		ctx.Emitter().Emit(s.Pos(), runtime.OpThrow, 0, 0)
+		ctx.Emitter().Emit(s.Pos(), vm.OpThrow, 0, 0)
 	}
 }

@@ -6,7 +6,7 @@ import (
 	"github.com/dcaiafa/nitro/internal/ast"
 	"github.com/dcaiafa/nitro/internal/errlogger"
 	"github.com/dcaiafa/nitro/internal/parser2"
-	"github.com/dcaiafa/nitro/internal/runtime"
+	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/internal/std"
 	"github.com/dcaiafa/nitro/internal/token"
 )
@@ -29,14 +29,14 @@ type Compiler struct {
 	fileLoader  FileLoader
 	diag        bool
 	main        *ast.Main
-	externalFns map[string]runtime.NativeFn
+	externalFns map[string]vm.NativeFn
 }
 
 func NewCompiler(fileLoader FileLoader) *Compiler {
 	c := &Compiler{
 		fileLoader:  fileLoader,
 		main:        &ast.Main{},
-		externalFns: make(map[string]runtime.NativeFn),
+		externalFns: make(map[string]vm.NativeFn),
 	}
 	std.Register(c)
 	return c
@@ -46,14 +46,14 @@ func (c *Compiler) SetDiag(diag bool) {
 	c.diag = diag
 }
 
-func (c *Compiler) AddNativeFn(name string, fn runtime.NativeFn) {
+func (c *Compiler) AddNativeFn(name string, fn vm.NativeFn) {
 	c.main.AddNativeFn(name, fn)
 }
 
 func (c *Compiler) Compile(
 	filename string,
 	errLogger errlogger.ErrLogger,
-) (*runtime.Program, error) {
+) (*vm.Program, error) {
 	errLoggerWrapper := errlogger.NewErrLoggerBase(errLogger)
 
 	data, err := c.fileLoader.LoadFile(filename)
@@ -73,7 +73,7 @@ func (c *Compiler) Compile(
 func (c *Compiler) CompileShort(
 	shortProg string,
 	errLogger errlogger.ErrLogger,
-) (*runtime.Program, error) {
+) (*vm.Program, error) {
 	errLoggerWrapper := errlogger.NewErrLoggerBase(errLogger)
 
 	module, err := parser2.ParseModule("expr", shortProg, true, c.diag, errLoggerWrapper)
@@ -87,7 +87,7 @@ func (c *Compiler) CompileShort(
 func (c *Compiler) compile(
 	module *ast.Module,
 	errLoggerWrapper *errlogger.ErrLoggerWrapper,
-) (*runtime.Program, error) {
+) (*vm.Program, error) {
 	c.main.AddModule(module)
 
 	ctx := ast.NewContext(errLoggerWrapper)

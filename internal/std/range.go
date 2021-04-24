@@ -3,10 +3,10 @@ package std
 import (
 	"fmt"
 
-	"github.com/dcaiafa/nitro/internal/runtime"
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
-func Range(m *runtime.Machine, caps []runtime.ValueRef, args []runtime.Value, nRet int) ([]runtime.Value, error) {
+func Range(m *vm.Machine, caps []vm.ValueRef, args []vm.Value, nRet int) ([]vm.Value, error) {
 	var err error
 	var start int64 = 0
 	var step int64 = 0
@@ -62,37 +62,37 @@ func Range(m *runtime.Machine, caps []runtime.ValueRef, args []runtime.Value, nR
 	}
 
 	var (
-		currentValue runtime.Value = runtime.NewInt(start)
-		endValue     runtime.Value = runtime.NewInt(end)
-		stepValue    runtime.Value = runtime.NewInt(step)
+		currentValue vm.Value = vm.NewInt(start)
+		endValue     vm.Value = vm.NewInt(end)
+		stepValue    vm.Value = vm.NewInt(step)
 	)
 
-	c := runtime.NewIterator(
+	c := vm.NewIterator(
 		rangeIter,
-		[]runtime.ValueRef{
-			runtime.NewValueRef(&currentValue),
-			runtime.NewValueRef(&endValue),
-			runtime.NewValueRef(&stepValue),
+		[]vm.ValueRef{
+			vm.NewValueRef(&currentValue),
+			vm.NewValueRef(&endValue),
+			vm.NewValueRef(&stepValue),
 		},
 		1)
 
-	return []runtime.Value{c}, nil
+	return []vm.Value{c}, nil
 }
 
-func rangeIter(m *runtime.Machine, caps []runtime.ValueRef, args []runtime.Value, nRet int) ([]runtime.Value, error) {
+func rangeIter(m *vm.Machine, caps []vm.ValueRef, args []vm.Value, nRet int) ([]vm.Value, error) {
 	var (
-		cur  = ((*caps[0].Ref).(runtime.Int)).Int64()
-		end  = ((*caps[1].Ref).(runtime.Int)).Int64()
-		step = ((*caps[2].Ref).(runtime.Int)).Int64()
+		cur  = ((*caps[0].Ref).(vm.Int)).Int64()
+		end  = ((*caps[1].Ref).(vm.Int)).Int64()
+		step = ((*caps[2].Ref).(vm.Int)).Int64()
 	)
 
 	if (step > 0 && cur >= end) ||
 		(step < 0 && cur <= end) ||
 		(step == 0) {
-		return []runtime.Value{runtime.NewBool(false), runtime.NewInt(0)}, nil
+		return []vm.Value{vm.NewBool(false), vm.NewInt(0)}, nil
 	}
 
-	*caps[0].Refo() = runtime.NewInt(cur + step)
+	*caps[0].Refo() = vm.NewInt(cur + step)
 
-	return []runtime.Value{runtime.NewBool(true), runtime.NewInt(cur)}, nil
+	return []vm.Value{vm.NewBool(true), vm.NewInt(cur)}, nil
 }

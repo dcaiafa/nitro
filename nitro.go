@@ -6,66 +6,66 @@ import (
 
 	"github.com/dcaiafa/nitro/internal/errlogger"
 	"github.com/dcaiafa/nitro/internal/meta"
-	"github.com/dcaiafa/nitro/internal/runtime"
+	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/internal/token"
 )
 
 type (
-	Machine = runtime.Machine
+	Machine = vm.Machine
 
-	Array     = runtime.Array
-	Bool      = runtime.Bool
-	Closure   = runtime.Closure
-	Iterator  = runtime.Iterator
-	ExternFn  = runtime.NativeFn
-	Float     = runtime.Float
-	Frame     = runtime.FrameInfo
-	Func      = runtime.Fn
-	Int       = runtime.Int
-	Object    = runtime.Object
-	Program   = runtime.Program
-	Regex     = runtime.Regex
-	String    = runtime.String
-	Value     = runtime.Value
-	ValueRef  = runtime.ValueRef
-	Callable  = runtime.Callable
-	Indexable = runtime.Indexable
+	Array     = vm.Array
+	Bool      = vm.Bool
+	Closure   = vm.Closure
+	Iterator  = vm.Iterator
+	ExternFn  = vm.NativeFn
+	Float     = vm.Float
+	Frame     = vm.FrameInfo
+	Func      = vm.Fn
+	Int       = vm.Int
+	Object    = vm.Object
+	Program   = vm.Program
+	Regex     = vm.Regex
+	String    = vm.String
+	Value     = vm.Value
+	ValueRef  = vm.ValueRef
+	Callable  = vm.Callable
+	Indexable = vm.Indexable
 	Metadata  = meta.Metadata
 
-	RuntimeError = runtime.RuntimeError
+	RuntimeError = vm.RuntimeError
 
 	ErrLogger = errlogger.ErrLogger
 	Pos       = token.Pos
 )
 
-type BinOp = runtime.BinOp
+type BinOp = vm.BinOp
 
 const (
-	BinAdd  = runtime.BinAdd
-	BinSub  = runtime.BinSub
-	BinMult = runtime.BinMult
-	BinDiv  = runtime.BinDiv
-	BinMod  = runtime.BinMod
-	BinLT   = runtime.BinLT
-	BinLE   = runtime.BinLE
-	BinGT   = runtime.BinGT
-	BinGE   = runtime.BinGE
-	BinEq   = runtime.BinEq
-	BinNE   = runtime.BinNE
+	BinAdd  = vm.BinAdd
+	BinSub  = vm.BinSub
+	BinMult = vm.BinMult
+	BinDiv  = vm.BinDiv
+	BinMod  = vm.BinMod
+	BinLT   = vm.BinLT
+	BinLE   = vm.BinLE
+	BinGT   = vm.BinGT
+	BinGE   = vm.BinGE
+	BinEq   = vm.BinEq
+	BinNE   = vm.BinNE
 )
 
-var ErrCannotCallNil = runtime.ErrCannotCallNil
+var ErrCannotCallNil = vm.ErrCannotCallNil
 
 func NewMachine(ctx context.Context, p *Program) *Machine {
-	return runtime.NewMachine(ctx, p)
+	return vm.NewMachine(ctx, p)
 }
 
 func MakeIterator(m *Machine, v Value) (*Iterator, error) {
-	return runtime.MakeIterator(m, v)
+	return vm.MakeIterator(m, v)
 }
 
 func Next(m *Machine, e Value, n int) ([]Value, bool, error) {
-	return runtime.Next(m, e, n)
+	return vm.Next(m, e, n)
 }
 
 func NewConsoleErrLogger() ErrLogger {
@@ -73,22 +73,22 @@ func NewConsoleErrLogger() ErrLogger {
 }
 
 func EvalBinOp(op BinOp, operand1, operand2 Value) (Value, error) {
-	return runtime.EvalBinOp(op, operand1, operand2)
+	return vm.EvalBinOp(op, operand1, operand2)
 }
 
-func TypeName(v Value) string                      { return runtime.TypeName(v) }
-func NewString(v string) String                    { return runtime.NewString(v) }
-func NewInt(v int64) Int                           { return runtime.NewInt(v) }
-func NewFloat(v float64) Float                     { return runtime.NewFloat(v) }
-func NewBool(v bool) Bool                          { return runtime.NewBool(v) }
-func NewValueRef(ref *Value) ValueRef              { return runtime.NewValueRef(ref) }
-func NewClosure(f ExternFn, c []ValueRef) *Closure { return runtime.NewClosure(f, c) }
-func NewArray() *Array                             { return runtime.NewArray() }
-func NewArrayFromSlice(s []Value) *Array           { return runtime.NewArrayWithSlice(s) }
-func NewObject() *Object                           { return runtime.NewObject() }
-func NewRegex(r *regexp.Regexp) *Regex             { return runtime.NewRegex(r) }
-func CoerceToBool(v Value) bool                    { return runtime.CoerceToBool(v) }
+func TypeName(v Value) string                      { return vm.TypeName(v) }
+func NewString(v string) String                    { return vm.NewString(v) }
+func NewInt(v int64) Int                           { return vm.NewInt(v) }
+func NewFloat(v float64) Float                     { return vm.NewFloat(v) }
+func NewBool(v bool) Bool                          { return vm.NewBool(v) }
+func NewValueRef(ref *Value) ValueRef              { return vm.NewValueRef(ref) }
+func NewClosure(f ExternFn, c []ValueRef) *Closure { return vm.NewClosure(f, c) }
+func NewArray() *Array                             { return vm.NewArray() }
+func NewArrayFromSlice(s []Value) *Array           { return vm.NewArrayWithSlice(s) }
+func NewObject() *Object                           { return vm.NewObject() }
+func NewRegex(r *regexp.Regexp) *Regex             { return vm.NewRegex(r) }
+func CoerceToBool(v Value) bool                    { return vm.CoerceToBool(v) }
 
 func NewIterator(f ExternFn, c []ValueRef, nret int) *Iterator {
-	return runtime.NewIterator(f, c, nret)
+	return vm.NewIterator(f, c, nret)
 }

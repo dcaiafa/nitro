@@ -1,6 +1,6 @@
 package ast
 
-import "github.com/dcaiafa/nitro/internal/runtime"
+import "github.com/dcaiafa/nitro/internal/vm"
 
 type SliceExpr struct {
 	astBase
@@ -17,6 +17,6 @@ func (e *SliceExpr) RunPass(ctx *Context, pass Pass) {
 	ctx.RunPassChild(e, e.End, pass)
 
 	if pass == Emit {
-		ctx.Emitter().Emit(e.Pos(), runtime.OpSlice, 0, 0)
+		ctx.Emitter().Emit(e.Pos(), vm.OpSlice, 0, 0)
 	}
 }

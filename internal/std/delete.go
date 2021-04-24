@@ -3,10 +3,10 @@ package std
 import (
 	"fmt"
 
-	"github.com/dcaiafa/nitro/internal/runtime"
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
-func delete_(m *runtime.Machine, caps []runtime.ValueRef, args []runtime.Value, nRet int) ([]runtime.Value, error) {
+func delete_(m *vm.Machine, caps []vm.ValueRef, args []vm.Value, nRet int) ([]vm.Value, error) {
 	if len(args) < 2 {
 		return nil, errNotEnoughArgs
 	}
@@ -16,12 +16,12 @@ func delete_(m *runtime.Machine, caps []runtime.ValueRef, args []runtime.Value, 
 	}
 
 	obj, ok := args[0].(interface {
-		Delete(key runtime.Value)
+		Delete(key vm.Value)
 	})
 	if !ok {
 		return nil, fmt.Errorf(
 			"argument %v does not support 'delete'",
-			runtime.TypeName(args[0]))
+			vm.TypeName(args[0]))
 	}
 
 	obj.Delete(args[1])

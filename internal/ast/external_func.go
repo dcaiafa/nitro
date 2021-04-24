@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"github.com/dcaiafa/nitro/internal/runtime"
+	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/internal/symbol"
 	"github.com/dcaiafa/nitro/internal/token"
 )
@@ -10,7 +10,7 @@ type ExternFn struct {
 	astBase
 
 	Name     string
-	ExternFn runtime.NativeFn
+	ExternFn vm.NativeFn
 
 	sym *symbol.FuncSymbol
 }

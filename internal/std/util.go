@@ -3,14 +3,14 @@ package std
 import (
 	"fmt"
 
-	"github.com/dcaiafa/nitro/internal/runtime"
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
-func getIntArg(args []runtime.Value, ndx int) (int64, error) {
+func getIntArg(args []vm.Value, ndx int) (int64, error) {
 	if ndx >= len(args) {
 		return 0, errNotEnoughArgs
 	}
-	v, ok := args[ndx].(runtime.Int)
+	v, ok := args[ndx].(vm.Int)
 	if !ok {
 		return 0, fmt.Errorf(
 			"expected argument %d to be Int, but it is %v",

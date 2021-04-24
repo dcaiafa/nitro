@@ -2,7 +2,7 @@ package ast
 
 import (
 	"github.com/dcaiafa/nitro/internal/meta"
-	"github.com/dcaiafa/nitro/internal/runtime"
+	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/internal/symbol"
 	"github.com/dcaiafa/nitro/internal/token"
 )
@@ -18,7 +18,7 @@ type Main struct {
 	metadata  *meta.Metadata
 }
 
-func (m *Main) AddNativeFn(name string, extFn runtime.NativeFn) {
+func (m *Main) AddNativeFn(name string, extFn vm.NativeFn) {
 	m.externalFns = append(
 		m.externalFns,
 		&ExternFn{

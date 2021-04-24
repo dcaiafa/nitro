@@ -3,7 +3,7 @@ package ast
 import (
 	"math"
 
-	"github.com/dcaiafa/nitro/internal/runtime"
+	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/internal/token"
 )
 
@@ -21,30 +21,30 @@ func (e *LiteralExpr) RunPass(ctx *Context, pass Pass) {
 
 		switch e.Val.Type {
 		case token.Nil:
-			emitter.Emit(e.Pos(), runtime.OpNil, 0, 0)
+			emitter.Emit(e.Pos(), vm.OpNil, 0, 0)
 
 		case token.Int:
 			if 0 <= e.Val.Int && e.Val.Int <= math.MaxUint16 {
-				emitter.Emit(e.Pos(), runtime.OpNewInt, uint32(e.Val.Int), 0)
+				emitter.Emit(e.Pos(), vm.OpNewInt, uint32(e.Val.Int), 0)
 			} else {
-				literal := emitter.AddLiteral(runtime.NewInt(e.Val.Int))
-				emitter.Emit(e.Pos(), runtime.OpLoadLiteral, uint32(literal), 0)
+				literal := emitter.AddLiteral(vm.NewInt(e.Val.Int))
+				emitter.Emit(e.Pos(), vm.OpLoadLiteral, uint32(literal), 0)
 			}
 
 		case token.Float:
-			literal := emitter.AddLiteral(runtime.NewFloat(e.Val.Float))
-			emitter.Emit(e.Pos(), runtime.OpLoadLiteral, uint32(literal), 0)
+			literal := emitter.AddLiteral(vm.NewFloat(e.Val.Float))
+			emitter.Emit(e.Pos(), vm.OpLoadLiteral, uint32(literal), 0)
 
 		case token.String:
 			str := emitter.AddString(e.Val.Str)
-			emitter.Emit(e.Pos(), runtime.OpLoadLiteral, uint32(str), 0)
+			emitter.Emit(e.Pos(), vm.OpLoadLiteral, uint32(str), 0)
 
 		case token.Bool:
 			var v uint16 = 0
 			if e.Val.Bool {
 				v = 1
 			}
-			emitter.Emit(e.Pos(), runtime.OpNewBool, uint32(v), 0)
+			emitter.Emit(e.Pos(), vm.OpNewBool, uint32(v), 0)
 
 		default:
 			panic("not implemented")

@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"github.com/dcaiafa/nitro/internal/runtime"
+	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/internal/symbol"
 )
 
@@ -34,7 +34,7 @@ func (s *FuncStmt) RunPass(ctx *Context, pass Pass) {
 
 	case Emit:
 		if localSym, ok := s.sym.(*symbol.LocalVarSymbol); ok {
-			ctx.Emitter().Emit(s.Pos(), runtime.OpLoadLocalRef, uint32(localSym.LocalNdx), 0)
+			ctx.Emitter().Emit(s.Pos(), vm.OpLoadLocalRef, uint32(localSym.LocalNdx), 0)
 		}
 	}
 
@@ -50,7 +50,7 @@ func (s *FuncStmt) RunPass(ctx *Context, pass Pass) {
 		if _, ok := s.sym.(*symbol.LocalVarSymbol); ok {
 			// The prefix emitted the PushLocalRef. `Func` emitted the closure. Now
 			// emit the `Store` to place the closure into the local var.
-			ctx.Emitter().Emit(s.Pos(), runtime.OpStore, 1, 0)
+			ctx.Emitter().Emit(s.Pos(), vm.OpStore, 1, 0)
 		}
 	}
 }

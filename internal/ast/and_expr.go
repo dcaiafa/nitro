@@ -1,6 +1,6 @@
 package ast
 
-import "github.com/dcaiafa/nitro/internal/runtime"
+import "github.com/dcaiafa/nitro/internal/vm"
 
 type AndExpr struct {
 	astBase
@@ -17,14 +17,14 @@ func (e *AndExpr) RunPass(ctx *Context, pass Pass) {
 
 	ctx.RunPassChild(e, e.Left, pass)
 
-	var skipLabel *runtime.Label
+	var skipLabel *vm.Label
 	switch pass {
 	case Emit:
 		emitter := ctx.Emitter()
 		skipLabel = emitter.NewLabel()
-		emitter.Emit(e.Pos(), runtime.OpDup, 0, 0)
-		emitter.EmitJump(e.Pos(), runtime.OpJumpIfFalse, skipLabel, 0)
-		emitter.Emit(e.Pos(), runtime.OpPop, 1, 0)
+		emitter.Emit(e.Pos(), vm.OpDup, 0, 0)
+		emitter.EmitJump(e.Pos(), vm.OpJumpIfFalse, skipLabel, 0)
+		emitter.Emit(e.Pos(), vm.OpPop, 1, 0)
 	}
 
 	ctx.RunPassChild(e, e.Right, pass)

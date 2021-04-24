@@ -8,8 +8,8 @@ import (
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 	"github.com/dcaiafa/nitro/internal/ast"
 	"github.com/dcaiafa/nitro/internal/parser2/parser"
-	"github.com/dcaiafa/nitro/internal/runtime"
 	"github.com/dcaiafa/nitro/internal/token"
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
 type listener struct {
@@ -236,25 +236,25 @@ func (l *listener) ExitMeta_attrib(ctx *parser.Meta_attribContext) {
 	}
 	if ctx.Meta_literal() != nil {
 		v, _ := l.take(ctx.Meta_literal())
-		attrib.Value = v.(runtime.Value)
+		attrib.Value = v.(vm.Value)
 	}
 	l.put(ctx, attrib)
 }
 
 func (l *listener) ExitMeta_literal(ctx *parser.Meta_literalContext) {
-	var v runtime.Value
+	var v vm.Value
 	t := l.tokenToNitro(ctx.GetVal())
 	switch t.Type {
 	case token.Nil:
 		v = nil
 	case token.Int:
-		v = runtime.NewInt(t.Int)
+		v = vm.NewInt(t.Int)
 	case token.Float:
-		v = runtime.NewFloat(t.Float)
+		v = vm.NewFloat(t.Float)
 	case token.String:
-		v = runtime.NewString(t.Str)
+		v = vm.NewString(t.Str)
 	case token.Bool:
-		v = runtime.NewBool(t.Bool)
+		v = vm.NewBool(t.Bool)
 	default:
 		panic("unreachable")
 	}

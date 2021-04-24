@@ -1,6 +1,6 @@
 package ast
 
-import "github.com/dcaiafa/nitro/internal/runtime"
+import "github.com/dcaiafa/nitro/internal/vm"
 
 type AssignStmt struct {
 	astBase
@@ -30,6 +30,6 @@ func (s *AssignStmt) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Emit:
 		emitter := ctx.Emitter()
-		emitter.Emit(s.Pos(), runtime.OpStore, uint32(len(s.Lvalues)), 0)
+		emitter.Emit(s.Pos(), vm.OpStore, uint32(len(s.Lvalues)), 0)
 	}
 }

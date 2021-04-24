@@ -1,9 +1,9 @@
 package std
 
-import "github.com/dcaiafa/nitro/internal/runtime"
+import "github.com/dcaiafa/nitro/internal/vm"
 
 type Compiler interface {
-	AddNativeFn(name string, fn runtime.NativeFn)
+	AddNativeFn(name string, fn vm.NativeFn)
 }
 
 func Register(c Compiler) {

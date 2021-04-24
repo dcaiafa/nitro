@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"github.com/dcaiafa/nitro/internal/runtime"
+	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/internal/symbol"
 )
 
@@ -31,7 +31,7 @@ func (f *Func) RunPass(ctx *Context, pass Pass) {
 		emitter := ctx.Emitter()
 		emitter.PushFn(f.idxFunc)
 		emitter.SetFuncMinArgs(f.paramCount)
-		emitter.Emit(f.Pos(), runtime.OpInitCallFrame, uint32(f.localCount), 0)
+		emitter.Emit(f.Pos(), vm.OpInitCallFrame, uint32(f.localCount), 0)
 	}
 
 	ctx.Push(f)
@@ -71,9 +71,9 @@ func (f *Func) RunPass(ctx *Context, pass Pass) {
 		}
 		if synthRet {
 			if f.iterNRet > 0 {
-				emitter.Emit(f.Pos(), runtime.OpIterRet, 0, 0)
+				emitter.Emit(f.Pos(), vm.OpIterRet, 0, 0)
 			} else {
-				emitter.Emit(f.Pos(), runtime.OpRet, 0, 0)
+				emitter.Emit(f.Pos(), vm.OpRet, 0, 0)
 			}
 		}
 		emitter.PopFn()
@@ -82,12 +82,12 @@ func (f *Func) RunPass(ctx *Context, pass Pass) {
 			for _, capture := range f.captures {
 				emitSymbolCapture(f.Pos(), emitter, capture.Captured)
 			}
-			op := runtime.OpNewClosure
+			op := vm.OpNewClosure
 			operand1 := uint32(f.idxFunc)
 			operand2 := uint16(len(f.captures))
 			if f.iterNRet > 0 {
 				// TODO: enforce limit on nret, func count.
-				op = runtime.OpNewIter
+				op = vm.OpNewIter
 				operand1 |= uint32(f.iterNRet) << 24
 			}
 			emitter.Emit(f.Pos(), op, operand1, operand2)

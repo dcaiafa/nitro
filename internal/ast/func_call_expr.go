@@ -1,6 +1,6 @@
 package ast
 
-import "github.com/dcaiafa/nitro/internal/runtime"
+import "github.com/dcaiafa/nitro/internal/vm"
 
 type FuncCallExpr struct {
 	astBase
@@ -23,6 +23,6 @@ func (c *FuncCallExpr) RunPass(ctx *Context, pass Pass) {
 		if c.Expand {
 			operand1 |= 0x80000000
 		}
-		ctx.Emitter().Emit(c.Pos(), runtime.OpCall, operand1, uint16(c.RetN))
+		ctx.Emitter().Emit(c.Pos(), vm.OpCall, operand1, uint16(c.RetN))
 	}
 }
