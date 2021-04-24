@@ -9,7 +9,12 @@ type Iterator struct {
 	iterNRet   int
 	tryCatches []tryCatch
 	defers     []*Closure
+	stack      []Value
+	nlocals    int
 	ip         int
+	sp         int
+
+	preAllocStack [stackSize]Value
 }
 
 func (e *Iterator) String() string { return "<Iterator>" }
@@ -27,9 +32,10 @@ func (e *Iterator) isCallable()   {}
 func (e *Iterator) IterNRet() int { return e.iterNRet }
 
 func NewIterator(extFn NativeFn, caps []ValueRef, nret int) *Iterator {
-	return &Iterator{
+	i := &Iterator{
 		extFn:    extFn,
 		captures: caps,
 		iterNRet: nret,
 	}
+	return i
 }

@@ -9,6 +9,8 @@ import (
 	"strings"
 )
 
+const stackSize = 1000
+
 type BinOp byte
 
 const (
@@ -114,20 +116,24 @@ type Machine struct {
 	globals   []Value
 	callStack []*frame
 	frame     *frame
-	stack     [1000]Value
+	stack     []Value
 	instrs    []Instr
 	sp        int
 	ip        int
 	framePool []*frame
+
+	preAllocStack [stackSize]Value
 }
 
 func NewMachine(ctx context.Context, prog *Program) *Machine {
-	return &Machine{
+	m := &Machine{
 		ctx:      ctx,
 		program:  prog,
 		globals:  make([]Value, prog.globals),
 		userData: make(map[interface{}]interface{}),
 	}
+	m.stack = m.preAllocStack[:]
+	return m
 }
 
 func (m *Machine) Context() context.Context {
@@ -245,12 +251,15 @@ func (m *Machine) call(callable Value, narg int, nret int) error {
 		} else {
 			if callable.ip == -1 {
 				m.stack[m.sp] = False
-				for i := 0; i < m.frame.nRet; i++ {
-					m.stack[m.sp+1+i] = nil
+				for i := 1; i < nret; i++ {
+					m.stack[m.sp+i] = nil
 				}
-				m.sp += m.frame.nRet + 1
+				m.sp += nret
 				return nil
 			}
+
+			rsp := m.sp
+			rstack := m.stack
 
 			f := m.newFrame()
 			f.fn = callable.fn
@@ -259,9 +268,24 @@ func (m *Machine) call(callable Value, narg int, nret int) error {
 			f.tryCatches = callable.tryCatches
 			f.defers = callable.defers
 			f.nRet = nret
+			f.nLocals = callable.nlocals
 			f.ip = callable.ip
 
-			return m.runFrame(f)
+			m.stack = callable.stack
+			m.sp = callable.sp
+
+			err := m.runFrame(f)
+			if err != nil {
+				m.stack = rstack
+				m.sp = rsp
+				return err
+			}
+
+			copy(rstack[rsp:], m.stack[m.sp-nret:m.sp])
+			callable.sp = m.sp - nret
+			m.stack = rstack
+			m.sp = rsp + nret
+			return nil
 		}
 
 	case *Fn:
@@ -303,12 +327,14 @@ func (m *Machine) popFrame() {
 
 	m.callStack[len(m.callStack)-1] = nil
 	m.callStack = m.callStack[:len(m.callStack)-1]
+
 	if len(m.callStack) > 0 {
 		m.frame = m.callStack[len(m.callStack)-1]
-		m.instrs = m.frame.fn.instrs
-		m.ip = m.frame.ip
+		if m.frame.fn != nil {
+			m.instrs = m.frame.fn.instrs
+			m.ip = m.frame.ip
+		}
 	}
-
 }
 
 func (m *Machine) runFrame(frame *frame) (err error) {
@@ -333,6 +359,8 @@ func (m *Machine) runFrame(frame *frame) (err error) {
 		if err == nil {
 			return nil
 		}
+
+		m.frame.ip = m.ip
 
 		rerr, ok := err.(*RuntimeError)
 		if !ok {
@@ -444,7 +472,7 @@ func (m *Machine) resume() (err error) {
 
 			var caps []ValueRef
 			if capN > 0 {
-				caps := make([]ValueRef, capN)
+				caps = make([]ValueRef, capN)
 				for i, capture := range m.stack[m.sp-capN : m.sp] {
 					caps[i] = capture.(ValueRef)
 				}
@@ -456,6 +484,8 @@ func (m *Machine) resume() (err error) {
 				captures: caps,
 				iterNRet: iterNRet,
 			}
+			iter.stack = iter.preAllocStack[:]
+
 			m.stack[m.sp] = iter
 			m.sp++
 
@@ -767,7 +797,8 @@ func (m *Machine) resume() (err error) {
 			iter := m.frame.iter
 			iter.tryCatches = m.frame.tryCatches
 			iter.defers = m.frame.defers
-			iter.ip = m.frame.ip + 1
+			iter.nlocals = m.frame.nLocals
+			iter.ip = m.ip + 1
 
 			if nret > m.frame.nRet {
 				m.sp -= (nret - m.frame.nRet)
@@ -778,10 +809,10 @@ func (m *Machine) resume() (err error) {
 		case OpIterRet:
 			m.frame.iter.ip = -1
 			m.stack[m.sp] = False
-			for i := 0; i < m.frame.nRet; i++ {
-				m.stack[m.sp+1+i] = nil
+			for i := 1; i < m.frame.nRet; i++ {
+				m.stack[m.sp+i] = nil
 			}
-			m.sp += m.frame.nRet + 1
+			m.sp += m.frame.nRet
 			return nil
 
 		default:
