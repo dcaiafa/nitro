@@ -82,12 +82,12 @@ f1
 f2
 g1
 f4
-Runtime error: boom
- main.n:4 g
- <builtin>:0 tests.run.func3
- main.n:13 f
- main.n:25 x
- main.n:31 main
+boom
+ main.n:4  g
+ <builtin>  tests.run.func3
+ main.n:13  f
+ main.n:25  x
+ main.n:31  main
 `)
 
 	RunSubO(t, "catch_error", `

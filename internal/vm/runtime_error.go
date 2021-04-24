@@ -55,7 +55,6 @@ func (e *RuntimeError) Type() string {
 
 func (e *RuntimeError) Error() string {
 	str := strings.Builder{}
-	str.WriteString("Runtime error: ")
 	if e.Err != nil {
 		str.WriteString(e.Err.Error())
 	} else {
@@ -63,7 +62,13 @@ func (e *RuntimeError) Error() string {
 	}
 
 	for _, f := range e.Stack {
-		fmt.Fprintf(&str, "\n %v:%v %v", f.Filename, f.Line, f.Func)
+		var loc string
+		if f.Filename != "" {
+			loc = fmt.Sprintf("%v:%v", f.Filename, f.Line)
+		} else {
+			loc = "<builtin>"
+		}
+		fmt.Fprintf(&str, "\n %v  %v", loc, f.Func)
 	}
 
 	return str.String()
