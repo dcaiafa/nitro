@@ -99,12 +99,6 @@ func (m *jsonMarshaler) marshal(v nitro.Value) error {
 			return err
 		}
 		m.buf.Write(b)
-	case nitro.String:
-		b, err := json.Marshal(v.String())
-		if err != nil {
-			return err
-		}
-		m.buf.Write(b)
 	case nitro.Bool:
 		b, err := json.Marshal(v.Bool())
 		if err != nil {
@@ -155,7 +149,12 @@ func (m *jsonMarshaler) marshal(v nitro.Value) error {
 		m.buf.WriteByte('}')
 
 	default:
-		return fmt.Errorf("cannot marshal %v to JSON", nitro.TypeName(v))
+		b, err := json.Marshal(v.String())
+		if err != nil {
+			return err
+		}
+		m.buf.Write(b)
 	}
+
 	return nil
 }

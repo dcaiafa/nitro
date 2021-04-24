@@ -65,32 +65,21 @@ func (d Duration) EvalUnaryMinus() (nitro.Value, error) {
 var errDurationUsage = errors.New(
 	`invalid usage. Expected: duration(int, "nanosecond"|"microsecond"|"millisecond"|"second"|"minute"|"hour"`)
 
-func duration(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func dur(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	count, err := getIntArg(args, 0)
 	if err != nil {
 		return nil, err
 	}
-	unit, err := getStringArg(args, 1)
+	unitStr, err := getStringArg(args, 1)
 	if err != nil {
 		return nil, err
 	}
 	dur := time.Duration(count)
-	switch unit {
-	case "nanosecond":
-		dur *= time.Nanosecond
-	case "microsecond":
-		dur *= time.Microsecond
-	case "millisecond":
-		dur *= time.Millisecond
-	case "second":
-		dur *= time.Second
-	case "minute":
-		dur *= time.Minute
-	case "hour":
-		dur *= time.Hour
-	default:
+	unitDur, ok := durationUnit(unitStr)
+	if !ok {
 		return nil, errDurationUsage
 	}
+	dur *= unitDur
 
 	return []nitro.Value{Duration{dur: dur}}, nil
 }
@@ -98,7 +87,7 @@ func duration(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet 
 var errDurationToUsage = errors.New(
 	`invalid usage. Expected: durationto(duration, "nanosecond"|"microsecond"|"millisecond"|"second"|"minute"|"hour"`)
 
-func durationto(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func durto(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) != 2 {
 		return nil, errDurationToUsage
 	}
@@ -107,28 +96,68 @@ func durationto(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRe
 	if !ok {
 		return nil, errDurationToUsage
 	}
-	unit, ok := args[1].(nitro.String)
+	unitStr, ok := args[1].(nitro.String)
 	if !ok {
 		return nil, errDurationToUsage
 	}
-
-	count := dur.dur
-	switch unit.String() {
-	case "nanosecond":
-		count /= time.Nanosecond
-	case "microsecond":
-		count /= time.Microsecond
-	case "millisecond":
-		count /= time.Millisecond
-	case "second":
-		count /= time.Second
-	case "minute":
-		count /= time.Minute
-	case "hour":
-		count /= time.Hour
-	default:
+	unitDur, ok := durationUnit(unitStr.String())
+	if !ok {
 		return nil, errDurationUsage
 	}
 
+	count := dur.dur / unitDur
 	return []nitro.Value{nitro.NewInt(int64(count))}, nil
+}
+
+var errDurationTruncateUsage = errors.New(
+	`invalid usage. Expected: durationtruncate(duration, mult: duration|"nanosecond"|"microsecond"|"millisecond"|"second"|"minute"|"hour")`)
+
+func truncdur(m *nitro.Machine, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	if len(args) != 2 {
+		return nil, errDurationTruncateUsage
+	}
+
+	dur, ok := args[0].(Duration)
+	if !ok {
+		return nil, errDurationTruncateUsage
+	}
+
+	var mult time.Duration
+	multArg, ok := args[1].(Duration)
+	if ok {
+		mult = multArg.dur
+	} else {
+		multStr, ok := args[1].(nitro.String)
+		if !ok {
+			return nil, errDurationTruncateUsage
+		}
+		unit, ok := durationUnit(multStr.String())
+		if !ok {
+			return nil, errDurationTruncateUsage
+		}
+		mult = unit
+	}
+
+	truncDur := dur.dur.Truncate(mult)
+
+	return []nitro.Value{Duration{truncDur}}, nil
+}
+
+func durationUnit(c string) (time.Duration, bool) {
+	switch c {
+	case "nanosecond":
+		return time.Nanosecond, true
+	case "microsecond":
+		return time.Microsecond, true
+	case "millisecond":
+		return time.Millisecond, true
+	case "second":
+		return time.Second, true
+	case "minute":
+		return time.Minute, true
+	case "hour":
+		return time.Hour, true
+	default:
+		return 0, false
+	}
 }

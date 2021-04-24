@@ -17,8 +17,8 @@ func RegisterAll(c *nitro.Compiler) {
 	c.AddNativeFn("cp", cp)
 	c.AddNativeFn("create", create)
 	c.AddNativeFn("createtemp", createtemp)
-	c.AddNativeFn("duration", duration)
-	c.AddNativeFn("durationto", durationto)
+	c.AddNativeFn("dur", dur)
+	c.AddNativeFn("durto", durto)
 	c.AddNativeFn("exec", exec)
 	c.AddNativeFn("fileexists", fileexists)
 	c.AddNativeFn("filter", filter)
@@ -67,6 +67,7 @@ func RegisterAll(c *nitro.Compiler) {
 	c.AddNativeFn("toarray", toarray)
 	c.AddNativeFn("tojson", tojson)
 	c.AddNativeFn("trim", trim)
+	c.AddNativeFn("truncdur", truncdur)
 	c.AddNativeFn("unique", unique)
 	c.AddNativeFn("write", write)
 }
