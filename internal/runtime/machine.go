@@ -45,8 +45,10 @@ const (
 	OpLoadGlobalRef
 	OpLoadLocal
 	OpLoadLocalRef
+	OpCaptureLocal
 	OpLoadArg
 	OpLoadArgRef
+	OpCaptureArg
 	OpLoadCapture
 	OpLoadCaptureRef
 	OpLoadFn
@@ -482,20 +484,71 @@ func (m *Machine) resume() (err error) {
 			m.sp++
 
 		case OpLoadLocal:
-			m.stack[m.sp] = m.stack[m.frame.bp+int(instr.operand1)]
+			l := m.stack[m.frame.bp+int(instr.operand1)]
+			if ref, ok := l.(ValueRef); ok {
+				l = *ref.Ref
+			}
+			m.stack[m.sp] = l
 			m.sp++
 
 		case OpLoadLocalRef:
-			m.stack[m.sp] = ValueRef{&m.stack[m.frame.bp+int(instr.operand1)]}
+			ref, ok := m.stack[m.frame.bp+int(instr.operand1)].(ValueRef)
+			if ok {
+				m.stack[m.sp] = ref
+			} else {
+				m.stack[m.sp] = ValueRef{&m.stack[m.frame.bp+int(instr.operand1)]}
+			}
+			m.sp++
+
+		case OpCaptureLocal:
+			l := m.stack[m.frame.bp+int(instr.operand1)]
+			if _, ok := l.(ValueRef); !ok {
+				ref := ValueRef{Ref: new(Value)}
+				*ref.Ref = l
+				m.stack[m.frame.bp+int(instr.operand1)] = ref
+				l = ref
+			}
+			m.stack[m.sp] = l
 			m.sp++
 
 		case OpLoadArg:
-			m.stack[m.sp] = m.stack[m.frame.bp-m.frame.nArg+int(instr.operand1)]
+			idx := int(instr.operand1)
+			if idx < m.frame.nArg {
+				a := m.stack[m.frame.bp-m.frame.nArg+idx]
+				if ref, ok := a.(ValueRef); ok {
+					a = *ref.Ref
+				}
+				m.stack[m.sp] = a
+			} else {
+				m.stack[m.sp] = nil
+			}
 			m.sp++
 
 		case OpLoadArgRef:
-			m.stack[m.sp] = ValueRef{
-				&m.stack[m.frame.bp-m.frame.nArg+int(instr.operand1)]}
+			idx := int(instr.operand1)
+			if idx >= m.frame.nArg {
+				// TODO: min arg count
+				return fmt.Errorf(
+					"cannot assign to arg because it was not provided by caller")
+			}
+			ref, ok := m.stack[m.frame.bp-m.frame.nArg+idx].(ValueRef)
+			if ok {
+				m.stack[m.sp] = ref
+			} else {
+				m.stack[m.sp] = ValueRef{
+					&m.stack[m.frame.bp-m.frame.nArg+idx]}
+			}
+			m.sp++
+
+		case OpCaptureArg:
+			a := m.stack[m.frame.bp-m.frame.nArg+int(instr.operand1)]
+			if _, ok := a.(ValueRef); !ok {
+				ref := ValueRef{Ref: new(Value)}
+				*ref.Ref = a
+				m.stack[m.frame.bp-m.frame.nArg+int(instr.operand1)] = ref
+				a = ref
+			}
+			m.stack[m.sp] = a
 			m.sp++
 
 		case OpLoadCapture:

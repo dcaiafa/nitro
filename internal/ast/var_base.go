@@ -76,3 +76,16 @@ func emitSymbolRefPush(pos token.Pos, emitter *runtime.Emitter, sym symbol.Symbo
 		panic("not implemented")
 	}
 }
+
+func emitSymbolCapture(pos token.Pos, emitter *runtime.Emitter, sym symbol.Symbol) {
+	switch sym := sym.(type) {
+	case *symbol.LocalVarSymbol:
+		emitter.Emit(pos, runtime.OpCaptureLocal, uint32(sym.LocalNdx), 0)
+
+	case *symbol.ParamSymbol:
+		emitter.Emit(pos, runtime.OpCaptureArg, uint32(sym.ParamNdx), 0)
+
+	default:
+		emitSymbolRefPush(pos, emitter, sym)
+	}
+}
