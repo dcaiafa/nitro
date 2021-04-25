@@ -57,7 +57,7 @@ func (e *RuntimeError) Error() string {
 	str := strings.Builder{}
 	if e.Err != nil {
 		str.WriteString(e.Err.Error())
-	} else {
+	} else if e.ErrValue != nil {
 		str.WriteString(e.ErrValue.String())
 	}
 
