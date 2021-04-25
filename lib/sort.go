@@ -2,6 +2,7 @@ package lib
 
 import (
 	"fmt"
+	"math/rand"
 	gosort "sort"
 
 	"github.com/dcaiafa/nitro"
@@ -171,4 +172,23 @@ func evalCmpOp(op nitro.BinOp, operand1, operand2 nitro.Value) (bool, error) {
 			nitro.TypeName(res))
 	}
 	return boolRes.Bool(), nil
+}
+
+func shuffle(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	if len(args) < 1 {
+		return nil, errNotEnoughArgs
+	}
+
+	arr, err := ToArray(m, args[0])
+	if err != nil {
+		return nil, err
+	}
+
+	rand.Shuffle(arr.Len(), func(i, j int) {
+		t := arr.Get(i)
+		arr.Put(i, arr.Get(j))
+		arr.Put(j, t)
+	})
+
+	return []nitro.Value{arr}, nil
 }

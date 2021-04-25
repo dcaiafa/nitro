@@ -41,6 +41,26 @@ func open(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]n
 	return []nitro.Value{&File{f}}, nil
 }
 
+func closep(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	if len(args) < 1 {
+		return nil, errNotEnoughArgs
+	}
+
+	f, ok := args[0].(io.Closer)
+	if !ok {
+		return nil, fmt.Errorf(
+			"expected argument 1 to be File, but it is %v",
+			nitro.TypeName(args[0]))
+	}
+
+	err := f.Close()
+	if err != nil && !errors.Is(err, os.ErrClosed) {
+		return nil, err
+	}
+
+	return nil, nil
+}
+
 func create(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	filename, err := getStringArg(args, 0)
 	if err != nil {
@@ -55,32 +75,37 @@ func create(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([
 	return []nitro.Value{&File{f}}, nil
 }
 
-func rm(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func read(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) < 1 {
 		return nil, errNotEnoughArgs
 	}
 
+	var input io.Reader
 	switch arg := args[0].(type) {
-	case nitro.String:
-		err := os.Remove(arg.String())
-		if err != nil {
-			return nil, err
-		}
+	case io.Reader:
+		input = arg
 
-	case *File:
-		arg.Close()
-		err := os.Remove(arg.Name())
+	case nitro.String:
+		f, err := os.Open(arg.String())
 		if err != nil {
 			return nil, err
 		}
+		input = f
 
 	default:
 		return nil, fmt.Errorf(
-			"expected argument 1 to be String or File, but it is %v",
-			nitro.TypeName(args[0]))
+			"invalid argument %q. Expected Reader or String.",
+			nitro.TypeName(arg))
 	}
 
-	return nil, nil
+	defer CloseReader(input)
+
+	data, err := ioutil.ReadAll(input)
+	if err != nil {
+		return nil, err
+	}
+
+	return []nitro.Value{nitro.NewString(string(data))}, nil
 }
 
 func write(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
@@ -113,6 +138,34 @@ func write(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]
 	_, err = io.Copy(writer, reader)
 	if err != nil {
 		return nil, err
+	}
+
+	return nil, nil
+}
+
+func rm(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	if len(args) < 1 {
+		return nil, errNotEnoughArgs
+	}
+
+	switch arg := args[0].(type) {
+	case nitro.String:
+		err := os.Remove(arg.String())
+		if err != nil {
+			return nil, err
+		}
+
+	case *File:
+		arg.Close()
+		err := os.Remove(arg.Name())
+		if err != nil {
+			return nil, err
+		}
+
+	default:
+		return nil, fmt.Errorf(
+			"expected argument 1 to be String or File, but it is %v",
+			nitro.TypeName(args[0]))
 	}
 
 	return nil, nil
