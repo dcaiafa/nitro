@@ -21,12 +21,6 @@ func (s *BaseNitroParserListener) EnterEveryRule(ctx antlr.ParserRuleContext) {}
 // ExitEveryRule is called when any rule is exited.
 func (s *BaseNitroParserListener) ExitEveryRule(ctx antlr.ParserRuleContext) {}
 
-// EnterShort_prog is called when production short_prog is entered.
-func (s *BaseNitroParserListener) EnterShort_prog(ctx *Short_progContext) {}
-
-// ExitShort_prog is called when production short_prog is exited.
-func (s *BaseNitroParserListener) ExitShort_prog(ctx *Short_progContext) {}
-
 // EnterStart is called when production start is entered.
 func (s *BaseNitroParserListener) EnterStart(ctx *StartContext) {}
 

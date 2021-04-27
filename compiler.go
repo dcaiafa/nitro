@@ -62,7 +62,7 @@ func (c *Compiler) Compile(
 		return nil, errLoggerWrapper.Error()
 	}
 
-	module, err := parser2.ParseModule(filename, string(data), false, c.diag, errLoggerWrapper)
+	module, err := parser2.ParseModule(filename, string(data), c.diag, errLoggerWrapper)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +76,7 @@ func (c *Compiler) CompileInline(
 ) (*vm.Program, error) {
 	errLoggerWrapper := errlogger.NewErrLoggerBase(errLogger)
 
-	module, err := parser2.ParseModule("<inline>", inline, false, c.diag, errLoggerWrapper)
+	module, err := parser2.ParseModule("<inline>", inline, c.diag, errLoggerWrapper)
 	if err != nil {
 		return nil, err
 	}
