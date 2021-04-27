@@ -14,6 +14,23 @@ type RuntimeError struct {
 
 var _ error = (*RuntimeError)(nil)
 
+func wrapRuntimeError(m *VM, err *error) *RuntimeError {
+	if *err == nil {
+		return nil
+	}
+	var rerr *RuntimeError
+	if !errors.As(*err, &rerr) {
+		rerr = &RuntimeError{
+			Err: *err,
+		}
+	}
+	if rerr.Stack == nil {
+		rerr.Stack = m.GetStackInfo()
+	}
+	*err = rerr
+	return rerr
+}
+
 func (e *RuntimeError) EvalBinOp(op BinOp, operand Value) (Value, error) {
 	return nil, fmt.Errorf("error does not support this operation")
 }

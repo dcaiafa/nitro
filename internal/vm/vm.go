@@ -137,21 +137,7 @@ func (m *VM) callExtFn(
 
 	m.pushFrame(f)
 	defer m.popFrame()
-
-	defer func() {
-		if err != nil {
-			rerr, ok := err.(*RuntimeError)
-			if !ok {
-				rerr = &RuntimeError{
-					Err: err,
-				}
-			}
-			if rerr.Stack == nil {
-				rerr.Stack = m.GetStackInfo()
-			}
-			err = rerr
-		}
-	}()
+	defer wrapRuntimeError(m, &err)
 
 	args := m.stack[m.sp-narg : m.sp]
 
@@ -302,20 +288,10 @@ func (m *VM) runFrame(frame *frame) (err error) {
 			return nil
 		}
 
+		// Update the current frame's ip so that the stack trace created by
+		// wrapRuntimeError will reflect the current position.
 		m.frame.ip = m.ip
-
-		rerr, ok := err.(*RuntimeError)
-		if !ok {
-			rerr = &RuntimeError{
-				Err: err,
-			}
-		}
-
-		if rerr.Stack == nil {
-			rerr.Stack = m.GetStackInfo()
-		}
-
-		err = rerr
+		rerr := wrapRuntimeError(m, &err)
 
 		if len(m.frame.tryCatches) == 0 {
 			return err
