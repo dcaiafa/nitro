@@ -56,6 +56,9 @@ if cancel {
 	return
 }
 
+return (
+	foo), bar
+
 select(
   join(
 		json_lines(),
