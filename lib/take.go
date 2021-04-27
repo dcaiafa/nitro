@@ -6,7 +6,7 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-func take(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func take(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) < 2 {
 		return nil, fmt.Errorf("not enough arguments")
 	}
@@ -21,7 +21,7 @@ func take(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]n
 
 	takeIter := &takeIter{inIter: inIter, count: int(count)}
 
-	return []nitro.Value{nitro.NewIterator(takeIter.Next, nil, inIter.IterNRet())}, nil
+	return []nitro.Value{nitro.NewIterator(takeIter.Next, inIter.IterNRet())}, nil
 }
 
 type takeIter struct {
@@ -29,7 +29,7 @@ type takeIter struct {
 	count  int
 }
 
-func (i *takeIter) Next(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func (i *takeIter) Next(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if i.count == 0 {
 		return append(
 			[]nitro.Value{nitro.NewBool(false)},

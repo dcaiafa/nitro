@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"io"
 	"log"
 	"math/rand"
 	"os"
@@ -14,7 +13,7 @@ import (
 	"github.com/dcaiafa/nitro/lib"
 )
 
-func emit(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func emit(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	stdout := lib.Stdout(m)
 	if len(args) < 1 {
 		return nil, fmt.Errorf("not enough arguments")
@@ -31,36 +30,6 @@ func emit(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]n
 	if err != nil {
 		return nil, err
 	}
-	return nil, nil
-}
-
-func emitShort(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	e, err := nitro.MakeIterator(m, args[0])
-	if err == nil {
-		for {
-			v, ok, err := nitro.Next(m, e, 1)
-			if err != nil {
-				return nil, err
-			}
-			if !ok {
-				break
-			}
-			fmt.Println(v[0])
-		}
-		return nil, nil
-	}
-
-	r, ok := args[0].(io.Reader)
-	if ok {
-		_, err := io.Copy(os.Stdout, r)
-		if err != nil {
-			return nil, err
-		}
-		return nil, nil
-	}
-
-	fmt.Println(args[0])
-
 	return nil, nil
 }
 
@@ -116,21 +85,18 @@ func main() {
 
 	compiler := nitro.NewCompiler(nitro.NewNativeFileLoader())
 	compiler.SetDiag(true)
+	compiler.AddNativeFn("emit", emit)
+
 	lib.RegisterAll(compiler)
 
 	var compiled *nitro.Program
-
 	if *flagN.Value.(*bool) {
-		compiler.AddNativeFn("emit", emitShort)
-
-		compiled, err = compiler.CompileShort(target, nitro.NewConsoleErrLogger())
+		compiled, err = compiler.CompileInline(target, nitro.NewConsoleErrLogger())
 		if err != nil {
 			// Error was already logged by ConsoleErrLogger.
 			os.Exit(1)
 		}
 	} else {
-		compiler.AddNativeFn("emit", emit)
-
 		compiled, err = compiler.Compile(target, nitro.NewConsoleErrLogger())
 		if err != nil {
 			// Error was already logged by ConsoleErrLogger.

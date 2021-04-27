@@ -37,6 +37,6 @@ func CloseReader(r io.Reader) {
 	}
 }
 
-func in(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func in(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	return []nitro.Value{wrapReader(os.Stdin)}, nil
 }

@@ -51,7 +51,7 @@ func run(prog string, params map[string]nitro.Value) (output string, err error) 
 
 	compiler.AddNativeFn(
 		"print",
-		func(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+		func(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 			iargs := valuesToInterface(args)
 			fmt.Fprintln(outBuilder, iargs...)
 			return nil, nil
@@ -59,7 +59,7 @@ func run(prog string, params map[string]nitro.Value) (output string, err error) 
 
 	compiler.AddNativeFn(
 		"printf",
-		func(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+		func(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 			msg := args[0].(nitro.String)
 			iargs := valuesToInterface(args[1:])
 			fmt.Fprintf(outBuilder, msg.String()+"\n", iargs...)
@@ -68,7 +68,7 @@ func run(prog string, params map[string]nitro.Value) (output string, err error) 
 
 	compiler.AddNativeFn(
 		"call",
-		func(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+		func(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 			callable := args[0].(nitro.Callable)
 			return m.Call(callable, args, nRet)
 		})

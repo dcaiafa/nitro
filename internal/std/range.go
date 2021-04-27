@@ -6,7 +6,7 @@ import (
 	"github.com/dcaiafa/nitro/internal/vm"
 )
 
-func Range(m *vm.VM, caps []vm.ValueRef, args []vm.Value, nRet int) ([]vm.Value, error) {
+func Range(m *vm.VM, args []vm.Value, nRet int) ([]vm.Value, error) {
 	var err error
 	var start int64 = 0
 	var step int64 = 0
@@ -61,38 +61,30 @@ func Range(m *vm.VM, caps []vm.ValueRef, args []vm.Value, nRet int) ([]vm.Value,
 		}
 	}
 
-	var (
-		currentValue vm.Value = vm.NewInt(start)
-		endValue     vm.Value = vm.NewInt(end)
-		stepValue    vm.Value = vm.NewInt(step)
-	)
+	i := &rangeIter{
+		cur:  start,
+		end:  end,
+		step: step,
+	}
 
-	c := vm.NewIterator(
-		rangeIter,
-		[]vm.ValueRef{
-			vm.NewValueRef(&currentValue),
-			vm.NewValueRef(&endValue),
-			vm.NewValueRef(&stepValue),
-		},
-		1)
-
-	return []vm.Value{c}, nil
+	return []vm.Value{vm.NewIterator(i.Next, 1)}, nil
 }
 
-func rangeIter(m *vm.VM, caps []vm.ValueRef, args []vm.Value, nRet int) ([]vm.Value, error) {
-	var (
-		cur  = ((*caps[0].Ref).(vm.Int)).Int64()
-		end  = ((*caps[1].Ref).(vm.Int)).Int64()
-		step = ((*caps[2].Ref).(vm.Int)).Int64()
-	)
+type rangeIter struct {
+	cur  int64
+	end  int64
+	step int64
+}
 
-	if (step > 0 && cur >= end) ||
-		(step < 0 && cur <= end) ||
-		(step == 0) {
+func (i *rangeIter) Next(m *vm.VM, args []vm.Value, nRet int) ([]vm.Value, error) {
+	if (i.step > 0 && i.cur >= i.end) ||
+		(i.step < 0 && i.cur <= i.end) ||
+		(i.step == 0) {
 		return []vm.Value{vm.NewBool(false), vm.NewInt(0)}, nil
 	}
 
-	*caps[0].Refo() = vm.NewInt(cur + step)
+	cur := i.cur
+	i.cur = i.cur + i.step
 
 	return []vm.Value{vm.NewBool(true), vm.NewInt(cur)}, nil
 }

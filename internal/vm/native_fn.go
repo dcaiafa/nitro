@@ -2,12 +2,7 @@ package vm
 
 import "fmt"
 
-type NativeFn func(
-	m *VM,
-	caps []ValueRef,
-	args []Value,
-	nRet int,
-) ([]Value, error)
+type NativeFn func(m *VM, args []Value, nRet int) ([]Value, error)
 
 func (f NativeFn) String() string { return "<func>" }
 func (f NativeFn) Type() string   { return "Func" }

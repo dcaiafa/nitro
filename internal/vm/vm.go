@@ -141,7 +141,7 @@ func (m *VM) callExtFn(
 
 	args := m.stack[m.sp-narg : m.sp]
 
-	rets, err := extFn(m, caps, args, nret)
+	rets, err := extFn(m, args, nret)
 	if err != nil {
 		return err
 	}

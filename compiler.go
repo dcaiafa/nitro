@@ -6,9 +6,9 @@ import (
 	"github.com/dcaiafa/nitro/internal/ast"
 	"github.com/dcaiafa/nitro/internal/errlogger"
 	"github.com/dcaiafa/nitro/internal/parser2"
-	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/internal/std"
 	"github.com/dcaiafa/nitro/internal/token"
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
 type FileLoader interface {
@@ -70,13 +70,13 @@ func (c *Compiler) Compile(
 	return c.compile(module, errLoggerWrapper)
 }
 
-func (c *Compiler) CompileShort(
-	shortProg string,
+func (c *Compiler) CompileInline(
+	inline string,
 	errLogger errlogger.ErrLogger,
 ) (*vm.Program, error) {
 	errLoggerWrapper := errlogger.NewErrLoggerBase(errLogger)
 
-	module, err := parser2.ParseModule("expr", shortProg, true, c.diag, errLoggerWrapper)
+	module, err := parser2.ParseModule("<inline>", inline, false, c.diag, errLoggerWrapper)
 	if err != nil {
 		return nil, err
 	}

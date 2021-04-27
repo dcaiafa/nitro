@@ -132,30 +132,27 @@ func (a *Array) String() string {
 }
 
 func (a *Array) Iterate() *Iterator {
-	var arr Value = a
-	var next Value = NewInt(0)
-	return NewIterator(
-		arrayIter,
-		[]ValueRef{NewValueRef(&arr), NewValueRef(&next)},
-		1)
+	i := &arrayIter{
+		arr:  a,
+		next: 0,
+	}
+	return NewIterator(i.Next, 1)
 }
 
-func arrayIter(m *VM, caps []ValueRef, args []Value, nRet int) ([]Value, error) {
-	var (
-		arr  = (*caps[0].Ref).(*Array)
-		next = (*caps[1].Ref).(Int)
-	)
+type arrayIter struct {
+	arr  *Array
+	next int
+}
 
-	if int(next.Int64()) >= arr.Len() {
+func (i *arrayIter) Next(m *VM, args []Value, nRet int) ([]Value, error) {
+	if i.next >= i.arr.Len() {
 		return []Value{NewBool(false), nil}, nil
 	}
 
-	*caps[1].Ref = NewInt(int64(next.Int64() + 1))
+	idx := i.next
+	i.next++
 
-	v, err := arr.Index(next)
-	if err != nil {
-		return nil, err
-	}
+	v := i.arr.Get(idx)
 
 	return []Value{NewBool(true), v}, nil
 }

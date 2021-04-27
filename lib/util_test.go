@@ -31,7 +31,7 @@ func run(prog string, params map[string]nitro.Value) (output string, err error) 
 
 	compiler.AddNativeFn(
 		"call",
-		func(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+		func(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 			callable := args[0].(nitro.Callable)
 			return m.Call(callable, args, nRet)
 		})

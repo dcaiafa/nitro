@@ -77,14 +77,14 @@ func (t Time) EvalUnaryMinus() (nitro.Value, error) {
 
 var errNowUsage = errors.New("invalid usage. Expected now()")
 
-func now(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func now(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) != 0 {
 		return nil, errNowUsage
 	}
 	return []nitro.Value{Time{time.Now()}}, nil
 }
 
-func parsetime(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func parsetime(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	timeStr, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -109,7 +109,7 @@ func parsetime(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int)
 var errFormatTimeUsage = errors.New(
 	"invalid usage. Expected formattime(time, layout: string?)")
 
-func formattime(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func formattime(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) < 1 {
 		return nil, errFormatTimeUsage
 	}
@@ -131,7 +131,7 @@ func formattime(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int
 	return []nitro.Value{nitro.NewString(res)}, nil
 }
 
-func timetounix(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func timetounix(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) < 1 {
 		return nil, errNotEnoughArgs
 	}
@@ -146,7 +146,7 @@ func timetounix(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int
 	return []nitro.Value{nitro.NewInt(timeArg.time.Unix())}, nil
 }
 
-func timetounixnano(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func timetounixnano(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) < 1 {
 		return nil, errNotEnoughArgs
 	}
@@ -161,7 +161,7 @@ func timetounixnano(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet
 	return []nitro.Value{nitro.NewInt(timeArg.time.UnixNano())}, nil
 }
 
-func timefromunix(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func timefromunix(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	var err error
 	var sec, nano int64
 	sec, err = getIntArg(args, 0)

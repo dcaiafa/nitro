@@ -95,7 +95,7 @@ func (d Duration) EvalUnaryMinus() (nitro.Value, error) {
 var errDurUsage = errors.New(
 	`invalid usage. Expected: duration(int, "nanosecond"|"microsecond"|"millisecond"|"second"|"minute"|"hour"`)
 
-func dur(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func dur(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) != 2 {
 		return nil, errDurUsage
 	}
@@ -122,7 +122,7 @@ func dur(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]ni
 var errTruncDurUsage = errors.New(
 	`invalid usage. Expected: truncdur(duration, mult: duration|"nanosecond"|"microsecond"|"millisecond"|"second"|"minute"|"hour")`)
 
-func truncdur(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func truncdur(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) != 2 {
 		return nil, errTruncDurUsage
 	}

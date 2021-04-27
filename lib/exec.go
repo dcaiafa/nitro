@@ -159,12 +159,7 @@ func (p *process) feedProcessUntilOutputAvailable() error {
 	}
 }
 
-func exec(
-	m *nitro.VM,
-	caps []nitro.ValueRef,
-	args []nitro.Value,
-	nRet int,
-) ([]nitro.Value, error) {
+func exec(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	var err error
 	var stdin io.Reader
 	var name string

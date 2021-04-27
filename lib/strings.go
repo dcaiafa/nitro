@@ -9,7 +9,7 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-func match(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func match(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	str, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -31,7 +31,7 @@ func match(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]
 	return []nitro.Value{a}, nil
 }
 
-func replace(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func replace(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) < 3 {
 		return nil, errNotEnoughArgs
 	}
@@ -98,7 +98,7 @@ func replace(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) (
 			nitro.TypeName(args[0]), nitro.TypeName(args[1]), nitro.TypeName(args[2]))
 }
 
-func split(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func split(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) < 2 {
 		return nil, errNotEnoughArgs
 	}
@@ -139,7 +139,7 @@ func split(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]
 	return []nitro.Value{a}, nil
 }
 
-func lines(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func lines(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) < 1 {
 		return nil, errNotEnoughArgs
 	}
@@ -153,7 +153,7 @@ func lines(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]
 		scanner: bufio.NewScanner(input),
 	}
 
-	outIter := nitro.NewIterator(l.Next, nil, 1)
+	outIter := nitro.NewIterator(l.Next, 1)
 	return []nitro.Value{outIter}, nil
 }
 
@@ -163,7 +163,7 @@ type linesIter struct {
 	idxLine int
 }
 
-func (l *linesIter) Next(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func (l *linesIter) Next(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if !l.scanner.Scan() {
 		CloseReader(l.input)
 		if l.scanner.Err() != nil {
@@ -179,7 +179,7 @@ func (l *linesIter) Next(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value,
 	}, nil
 }
 
-func trim(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func trim(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	s, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -190,7 +190,7 @@ func trim(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]n
 	return []nitro.Value{nitro.NewString(res)}, nil
 }
 
-func hasprefix(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func hasprefix(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	str, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err

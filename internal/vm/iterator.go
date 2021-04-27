@@ -31,10 +31,9 @@ func (e *Iterator) EvalUnaryMinus() (Value, error) {
 func (e *Iterator) isCallable()   {}
 func (e *Iterator) IterNRet() int { return e.iterNRet }
 
-func NewIterator(extFn NativeFn, caps []ValueRef, nret int) *Iterator {
+func NewIterator(extFn NativeFn, nret int) *Iterator {
 	i := &Iterator{
 		extFn:    extFn,
-		captures: caps,
 		iterNRet: nret,
 	}
 	return i

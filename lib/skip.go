@@ -6,7 +6,7 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-func skip(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func skip(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) < 2 {
 		return nil, fmt.Errorf("not enough arguments")
 	}
@@ -21,7 +21,7 @@ func skip(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]n
 
 	skipIter := &skipIter{inIter: inIter, skip: int(skip)}
 
-	return []nitro.Value{nitro.NewIterator(skipIter.Next, nil, inIter.IterNRet())}, nil
+	return []nitro.Value{nitro.NewIterator(skipIter.Next, inIter.IterNRet())}, nil
 }
 
 type skipIter struct {
@@ -29,7 +29,7 @@ type skipIter struct {
 	skip   int
 }
 
-func (i *skipIter) Next(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func (i *skipIter) Next(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	for {
 		v, ok, err := nitro.Next(m, i.inIter, i.inIter.IterNRet())
 		if err != nil {

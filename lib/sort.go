@@ -107,7 +107,7 @@ func (s *sorter) Swap(i, j int) {
 	s.arr.Put(j, t)
 }
 
-func sort(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func sort(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) < 1 {
 		return nil, errNotEnoughArgs
 	}
@@ -174,7 +174,7 @@ func evalCmpOp(op nitro.BinOp, operand1, operand2 nitro.Value) (bool, error) {
 	return boolRes.Bool(), nil
 }
 
-func shuffle(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func shuffle(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) < 1 {
 		return nil, errNotEnoughArgs
 	}

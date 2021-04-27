@@ -6,7 +6,7 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-func pathbase(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func pathbase(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	path, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -17,7 +17,7 @@ func pathbase(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) 
 	return []nitro.Value{nitro.NewString(base)}, nil
 }
 
-func pathclean(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func pathclean(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	path, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -28,7 +28,7 @@ func pathclean(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int)
 	return []nitro.Value{nitro.NewString(cleanPath)}, nil
 }
 
-func pathdir(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func pathdir(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	path, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -39,7 +39,7 @@ func pathdir(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) (
 	return []nitro.Value{nitro.NewString(dir)}, nil
 }
 
-func pathext(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func pathext(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	path, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ func pathext(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) (
 	return []nitro.Value{nitro.NewString(ext)}, nil
 }
 
-func pathfromslash(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func pathfromslash(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	path, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -61,7 +61,7 @@ func pathfromslash(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet 
 	return []nitro.Value{nitro.NewString(fromSlash)}, nil
 }
 
-func pathjoin(m *nitro.VM, caps []nitro.ValueRef, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func pathjoin(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) < 2 {
 		return nil, errNotEnoughArgs
 	}

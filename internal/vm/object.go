@@ -2,7 +2,6 @@ package vm
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 )
@@ -144,12 +143,14 @@ func (o *Object) String() string {
 }
 
 func (o *Object) Iterate() *Iterator {
-	var obj Value = o
-	nextKey, _ := obj.(*Object).GetFirst()
-	return NewIterator(
-		objectIter,
-		[]ValueRef{NewValueRef(&obj), NewValueRef(&nextKey)},
-		2)
+	key, _ := o.GetFirst()
+
+	i := &objectIter{
+		obj: o,
+		key: key,
+	}
+
+	return NewIterator(i.Next, 2)
 }
 
 type objectFormatter struct {
@@ -229,34 +230,30 @@ func (of *objectFormatter) str(s string) {
 	of.w.WriteString(s)
 }
 
-func objectIter(m *VM, caps []ValueRef, args []Value, nRet int) ([]Value, error) {
-	var (
-		obj = (*caps[0].Ref).(*Object)
-		key = *caps[1].Ref
-	)
+type objectIter struct {
+	obj *Object
+	key Value
+}
 
-	if nRet != 2 && nRet != 3 {
-		log.Fatalf("unexpected return count %v", nRet)
+func (i *objectIter) Next(m *VM, args []Value, nRet int) ([]Value, error) {
+	if i.key == nil {
+		return []Value{NewBool(false), nil, nil}, nil
 	}
 
-	val, err := obj.Index(key)
+	// TODO: This wouldn't work with nil keys/values. Maybe change Index to return
+	// a third 'ok' result.
+
+	key := i.key
+
+	val, err := i.obj.Index(key)
 	if err != nil {
 		return nil, err
 	}
 	if val == nil {
-		if nRet == 2 {
-			return []Value{NewBool(false), nil}, nil
-		} else {
-			return []Value{NewBool(false), nil, nil}, nil
-		}
+		return []Value{NewBool(false), nil, nil}, nil
 	}
 
-	nextKey, _ := obj.GetNext(key)
-	*caps[1].Ref = nextKey
+	i.key, _ = i.obj.GetNext(key)
 
-	if nRet == 2 {
-		return []Value{NewBool(true), key}, nil
-	} else {
-		return []Value{NewBool(true), key, val}, nil
-	}
+	return []Value{NewBool(true), key, val}, nil
 }
