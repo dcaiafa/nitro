@@ -159,14 +159,30 @@ func (p *process) feedProcessUntilOutputAvailable() error {
 	}
 }
 
+type execOptions struct {
+	Blah bool `nitro:"blah"`
+}
+
+var execOptionsConv Value2Structer
+
 func exec(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	var err error
 	var stdin io.Reader
 	var name string
 	var pargs []string
+	var opt execOptions
 
 	if len(args) < 1 {
 		return nil, errNotEnoughArgs
+	}
+
+	optv, ok := args[0].(*nitro.Object)
+	if ok {
+		err := execOptionsConv.Convert(optv, &opt)
+		if err != nil {
+			return nil, err
+		}
+		fmt.Printf("%+v\n", opt)
 	}
 
 	if _, ok := args[0].(nitro.String); !ok {
