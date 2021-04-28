@@ -8,6 +8,8 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
+var typeValue = reflect.Indirect(reflect.ValueOf(new(nitro.Value))).Type()
+
 type fieldMapping struct {
 	fieldIndex int
 	typ        reflect.Type
@@ -51,6 +53,30 @@ func (s *Value2Structer) Convert(from nitro.Value, to interface{}) error {
 				return false
 			}
 			rfield.SetBool(vb.Bool())
+
+		case reflect.String:
+			vstr, ok := v.(nitro.String)
+			if !ok {
+				err = fmt.Errorf("option %v expected string; received %v",
+					kstr.String(), nitro.TypeName(v))
+				return false
+			}
+			rfield.SetString(vstr.String())
+
+		case reflect.Int64:
+			vint, ok := v.(nitro.Int)
+			if !ok {
+				err = fmt.Errorf("option %v expected int; received %v",
+					kstr.String(), nitro.TypeName(v))
+				return false
+			}
+			rfield.SetInt(vint.Int64())
+
+		case reflect.Interface:
+			rfield.Set(reflect.ValueOf(v))
+
+		default:
+			panic("unreachable")
 		}
 
 		return true

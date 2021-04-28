@@ -2,12 +2,35 @@ package lib
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"strings"
 
 	"github.com/dcaiafa/nitro"
 )
+
+var errStrIndexUsage = errors.New(
+	`invalid usage. Expected strindex(string, string)`)
+
+func strindex(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	if len(args) != 2 {
+		return nil, errStrIndexUsage
+	}
+	str, ok := args[0].(nitro.String)
+	if !ok {
+		return nil, errStrIndexUsage
+	}
+	sub, ok := args[1].(nitro.String)
+	if !ok {
+		return nil, errStrIndexUsage
+	}
+	idx := strings.Index(str.String(), sub.String())
+	if idx == -1 {
+		return []nitro.Value{nil}, nil
+	}
+	return []nitro.Value{nitro.NewInt(int64(idx))}, nil
+}
 
 func match(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	str, err := getStringArg(args, 0)
@@ -22,11 +45,37 @@ func match(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 
 	matches := regex.FindStringSubmatch(str)
 	if matches == nil {
-		return []nitro.Value{nitro.NewBool(false), nil}, nil
+		return []nitro.Value{nil}, nil
 	}
 	a := nitro.NewArrayFromSlice(make([]nitro.Value, 0, len(matches)))
 	for _, match := range matches {
 		a.Push(nitro.NewString(match))
+	}
+	return []nitro.Value{a}, nil
+}
+
+func matchall(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	str, err := getStringArg(args, 0)
+	if err != nil {
+		return nil, err
+	}
+
+	regex, err := getRegexArg(args, 1)
+	if err != nil {
+		return nil, err
+	}
+
+	matches := regex.FindAllStringSubmatch(str, -1)
+	if matches == nil {
+		return []nitro.Value{nil}, nil
+	}
+	a := nitro.NewArrayFromSlice(make([]nitro.Value, 0, len(matches)))
+	for _, match := range matches {
+		a2 := nitro.NewArrayFromSlice(make([]nitro.Value, 0, len(match)))
+		for _, submatch := range match {
+			a2.Push(nitro.NewString(submatch))
+		}
+		a.Push(a2)
 	}
 	return []nitro.Value{a}, nil
 }

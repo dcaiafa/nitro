@@ -16,6 +16,7 @@ func has(m *vm.VM, args []vm.Value, nRet int) ([]vm.Value, error) {
 	}
 
 	obj, ok := args[0].(interface {
+		// TODO: Has should also return an error.
 		Has(k vm.Value) bool
 	})
 	if !ok {

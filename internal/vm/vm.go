@@ -646,8 +646,12 @@ func (m *VM) resume() (err error) {
 			case Iterable:
 				m.stack[m.sp-1] = v.Iterate()
 			default:
-				return fmt.Errorf(
-					"cannot iterate over value of type %q", TypeName(v))
+				if v == nil {
+					m.stack[m.sp-1] = NewIterator(emptyIter, 1)
+				} else {
+					return fmt.Errorf(
+						"cannot iterate over value of type %q", TypeName(v))
+				}
 			}
 
 		case OpBeginTry:

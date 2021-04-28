@@ -11,6 +11,9 @@ type Iterable interface {
 }
 
 func MakeIterator(m *VM, v Value) (*Iterator, error) {
+	if v == nil {
+		return NewIterator(emptyIter, 1), nil
+	}
 	switch v := v.(type) {
 	case *Iterator:
 		return v, nil
@@ -48,4 +51,13 @@ func Next(m *VM, e Value, n int) ([]Value, bool, error) {
 	}
 
 	return ret[1:], true, nil
+}
+
+func emptyIter(m *VM, args []Value, nret int) ([]Value, error) {
+	if nret < 2 {
+		nret = 2
+	}
+	res := make([]Value, nret)
+	res[0] = False
+	return res, nil
 }
