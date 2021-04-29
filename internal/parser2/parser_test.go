@@ -52,6 +52,8 @@ try {
 	log("shit's on fire yo " + e)
 }
 
+return
+
 if cancel {
 	return
 }
@@ -105,7 +107,6 @@ emit(
 	foo: x ? y : bar
 	bar: 1
 }
-
 		`
 
 	module, err := ParseModule("test.nitro", prog, true, &errlogger.ConsoleErrLogger{})

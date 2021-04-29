@@ -7,8 +7,7 @@ func TestTernaryExpr(t *testing.T) {
 	RunSubO(t, "else", `print(false ? "yes" : "no")`, "no")
 	RunSubO(t, "nested", `
 	func f(a) {
-		return 
-			a >= 20 ? "high" :
+		return a >= 20 ? "high" :
 			a >= 10 ? "medium" :
 			"low"
 	}

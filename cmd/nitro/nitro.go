@@ -65,6 +65,7 @@ func main() {
 
 	flagN := sysFlags.AddFlag(&Flag{Name: "n", Sys: true, Desc: "Inline program", Value: new(bool)})
 	flagP := sysFlags.AddFlag(&Flag{Name: "p", Sys: true, Desc: "Create CPU profile", Value: new(string)})
+	flagD := sysFlags.AddFlag(&Flag{Name: "d", Sys: true, Desc: "Enable parser diagnostics", Value: new(bool)})
 
 	args := os.Args[1:]
 	if len(args) == 0 {
@@ -84,7 +85,7 @@ func main() {
 	args = args[1:]
 
 	compiler := nitro.NewCompiler(nitro.NewNativeFileLoader())
-	compiler.SetDiag(true)
+	compiler.SetDiag(*flagD.Value.(*bool))
 	compiler.AddNativeFn("emit", emit)
 
 	lib.RegisterAll(compiler)
