@@ -10,20 +10,20 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-var errStrIndexUsage = errors.New(
-	`invalid usage. Expected strindex(string, string)`)
+var errFindUsage = errors.New(
+	`invalid usage. Expected find(string, string)`)
 
-func strindex(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func find(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) != 2 {
-		return nil, errStrIndexUsage
+		return nil, errFindUsage
 	}
 	str, ok := args[0].(nitro.String)
 	if !ok {
-		return nil, errStrIndexUsage
+		return nil, errFindUsage
 	}
 	sub, ok := args[1].(nitro.String)
 	if !ok {
-		return nil, errStrIndexUsage
+		return nil, errFindUsage
 	}
 	idx := strings.Index(str.String(), sub.String())
 	if idx == -1 {

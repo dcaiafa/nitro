@@ -8,7 +8,7 @@ import (
 )
 
 var errMapReduceUsage = errors.New(
-	`invalid usage. Expected mapreduce(iter, map:string|func, pick:string|func, reduce:func)`)
+	`invalid usage. Expected mapreduce(iter, string|func, string|func, func)`)
 
 func mapreduce(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) != 4 {

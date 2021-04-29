@@ -123,33 +123,35 @@ func max(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 		return nil, errMaxUsage
 	}
 
-	iter, err := nitro.MakeIterator(m, args[0])
-	if err == nil {
-		var maxV nitro.Value
-		for {
-			v, ok, err := nitro.Next(m, iter, 1)
-			if err != nil {
-				return nil, err
+	if args[0] != nil {
+		iter, err := nitro.MakeIterator(m, args[0])
+		if err == nil {
+			var maxV nitro.Value
+			for {
+				v, ok, err := nitro.Next(m, iter, 1)
+				if err != nil {
+					return nil, err
+				}
+				if !ok {
+					break
+				}
+				if v[0] == nil {
+					continue
+				}
+				if maxV == nil {
+					maxV = v[0]
+					continue
+				}
+				isGT, err := evalCmpOp(nitro.BinGT, v[0], maxV)
+				if err != nil {
+					return nil, err
+				}
+				if isGT {
+					maxV = v[0]
+				}
 			}
-			if !ok {
-				break
-			}
-			if v[0] == nil {
-				continue
-			}
-			if maxV == nil {
-				maxV = v[0]
-				continue
-			}
-			isGT, err := evalCmpOp(nitro.BinGT, v[0], maxV)
-			if err != nil {
-				return nil, err
-			}
-			if isGT {
-				maxV = v[0]
-			}
+			return []nitro.Value{maxV}, nil
 		}
-		return []nitro.Value{maxV}, nil
 	}
 
 	var maxV nitro.Value
@@ -173,40 +175,42 @@ func max(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 }
 
 var errMinUsage = errors.New(
-	"invalid usage. Expected: min(int|float...) or max(iter)")
+	"invalid usage. Expected: min(int|float...) or min(iter)")
 
 func min(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) == 0 {
 		return nil, errMinUsage
 	}
 
-	iter, err := nitro.MakeIterator(m, args[0])
-	if err == nil {
-		var minV nitro.Value
-		for {
-			v, ok, err := nitro.Next(m, iter, 1)
-			if err != nil {
-				return nil, err
+	if args[0] != nil {
+		iter, err := nitro.MakeIterator(m, args[0])
+		if err == nil {
+			var minV nitro.Value
+			for {
+				v, ok, err := nitro.Next(m, iter, 1)
+				if err != nil {
+					return nil, err
+				}
+				if !ok {
+					break
+				}
+				if v[0] == nil {
+					continue
+				}
+				if minV == nil {
+					minV = v[0]
+					continue
+				}
+				isGT, err := evalCmpOp(nitro.BinLT, v[0], minV)
+				if err != nil {
+					return nil, err
+				}
+				if isGT {
+					minV = v[0]
+				}
 			}
-			if !ok {
-				break
-			}
-			if v[0] == nil {
-				continue
-			}
-			if minV == nil {
-				minV = v[0]
-				continue
-			}
-			isGT, err := evalCmpOp(nitro.BinLT, v[0], minV)
-			if err != nil {
-				return nil, err
-			}
-			if isGT {
-				minV = v[0]
-			}
+			return []nitro.Value{minV}, nil
 		}
-		return []nitro.Value{minV}, nil
 	}
 
 	var minV nitro.Value
@@ -227,4 +231,59 @@ func min(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 		}
 	}
 	return []nitro.Value{minV}, nil
+}
+
+var errSumUsage = errors.New(
+	"invalid usage. Expected: sum(int|float...) or sum(iter)")
+
+func sum(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	var err error
+
+	if len(args) == 0 {
+		return nil, errMinUsage
+	}
+
+	if args[0] != nil {
+		iter, err := nitro.MakeIterator(m, args[0])
+		if err == nil {
+			var sumV nitro.Value
+			for {
+				v, ok, err := nitro.Next(m, iter, 1)
+				if err != nil {
+					return nil, err
+				}
+				if !ok {
+					break
+				}
+				if v[0] == nil {
+					continue
+				}
+				if sumV == nil {
+					sumV = v[0]
+					continue
+				}
+				sumV, err = nitro.EvalBinOp(nitro.BinAdd, sumV, v[0])
+				if err != nil {
+					return nil, err
+				}
+			}
+			return []nitro.Value{sumV}, nil
+		}
+	}
+
+	var sumV nitro.Value
+	for _, arg := range args {
+		if arg == nil {
+			continue
+		}
+		if sumV == nil {
+			sumV = arg
+			continue
+		}
+		sumV, err = nitro.EvalBinOp(nitro.BinAdd, sumV, arg)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return []nitro.Value{sumV}, nil
 }
