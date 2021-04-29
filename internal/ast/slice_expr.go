@@ -13,9 +13,17 @@ func (e *SliceExpr) isExpr() {}
 
 func (e *SliceExpr) RunPass(ctx *Context, pass Pass) {
 	ctx.RunPassChild(e, e.Target, pass)
-	ctx.RunPassChild(e, e.Begin, pass)
-	ctx.RunPassChild(e, e.End, pass)
 
+	if e.Begin != nil {
+		ctx.RunPassChild(e, e.Begin, pass)
+	} else if pass == Emit {
+		ctx.Emitter().Emit(e.Pos(), vm.OpNewInt, 0, 0)
+	}
+	if e.End != nil {
+		ctx.RunPassChild(e, e.End, pass)
+	} else if pass == Emit {
+		ctx.Emitter().Emit(e.Pos(), vm.OpNewInt, 0xFFFFFFFF, 0)
+	}
 	if pass == Emit {
 		ctx.Emitter().Emit(e.Pos(), vm.OpSlice, 0, 0)
 	}

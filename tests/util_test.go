@@ -147,7 +147,7 @@ func RunErr(t *testing.T, prog string, expectedErr error) {
 		t.Fatalf("Error expected but operation succeeded")
 	}
 
-	if !errors.Is(err, expectedErr) {
+	if expectedErr != nil && !errors.Is(err, expectedErr) {
 		t.Fatalf("Expected error %v, but received %v", expectedErr, err)
 	}
 }
