@@ -9,3 +9,15 @@ func TestStringLiteral(t *testing.T) {
 	// TODO: unicode sequences
 	RunSubO(t, "char", `print('A', '\n', '\'')`, `65 10 39`)
 }
+
+func TestStringSlice(t *testing.T) {
+	RunSubO(t, "full", `
+		print("hello"[0:4])
+`, `hell`)
+	/*
+	     // TODO: fix
+	   	RunSubO(t, "implicit_start", `
+	   		print("hello"[:4])
+	   `, `hell`)
+	*/
+}

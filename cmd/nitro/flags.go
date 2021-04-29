@@ -82,6 +82,8 @@ func (f *Flags) AddFlagsFromMetadata(md *nitro.Metadata) error {
 			flag.Value = new(bool)
 		case "string":
 			flag.Value = new(string)
+		case "[]string":
+			flag.Value = new([]string)
 		case "int":
 			flag.Value = new(int64)
 		case "float":
@@ -108,6 +110,12 @@ func (f *Flags) GetNitroValues() map[string]nitro.Value {
 			values[flag.Name] = nitro.NewBool(*v)
 		case *string:
 			values[flag.Name] = nitro.NewString(*v)
+		case *[]string:
+			a := nitro.NewArray()
+			for _, s := range *v {
+				a.Push(nitro.NewString(s))
+			}
+			values[flag.Name] = a
 		case *int64:
 			values[flag.Name] = nitro.NewInt(*v)
 		case *float64:

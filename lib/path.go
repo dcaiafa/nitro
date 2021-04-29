@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"errors"
 	"path/filepath"
 
 	"github.com/dcaiafa/nitro"
@@ -78,4 +79,29 @@ func pathjoin(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) 
 
 	path := filepath.Join(paths...)
 	return []nitro.Value{nitro.NewString(path)}, nil
+}
+
+var errPathMatchUsage = errors.New(
+	`invalid usage. Expected pathmatch(string, string)`)
+
+func pathmatch(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	if len(args) != 2 {
+		return nil, errPathMatchUsage
+	}
+
+	name, ok := args[0].(nitro.String)
+	if !ok {
+		return nil, errPathMatchUsage
+	}
+	pattern, ok := args[1].(nitro.String)
+	if !ok {
+		return nil, errPathMatchUsage
+	}
+
+	res, err := filepath.Match(pattern.String(), name.String())
+	if err != nil {
+		return nil, errPathMatchUsage
+	}
+
+	return []nitro.Value{nitro.NewBool(res)}, nil
 }
