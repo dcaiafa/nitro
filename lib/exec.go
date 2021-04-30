@@ -1,37 +1,43 @@
 package lib
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	osexec "os/exec"
+	"strings"
+	"sync/atomic"
 
 	"github.com/dcaiafa/nitro"
 )
 
 type process struct {
 	cmd          *osexec.Cmd
-	inputReader  io.Reader
+	stdin        io.Reader
 	input        chan interface{}
 	output       chan interface{}
 	outQueue     ByteQueue
-	stdin        io.WriteCloser
-	stdout       io.ReadCloser
-	outputClosed bool
+	inPipe       io.WriteCloser
+	outPipe      io.ReadCloser
+	errPipe      io.ReadCloser
+	outPipeCount int32
+	stdout       io.Writer
+	stderr       io.Writer
+	errSaver     *prefixSuffixSaver
 }
 
 var _ io.Reader = (*process)(nil)
 
 func newProcess(
 	m *nitro.VM,
-	name string,
-	args []string,
+	cmd *osexec.Cmd,
 	input io.Reader,
 ) *process {
 	return &process{
-		cmd:         osexec.CommandContext(m.Context(), name, args...),
-		inputReader: input,
-		input:       make(chan interface{}, 1),
-		output:      make(chan interface{}, 1),
+		cmd:    cmd,
+		stdin:  input,
+		input:  make(chan interface{}, 1),
+		output: make(chan interface{}, 1),
 	}
 }
 
@@ -46,26 +52,43 @@ func (p *process) EvalUnaryMinus() (nitro.Value, error) {
 	return nil, fmt.Errorf("process does not support this operation")
 }
 
+func (p *process) SetStdout(w io.Writer) {
+	p.stdout = w
+}
+
+func (p *process) SetStderr(w io.Writer) {
+	p.stderr = w
+}
+
 func (p *process) Run() error {
 	var err error
-	p.stdin, err = p.cmd.StdinPipe()
+	p.inPipe, err = p.cmd.StdinPipe()
 	if err != nil {
 		return err
 	}
-	p.stdout, err = p.cmd.StdoutPipe()
-	if err != nil {
-		return err
+
+	if p.stdout == nil {
+		p.outPipe, err = p.cmd.StdoutPipe()
+		if err != nil {
+			return err
+		}
+	} else {
+		p.cmd.Stdout = p.stdout
 	}
+
+	p.errSaver = new(prefixSuffixSaver)
+	p.cmd.Stderr = p.errSaver
+
 	err = p.cmd.Start()
 	if err != nil {
 		return err
 	}
 
-	if p.inputReader != nil {
+	if p.stdin != nil {
 		go func() {
 			for {
 				buf := make([]byte, 512)
-				n, err := p.inputReader.Read(buf)
+				n, err := p.stdin.Read(buf)
 				if err == io.EOF {
 					close(p.input)
 					return
@@ -81,21 +104,34 @@ func (p *process) Run() error {
 		close(p.input)
 	}
 
-	go func() {
-		for {
-			buf := make([]byte, 512)
-			n, err := p.stdout.Read(buf)
-			if err == io.EOF {
-				close(p.output)
-				return
-			} else if err != nil {
-				p.output <- err
-				close(p.output)
-				return
+	if p.outPipe != nil {
+		atomic.AddInt32(&p.outPipeCount, 1)
+		go func() {
+			defer func() {
+				if atomic.AddInt32(&p.outPipeCount, -1) == 0 {
+					close(p.output)
+				}
+			}()
+
+			for {
+				buf := make([]byte, 512)
+				n, err := p.outPipe.Read(buf)
+				if err == io.EOF {
+					return
+				} else if err != nil {
+					p.output <- err
+					return
+				}
+				p.output <- buf[:n]
 			}
-			p.output <- buf[:n]
+		}()
+	} else {
+		close(p.output)
+		err := p.wait()
+		if err != nil {
+			return err
 		}
-	}()
+	}
 
 	return nil
 }
@@ -131,12 +167,12 @@ func (p *process) feedProcessUntilOutputAvailable() error {
 		case bufOrErr, ok := <-input:
 			if !ok {
 				input = nil
-				p.stdin.Close()
+				p.inPipe.Close()
 				continue
 			}
 			switch bufOrErr := bufOrErr.(type) {
 			case []byte:
-				_, err := p.stdin.Write(bufOrErr)
+				_, err := p.inPipe.Write(bufOrErr)
 				if err != nil {
 					return err
 				}
@@ -147,7 +183,7 @@ func (p *process) feedProcessUntilOutputAvailable() error {
 		case bufOrErr, ok := <-p.output:
 			if !ok {
 				// Output was closed, wait for process to finish.
-				return p.cmd.Wait()
+				return p.wait()
 			}
 			switch bufOrErr := bufOrErr.(type) {
 			case []byte:
@@ -159,63 +195,79 @@ func (p *process) feedProcessUntilOutputAvailable() error {
 	}
 }
 
+func (p *process) wait() error {
+	err := p.cmd.Wait()
+	if err != nil {
+		if p.errSaver != nil {
+			err = fmt.Errorf("%w\n%v", err, string(p.errSaver.Bytes()))
+		}
+		return err
+	}
+	return nil
+}
+
 type execOptions struct {
-	Blah bool `nitro:"blah"`
+	Cmd           []string    `nitro:"cmd"`
+	Env           []string    `nitro:"env"`
+	Dir           string      `nitro:"string"`
+	Stdout        nitro.Value `nitro:"stdout"`
+	Stderr        nitro.Value `nitro:"stderr"`
+	CombineOutput bool        `nitro:"combineoutput"`
 }
 
 var execOptionsConv Value2Structer
 
+var errExecUsage = errors.New(
+	`invalid usage. Expected exec(string|reader|iter, object) or exec(object)`)
+
 func exec(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	var err error
 	var stdin io.Reader
-	var name string
-	var pargs []string
 	var opt execOptions
+	var cmd *osexec.Cmd
 
 	if len(args) < 1 {
-		return nil, errNotEnoughArgs
+		return nil, errExecUsage
+	}
+
+	switch arg := args[0].(type) {
+	case io.Reader:
+		stdin = arg
+		args = args[1:]
+
+	case nitro.String:
+		stdin = strings.NewReader(arg.String())
+		args = args[1:]
+
+	case *nitro.Iterator:
+		stdin = &iterReader{
+			m: m,
+			e: arg,
+		}
+		args = args[1:]
+	}
+
+	if len(args) != 1 {
+		return nil, errExecUsage
 	}
 
 	optv, ok := args[0].(*nitro.Object)
-	if ok {
-		err := execOptionsConv.Convert(optv, &opt)
-		if err != nil {
-			return nil, err
-		}
-		fmt.Printf("%+v\n", opt)
+	if !ok {
+		return nil, errExecUsage
 	}
 
-	if _, ok := args[0].(nitro.String); !ok {
-		stdin, err = ToReader(m, args[0])
-		if err != nil {
-			return nil, err
-		}
-		args = args[1:]
+	err = execOptionsConv.Convert(optv, &opt)
+	if err != nil {
+		return nil, err
 	}
 
-	if len(args) < 1 {
-		return nil, errNotEnoughArgs
+	if len(opt.Cmd) == 0 {
+		return nil, fmt.Errorf("option \"cmd\" cannot be empty")
 	}
 
-	if c, ok := args[0].(nitro.String); ok {
-		name = c.String()
-		args = args[1:]
-		for i := 0; i < len(args); i++ {
-			arg, ok := args[i].(nitro.String)
-			if !ok {
-				return nil, fmt.Errorf(
-					"invalid argument of type %q",
-					nitro.TypeName(args[i]))
-			}
-			pargs = append(pargs, arg.String())
-		}
-	} else {
-		return nil, fmt.Errorf(
-			"invalid argument of type %q",
-			nitro.TypeName(args[0]))
-	}
+	cmd = osexec.Command(opt.Cmd[0], opt.Cmd[1:]...)
 
-	p := newProcess(m, name, pargs, stdin)
+	p := newProcess(m, cmd, stdin)
 
 	err = p.Run()
 	if err != nil {

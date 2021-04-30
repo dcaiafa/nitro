@@ -72,6 +72,26 @@ func (s *Value2Structer) Convert(from nitro.Value, to interface{}) error {
 			}
 			rfield.SetInt(vint.Int64())
 
+		case reflect.Slice:
+			va, ok := v.(*nitro.Array)
+			if !ok {
+				err = fmt.Errorf("option %v expected array; received %v",
+					kstr.String(), nitro.TypeName(v))
+				return false
+			}
+			for i := 0; i < va.Len(); i++ {
+				entry := va.Get(i)
+				entryStr, ok := entry.(nitro.String)
+				if !ok {
+					err = fmt.Errorf(
+						"option %v expected array of string; but entry %d was %v",
+						kstr.String(), i, nitro.TypeName(entry))
+					return false
+				}
+				newSlice := reflect.Append(rfield, reflect.ValueOf(entryStr.String()))
+				rfield.Set(newSlice)
+			}
+
 		case reflect.Interface:
 			rfield.Set(reflect.ValueOf(v))
 
