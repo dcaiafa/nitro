@@ -136,7 +136,7 @@ func (a *Array) Iterate() *Iterator {
 		arr:  a,
 		next: 0,
 	}
-	return NewIterator(i.Next, 1)
+	return NewIterator(i.Next, 2)
 }
 
 type arrayIter struct {
@@ -144,9 +144,9 @@ type arrayIter struct {
 	next int
 }
 
-func (i *arrayIter) Next(m *VM, args []Value, nRet int) ([]Value, error) {
+func (i *arrayIter) Next(m *VM, args []Value, nret int) ([]Value, error) {
 	if i.next >= i.arr.Len() {
-		return []Value{NewBool(false), nil}, nil
+		return []Value{NewBool(false), nil, nil}, nil
 	}
 
 	idx := i.next
@@ -154,5 +154,5 @@ func (i *arrayIter) Next(m *VM, args []Value, nRet int) ([]Value, error) {
 
 	v := i.arr.Get(idx)
 
-	return []Value{NewBool(true), v}, nil
+	return []Value{NewBool(true), v, NewInt(int64(idx))}, nil
 }

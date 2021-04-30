@@ -103,3 +103,29 @@ func (s String) EvalBinOp(op BinOp, operand Value) (Value, error) {
 func (s String) EvalUnaryMinus() (Value, error) {
 	return nil, fmt.Errorf("operator not supported by string")
 }
+
+func (s String) Iterate() *Iterator {
+	i := &stringIter{
+		str:  s.v,
+		next: 0,
+	}
+	return NewIterator(i.Next, 2)
+}
+
+type stringIter struct {
+	str  string
+	next int
+}
+
+func (i *stringIter) Next(m *VM, args []Value, nret int) ([]Value, error) {
+	if i.next >= len(i.str) {
+		return []Value{NewBool(false), nil, nil}, nil
+	}
+
+	idx := i.next
+	i.next++
+
+	v := NewInt(int64(i.str[idx]))
+
+	return []Value{NewBool(true), v, NewInt(int64(idx))}, nil
+}

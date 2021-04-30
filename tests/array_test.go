@@ -89,4 +89,15 @@ func TestArrayLiteral(t *testing.T) {
 		push(a, "bar")
 		print(a)
 	`, `[foo bar]`)
+
+	RunSubO(t, "iter", `
+		for e, i in ["a", "b", "c"] {
+			print(e, i)
+		}
+	`, `
+a 0
+b 1
+c 2
+`)
+
 }
