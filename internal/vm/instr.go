@@ -57,3 +57,9 @@ const (
 	OpIterRet
 	OpNewIter
 )
+
+const (
+	CallArgCountMask uint32 = 0x3FFFFFFF
+	CallExpandFlag   uint32 = 0x80000000
+	CallPipelineFlag uint32 = 0x40000000
+)

@@ -47,6 +47,7 @@ type frame struct {
 	caps       []ValueRef
 	tryCatches []tryCatch
 	defers     []*Closure
+	pipeline   bool
 	ip         int
 	bp         int
 }
@@ -109,7 +110,7 @@ func (m *VM) Call(callable Value, args []Value, nret int) ([]Value, error) {
 	sp := m.sp
 	copy(m.stack[m.sp:], args)
 	m.sp += len(args)
-	err := m.call(callable, len(args), nret)
+	err := m.call(callable, len(args), nret, false)
 	if err != nil {
 		return nil, err
 	}
@@ -127,6 +128,7 @@ func (m *VM) callExtFn(
 	caps []ValueRef,
 	narg int,
 	nret int,
+	pipeline bool,
 ) (err error) {
 	f := m.newFrame()
 	f.nRet = nret
@@ -134,6 +136,7 @@ func (m *VM) callExtFn(
 	f.extFn = extFn
 	f.caps = caps
 	f.bp = m.sp
+	f.pipeline = true
 
 	m.pushFrame(f)
 	defer m.popFrame()
@@ -159,23 +162,24 @@ func (m *VM) callExtFn(
 	return nil
 }
 
-func (m *VM) call(callable Value, narg int, nret int) error {
+func (m *VM) call(callable Value, narg int, nret int, pipeline bool) error {
 	switch callable := callable.(type) {
 	case *Closure:
 		if callable.extFn != nil {
-			return m.callExtFn(callable.extFn, callable.caps, narg, nret)
+			return m.callExtFn(callable.extFn, callable.caps, narg, nret, pipeline)
 		} else {
 			f := m.newFrame()
 			f.fn = callable.fn
 			f.caps = callable.caps
 			f.nArg = narg
 			f.nRet = nret
+			f.pipeline = pipeline
 			return m.runFrame(f)
 		}
 
 	case *Iterator:
 		if callable.extFn != nil {
-			return m.callExtFn(callable.extFn, callable.captures, narg, nret)
+			return m.callExtFn(callable.extFn, callable.captures, narg, nret, false)
 		} else {
 			if callable.ip == -1 {
 				m.stack[m.sp] = False
@@ -221,10 +225,11 @@ func (m *VM) call(callable Value, narg int, nret int) error {
 		f.fn = callable
 		f.nArg = narg
 		f.nRet = nret
+		f.pipeline = true
 		return m.runFrame(f)
 
 	case NativeFn:
-		return m.callExtFn(callable, nil, narg, nret)
+		return m.callExtFn(callable, nil, narg, nret, pipeline)
 
 	default:
 		if callable == nil {
@@ -340,9 +345,10 @@ func (m *VM) resume() (err error) {
 
 		case OpCall:
 			nret := int(instr.operand2)
-			narg := int(instr.operand1 & 0x7fffffff)
+			narg := int(instr.operand1 & CallArgCountMask)
+			expand := (instr.operand1 & CallExpandFlag) != 0
+			pipeline := (instr.operand1 & CallPipelineFlag) != 0
 
-			expand := (instr.operand1 & 0x80000000) != 0
 			if expand {
 				if narg == 0 {
 					return fmt.Errorf("assert: zero arguments in expansion")
@@ -364,7 +370,7 @@ func (m *VM) resume() (err error) {
 
 			callable := m.stack[m.sp-narg-1]
 			rsp := m.sp - narg - 1 + nret
-			err = m.call(callable, narg, nret)
+			err = m.call(callable, narg, nret, pipeline)
 			if err != nil {
 				return err
 			}
@@ -768,20 +774,34 @@ func (m *VM) GetStackInfo() []FrameInfo {
 	return stack
 }
 
-func (m *VM) GetNArg() int {
+func (m *VM) GetCallerNArg() int {
 	if len(m.callStack) < 2 {
 		return 0
 	}
 	return m.callStack[len(m.callStack)-2].nArg
 }
 
-func (m *VM) GetArgs() []Value {
+func (m *VM) GetCallerArgs() []Value {
 	if len(m.callStack) < 2 {
 		return nil
 	}
 	f := m.callStack[len(m.callStack)-2]
 	args := m.stack[f.bp-f.nArg : f.bp]
 	return args
+}
+
+func (m *VM) IsPipeline() bool {
+	if len(m.callStack) < 1 {
+		return false
+	}
+	return m.callStack[len(m.callStack)-1].pipeline
+}
+
+func (m *VM) IsCallerPipeline() bool {
+	if len(m.callStack) < 2 {
+		return false
+	}
+	return m.callStack[len(m.callStack)-2].pipeline
 }
 
 func (m *VM) getFrameInfo(frame *frame) FrameInfo {

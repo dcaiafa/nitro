@@ -575,6 +575,7 @@ func (l *listener) ExitExpr(ctx *parser.ExprContext) {
 		switch fn := right.(type) {
 		case *ast.FuncCallExpr:
 			fn.Args = append(ast.Exprs{left}, fn.Args...)
+			fn.Pipeline = true
 			l.put(ctx, fn)
 
 		case *ast.AnonFuncExpr:
@@ -583,6 +584,7 @@ func (l *listener) ExitExpr(ctx *parser.ExprContext) {
 				Args:   ast.Exprs{left},
 				RetN:   1,
 			}
+			fnCall.Pipeline = true
 			l.put(ctx, fnCall)
 
 		default:

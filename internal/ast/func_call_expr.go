@@ -4,10 +4,11 @@ import "github.com/dcaiafa/nitro/internal/vm"
 
 type FuncCallExpr struct {
 	astBase
-	Target Expr
-	Args   Exprs
-	RetN   int
-	Expand bool
+	Target   Expr
+	Args     Exprs
+	RetN     int
+	Expand   bool
+	Pipeline bool
 }
 
 func (c *FuncCallExpr) isExpr() {}
@@ -19,9 +20,16 @@ func (c *FuncCallExpr) RunPass(ctx *Context, pass Pass) {
 	ctx.Pop()
 
 	if pass == Emit {
+		if len(c.Args) > int(vm.CallArgCountMask) {
+			ctx.Failf(c.Pos(), "Too many arguments")
+			return
+		}
 		operand1 := uint32(len(c.Args))
 		if c.Expand {
-			operand1 |= 0x80000000
+			operand1 |= vm.CallExpandFlag
+		}
+		if c.Pipeline {
+			operand1 |= vm.CallPipelineFlag
 		}
 		ctx.Emitter().Emit(c.Pos(), vm.OpCall, operand1, uint16(c.RetN))
 	}
