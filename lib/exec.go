@@ -76,7 +76,7 @@ func (p *process) Run() error {
 		p.cmd.Stdout = p.stdout
 	}
 
-	p.errSaver = new(prefixSuffixSaver)
+	p.errSaver = &prefixSuffixSaver{N: 1024}
 	p.cmd.Stderr = p.errSaver
 
 	err = p.cmd.Start()
@@ -218,7 +218,7 @@ type execOptions struct {
 var execOptionsConv Value2Structer
 
 var errExecUsage = errors.New(
-	`invalid usage. Expected exec(string|reader|iter, object) or exec(object)`)
+	`invalid usage. Expected exec((string|reader|iter)?, object) or exec((string|reader|iter)?, string, string...)`)
 
 func exec(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	var err error
@@ -236,8 +236,12 @@ func exec(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 		args = args[1:]
 
 	case nitro.String:
-		stdin = strings.NewReader(arg.String())
-		args = args[1:]
+		// Only use this string argument as "stdin" if it was provided via pipeline.
+		// Otherwise, this is probably the "command" argument in the concise form.
+		if m.IsPipeline() {
+			stdin = strings.NewReader(arg.String())
+			args = args[1:]
+		}
 
 	case *nitro.Iterator:
 		stdin = &iterReader{
@@ -247,18 +251,24 @@ func exec(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 		args = args[1:]
 	}
 
-	if len(args) != 1 {
+	if len(args) < 1 {
 		return nil, errExecUsage
 	}
 
 	optv, ok := args[0].(*nitro.Object)
-	if !ok {
-		return nil, errExecUsage
-	}
-
-	err = execOptionsConv.Convert(optv, &opt)
-	if err != nil {
-		return nil, err
+	if ok {
+		err = execOptionsConv.Convert(optv, &opt)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		for _, arg := range args {
+			argStr, ok := arg.(nitro.String)
+			if !ok {
+				return nil, errExecUsage
+			}
+			opt.Cmd = append(opt.Cmd, argStr.String())
+		}
 	}
 
 	if len(opt.Cmd) == 0 {

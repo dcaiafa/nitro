@@ -136,7 +136,7 @@ func (m *VM) callExtFn(
 	f.extFn = extFn
 	f.caps = caps
 	f.bp = m.sp
-	f.pipeline = true
+	f.pipeline = pipeline
 
 	m.pushFrame(f)
 	defer m.popFrame()

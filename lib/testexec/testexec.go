@@ -11,6 +11,7 @@ import (
 func main() {
 	var (
 		flagEchoToStdout = flag.Bool("echo-to-stdout", false, "")
+		flagEchoToStderr = flag.Bool("echo-to-stderr", false, "")
 		flagRange        = flag.Int("range", 0, "")
 		flagRangeStdout  = flag.Bool("range-stdout", false, "")
 		flagRangeStderr  = flag.Bool("range-stderr", false, "")
@@ -21,6 +22,11 @@ func main() {
 
 	if *flagEchoToStdout {
 		_, err := io.Copy(os.Stdout, os.Stdin)
+		if err != nil {
+			log.Panic(err)
+		}
+	} else if *flagEchoToStderr {
+		_, err := io.Copy(os.Stderr, os.Stdin)
 		if err != nil {
 			log.Panic(err)
 		}
