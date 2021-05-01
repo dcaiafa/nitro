@@ -12,14 +12,8 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-type processWait uint32
-
-const (
-	processWaitHasOutput processWait = 1 << iota
-	processWaitForInput
-	processWaitReadyForInput
-	processWaitReadyForOutput
-)
+const minOutBufferReady = 0
+const minInBufferReady = 0
 
 type processBuffer struct {
 	data []byte
@@ -53,7 +47,9 @@ type process struct {
 	wg       sync.WaitGroup
 
 	mu           sync.Mutex
-	cv           *sync.Cond
+	cvInLoop     *sync.Cond
+	cvOutLoop    *sync.Cond
+	cvRead       *sync.Cond
 	inBufs       list.List
 	outBufs      list.List
 	inputClosed  bool
@@ -68,7 +64,9 @@ func newProcess(m *nitro.VM, cmd *osexec.Cmd, stdin io.Reader) *process {
 		cmd:   cmd,
 		stdin: stdin,
 	}
-	p.cv = sync.NewCond(&p.mu)
+	p.cvInLoop = sync.NewCond(&p.mu)
+	p.cvOutLoop = sync.NewCond(&p.mu)
+	p.cvRead = sync.NewCond(&p.mu)
 	p.inBufs.Init()
 	p.outBufs.Init()
 	return p
@@ -130,7 +128,7 @@ func (p *process) inputLoop() {
 	defer p.wg.Done()
 	defer p.inPipe.Close()
 	for {
-		err := p.wait(processWaitForInput)
+		err := p.inLoopWait()
 		if err != nil {
 			break
 		}
@@ -151,10 +149,29 @@ func (p *process) inputLoop() {
 	}
 }
 
+func (p *process) inLoopWait() error {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	for {
+		if p.err != nil {
+			return p.err
+		}
+
+		ready := (p.inBufs.Len() > 0 || p.inputClosed)
+
+		if ready {
+			return nil
+		}
+
+		p.cvInLoop.Wait()
+	}
+}
+
 func (p *process) outputLoop() {
 	defer p.wg.Done()
 	for {
-		err := p.wait(processWaitReadyForOutput)
+		err := p.outLoopWait()
 		if err != nil {
 			break
 		}
@@ -176,21 +193,39 @@ func (p *process) outputLoop() {
 	}
 }
 
+func (p *process) outLoopWait() error {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	for {
+		if p.err != nil {
+			return p.err
+		}
+
+		ready := p.outBufs.Len() <= minOutBufferReady
+
+		if ready {
+			return nil
+		}
+
+		p.cvOutLoop.Wait()
+	}
+}
+
 func (p *process) closeOutput() {
 	//golog.Printf("closeOutput")
 	p.mu.Lock()
 	p.outputClosed = true
 	p.mu.Unlock()
-	p.cv.Broadcast()
+	p.cvRead.Signal()
 }
 
 func (p *process) enqueueOutput(buf *processBuffer) {
 	//golog.Printf("enqueueOutput")
 	p.mu.Lock()
-	defer p.mu.Unlock()
-
 	p.outBufs.PushBack(buf)
-	p.cv.Broadcast()
+	p.mu.Unlock()
+	p.cvRead.Signal()
 }
 
 func (p *process) dequeueInput() *processBuffer {
@@ -224,7 +259,9 @@ func (p *process) setError(err error) {
 		p.err = err
 	}
 	p.mu.Unlock()
-	p.cv.Broadcast()
+	p.cvRead.Signal()
+	p.cvInLoop.Signal()
+	p.cvOutLoop.Signal()
 }
 
 func (p *process) Read(b []byte) (int, error) {
@@ -265,16 +302,29 @@ func (p *process) Read(b []byte) (int, error) {
 			} else {
 				p.setError(io.EOF)
 			}
-			continue
 		} else {
-			waitFlags := processWaitHasOutput
-			if !p.isInputClosed() {
-				waitFlags |= processWaitReadyForInput
-			}
-			//golog.Printf("Read: wait")
-			p.wait(waitFlags)
-			//golog.Printf("Read: awake")
+			p.readWait()
 		}
+	}
+}
+
+func (p *process) readWait() error {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	for {
+		if p.err != nil {
+			return p.err
+		}
+
+		ready :=
+			(p.outBufs.Len() > 0 || p.outputClosed) ||
+				(!p.inputClosed && p.inBufs.Len() <= minInBufferReady)
+		if ready {
+			return nil
+		}
+
+		p.cvRead.Wait()
 	}
 }
 
@@ -292,9 +342,9 @@ func (p *process) isInputClosed() bool {
 
 func (p *process) enqueueInput(buf *processBuffer) {
 	p.mu.Lock()
-	defer p.mu.Unlock()
 	p.inBufs.PushBack(buf)
-	p.cv.Broadcast()
+	p.mu.Unlock()
+	p.cvInLoop.Signal()
 }
 
 func (p *process) hasOutput() bool {
@@ -326,12 +376,12 @@ func (p *process) dequeueOutput(b []byte) int {
 		b = b[n:]
 	}
 
-	shouldSignal := p.outBufs.Len() <= 1
+	shouldSignal := p.outBufs.Len() <= minOutBufferReady
 
 	p.mu.Unlock()
 
 	if shouldSignal {
-		p.cv.Broadcast()
+		p.cvOutLoop.Signal()
 	}
 
 	return total
@@ -341,39 +391,7 @@ func (p *process) closeInput() {
 	p.mu.Lock()
 	p.inputClosed = true
 	p.mu.Unlock()
-	p.cv.Broadcast()
-}
-
-func (p *process) wait(f processWait) error {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-
-	for {
-		if p.err != nil {
-			return p.err
-		}
-
-		ready := false
-
-		if f&processWaitHasOutput != 0 {
-			ready = p.outBufs.Len() > 0 || p.outputClosed
-		}
-		if f&processWaitForInput != 0 {
-			ready = ready || (p.inBufs.Len() > 0 || p.inputClosed)
-		}
-		if f&processWaitReadyForOutput != 0 {
-			ready = ready || (p.outBufs.Len() <= 1)
-		}
-		if f&processWaitReadyForInput != 0 {
-			ready = ready || (p.inBufs.Len() <= 1)
-		}
-
-		if ready {
-			return nil
-		}
-
-		p.cv.Wait()
-	}
+	p.cvInLoop.Signal()
 }
 
 type execOptions struct {
