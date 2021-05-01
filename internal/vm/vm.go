@@ -139,43 +139,44 @@ func (m *VM) callExtFn(
 	f.pipeline = pipeline
 
 	m.pushFrame(f)
-	defer m.popFrame()
-	defer wrapRuntimeError(m, &err)
 
 	args := m.stack[m.sp-narg : m.sp]
 
 	rets, err := extFn(m, args, nret)
 	if err != nil {
+		wrapRuntimeError(m, &err)
+		m.popFrame()
 		return err
 	}
 	if len(rets) < nret {
-		return fmt.Errorf(
+		err = fmt.Errorf(
 			"external function was expected to return at least %v values, "+
 				"but it returned only %v values", nret, len(rets))
+		wrapRuntimeError(m, &err)
+		m.popFrame()
+		return err
 	}
 
 	if nret > 0 {
 		copy(m.stack[m.sp-narg:], rets[:nret])
 	}
+
 	m.sp = m.sp - narg + nret
 
+	m.popFrame()
 	return nil
 }
 
 func (m *VM) call(callable Value, narg int, nret int, pipeline bool) error {
 	switch callable := callable.(type) {
 	case *Closure:
-		if callable.extFn != nil {
-			return m.callExtFn(callable.extFn, callable.caps, narg, nret, pipeline)
-		} else {
-			f := m.newFrame()
-			f.fn = callable.fn
-			f.caps = callable.caps
-			f.nArg = narg
-			f.nRet = nret
-			f.pipeline = pipeline
-			return m.runFrame(f)
-		}
+		f := m.newFrame()
+		f.fn = callable.fn
+		f.caps = callable.caps
+		f.nArg = narg
+		f.nRet = nret
+		f.pipeline = pipeline
+		return m.runFrame(f)
 
 	case *Iterator:
 		if callable.extFn != nil {
@@ -273,32 +274,29 @@ func (m *VM) popFrame() {
 func (m *VM) runFrame(frame *frame) (err error) {
 	m.pushFrame(frame)
 
-	defer func() {
-		for i := len(m.frame.defers) - 1; i >= 0; i-- {
-			deferred := m.frame.defers[i]
-			_, derr := m.Call(deferred, nil, 0)
-			if derr != nil {
-				if err == nil {
-					// TODO: combine errors
-					err = derr
-				}
-			}
-		}
-		m.popFrame()
-	}()
-
 	for {
 		err := m.resume()
 		if err == nil {
-			return nil
+			err = m.runDefers()
+			m.popFrame()
+			return err
 		}
 
 		// Update the current frame's ip so that the stack trace created by
 		// wrapRuntimeError will reflect the current position.
 		m.frame.ip = m.ip
 		rerr := wrapRuntimeError(m, &err)
+		err = rerr
 
 		if len(m.frame.tryCatches) == 0 {
+			derr := m.runDefers()
+			if derr != nil {
+				err = fmt.Errorf(
+					"defer threw error:\n%v\n"+
+						"while handling error:\n%w",
+					derr, err)
+			}
+			m.popFrame()
 			return err
 		}
 
@@ -308,6 +306,17 @@ func (m *VM) runFrame(frame *frame) (err error) {
 		m.sp = m.frame.bp + m.frame.nLocals + 1
 		m.stack[m.sp-1] = rerr
 	}
+}
+
+func (m *VM) runDefers() error {
+	for i := len(m.frame.defers) - 1; i >= 0; i-- {
+		deferred := m.frame.defers[i]
+		_, err := m.Call(deferred, nil, 0)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (m *VM) resume() (err error) {

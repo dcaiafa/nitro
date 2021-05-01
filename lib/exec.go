@@ -1,44 +1,77 @@
 package lib
 
 import (
+	"container/list"
 	"errors"
 	"fmt"
 	"io"
 	osexec "os/exec"
 	"strings"
-	"sync/atomic"
+	"sync"
 
 	"github.com/dcaiafa/nitro"
 )
 
+type processWait uint32
+
+const (
+	processWaitHasOutput processWait = 1 << iota
+	processWaitForInput
+	processWaitReadyForInput
+	processWaitReadyForOutput
+)
+
+type processBuffer struct {
+	data []byte
+	arr  [512]byte
+}
+
+var processBufferPool = sync.Pool{
+	New: func() interface{} {
+		return &processBuffer{}
+	},
+}
+
+func newProcessBuffer() *processBuffer {
+	b := processBufferPool.Get().(*processBuffer)
+	b.data = b.arr[:]
+	return b
+}
+
+func releaseProcessBuffer(b *processBuffer) {
+	processBufferPool.Put(b)
+}
+
 type process struct {
-	cmd          *osexec.Cmd
-	stdin        io.Reader
-	input        chan interface{}
-	output       chan interface{}
-	outQueue     ByteQueue
-	inPipe       io.WriteCloser
-	outPipe      io.ReadCloser
-	errPipe      io.ReadCloser
-	outPipeCount int32
-	stdout       io.Writer
-	stderr       io.Writer
-	errSaver     *prefixSuffixSaver
+	cmd      *osexec.Cmd
+	stdin    io.Reader
+	stdout   io.Writer
+	stderr   io.Writer
+	errSaver *prefixSuffixSaver
+	inPipe   io.WriteCloser
+	outPipe  io.ReadCloser
+	wg       sync.WaitGroup
+
+	mu           sync.Mutex
+	cv           *sync.Cond
+	inBufs       list.List
+	outBufs      list.List
+	inputClosed  bool
+	outputClosed bool
+	err          error
 }
 
 var _ io.Reader = (*process)(nil)
 
-func newProcess(
-	m *nitro.VM,
-	cmd *osexec.Cmd,
-	input io.Reader,
-) *process {
-	return &process{
-		cmd:    cmd,
-		stdin:  input,
-		input:  make(chan interface{}, 1),
-		output: make(chan interface{}, 1),
+func newProcess(m *nitro.VM, cmd *osexec.Cmd, stdin io.Reader) *process {
+	p := &process{
+		cmd:   cmd,
+		stdin: stdin,
 	}
+	p.cv = sync.NewCond(&p.mu)
+	p.inBufs.Init()
+	p.outBufs.Init()
+	return p
 }
 
 func (p *process) String() string { return "Process " + p.cmd.Path }
@@ -60,150 +93,287 @@ func (p *process) SetStderr(w io.Writer) {
 	p.stderr = w
 }
 
-func (p *process) Run() error {
+func (p *process) Start() error {
 	var err error
-	p.inPipe, err = p.cmd.StdinPipe()
-	if err != nil {
-		return err
-	}
-
-	if p.stdout == nil {
-		p.outPipe, err = p.cmd.StdoutPipe()
+	if p.stdin != nil {
+		p.inPipe, err = p.cmd.StdinPipe()
 		if err != nil {
 			return err
 		}
+		p.wg.Add(1)
+		go p.inputLoop()
 	} else {
-		p.cmd.Stdout = p.stdout
+		p.inputClosed = true
 	}
 
-	p.errSaver = &prefixSuffixSaver{N: 1024}
+	p.errSaver = &prefixSuffixSaver{N: 512}
 	p.cmd.Stderr = p.errSaver
+
+	p.outPipe, err = p.cmd.StdoutPipe()
+	if err != nil {
+		return err
+	}
+	p.wg.Add(1)
+	go p.outputLoop()
 
 	err = p.cmd.Start()
 	if err != nil {
+		p.setError(err)
+		p.wg.Wait()
 		return err
 	}
 
-	if p.stdin != nil {
-		go func() {
-			for {
-				buf := make([]byte, 512)
-				n, err := p.stdin.Read(buf)
-				if err == io.EOF {
-					close(p.input)
-					return
-				} else if err != nil {
-					p.input <- err
-					close(p.input)
-					return
-				}
-				p.input <- buf[:n]
-			}
-		}()
-	} else {
-		close(p.input)
-	}
-
-	if p.outPipe != nil {
-		atomic.AddInt32(&p.outPipeCount, 1)
-		go func() {
-			defer func() {
-				if atomic.AddInt32(&p.outPipeCount, -1) == 0 {
-					close(p.output)
-				}
-			}()
-
-			for {
-				buf := make([]byte, 512)
-				n, err := p.outPipe.Read(buf)
-				if err == io.EOF {
-					return
-				} else if err != nil {
-					p.output <- err
-					return
-				}
-				p.output <- buf[:n]
-			}
-		}()
-	} else {
-		close(p.output)
-		err := p.wait()
-		if err != nil {
-			return err
-		}
-	}
-
 	return nil
+}
+
+func (p *process) inputLoop() {
+	defer p.wg.Done()
+	defer p.inPipe.Close()
+	for {
+		err := p.wait(processWaitForInput)
+		if err != nil {
+			break
+		}
+		//golog.Printf("inputLoop: awake")
+		buf := p.dequeueInput()
+		if buf == nil {
+			break
+		}
+		//golog.Printf("inputLoop: inPipe.Write(%v)", len(buf.data))
+		_, err = p.inPipe.Write(buf.data)
+		if err != nil {
+			//golog.Printf("inputLoop: inPipe.Write failed: %v", err)
+			p.setError(err)
+			break
+		}
+
+		releaseProcessBuffer(buf)
+	}
+}
+
+func (p *process) outputLoop() {
+	defer p.wg.Done()
+	for {
+		err := p.wait(processWaitReadyForOutput)
+		if err != nil {
+			break
+		}
+		//golog.Printf("outputLoop: awake")
+		buf := newProcessBuffer()
+		n, err := p.outPipe.Read(buf.data)
+		if err == io.EOF {
+			//golog.Printf("outputLoop: EOF")
+			p.closeOutput()
+			break
+		} else if err != nil {
+			//golog.Printf("outputLoop: err: %v", err)
+			p.setError(err)
+			break
+		}
+		//golog.Printf("outputLoop: received %v", n)
+		buf.data = buf.data[:n]
+		p.enqueueOutput(buf)
+	}
+}
+
+func (p *process) closeOutput() {
+	//golog.Printf("closeOutput")
+	p.mu.Lock()
+	p.outputClosed = true
+	p.mu.Unlock()
+	p.cv.Broadcast()
+}
+
+func (p *process) enqueueOutput(buf *processBuffer) {
+	//golog.Printf("enqueueOutput")
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	p.outBufs.PushBack(buf)
+	p.cv.Broadcast()
+}
+
+func (p *process) dequeueInput() *processBuffer {
+	//golog.Printf("dequeueInput")
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	if p.inBufs.Len() == 0 {
+		if !p.inputClosed {
+			panic("dequeueInput called but no data")
+		}
+		return nil
+	}
+
+	buf := p.inBufs.Front().Value.(*processBuffer)
+	p.inBufs.Remove(p.inBufs.Front())
+	return buf
+}
+
+func (p *process) error() error {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	return p.err
+}
+
+func (p *process) setError(err error) {
+	//golog.Printf("setError: %v", err)
+	p.mu.Lock()
+	if p.err == nil {
+		p.err = err
+	}
+	p.mu.Unlock()
+	p.cv.Broadcast()
 }
 
 func (p *process) Read(b []byte) (int, error) {
-	if len(p.outQueue.Peek()) == 0 {
-		err := p.feedProcessUntilOutputAvailable()
-		if err != nil {
-			return 0, err
+	for {
+		if p.error() != nil {
+			p.cmd.Wait()
+			p.wg.Wait()
+			return 0, p.error()
+		}
+
+		if p.isReadyForInput() {
+			buf := newProcessBuffer()
+			n, err := p.stdin.Read(buf.data)
+			if err == io.EOF {
+				p.stdin = nil
+				// TODO: close stdin
+				p.closeInput()
+				continue
+			} else if err != nil {
+				return 0, err
+			}
+			buf.data = buf.data[:n]
+			//golog.Printf("Read: enqueing %v", n)
+			p.enqueueInput(buf)
+		} else if p.hasOutput() {
+			n := p.dequeueOutput(b)
+			//golog.Printf("Read: %v", n)
+			return n, nil
+		} else if p.isOutputClosed() {
+			//golog.Printf("Read: output is closed")
+			p.closeInput()
+			err := p.cmd.Wait()
+			if err != nil {
+				if p.errSaver != nil {
+					err = fmt.Errorf("%w\n%v", err, string(p.errSaver.Bytes()))
+				}
+				p.setError(err)
+			} else {
+				p.setError(io.EOF)
+			}
+			continue
+		} else {
+			waitFlags := processWaitHasOutput
+			if !p.isInputClosed() {
+				waitFlags |= processWaitReadyForInput
+			}
+			//golog.Printf("Read: wait")
+			p.wait(waitFlags)
+			//golog.Printf("Read: awake")
 		}
 	}
-	if len(p.outQueue.Peek()) == 0 {
-		return 0, io.EOF
-	}
-	n := len(p.outQueue.Peek())
-	if n > len(b) {
-		n = len(b)
-	}
-	copy(b, p.outQueue.Peek()[:n])
-	p.outQueue.Pop(n)
-	return n, nil
 }
 
-func (p *process) feedProcessUntilOutputAvailable() error {
-	input := p.input
+func (p *process) isReadyForInput() bool {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	return !p.inputClosed && p.inBufs.Len() <= 1
+}
+
+func (p *process) isInputClosed() bool {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	return p.inputClosed
+}
+
+func (p *process) enqueueInput(buf *processBuffer) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	p.inBufs.PushBack(buf)
+	p.cv.Broadcast()
+}
+
+func (p *process) hasOutput() bool {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	return p.outBufs.Len() > 0
+}
+
+func (p *process) isOutputClosed() bool {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	return p.outBufs.Len() == 0 && p.outputClosed
+}
+
+func (p *process) dequeueOutput(b []byte) int {
+	p.mu.Lock()
+
+	total := 0
+	for len(b) > 0 && p.outBufs.Len() > 0 {
+		buf := p.outBufs.Front().Value.(*processBuffer)
+		n := copy(b, buf.data)
+		if n < len(buf.data) {
+			buf.data = buf.data[n:]
+		} else {
+			p.outBufs.Remove(p.outBufs.Front())
+			releaseProcessBuffer(buf)
+		}
+		total += n
+		b = b[n:]
+	}
+
+	shouldSignal := p.outBufs.Len() <= 1
+
+	p.mu.Unlock()
+
+	if shouldSignal {
+		p.cv.Broadcast()
+	}
+
+	return total
+}
+
+func (p *process) closeInput() {
+	p.mu.Lock()
+	p.inputClosed = true
+	p.mu.Unlock()
+	p.cv.Broadcast()
+}
+
+func (p *process) wait(f processWait) error {
+	p.mu.Lock()
+	defer p.mu.Unlock()
 
 	for {
-		if len(p.outQueue.Peek()) > 0 {
+		if p.err != nil {
+			return p.err
+		}
+
+		ready := false
+
+		if f&processWaitHasOutput != 0 {
+			ready = p.outBufs.Len() > 0 || p.outputClosed
+		}
+		if f&processWaitForInput != 0 {
+			ready = ready || (p.inBufs.Len() > 0 || p.inputClosed)
+		}
+		if f&processWaitReadyForOutput != 0 {
+			ready = ready || (p.outBufs.Len() <= 1)
+		}
+		if f&processWaitReadyForInput != 0 {
+			ready = ready || (p.inBufs.Len() <= 1)
+		}
+
+		if ready {
 			return nil
 		}
 
-		select {
-		case bufOrErr, ok := <-input:
-			if !ok {
-				input = nil
-				p.inPipe.Close()
-				continue
-			}
-			switch bufOrErr := bufOrErr.(type) {
-			case []byte:
-				_, err := p.inPipe.Write(bufOrErr)
-				if err != nil {
-					return err
-				}
-			case error:
-				return bufOrErr
-			}
-
-		case bufOrErr, ok := <-p.output:
-			if !ok {
-				// Output was closed, wait for process to finish.
-				return p.wait()
-			}
-			switch bufOrErr := bufOrErr.(type) {
-			case []byte:
-				p.outQueue.Write(bufOrErr)
-			case error:
-				return bufOrErr
-			}
-		}
+		p.cv.Wait()
 	}
-}
-
-func (p *process) wait() error {
-	err := p.cmd.Wait()
-	if err != nil {
-		if p.errSaver != nil {
-			err = fmt.Errorf("%w\n%v", err, string(p.errSaver.Bytes()))
-		}
-		return err
-	}
-	return nil
 }
 
 type execOptions struct {
@@ -279,7 +449,7 @@ func exec(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 
 	p := newProcess(m, cmd, stdin)
 
-	err = p.Run()
+	err = p.Start()
 	if err != nil {
 		return nil, err
 	}

@@ -11,7 +11,6 @@ type Fn struct {
 
 func (f *Fn) Type() string   { return "Func" }
 func (f *Fn) String() string { return "<func>" }
-func (f *Fn) isCallable()    {}
 
 func (f *Fn) EvalBinOp(op BinOp, operand Value) (Value, error) {
 	return nil, fmt.Errorf("func does not support this operation")
@@ -19,4 +18,9 @@ func (f *Fn) EvalBinOp(op BinOp, operand Value) (Value, error) {
 
 func (f *Fn) EvalUnaryMinus() (Value, error) {
 	return nil, fmt.Errorf("func does not support this operation")
+}
+
+func (f *Fn) Call(m *VM, args []Value, nRet int) ([]Value, error) {
+	// Function calls are handled directly by the VM.
+	panic("not called")
 }

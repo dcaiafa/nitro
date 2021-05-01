@@ -11,7 +11,7 @@ func TestExec(t *testing.T) {
 			print()
 	`, `523776`)
 
-	RunSubO(t, `input_concise`, `
+	RunSubO(t, `foo`, `
 		range(1024) |
 			map(tostring) |
 			exec("go", "run", "./testexec/testexec.go", "-range", "1024", "-range-stdout") |

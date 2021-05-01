@@ -21,7 +21,6 @@ func TypeName(v Value) string {
 
 type Callable interface {
 	Value
-	isCallable()
 }
 
 type Indexable interface {

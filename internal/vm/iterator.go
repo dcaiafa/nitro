@@ -28,7 +28,11 @@ func (e *Iterator) EvalUnaryMinus() (Value, error) {
 	return nil, fmt.Errorf("iterator does not support this operation")
 }
 
-func (e *Iterator) isCallable()   {}
+func (i *Iterator) Call(m *VM, args []Value, nRet int) ([]Value, error) {
+	// Iterator calls are handled directly by the VM.
+	panic("not called")
+}
+
 func (e *Iterator) IterNRet() int { return e.iterNRet }
 
 func NewIterator(extFn NativeFn, nret int) *Iterator {
