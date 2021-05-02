@@ -44,7 +44,13 @@ func (s *Value2Structer) Convert(from nitro.Value, to interface{}) error {
 
 		rfield := rv.Field(field.fieldIndex)
 
-		switch field.typ.Kind() {
+		if rfield.Type().Kind() == reflect.Ptr {
+			zeroValue := reflect.New(rfield.Type().Elem())
+			rfield.Set(zeroValue)
+			rfield = reflect.Indirect(rfield)
+		}
+
+		switch rfield.Type().Kind() {
 		case reflect.Bool:
 			vb, ok := v.(nitro.Bool)
 			if !ok {

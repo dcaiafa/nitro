@@ -27,15 +27,89 @@ func (f *File) EvalUnaryMinus() (nitro.Value, error) {
 	return nil, fmt.Errorf("file does not support this operation")
 }
 
+type openOptions struct {
+	Read   bool   `nitro:"read"`
+	Write  bool   `nitro:"write"`
+	Append bool   `nitro:"append"`
+	Create bool   `nitro:"create"`
+	Excl   bool   `nitro:"excl"`
+	Trunc  bool   `nitro:"trunc"`
+	Perm   *int64 `nitro:"perm"`
+}
+
+var openOptionsConv Value2Structer
+
+var errOpenUsage = errors.New(
+	`invalid usage. Expected open(string, map?)`)
+
 func open(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	filename, err := getStringArg(args, 0)
-	if err != nil {
-		return nil, err
+	var err error
+
+	if len(args) != 1 && len(args) != 2 {
+		return nil, errOpenUsage
 	}
 
-	f, err := os.Open(filename)
-	if err != nil {
-		return nil, err
+	filename, ok := args[0].(nitro.String)
+	if !ok {
+		return nil, errOpenUsage
+	}
+
+	var opts *openOptions
+	if len(args) == 2 {
+		opts = new(openOptions)
+		optsMap, ok := args[1].(*nitro.Object)
+		if !ok {
+			return nil, errOpenUsage
+		}
+		err := openOptionsConv.Convert(optsMap, opts)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	var f *os.File
+	if opts == nil {
+		f, err = os.Open(filename.String())
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		flags := 0
+		var perm os.FileMode = 0666
+		if opts.Read && !opts.Write {
+			flags = flags | os.O_RDONLY
+		} else if !opts.Read && opts.Write {
+			flags = flags | os.O_WRONLY
+		} else if opts.Read && opts.Write {
+			flags = flags | os.O_RDWR
+		} else {
+			return nil, fmt.Errorf(
+				`invalid options: "read" and/or "write" must be true`)
+		}
+
+		if opts.Append {
+			flags = flags | os.O_APPEND
+		}
+		if opts.Create {
+			flags = flags | os.O_CREATE
+		}
+		if opts.Excl {
+			if !opts.Create {
+				return nil, fmt.Errorf(
+					`invalid options: "excl" also required "create" to be true`)
+			}
+			flags = flags | os.O_EXCL
+		}
+		if opts.Trunc {
+			flags = flags | os.O_TRUNC
+		}
+		if opts.Perm != nil {
+			perm = os.FileMode(*opts.Perm)
+		}
+		f, err = os.OpenFile(filename.String(), flags, perm)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return []nitro.Value{&File{f}}, nil
