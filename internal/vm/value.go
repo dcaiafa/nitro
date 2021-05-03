@@ -20,6 +20,7 @@ func TypeName(v Value) string {
 
 type Callable interface {
 	Value
+	Call(m *VM, args []Value, nRet int) ([]Value, error)
 }
 
 type Indexable interface {

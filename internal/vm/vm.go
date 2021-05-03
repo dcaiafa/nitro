@@ -44,7 +44,7 @@ type frame struct {
 	nLocals    int
 	iter       *Iterator
 	fn         *Fn
-	extFn      NativeFn
+	extFn      Callable
 	caps       []ValueRef
 	tryCatches []tryCatch
 	defers     []*Closure
@@ -125,7 +125,7 @@ func (m *VM) Call(callable Value, args []Value, nret int) ([]Value, error) {
 }
 
 func (m *VM) callExtFn(
-	extFn NativeFn,
+	extFn Callable,
 	caps []ValueRef,
 	narg int,
 	nret int,
@@ -143,12 +143,13 @@ func (m *VM) callExtFn(
 
 	args := m.stack[m.sp-narg : m.sp]
 
-	rets, err := extFn(m, args, nret)
+	rets, err := extFn.Call(m, args, nret)
 	if err != nil {
 		wrapRuntimeError(m, &err)
 		m.popFrame()
 		return err
 	}
+
 	if len(rets) < nret {
 		err = fmt.Errorf(
 			"external function was expected to return at least %v values, "+
@@ -230,14 +231,14 @@ func (m *VM) call(callable Value, narg int, nret int, pipeline bool) error {
 		f.pipeline = true
 		return m.runFrame(f)
 
-	case NativeFn:
+	case Callable:
 		return m.callExtFn(callable, nil, narg, nret, pipeline)
 
 	default:
 		if callable == nil {
 			return ErrCannotCallNil
 		}
-		return fmt.Errorf("cannot call type %q", TypeName(callable))
+		return fmt.Errorf("cannot call %q", TypeName(callable))
 	}
 }
 

@@ -39,7 +39,20 @@ func TestExec(t *testing.T) {
 			print()
 	`, `5000050000`)
 
-	RunSubO(t, `input_concise_string`, `
+	RunSubO(t, `capture_stderr`, `
+		var err_buf = buf()
+		var out = range(2049) | 
+			map(tostring) |
+			exec({ 
+				cmd: ["go", "run", "./testexec/testexec.go", "-echo-to-stderr", "-range", "11", "-range-stdout"]
+				stderr: err_buf
+			})
+    var out_sum = out | lines() | map(parseint) | reduce(sum)
+		var err_sum = err_buf | lines() | map(parseint) | reduce(sum)
+		print(out_sum, err_sum)
+	`, `55 2098176`)
+
+	RunSubO(t, `redirect_stderr`, `
 		"hello world" |
 			exec("go", "run", "./testexec/testexec.go", "-echo-to-stdout") |
 			read() |

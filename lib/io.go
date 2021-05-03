@@ -8,23 +8,23 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-type reader struct {
+type stdin struct {
 	io.Reader
 }
 
-func (r *reader) String() string { return "<reader>" }
-func (r *reader) Type() string   { return "reader" }
+func (r *stdin) String() string { return "<reader>" }
+func (r *stdin) Type() string   { return "reader" }
 
-func (r *reader) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) {
+func (r *stdin) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) {
 	return nil, fmt.Errorf("reader does not support this operation")
 }
 
-func wrapReader(r io.Reader) nitro.Value {
+func wrapStdin(r io.Reader) nitro.Value {
 	v, ok := r.(nitro.Value)
 	if ok {
 		return v
 	}
-	return &reader{r}
+	return &stdin{r}
 }
 
 func CloseReader(r io.Reader) {
@@ -34,5 +34,5 @@ func CloseReader(r io.Reader) {
 }
 
 func in(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	return []nitro.Value{wrapReader(os.Stdin)}, nil
+	return []nitro.Value{wrapStdin(os.Stdin)}, nil
 }

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	//golog "log"
 	osexec "os/exec"
 	"runtime"
 	"strings"
@@ -425,8 +426,11 @@ func (p *process) readWait() error {
 		}
 
 		ready :=
-			(p.outBufs.Len() > 0 || p.outClosed) ||
-				(!p.inClosed && p.inBufs.Len() <= minInBufferReady)
+			p.outBufs.Len() > 0 ||
+				p.errBufs.Len() > 0 ||
+				(!p.inClosed && p.inBufs.Len() <= minInBufferReady) ||
+				(p.outClosed && p.errClosed)
+
 		if ready {
 			return nil
 		}
@@ -567,6 +571,15 @@ func exec(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	cmd = osexec.Command(opt.Cmd[0], opt.Cmd[1:]...)
 
 	p := newProcess(m, cmd, stdin)
+
+	if opt.Stderr != nil {
+		stderr, ok := opt.Stderr.(io.Writer)
+		if !ok {
+			return nil, fmt.Errorf(
+				"option stderr %q is not a writer", nitro.TypeName(opt.Stderr))
+		}
+		p.SetStderr(stderr)
+	}
 
 	err = p.Start()
 	if err != nil {
