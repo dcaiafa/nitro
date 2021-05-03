@@ -20,11 +20,7 @@ type Iterator struct {
 func (e *Iterator) String() string { return "<Iterator>" }
 func (e *Iterator) Type() string   { return "Iterator" }
 
-func (e *Iterator) EvalBinOp(op BinOp, operand Value) (Value, error) {
-	return nil, fmt.Errorf("iterator does not support this operation")
-}
-
-func (e *Iterator) EvalUnaryMinus() (Value, error) {
+func (e *Iterator) EvalOp(op Op, operand Value) (Value, error) {
 	return nil, fmt.Errorf("iterator does not support this operation")
 }
 

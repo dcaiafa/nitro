@@ -19,11 +19,7 @@ func NewArrayWithSlice(s []Value) *Array {
 
 func (a *Array) Type() string { return "Array" }
 
-func (a *Array) EvalBinOp(op BinOp, operand Value) (Value, error) {
-	return nil, fmt.Errorf("array does not support this operation")
-}
-
-func (a *Array) EvalUnaryMinus() (Value, error) {
+func (a *Array) EvalOp(op Op, operand Value) (Value, error) {
 	return nil, fmt.Errorf("array does not support this operation")
 }
 

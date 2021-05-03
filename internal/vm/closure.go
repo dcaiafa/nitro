@@ -10,11 +10,7 @@ type Closure struct {
 func (c *Closure) String() string { return "<func>" }
 func (c *Closure) Type() string   { return "Func" }
 
-func (c *Closure) EvalBinOp(op BinOp, operand Value) (Value, error) {
-	return nil, fmt.Errorf("func does not support this operation")
-}
-
-func (c *Closure) EvalUnaryMinus() (Value, error) {
+func (c *Closure) EvalOp(op Op, operand Value) (Value, error) {
 	return nil, fmt.Errorf("func does not support this operation")
 }
 

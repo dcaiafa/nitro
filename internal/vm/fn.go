@@ -12,11 +12,7 @@ type Fn struct {
 func (f *Fn) Type() string   { return "Func" }
 func (f *Fn) String() string { return "<func>" }
 
-func (f *Fn) EvalBinOp(op BinOp, operand Value) (Value, error) {
-	return nil, fmt.Errorf("func does not support this operation")
-}
-
-func (f *Fn) EvalUnaryMinus() (Value, error) {
+func (f *Fn) EvalOp(op Op, operand Value) (Value, error) {
 	return nil, fmt.Errorf("func does not support this operation")
 }
 

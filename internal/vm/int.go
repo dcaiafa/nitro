@@ -15,50 +15,42 @@ func (i Int) Int64() int64   { return i.v }
 func (i Int) String() string { return strconv.FormatInt(i.v, 10) }
 func (i Int) Type() string   { return "Int" }
 
-func (i Int) EvalBinOp(op BinOp, operand Value) (Value, error) {
+func (i Int) EvalOp(op Op, operand Value) (Value, error) {
+	if op == OpUMinus {
+		return NewInt(-i.v), nil
+	}
+
 	operandInt, ok := operand.(Int)
 	if !ok {
 		if operandFloat, ok := operand.(Float); ok {
-			return NewFloat(float64(i.v)).EvalBinOp(op, operandFloat)
+			return NewFloat(float64(i.v)).EvalOp(op, operandFloat)
 		}
 		return nil, fmt.Errorf(
 			"invalid operation between int and %v", TypeName(operand))
 	}
 
-	if op == BinEq {
-		return NewBool(i == operandInt), nil
-	} else if op == BinNE {
-		return NewBool(i != operandInt), nil
-	}
-
 	switch op {
-	case BinAdd:
+	case OpAdd:
 		return NewInt(i.v + operandInt.Int64()), nil
-	case BinSub:
+	case OpSub:
 		return NewInt(i.v - operandInt.Int64()), nil
-	case BinMult:
+	case OpMult:
 		return NewInt(i.v * operandInt.Int64()), nil
-	case BinDiv:
+	case OpDiv:
 		return NewInt(i.v / operandInt.Int64()), nil
-	case BinMod:
+	case OpMod:
 		return NewInt(i.v % operandInt.Int64()), nil
-	case BinLT:
+	case OpLT:
 		return NewBool(i.v < operandInt.Int64()), nil
-	case BinLE:
+	case OpLE:
 		return NewBool(i.v <= operandInt.Int64()), nil
-	case BinGT:
+	case OpGT:
 		return NewBool(i.v > operandInt.Int64()), nil
-	case BinGE:
+	case OpGE:
 		return NewBool(i.v >= operandInt.Int64()), nil
-	case BinEq:
+	case OpEq:
 		return NewBool(i.v == operandInt.Int64()), nil
-	case BinNE:
-		return NewBool(i.v != operandInt.Int64()), nil
 	default:
 		return nil, fmt.Errorf("operator not supported by int")
 	}
-}
-
-func (i Int) EvalUnaryMinus() (Value, error) {
-	return NewInt(-i.v), nil
 }

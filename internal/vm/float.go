@@ -15,7 +15,11 @@ func (f Float) Float64() float64 { return f.v }
 func (f Float) String() string   { return strconv.FormatFloat(f.v, 'g', -1, 64) }
 func (f Float) Type() string     { return "Float" }
 
-func (f Float) EvalBinOp(op BinOp, operand Value) (Value, error) {
+func (f Float) EvalOp(op Op, operand Value) (Value, error) {
+	if op == OpUMinus {
+		return NewFloat(-f.v), nil
+	}
+
 	operandFloat, ok := operand.(Float)
 	if !ok {
 		if operandInt, ok := operand.(Int); ok {
@@ -26,38 +30,26 @@ func (f Float) EvalBinOp(op BinOp, operand Value) (Value, error) {
 		}
 	}
 
-	if op == BinEq {
-		return NewBool(f == operandFloat), nil
-	} else if op == BinNE {
-		return NewBool(f != operandFloat), nil
-	}
-
 	switch op {
-	case BinAdd:
+	case OpAdd:
 		return NewFloat(f.v + operandFloat.Float64()), nil
-	case BinSub:
+	case OpSub:
 		return NewFloat(f.v - operandFloat.Float64()), nil
-	case BinMult:
+	case OpMult:
 		return NewFloat(f.v * operandFloat.Float64()), nil
-	case BinDiv:
+	case OpDiv:
 		return NewFloat(f.v / operandFloat.Float64()), nil
-	case BinLT:
+	case OpLT:
 		return NewBool(f.v < operandFloat.Float64()), nil
-	case BinLE:
+	case OpLE:
 		return NewBool(f.v <= operandFloat.Float64()), nil
-	case BinGT:
+	case OpGT:
 		return NewBool(f.v > operandFloat.Float64()), nil
-	case BinGE:
+	case OpGE:
 		return NewBool(f.v >= operandFloat.Float64()), nil
-	case BinEq:
+	case OpEq:
 		return NewBool(f.v == operandFloat.Float64()), nil
-	case BinNE:
-		return NewBool(f.v != operandFloat.Float64()), nil
 	default:
 		return nil, fmt.Errorf("operator not supported by float")
 	}
-}
-
-func (f Float) EvalUnaryMinus() (Value, error) {
-	return NewFloat(-f.v), nil
 }

@@ -38,20 +38,21 @@ type (
 	Pos       = token.Pos
 )
 
-type BinOp = vm.BinOp
+type Op = vm.Op
 
 const (
-	BinAdd  = vm.BinAdd
-	BinSub  = vm.BinSub
-	BinMult = vm.BinMult
-	BinDiv  = vm.BinDiv
-	BinMod  = vm.BinMod
-	BinLT   = vm.BinLT
-	BinLE   = vm.BinLE
-	BinGT   = vm.BinGT
-	BinGE   = vm.BinGE
-	BinEq   = vm.BinEq
-	BinNE   = vm.BinNE
+	OpUMinus = vm.OpUMinus
+	OpAdd    = vm.OpAdd
+	OpSub    = vm.OpSub
+	OpMult   = vm.OpMult
+	OpDiv    = vm.OpDiv
+	OpMod    = vm.OpMod
+	OpLT     = vm.OpLT
+	OpLE     = vm.OpLE
+	OpGT     = vm.OpGT
+	OpGE     = vm.OpGE
+	OpEq     = vm.OpEq
+	OpNE     = vm.OpNE
 )
 
 var ErrCannotCallNil = vm.ErrCannotCallNil
@@ -72,8 +73,8 @@ func NewConsoleErrLogger() ErrLogger {
 	return &errlogger.ConsoleErrLogger{}
 }
 
-func EvalBinOp(op BinOp, operand1, operand2 Value) (Value, error) {
-	return vm.EvalBinOp(op, operand1, operand2)
+func EvalOp(op Op, operand1, operand2 Value) (Value, error) {
+	return vm.EvalOp(op, operand1, operand2)
 }
 
 func TypeName(v Value) string            { return vm.TypeName(v) }

@@ -18,17 +18,14 @@ type Duration struct {
 func (d Duration) String() string { return d.dur.String() }
 func (d Duration) Type() string   { return "duration" }
 
-func (d Duration) EvalBinOp(op nitro.BinOp, operand nitro.Value) (nitro.Value, error) {
-	switch op {
-	case nitro.BinEq:
-		return nitro.NewBool(d == operand), nil
-	case nitro.BinNE:
-		return nitro.NewBool(d != operand), nil
+func (d Duration) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) {
+	if op == nitro.OpUMinus {
+		return Duration{d.dur * -1}, nil
 	}
 
 	switch op {
-	case nitro.BinAdd, nitro.BinSub, nitro.BinLT, nitro.BinLE,
-		nitro.BinGT, nitro.BinGE, nitro.BinMod:
+	case nitro.OpAdd, nitro.OpSub, nitro.OpLT, nitro.OpLE,
+		nitro.OpGT, nitro.OpGE, nitro.OpEq, nitro.OpMod:
 
 		operandDur, ok := operand.(Duration)
 		if !ok {
@@ -37,26 +34,28 @@ func (d Duration) EvalBinOp(op nitro.BinOp, operand nitro.Value) (nitro.Value, e
 		}
 
 		switch op {
-		case nitro.BinAdd:
+		case nitro.OpAdd:
 			return Duration{d.dur + operandDur.dur}, nil
-		case nitro.BinSub:
+		case nitro.OpSub:
 			return Duration{d.dur - operandDur.dur}, nil
-		case nitro.BinLT:
+		case nitro.OpLT:
 			return nitro.NewBool(d.dur < operandDur.dur), nil
-		case nitro.BinLE:
+		case nitro.OpLE:
 			return nitro.NewBool(d.dur <= operandDur.dur), nil
-		case nitro.BinGT:
+		case nitro.OpGT:
 			return nitro.NewBool(d.dur > operandDur.dur), nil
-		case nitro.BinGE:
+		case nitro.OpGE:
 			return nitro.NewBool(d.dur >= operandDur.dur), nil
-		case nitro.BinMod:
+		case nitro.OpEq:
+			return nitro.NewBool(d == operand), nil
+		case nitro.OpMod:
 			if operandDur.dur == 0 {
 				return nil, errDivByZero
 			}
 			return Duration{d.dur % operandDur.dur}, nil
 		}
 
-	case nitro.BinMult:
+	case nitro.OpMult:
 		operandInt, ok := operand.(nitro.Int)
 		if !ok {
 			return nil, fmt.Errorf(
@@ -64,7 +63,7 @@ func (d Duration) EvalBinOp(op nitro.BinOp, operand nitro.Value) (nitro.Value, e
 		}
 		return Duration{d.dur * time.Duration(operandInt.Int64())}, nil
 
-	case nitro.BinDiv:
+	case nitro.OpDiv:
 		switch operand := operand.(type) {
 		case Duration:
 			if operand.dur == 0 {
@@ -85,11 +84,6 @@ func (d Duration) EvalBinOp(op nitro.BinOp, operand nitro.Value) (nitro.Value, e
 	}
 
 	return nil, fmt.Errorf("operation not supported by duration")
-}
-
-func (d Duration) EvalUnaryMinus() (nitro.Value, error) {
-	d.dur *= -1
-	return d, nil
 }
 
 var errDurUsage = errors.New(

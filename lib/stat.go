@@ -18,11 +18,7 @@ type avgAccum struct {
 func (a *avgAccum) String() string { return "<avg>" }
 func (a *avgAccum) Type() string   { return "avg" }
 
-func (a *avgAccum) EvalBinOp(op nitro.BinOp, operand nitro.Value) (nitro.Value, error) {
-	return nil, fmt.Errorf("avg does not support this operation")
-}
-
-func (a *avgAccum) EvalUnaryMinus() (nitro.Value, error) {
+func (a *avgAccum) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) {
 	return nil, fmt.Errorf("avg does not support this operation")
 }
 
@@ -142,7 +138,7 @@ func max(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 					maxV = v[0]
 					continue
 				}
-				isGT, err := evalCmpOp(nitro.BinGT, v[0], maxV)
+				isGT, err := evalCmpOp(nitro.OpGT, v[0], maxV)
 				if err != nil {
 					return nil, err
 				}
@@ -163,7 +159,7 @@ func max(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 			maxV = arg
 			continue
 		}
-		isGT, err := evalCmpOp(nitro.BinGT, arg, maxV)
+		isGT, err := evalCmpOp(nitro.OpGT, arg, maxV)
 		if err != nil {
 			return nil, err
 		}
@@ -201,7 +197,7 @@ func min(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 					minV = v[0]
 					continue
 				}
-				isGT, err := evalCmpOp(nitro.BinLT, v[0], minV)
+				isGT, err := evalCmpOp(nitro.OpLT, v[0], minV)
 				if err != nil {
 					return nil, err
 				}
@@ -222,7 +218,7 @@ func min(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 			minV = arg
 			continue
 		}
-		isGT, err := evalCmpOp(nitro.BinLT, arg, minV)
+		isGT, err := evalCmpOp(nitro.OpLT, arg, minV)
 		if err != nil {
 			return nil, err
 		}
@@ -262,7 +258,7 @@ func sum(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 					sumV = v[0]
 					continue
 				}
-				sumV, err = nitro.EvalBinOp(nitro.BinAdd, sumV, v[0])
+				sumV, err = nitro.EvalOp(nitro.OpAdd, sumV, v[0])
 				if err != nil {
 					return nil, err
 				}
@@ -280,7 +276,7 @@ func sum(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 			sumV = arg
 			continue
 		}
-		sumV, err = nitro.EvalBinOp(nitro.BinAdd, sumV, arg)
+		sumV, err = nitro.EvalOp(nitro.OpAdd, sumV, arg)
 		if err != nil {
 			return nil, err
 		}

@@ -13,6 +13,7 @@ var (
 
 func RegisterAll(c *nitro.Compiler) {
 	c.AddNativeFn("avg", avg)
+	c.AddNativeFn("buf", buf)
 	c.AddNativeFn("close", closep)
 	c.AddNativeFn("cp", cp)
 	c.AddNativeFn("create", create)
@@ -57,11 +58,13 @@ func RegisterAll(c *nitro.Compiler) {
 	c.AddNativeFn("printf", printf)
 	c.AddNativeFn("pushout", pushout)
 	c.AddNativeFn("read", read)
+	c.AddNativeFn("readfile", readfile)
 	c.AddNativeFn("reduce", reduce)
 	c.AddNativeFn("regex", regex)
 	c.AddNativeFn("replace", replace)
 	c.AddNativeFn("rm", rm)
 	c.AddNativeFn("rmall", rmall)
+	c.AddNativeFn("seek", seek)
 	c.AddNativeFn("shuffle", shuffle)
 	c.AddNativeFn("skip", skip)
 	c.AddNativeFn("sort", sort)
@@ -80,5 +83,6 @@ func RegisterAll(c *nitro.Compiler) {
 	c.AddNativeFn("trim", trim)
 	c.AddNativeFn("truncdur", truncdur)
 	c.AddNativeFn("unique", unique)
-	c.AddNativeFn("write", write)
+	c.AddNativeFn("writefile", writefile)
+	c.AddNativeFn("writeto", writeto)
 }

@@ -31,11 +31,7 @@ func wrapRuntimeError(m *VM, err *error) *RuntimeError {
 	return rerr
 }
 
-func (e *RuntimeError) EvalBinOp(op BinOp, operand Value) (Value, error) {
-	return nil, fmt.Errorf("error does not support this operation")
-}
-
-func (e *RuntimeError) EvalUnaryMinus() (Value, error) {
+func (e *RuntimeError) EvalOp(op Op, operand Value) (Value, error) {
 	return nil, fmt.Errorf("error does not support this operation")
 }
 

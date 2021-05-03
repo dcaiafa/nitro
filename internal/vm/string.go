@@ -66,13 +66,7 @@ func (s String) Slice(b, e Value) (Value, error) {
 	return NewString(s.v[begin:end]), nil
 }
 
-func (s String) EvalBinOp(op BinOp, operand Value) (Value, error) {
-	if op == BinEq {
-		return NewBool(s == operand), nil
-	} else if op == BinNE {
-		return NewBool(s != operand), nil
-	}
-
+func (s String) EvalOp(op Op, operand Value) (Value, error) {
 	operandStr, ok := operand.(String)
 	if !ok {
 		return nil, fmt.Errorf(
@@ -81,20 +75,18 @@ func (s String) EvalBinOp(op BinOp, operand Value) (Value, error) {
 	}
 
 	switch op {
-	case BinAdd:
+	case OpAdd:
 		return NewString(s.v + operandStr.String()), nil
-	case BinLT:
+	case OpLT:
 		return NewBool(s.v < operandStr.String()), nil
-	case BinLE:
+	case OpLE:
 		return NewBool(s.v <= operandStr.String()), nil
-	case BinGT:
+	case OpGT:
 		return NewBool(s.v > operandStr.String()), nil
-	case BinGE:
+	case OpGE:
 		return NewBool(s.v >= operandStr.String()), nil
-	case BinEq:
+	case OpEq:
 		return NewBool(s.v == operandStr.String()), nil
-	case BinNE:
-		return NewBool(s.v != operandStr.String()), nil
 	default:
 		return nil, fmt.Errorf("operator not supported by string")
 	}

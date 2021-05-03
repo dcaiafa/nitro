@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	osexec "os/exec"
+	"runtime"
 	"strings"
 	"sync"
 
@@ -81,11 +82,7 @@ func newProcess(m *nitro.VM, cmd *osexec.Cmd, stdin io.Reader) *process {
 func (p *process) String() string { return "Process " + p.cmd.Path }
 func (p *process) Type() string   { return "Process" }
 
-func (p *process) EvalBinOp(op nitro.BinOp, operand nitro.Value) (nitro.Value, error) {
-	return nil, fmt.Errorf("process does not support this operation")
-}
-
-func (p *process) EvalUnaryMinus() (nitro.Value, error) {
+func (p *process) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) {
 	return nil, fmt.Errorf("process does not support this operation")
 }
 
@@ -142,38 +139,35 @@ func (p *process) Start() error {
 func (p *process) inputLoop() {
 	defer p.wg.Done()
 	defer p.inPipe.Close()
-	for {
-		err := p.inLoopWait()
-		if err != nil {
-			break
-		}
+
+	for p.inLoopWait() {
 		buf := p.dequeueInput()
 		if buf == nil {
 			break
 		}
-		_, err = p.inPipe.Write(buf.data)
+
+		_, err := p.inPipe.Write(buf.data)
 		if err != nil {
 			p.setError(err)
 			break
 		}
-
 		releaseProcessBuffer(buf)
 	}
 }
 
-func (p *process) inLoopWait() error {
+func (p *process) inLoopWait() bool {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
 	for {
 		if p.err != nil {
-			return p.err
+			return false
 		}
-
-		ready := (p.inBufs.Len() > 0 || p.inClosed)
-
-		if ready {
-			return nil
+		if p.inBufs.Len() > 0 {
+			return true
+		}
+		if p.inClosed {
+			return false
 		}
 
 		p.cvInLoop.Wait()
@@ -182,11 +176,8 @@ func (p *process) inLoopWait() error {
 
 func (p *process) outputLoop() {
 	defer p.wg.Done()
-	for {
-		err := p.outLoopWait()
-		if err != nil {
-			break
-		}
+
+	for p.outLoopWait() {
 		buf := newProcessBuffer()
 		n, err := p.outPipe.Read(buf.data)
 		if err == io.EOF {
@@ -201,19 +192,17 @@ func (p *process) outputLoop() {
 	}
 }
 
-func (p *process) outLoopWait() error {
+func (p *process) outLoopWait() bool {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
 	for {
 		if p.err != nil {
-			return p.err
+			return false
 		}
 
-		ready := p.outBufs.Len() <= minOutBufferReady
-
-		if ready {
-			return nil
+		if p.outBufs.Len() == 0 {
+			return true
 		}
 
 		p.cvOutLoop.Wait()
@@ -352,6 +341,10 @@ func (p *process) error() error {
 }
 
 func (p *process) setError(err error) {
+	stack := make([]byte, 10240)
+	n := runtime.Stack(stack, false)
+	stack = stack[:n]
+
 	p.mu.Lock()
 	if p.err == nil {
 		p.err = err
@@ -446,12 +439,6 @@ func (p *process) isReadyForInput() bool {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	return !p.inClosed && p.inBufs.Len() <= 1
-}
-
-func (p *process) isInputClosed() bool {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-	return p.inClosed
 }
 
 func (p *process) enqueueInput(buf *processBuffer) {

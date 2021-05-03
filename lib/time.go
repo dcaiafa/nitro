@@ -15,24 +15,9 @@ type Time struct {
 func (t Time) String() string { return t.time.String() }
 func (t Time) Type() string   { return "time" }
 
-func (t Time) EvalBinOp(op nitro.BinOp, operand nitro.Value) (nitro.Value, error) {
+func (t Time) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) {
 	switch op {
-	case nitro.BinEq, nitro.BinNE:
-		operandTime, ok := operand.(Time)
-		if !ok {
-			if op == nitro.BinEq {
-				return nitro.NewBool(false), nil
-			} else {
-				return nitro.NewBool(true), nil
-			}
-		}
-		res := t.time.Equal(operandTime.time)
-		if op == nitro.BinNE {
-			res = !res
-		}
-		return nitro.NewBool(res), nil
-
-	case nitro.BinSub, nitro.BinLT, nitro.BinLE, nitro.BinGT, nitro.BinGE:
+	case nitro.OpEq, nitro.OpSub, nitro.OpLT, nitro.OpLE, nitro.OpGT, nitro.OpGE:
 		operandTime, ok := operand.(Time)
 		if !ok {
 			return nil, fmt.Errorf(
@@ -41,23 +26,25 @@ func (t Time) EvalBinOp(op nitro.BinOp, operand nitro.Value) (nitro.Value, error
 		}
 
 		switch op {
-		case nitro.BinSub:
+		case nitro.OpEq:
+			return nitro.NewBool(t.time.Equal(operandTime.time)), nil
+		case nitro.OpSub:
 			return Duration{t.time.Sub(operandTime.time)}, nil
-		case nitro.BinLT:
+		case nitro.OpLT:
 			return nitro.NewBool(t.time.Before(operandTime.time)), nil
-		case nitro.BinLE:
+		case nitro.OpLE:
 			return nitro.NewBool(t.time.Before(operandTime.time) ||
 				t.time.Equal(operandTime.time)), nil
-		case nitro.BinGT:
+		case nitro.OpGT:
 			return nitro.NewBool(t.time.After(operandTime.time)), nil
-		case nitro.BinGE:
+		case nitro.OpGE:
 			return nitro.NewBool(t.time.After(operandTime.time) ||
 				t.time.Equal(operandTime.time)), nil
 		default:
 			panic("unreachable")
 		}
 
-	case nitro.BinAdd:
+	case nitro.OpAdd:
 		operandDur, ok := operand.(Duration)
 		if !ok {
 			return nil, fmt.Errorf(
@@ -69,10 +56,6 @@ func (t Time) EvalBinOp(op nitro.BinOp, operand nitro.Value) (nitro.Value, error
 	default:
 		return nil, fmt.Errorf("operation is not supported by time")
 	}
-}
-
-func (t Time) EvalUnaryMinus() (nitro.Value, error) {
-	return nil, fmt.Errorf("operation is not supported by time")
 }
 
 var errNowUsage = errors.New("invalid usage. Expected now()")

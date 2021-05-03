@@ -8,8 +8,7 @@ type Value interface {
 	fmt.Stringer
 
 	Type() string
-	EvalBinOp(op BinOp, operand Value) (Value, error)
-	EvalUnaryMinus() (Value, error)
+	EvalOp(op Op, operand Value) (Value, error)
 }
 
 func TypeName(v Value) string {
@@ -41,11 +40,7 @@ func (r ValueRef) String() string { return "&" + (*r.Ref).String() }
 func (r ValueRef) Type() string   { return "&" + TypeName(*r.Ref) }
 func (r ValueRef) Refo() *Value   { return r.Ref }
 
-func (r ValueRef) EvalBinOp(op BinOp, operand Value) (Value, error) {
-	return nil, fmt.Errorf("ValueRef does not support this operation")
-}
-
-func (r ValueRef) EvalUnaryMinus() (Value, error) {
+func (r ValueRef) EvalOp(op Op, operand Value) (Value, error) {
 	return nil, fmt.Errorf("ValueRef does not support this operation")
 }
 
@@ -65,15 +60,33 @@ func CoerceToBool(v Value) bool {
 	}
 }
 
-func EvalBinOp(op BinOp, operand1, operand2 Value) (Value, error) {
-	if operand1 != nil && operand2 != nil {
-		return operand1.EvalBinOp(op, operand2)
+func EvalOp(op Op, operand1, operand2 Value) (Value, error) {
+	if operand1 != nil && (operand2 != nil || op == OpUMinus) {
+		opWasNE := false
+		if op == OpNE {
+			opWasNE = true
+			op = OpEq
+		}
+		res, err := operand1.EvalOp(op, operand2)
+		if err != nil {
+			return nil, err
+		}
+		if opWasNE {
+			resb, ok := res.(Bool)
+			if !ok {
+				return nil, fmt.Errorf(
+					"evaluation of Eq resulted in %q instead of bool",
+					TypeName(res))
+			}
+			res = NewBool(!resb.Bool())
+		}
+		return res, nil
 	}
 
 	switch op {
-	case BinEq:
+	case OpEq:
 		return NewBool(operand1 == operand2), nil
-	case BinNE:
+	case OpNE:
 		return NewBool(operand1 != operand2), nil
 	default:
 		return nil, fmt.Errorf(

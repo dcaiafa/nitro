@@ -37,30 +37,30 @@ func (e *BinaryExpr) RunPass(ctx *Context, pass Pass) {
 	}
 }
 
-func binOpAstToRuntime(op Operator) vm.BinOp {
+func binOpAstToRuntime(op Operator) vm.Op {
 	switch op {
 	case BinOpPlus:
-		return vm.BinAdd
+		return vm.OpAdd
 	case BinOpMinus:
-		return vm.BinSub
+		return vm.OpSub
 	case BinOpMult:
-		return vm.BinMult
+		return vm.OpMult
 	case BinOpDiv:
-		return vm.BinDiv
+		return vm.OpDiv
 	case BinOpMod:
-		return vm.BinMod
+		return vm.OpMod
 	case BinOpLT:
-		return vm.BinLT
+		return vm.OpLT
 	case BinOpLE:
-		return vm.BinLE
+		return vm.OpLE
 	case BinOpGT:
-		return vm.BinGT
+		return vm.OpGT
 	case BinOpGE:
-		return vm.BinGE
+		return vm.OpGE
 	case BinOpEq:
-		return vm.BinEq
+		return vm.OpEq
 	case BinOpNE:
-		return vm.BinNE
+		return vm.OpNE
 	default:
 		panic("invalid operator")
 	}

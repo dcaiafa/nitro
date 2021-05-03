@@ -19,11 +19,7 @@ type File struct {
 func (f *File) String() string { return fmt.Sprintf("File:%v", f.File.Name()) }
 func (f *File) Type() string   { return "File" }
 
-func (f *File) EvalBinOp(op nitro.BinOp, operand nitro.Value) (nitro.Value, error) {
-	return nil, fmt.Errorf("file does not support this operation")
-}
-
-func (f *File) EvalUnaryMinus() (nitro.Value, error) {
+func (f *File) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) {
 	return nil, fmt.Errorf("file does not support this operation")
 }
 
@@ -115,6 +111,53 @@ func open(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	return []nitro.Value{&File{f}}, nil
 }
 
+var errSeekUsage = errors.New(
+	`invalid usage. Expected seek(seeker, int, string?)`)
+
+func seek(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	if len(args) != 2 && len(args) != 3 {
+		return nil, errSeekUsage
+	}
+
+	seeker, ok := args[0].(io.Seeker)
+	if !ok {
+		return nil, errSeekUsage
+	}
+
+	offset, ok := args[1].(nitro.Int)
+	if !ok {
+		return nil, errSeekUsage
+	}
+
+	whence := os.SEEK_SET
+	if len(args) == 3 {
+		whenceArg, ok := args[2].(nitro.String)
+		if !ok {
+			return nil, errSeekUsage
+		}
+
+		switch whenceArg.String() {
+		case "set":
+			whence = os.SEEK_SET
+		case "cur":
+			whence = os.SEEK_CUR
+		case "end":
+			whence = os.SEEK_END
+		default:
+			return nil, fmt.Errorf(
+				`%q is not a valid whence value. Valid values include: "set", "cur", "end"`,
+				whenceArg.String())
+		}
+	}
+
+	newOffset, err := seeker.Seek(offset.Int64(), whence)
+	if err != nil {
+		return nil, err
+	}
+
+	return []nitro.Value{nitro.NewInt(newOffset)}, nil
+}
+
 func closep(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) < 1 {
 		return nil, errNotEnoughArgs
@@ -149,32 +192,64 @@ func create(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	return []nitro.Value{&File{f}}, nil
 }
 
+var errReadUsage = errors.New(
+	`invalid usage. Expected read(reader, int?)`)
+
 func read(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) < 1 {
-		return nil, errNotEnoughArgs
+	var err error
+
+	if len(args) != 1 && len(args) != 2 {
+		return nil, errReadUsage
 	}
 
-	var input io.Reader
-	switch arg := args[0].(type) {
-	case io.Reader:
-		input = arg
+	reader, ok := args[0].(io.Reader)
+	if !ok {
+		return nil, errReadUsage
+	}
 
-	case nitro.String:
-		f, err := os.Open(arg.String())
+	count := -1
+
+	if len(args) == 2 {
+		countArg, ok := args[1].(nitro.Int)
+		if !ok {
+			return nil, errReadUsage
+		}
+		count = int(countArg.Int64())
+	}
+
+	var data []byte
+	if count == -1 {
+		defer CloseReader(reader)
+		data, err = ioutil.ReadAll(reader)
 		if err != nil {
 			return nil, err
 		}
-		input = f
-
-	default:
-		return nil, fmt.Errorf(
-			"invalid argument %q. Expected Reader or String.",
-			nitro.TypeName(arg))
+	} else {
+		buf := make([]byte, count)
+		n, err := io.ReadAtLeast(reader, buf, count)
+		if err != nil && err != io.ErrUnexpectedEOF {
+			return nil, err
+		}
+		data = buf[:n]
 	}
 
-	defer CloseReader(input)
+	return []nitro.Value{nitro.NewString(string(data))}, nil
+}
 
-	data, err := ioutil.ReadAll(input)
+var errReadFileUsage = errors.New(
+	`invalid usage. Expected readfile(string)`)
+
+func readfile(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	if len(args) != 1 {
+		return nil, errReadFileUsage
+	}
+
+	filename, ok := args[0].(nitro.String)
+	if !ok {
+		return nil, errReadFileUsage
+	}
+
+	data, err := ioutil.ReadFile(filename.String())
 	if err != nil {
 		return nil, err
 	}
@@ -182,34 +257,76 @@ func read(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	return []nitro.Value{nitro.NewString(string(data))}, nil
 }
 
-func write(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) < 2 {
-		return nil, errNotEnoughArgs
+var errWriteToUsage = errors.New(
+	`invalid usage. Expected writeto(reader, writer, int?)`)
+
+func writeto(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	if len(args) != 2 && len(args) != 3 {
+		return nil, errWriteToUsage
 	}
 
-	reader, err := ToReader(m, args[0])
+	src, err := ToReader(m, args[0])
+	if err != nil {
+		return nil, errWriteToUsage
+	}
+
+	dst, ok := args[1].(io.Writer)
+	if !ok {
+		return nil, errWriteToUsage
+	}
+
+	if len(args) == 3 {
+		count, ok := args[2].(nitro.Int)
+		if !ok {
+			return nil, errWriteToUsage
+		}
+
+		n, err := io.CopyN(dst, src, count.Int64())
+		if err != nil && err != io.EOF {
+			return nil, err
+		}
+
+		return []nitro.Value{nitro.NewInt(n)}, nil
+	} else {
+		n, err := io.Copy(dst, src)
+		if err != nil {
+			return nil, err
+		}
+		return []nitro.Value{nitro.NewInt(n)}, nil
+	}
+}
+
+var errWriteFileUsage = errors.New(
+	`invalid usage. Expected writefile(reader, string)`)
+
+func writefile(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	if len(args) != 2 {
+		return nil, errWriteFileUsage
+	}
+
+	src, err := ToReader(m, args[0])
+	if err != nil {
+		return nil, errWriteFileUsage
+	}
+
+	filename, ok := args[1].(nitro.String)
+	if !ok {
+		return nil, errWriteFileUsage
+	}
+
+	dst, err := os.Create(filename.String())
 	if err != nil {
 		return nil, err
 	}
 
-	var writer io.Writer
-	switch arg := args[1].(type) {
-	case nitro.String:
-		f, err := os.Create(arg.String())
-		if err != nil {
-			return nil, err
-		}
-		defer f.Close()
-		writer = f
+	defer dst.Close()
 
-	case io.Writer:
-		writer = arg
-
-	default:
-		return nil, fmt.Errorf("invalid arg 2")
+	_, err = io.Copy(dst, src)
+	if err != nil {
+		return nil, err
 	}
 
-	_, err = io.Copy(writer, reader)
+	err = dst.Close()
 	if err != nil {
 		return nil, err
 	}

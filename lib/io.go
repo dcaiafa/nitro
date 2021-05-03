@@ -15,11 +15,7 @@ type reader struct {
 func (r *reader) String() string { return "<reader>" }
 func (r *reader) Type() string   { return "reader" }
 
-func (r *reader) EvalBinOp(op nitro.BinOp, operand nitro.Value) (nitro.Value, error) {
-	return nil, fmt.Errorf("reader does not support this operation")
-}
-
-func (r *reader) EvalUnaryMinus() (nitro.Value, error) {
+func (r *reader) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) {
 	return nil, fmt.Errorf("reader does not support this operation")
 }
 

@@ -26,16 +26,12 @@ func (b Bool) Bool() bool     { return b.v }
 func (b Bool) String() string { return strconv.FormatBool(b.v) }
 func (b Bool) Type() string   { return "Bool" }
 
-func (b Bool) EvalBinOp(op BinOp, operand Value) (Value, error) {
-	if op == BinEq {
+func (b Bool) EvalOp(op Op, operand Value) (Value, error) {
+	if op == OpEq {
 		return NewBool(b == operand), nil
-	} else if op == BinNE {
+	} else if op == OpNE {
 		return NewBool(b != operand), nil
 	} else {
 		return nil, fmt.Errorf("bool does not support this operation")
 	}
-}
-
-func (b Bool) EvalUnaryMinus() (Value, error) {
-	return nil, fmt.Errorf("array does not support this operation")
 }

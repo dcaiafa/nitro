@@ -78,7 +78,7 @@ func (e *Emitter) ResolveLabel(label *Label) {
 	label.addr = len(instrs)
 	for _, ref := range label.refs {
 		instr := &instrs[ref]
-		instr.operand1 = uint32(label.addr)
+		instr.op1 = uint32(label.addr)
 	}
 }
 

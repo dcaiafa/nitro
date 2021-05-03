@@ -11,20 +11,21 @@ import (
 
 const stackSize = 1000
 
-type BinOp byte
+type Op byte
 
 const (
-	BinAdd BinOp = iota
-	BinSub
-	BinMult
-	BinDiv
-	BinMod
-	BinLT
-	BinLE
-	BinGT
-	BinGE
-	BinEq
-	BinNE
+	OpUMinus Op = iota
+	OpAdd
+	OpSub
+	OpMult
+	OpDiv
+	OpMod
+	OpLT
+	OpLE
+	OpGT
+	OpGE
+	OpEq
+	OpNE
 )
 
 type FrameInfo struct {
@@ -323,18 +324,18 @@ func (m *VM) resume() (err error) {
 	for {
 		instr := m.instrs[m.ip]
 
-		switch instr.op {
+		switch instr.opc {
 		case OpNop:
 
 		case OpJump:
-			m.ip = int(instr.operand1) - 1
+			m.ip = int(instr.op1) - 1
 
 		case OpJumpIfTrue:
 			v := m.stack[m.sp-1]
 			m.sp--
 			b := CoerceToBool(v)
 			if b {
-				m.ip = int(instr.operand1) - 1
+				m.ip = int(instr.op1) - 1
 			}
 
 		case OpJumpIfFalse:
@@ -342,7 +343,7 @@ func (m *VM) resume() (err error) {
 			m.sp--
 			b := CoerceToBool(v)
 			if !b {
-				m.ip = int(instr.operand1) - 1
+				m.ip = int(instr.op1) - 1
 			}
 
 		case OpDup:
@@ -350,13 +351,13 @@ func (m *VM) resume() (err error) {
 			m.sp++
 
 		case OpPop:
-			m.sp -= int(instr.operand1)
+			m.sp -= int(instr.op1)
 
 		case OpCall:
-			nret := int(instr.operand2)
-			narg := int(instr.operand1 & CallArgCountMask)
-			expand := (instr.operand1 & CallExpandFlag) != 0
-			pipeline := (instr.operand1 & CallPipelineFlag) != 0
+			nret := int(instr.op2)
+			narg := int(instr.op1 & CallArgCountMask)
+			expand := (instr.op1 & CallExpandFlag) != 0
+			pipeline := (instr.op1 & CallPipelineFlag) != 0
 
 			if expand {
 				if narg == 0 {
@@ -394,8 +395,8 @@ func (m *VM) resume() (err error) {
 			m.sp++
 
 		case OpNewClosure:
-			capN := int(instr.operand2)
-			fn := int(instr.operand1)
+			capN := int(instr.op2)
+			fn := int(instr.op1)
 
 			var caps []ValueRef
 			if capN > 0 {
@@ -414,9 +415,9 @@ func (m *VM) resume() (err error) {
 			m.sp++
 
 		case OpNewIter:
-			capN := int(instr.operand2)
-			fn := int(instr.operand1 & 0x00ffffff)
-			iterNRet := int(instr.operand1 & 0xff000000 >> 24)
+			capN := int(instr.op2)
+			fn := int(instr.op1 & 0x00ffffff)
+			iterNRet := int(instr.op1 & 0xff000000 >> 24)
 
 			var caps []ValueRef
 			if capN > 0 {
@@ -438,11 +439,11 @@ func (m *VM) resume() (err error) {
 			m.sp++
 
 		case OpNewInt:
-			m.stack[m.sp] = NewInt(int64(instr.operand1))
+			m.stack[m.sp] = NewInt(int64(instr.op1))
 			m.sp++
 
 		case OpNewBool:
-			m.stack[m.sp] = NewBool(instr.operand1 != 0)
+			m.stack[m.sp] = NewBool(instr.op1 != 0)
 			m.sp++
 
 		case OpNewObject:
@@ -454,15 +455,15 @@ func (m *VM) resume() (err error) {
 			m.sp++
 
 		case OpLoadGlobal:
-			m.stack[m.sp] = m.globals[int(instr.operand1)]
+			m.stack[m.sp] = m.globals[int(instr.op1)]
 			m.sp++
 
 		case OpLoadGlobalRef:
-			m.stack[m.sp] = ValueRef{&m.globals[int(instr.operand1)]}
+			m.stack[m.sp] = ValueRef{&m.globals[int(instr.op1)]}
 			m.sp++
 
 		case OpLoadLocal:
-			l := m.stack[m.frame.bp+int(instr.operand1)]
+			l := m.stack[m.frame.bp+int(instr.op1)]
 			if ref, ok := l.(ValueRef); ok {
 				l = *ref.Ref
 			}
@@ -470,27 +471,27 @@ func (m *VM) resume() (err error) {
 			m.sp++
 
 		case OpLoadLocalRef:
-			ref, ok := m.stack[m.frame.bp+int(instr.operand1)].(ValueRef)
+			ref, ok := m.stack[m.frame.bp+int(instr.op1)].(ValueRef)
 			if ok {
 				m.stack[m.sp] = ref
 			} else {
-				m.stack[m.sp] = ValueRef{&m.stack[m.frame.bp+int(instr.operand1)]}
+				m.stack[m.sp] = ValueRef{&m.stack[m.frame.bp+int(instr.op1)]}
 			}
 			m.sp++
 
 		case OpCaptureLocal:
-			l := m.stack[m.frame.bp+int(instr.operand1)]
+			l := m.stack[m.frame.bp+int(instr.op1)]
 			if _, ok := l.(ValueRef); !ok {
 				ref := ValueRef{Ref: new(Value)}
 				*ref.Ref = l
-				m.stack[m.frame.bp+int(instr.operand1)] = ref
+				m.stack[m.frame.bp+int(instr.op1)] = ref
 				l = ref
 			}
 			m.stack[m.sp] = l
 			m.sp++
 
 		case OpLoadArg:
-			idx := int(instr.operand1)
+			idx := int(instr.op1)
 			if idx < m.frame.nArg {
 				a := m.stack[m.frame.bp-m.frame.nArg+idx]
 				if ref, ok := a.(ValueRef); ok {
@@ -503,7 +504,7 @@ func (m *VM) resume() (err error) {
 			m.sp++
 
 		case OpLoadArgRef:
-			idx := int(instr.operand1)
+			idx := int(instr.op1)
 			if idx >= m.frame.nArg {
 				// TODO: min arg count
 				return fmt.Errorf(
@@ -519,41 +520,41 @@ func (m *VM) resume() (err error) {
 			m.sp++
 
 		case OpCaptureArg:
-			a := m.stack[m.frame.bp-m.frame.nArg+int(instr.operand1)]
+			a := m.stack[m.frame.bp-m.frame.nArg+int(instr.op1)]
 			if _, ok := a.(ValueRef); !ok {
 				ref := ValueRef{Ref: new(Value)}
 				*ref.Ref = a
-				m.stack[m.frame.bp-m.frame.nArg+int(instr.operand1)] = ref
+				m.stack[m.frame.bp-m.frame.nArg+int(instr.op1)] = ref
 				a = ref
 			}
 			m.stack[m.sp] = a
 			m.sp++
 
 		case OpLoadCapture:
-			m.stack[m.sp] = *m.frame.caps[int(instr.operand1)].Ref
+			m.stack[m.sp] = *m.frame.caps[int(instr.op1)].Ref
 			m.sp++
 
 		case OpLoadCaptureRef:
-			m.stack[m.sp] = m.frame.caps[int(instr.operand1)]
+			m.stack[m.sp] = m.frame.caps[int(instr.op1)]
 			m.sp++
 
 		case OpLoadFn:
-			m.stack[m.sp] = &m.program.fns[int(instr.operand1)]
+			m.stack[m.sp] = &m.program.fns[int(instr.op1)]
 			m.sp++
 
 		case OpLoadNativeFn:
-			m.stack[m.sp] = m.program.extFns[int(instr.operand1)]
+			m.stack[m.sp] = m.program.extFns[int(instr.op1)]
 			m.sp++
 
 		case OpLoadLiteral:
-			m.stack[m.sp] = m.program.literals[int(instr.operand1)]
+			m.stack[m.sp] = m.program.literals[int(instr.op1)]
 			m.sp++
 
 		case OpEvalBinOp:
-			op := BinOp(instr.operand1)
+			op := Op(instr.op1)
 			operand1 := m.stack[m.sp-2]
 			operand2 := m.stack[m.sp-1]
-			res, err := EvalBinOp(op, operand1, operand2)
+			res, err := EvalOp(op, operand1, operand2)
 			if err != nil {
 				return err
 			}
@@ -569,7 +570,7 @@ func (m *VM) resume() (err error) {
 			if term == nil {
 				return errors.New("value is nil")
 			}
-			res, err := term.EvalUnaryMinus()
+			res, err := EvalOp(OpUMinus, term, nil)
 			if err != nil {
 				return err
 			}
@@ -637,7 +638,7 @@ func (m *VM) resume() (err error) {
 			return nil
 
 		case OpStore:
-			count := int(instr.operand1)
+			count := int(instr.op1)
 			for i := 0; i < count; i++ {
 				rval := m.stack[m.sp-(count*2-i)].(ValueRef)
 				val := m.stack[m.sp-(count-i)]
@@ -646,7 +647,7 @@ func (m *VM) resume() (err error) {
 			m.sp -= count * 2
 
 		case OpInitCallFrame:
-			m.frame.nLocals = int(instr.operand1)
+			m.frame.nLocals = int(instr.op1)
 			m.frame.bp = m.sp
 			m.sp += m.frame.nLocals
 			for i := m.frame.bp; i < m.sp; i++ {
@@ -671,16 +672,16 @@ func (m *VM) resume() (err error) {
 
 		case OpBeginTry:
 			m.frame.tryCatches = append(m.frame.tryCatches, tryCatch{
-				CatchAddr: int(instr.operand1),
+				CatchAddr: int(instr.op1),
 			})
 
 		case OpEndTry:
 			m.frame.tryCatches = m.frame.tryCatches[:len(m.frame.tryCatches)-1]
-			m.ip = int(instr.operand1) - 1
+			m.ip = int(instr.op1) - 1
 
 		case OpSwap:
 			i1 := m.sp - 1
-			i2 := i1 - int(instr.operand1)
+			i2 := i1 - int(instr.op1)
 			m.stack[i1], m.stack[i2] = m.stack[i2], m.stack[i1]
 
 		case OpThrow:
@@ -698,8 +699,8 @@ func (m *VM) resume() (err error) {
 			m.frame.defers = append(m.frame.defers, deferClosure)
 
 		case OpNext:
-			jumpTo := int(instr.operand1)
-			n := int(instr.operand2)
+			jumpTo := int(instr.op1)
+			n := int(instr.op2)
 			hasRaw := m.stack[m.sp-1-n]
 			has, ok := hasRaw.(Bool)
 			if !ok {

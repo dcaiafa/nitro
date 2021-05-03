@@ -53,7 +53,7 @@ func (s *sorter) Less(i, j int) bool {
 			}
 
 			if i < len(s.exprs)-1 {
-				areEq, err := evalCmpOp(nitro.BinEq, a, b)
+				areEq, err := evalCmpOp(nitro.OpEq, a, b)
 				if err != nil {
 					s.err = err
 					return false
@@ -63,9 +63,9 @@ func (s *sorter) Less(i, j int) bool {
 				}
 			}
 
-			op := nitro.BinLT
+			op := nitro.OpLT
 			if expr.desc {
-				op = nitro.BinGT
+				op = nitro.OpGT
 			}
 			res, err := evalCmpOp(op, a, b)
 			if err != nil {
@@ -92,7 +92,7 @@ func (s *sorter) Less(i, j int) bool {
 		return false
 	}
 
-	res, err := nitro.EvalBinOp(nitro.BinLT, a, b)
+	res, err := nitro.EvalOp(nitro.OpLT, a, b)
 	if err != nil {
 		s.err = err
 		return false
@@ -160,8 +160,8 @@ func sort(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	return []nitro.Value{arr}, nil
 }
 
-func evalCmpOp(op nitro.BinOp, operand1, operand2 nitro.Value) (bool, error) {
-	res, err := nitro.EvalBinOp(op, operand1, operand2)
+func evalCmpOp(op nitro.Op, operand1, operand2 nitro.Value) (bool, error) {
+	res, err := nitro.EvalOp(op, operand1, operand2)
 	if err != nil {
 		return false, err
 	}
