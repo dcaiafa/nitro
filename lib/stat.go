@@ -7,9 +7,6 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-var errAvgUsage = errors.New(
-	"invalid usage. Expected: avg(iter) or avg(accum, int|float?)")
-
 type avgAccum struct {
 	sum   float64
 	count int
@@ -22,15 +19,24 @@ func (a *avgAccum) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error)
 	return nil, fmt.Errorf("avg does not support this operation")
 }
 
+var errAvgUsage = errors.New(
+	"invalid usage. Expected: avg(iter) or avg(accum, int|float?)")
+
 func avg(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) == 0 {
 		return nil, errAvgUsage
 	}
 
-	// Form 1: avg(accum, float|int|nil)
+	if len(args) == 1 && args[0] == nil {
+		// Special case: avg(nil) == nil
+		// so that reduce([], avg) == nil.
+		return []nitro.Value{nil}, nil
+	}
+
+	// Form 1: avg(accum|nil, float|int|nil?)
 	accum, ok := args[0].(*avgAccum)
 	if ok || args[0] == nil {
-		if len(args) > 2 {
+		if len(args) != 1 && len(args) != 2 {
 			return nil, errAvgUsage
 		}
 		if accum == nil {
@@ -38,7 +44,7 @@ func avg(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 		}
 		if len(args) == 1 || args[1] == nil {
 			if accum.count <= 0 {
-				return nil, fmt.Errorf("accum.count is zero")
+				return nil, errAvgUsage
 			}
 			return []nitro.Value{nitro.NewFloat(accum.sum / float64(accum.count))}, nil
 		}
@@ -50,8 +56,8 @@ func avg(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 			accum.sum += v.Float64()
 		default:
 			return nil, fmt.Errorf(
-				"expected arg 2 to be Int|Float, but it was %q",
-				nitro.TypeName(v))
+				"%w. Argument 2 was %v",
+				errAvgUsage, nitro.TypeName(v))
 		}
 		return []nitro.Value{accum}, nil
 	}
@@ -68,8 +74,8 @@ func avg(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 				sum += v.Float64()
 			default:
 				return nil, fmt.Errorf(
-					"expected arg %d to be Int|Float, but it was %q",
-					i, nitro.TypeName(v))
+					"%w. Argument %d was %v",
+					errAvgUsage, i, nitro.TypeName(v))
 			}
 		}
 		return []nitro.Value{nitro.NewFloat(sum / float64(len(args)))}, nil
@@ -99,13 +105,13 @@ func avg(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 			sum += v.Float64()
 		default:
 			return nil, fmt.Errorf(
-				"expected iterator to return only Int|Float, but returned %q",
-				nitro.TypeName(v))
+				"%w. iterator returned %v",
+				errAvgUsage, nitro.TypeName(v))
 		}
 	}
 
 	if count == 0 {
-		return []nitro.Value{nitro.NewFloat(0)}, nil
+		return []nitro.Value{nil}, nil
 	}
 
 	return []nitro.Value{nitro.NewFloat(sum / float64(count))}, nil

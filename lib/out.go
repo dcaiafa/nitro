@@ -148,13 +148,16 @@ func SetStderr(m *nitro.VM, w io.Writer) {
 	m.SetUserData(&stderrUserDataKey, w)
 }
 
+var errErrUsage = errors.New(
+	`invalid usage. Expected err(reader?)`)
+
 func err(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) == 0 {
 		return []nitro.Value{wrapWriter("err", Stderr(m))}, nil
 	}
 
 	if len(args) != 1 {
-		return nil, errOutUsage
+		return nil, errErrUsage
 	}
 
 	reader, err := ToReader(m, args[0])
