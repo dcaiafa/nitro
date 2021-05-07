@@ -17,6 +17,7 @@ type (
 	Bool      = vm.Bool
 	Closure   = vm.Closure
 	Iterator  = vm.Iterator
+	Iterable  = vm.Iterable
 	ExternFn  = vm.NativeFn
 	Float     = vm.Float
 	Frame     = vm.FrameInfo
@@ -30,6 +31,7 @@ type (
 	ValueRef  = vm.ValueRef
 	Callable  = vm.Callable
 	Indexable = vm.Indexable
+	NativeFn  = vm.NativeFn
 	Metadata  = meta.Metadata
 
 	RuntimeError = vm.RuntimeError

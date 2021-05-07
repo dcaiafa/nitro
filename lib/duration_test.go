@@ -49,11 +49,9 @@ func TestDur(t *testing.T) {
 	RunSubErr(t, "errUsage5", `print(dur(10, "days"))`, errDurUsage)
 }
 
-func TestTruncDur(t *testing.T) {
-	RunSubO(t, "val", `print(truncdur(dur(1999, "millisecond"), dur(10, "millisecond")))`, `1.99s`)
-	RunSubO(t, "val", `print(truncdur(dur(1999, "millisecond"), "second"))`, `1s`)
-	RunSubErr(t, "val_usage_err1", `truncdur()`, errTruncDurUsage)
-	RunSubErr(t, "val_usage_err2", `truncdur(dur(1999, "millisecond"), 1000)`, errTruncDurUsage)
-	RunSubErr(t, "val_usage_err3", `truncdur(1000, "second")`, errTruncDurUsage)
-	RunSubErr(t, "val_usage_err4", `truncdur(dur(1999, "millisecond"), "years")`, errTruncDurUsage)
+func TestDurationTruncate(t *testing.T) {
+	RunSubO(t, "val", `print(dur(1999, "millisecond").truncate(dur(10, "millisecond")))`, `1.99s`)
+	RunSubO(t, "val", `print(dur(1999, "millisecond").truncate("second"))`, `1s`)
+	RunSubErr(t, "val_usage_err2", `dur(1999, "millisecond").truncate(1000)`, errDurationTruncateUsage)
+	RunSubErr(t, "val_usage_err2", `dur(1999, "millisecond").truncate("years")`, errDurationTruncateUsage)
 }

@@ -86,6 +86,52 @@ func (d Duration) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) 
 	return nil, fmt.Errorf("operation not supported by duration")
 }
 
+func (d Duration) Index(key nitro.Value) (nitro.Value, error) {
+	keyStr, ok := key.(nitro.String)
+	if !ok {
+		return nil, fmt.Errorf(
+			"duration cannot be indexed by %q",
+			nitro.TypeName(key))
+	}
+
+	switch keyStr.String() {
+	case "truncate":
+		return nitro.NativeFn(d.truncate), nil
+	default:
+		return nil, fmt.Errorf(
+			"time does not have method %q",
+			keyStr.String())
+	}
+}
+
+func (d Duration) IndexRef(key nitro.Value) (nitro.ValueRef, error) {
+	return nitro.ValueRef{}, fmt.Errorf("duration is read-only")
+}
+
+var errDurationTruncateUsage = errors.New(
+	`invalid usage. Expected: <duration>.truncate(duration|string)`)
+
+func (d Duration) truncate(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	if len(args) != 1 {
+		return nil, errDurationTruncateUsage
+	}
+
+	var mult time.Duration
+	if multArg, ok := args[0].(Duration); ok {
+		mult = multArg.dur
+	} else if multStr, ok := args[0].(nitro.String); ok {
+		unit, ok := durationUnit(multStr.String())
+		if !ok {
+			return nil, errDurationTruncateUsage
+		}
+		mult = unit
+	} else {
+		return nil, errDurationTruncateUsage
+	}
+	truncDur := d.dur.Truncate(mult)
+	return []nitro.Value{Duration{truncDur}}, nil
+}
+
 var errDurUsage = errors.New(
 	`invalid usage. Expected: duration(int, "nanosecond"|"microsecond"|"millisecond"|"second"|"minute"|"hour"`)
 
@@ -111,40 +157,6 @@ func dur(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	dur *= unitDur
 
 	return []nitro.Value{Duration{dur: dur}}, nil
-}
-
-var errTruncDurUsage = errors.New(
-	`invalid usage. Expected: truncdur(duration, mult: duration|"nanosecond"|"microsecond"|"millisecond"|"second"|"minute"|"hour")`)
-
-func truncdur(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) != 2 {
-		return nil, errTruncDurUsage
-	}
-
-	dur, ok := args[0].(Duration)
-	if !ok {
-		return nil, errTruncDurUsage
-	}
-
-	var mult time.Duration
-	multArg, ok := args[1].(Duration)
-	if ok {
-		mult = multArg.dur
-	} else {
-		multStr, ok := args[1].(nitro.String)
-		if !ok {
-			return nil, errTruncDurUsage
-		}
-		unit, ok := durationUnit(multStr.String())
-		if !ok {
-			return nil, errTruncDurUsage
-		}
-		mult = unit
-	}
-
-	truncDur := dur.dur.Truncate(mult)
-
-	return []nitro.Value{Duration{truncDur}}, nil
 }
 
 func durationUnit(c string) (time.Duration, bool) {

@@ -289,3 +289,92 @@ func sum(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	}
 	return []nitro.Value{sumV}, nil
 }
+
+type countAccum struct {
+	count int
+}
+
+func (a *countAccum) String() string { return "<count>" }
+func (a *countAccum) Type() string   { return "count" }
+
+func (a *countAccum) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) {
+	return nil, fmt.Errorf("avg does not support this operation")
+}
+
+var errCountUsage = errors.New(
+	`invalid usage. Expected count(accum, any) or count(iter) or count(any...)`)
+
+func count(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	if len(args) == 0 {
+		return nil, errSumUsage
+	}
+
+	// Form 1: avg(accum|nil, float|int|nil?)
+	accum, ok := args[0].(*countAccum)
+	if ok || args[0] == nil {
+		if len(args) != 1 && len(args) != 2 {
+			return nil, errCountUsage
+		}
+		if accum == nil {
+			accum = new(countAccum)
+		}
+		if len(args) == 1 || args[1] == nil {
+			return []nitro.Value{nitro.NewInt(int64(accum.count))}, nil
+		}
+		accum.count++
+		return []nitro.Value{accum}, nil
+	}
+
+	if args[0] != nil {
+		iter, err := nitro.MakeIterator(m, args[0])
+		if err == nil {
+			c := 0
+			for {
+				v, ok, err := nitro.Next(m, iter, 1)
+				if err != nil {
+					return nil, err
+				}
+				if !ok {
+					break
+				}
+				if v[0] == nil {
+					continue
+				}
+				c++
+			}
+			return []nitro.Value{nitro.NewInt(int64(c))}, nil
+		}
+	}
+
+	c := 0
+	for _, arg := range args {
+		if arg == nil {
+			continue
+		}
+		c++
+	}
+	return []nitro.Value{nitro.NewInt(int64(c))}, nil
+}
+
+var errGroupUsage = errors.New(
+	`invalid usage. Expected group(accum, any?)`)
+
+func group(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	if len(args) != 1 && len(args) != 2 {
+		return nil, errGroupUsage
+	}
+
+	accum, ok := args[0].(*nitro.Array)
+	if !ok && args[0] != nil {
+		return nil, errGroupUsage
+	}
+
+	if accum == nil {
+		accum = nitro.NewArray()
+	}
+	if len(args) == 1 || args[1] == nil {
+		return []nitro.Value{accum}, nil
+	}
+	accum.Push(args[1])
+	return []nitro.Value{accum}, nil
+}

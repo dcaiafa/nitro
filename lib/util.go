@@ -166,6 +166,16 @@ func ToReader(m *nitro.VM, v vm.Value) (io.Reader, error) {
 	case nitro.String:
 		return strings.NewReader(v.String()), nil
 
+	case nitro.Iterable:
+		iter, err := nitro.MakeIterator(m, v)
+		if err != nil {
+			return nil, err
+		}
+		return &iterReader{
+			m: m,
+			e: iter,
+		}, nil
+
 	case *nitro.Iterator:
 		return &iterReader{
 			m: m,
@@ -174,7 +184,7 @@ func ToReader(m *nitro.VM, v vm.Value) (io.Reader, error) {
 
 	default:
 		return nil, fmt.Errorf(
-			"value of type %q is not streamable",
+			"value of type %q is not a reader",
 			nitro.TypeName(v))
 	}
 }
