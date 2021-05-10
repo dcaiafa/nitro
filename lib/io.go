@@ -9,14 +9,14 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-type stdin struct {
+type stdinWrapper struct {
 	io.Reader
 }
 
-func (r *stdin) String() string { return "<reader>" }
-func (r *stdin) Type() string   { return "reader" }
+func (r *stdinWrapper) String() string { return "<reader>" }
+func (r *stdinWrapper) Type() string   { return "reader" }
 
-func (r *stdin) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) {
+func (r *stdinWrapper) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) {
 	return nil, fmt.Errorf("reader does not support this operation")
 }
 
@@ -25,7 +25,7 @@ func wrapStdin(r io.Reader) nitro.Value {
 	if ok {
 		return v
 	}
-	return &stdin{r}
+	return &stdinWrapper{r}
 }
 
 func CloseReader(r io.Reader) {
@@ -34,7 +34,7 @@ func CloseReader(r io.Reader) {
 	}
 }
 
-func in(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func stdin(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	return []nitro.Value{wrapStdin(os.Stdin)}, nil
 }
 
@@ -106,7 +106,7 @@ func SetStdout(m *nitro.VM, w io.Writer) {
 	m.SetUserData(&stdoutUserDataKey, outStack)
 }
 
-func PushOut(m *nitro.VM, out io.Writer) {
+func PushStdout(m *nitro.VM, out io.Writer) {
 	outStack, ok := m.GetUserData(&stdoutUserDataKey).(*stdoutStack)
 	if !ok {
 		outStack = &stdoutStack{}
@@ -115,7 +115,7 @@ func PushOut(m *nitro.VM, out io.Writer) {
 	outStack.stack = append(outStack.stack, out)
 }
 
-func PopOut(m *nitro.VM) io.Writer {
+func PopStdout(m *nitro.VM) io.Writer {
 	outStack, ok := m.GetUserData(&stdoutUserDataKey).(*stdoutStack)
 	if !ok || len(outStack.stack) == 0 {
 		return nil
@@ -129,7 +129,7 @@ func PopOut(m *nitro.VM) io.Writer {
 var errOutUsage = errors.New(
 	`invalid usage. Expected out(reader?)`)
 
-func out(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func stdout(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) == 0 {
 		return []nitro.Value{wrapWriter("stdout", Stdout(m))}, nil
 	}
@@ -151,17 +151,17 @@ func out(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	return []nitro.Value{nitro.NewInt(n)}, nil
 }
 
-func pushout(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func pushstdout(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	out, err := getWriterArg(args, 0)
 	if err != nil {
 		return nil, err
 	}
-	PushOut(m, out)
+	PushStdout(m, out)
 	return nil, nil
 }
 
-func popout(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	prevOut := PopOut(m)
+func popstdout(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	prevOut := PopStdout(m)
 	if prevOut == nil {
 		return nil, fmt.Errorf("the stdout stack is empty")
 	}
@@ -185,7 +185,7 @@ func SetStderr(m *nitro.VM, w io.Writer) {
 var errErrUsage = errors.New(
 	`invalid usage. Expected err(reader?)`)
 
-func err(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func stderr(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) == 0 {
 		return []nitro.Value{wrapWriter("err", Stderr(m))}, nil
 	}

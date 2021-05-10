@@ -7,16 +7,16 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-var errUsageParseBase64 = errors.New(
+var errParseBase64Usage = errors.New(
 	`invalid usage. Expected parsebase64(string)`)
 
 func parsebase64(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) != 1 {
-		return nil, errUsageParseBase64
+		return nil, errParseBase64Usage
 	}
 	enc, ok := args[0].(nitro.String)
 	if !ok {
-		return nil, errUsageParseBase64
+		return nil, errParseBase64Usage
 	}
 	dec, err := base64.StdEncoding.DecodeString(enc.String())
 	if err != nil {
