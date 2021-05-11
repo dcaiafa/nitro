@@ -3,6 +3,7 @@ package lib
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 
@@ -111,46 +112,40 @@ func (p *jsonParser) parseValue() (nitro.Value, error) {
 	}
 }
 
+type toJSONOptions struct {
+	Indent nitro.Value `nitro:"indent"`
+	Prefix nitro.Value `nitro:"prefix"`
+}
+
+var toJSONOptionConv Value2Structer
+
+var errToJSONUsage = errors.New(
+	`invalid usage. Expected tojson(bool|int|float|string|array|map, map?)`)
+
 func tojson(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) < 1 {
-		return nil, errNotEnoughArgs
+	if len(args) != 1 && len(args) != 2 {
+		return nil, errToJSONUsage
 	}
 
 	indent := ""
-	var err error
-	if len(args) >= 2 {
-		var opts *nitro.Object
-		opts, err = getObjectArg(args, 1)
+	prefix := ""
+	if len(args) == 2 {
+		var opt toJSONOptions
+		err := toJSONOptionConv.Convert(args[1], &opt)
 		if err != nil {
 			return nil, err
 		}
-		opts.ForEach(func(opt, optValue nitro.Value) bool {
-			optStr, ok := opt.(nitro.String)
-			if !ok {
-				err = fmt.Errorf("invalid option %v", opt)
-				return false
-			}
-			switch optStr.String() {
-			case "indent":
-				val, ok := optValue.(nitro.String)
-				if !ok {
-					err = fmt.Errorf("option 'indent' must be a String")
-					return false
-				}
-				indent = val.String()
-
-			default:
-				err = fmt.Errorf("invalid option %v", optStr.String())
-				return false
-			}
-			return true
-		})
-	}
-	if err != nil {
-		return nil, err
+		indent, err = getStringOrSpaceSize(opt.Indent)
+		if err != nil {
+			return nil, fmt.Errorf("invalid indent option: %w", err)
+		}
+		prefix, err = getStringOrSpaceSize(opt.Prefix)
+		if err != nil {
+			return nil, fmt.Errorf("invalid prefix option: %w", err)
+		}
 	}
 
-	jsonBytes, err := ToJSON(args[0], indent)
+	jsonBytes, err := ToJSON(args[0], prefix, indent)
 	if err != nil {
 		return nil, err
 	}
@@ -158,7 +153,40 @@ func tojson(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	return []nitro.Value{nitro.NewString(string(jsonBytes))}, nil
 }
 
-func ToJSON(v nitro.Value, indent string) ([]byte, error) {
+func getStringOrSpaceSize(v nitro.Value) (string, error) {
+	if v == nil {
+		return "", nil
+	}
+
+	indent := ""
+	switch v := v.(type) {
+	case nitro.Int:
+		indentN := int(v.Int64())
+		if indentN < 0 || indentN >= 20 {
+			return "", fmt.Errorf("invalid length %v", v.Int64())
+		}
+		indentB := make([]byte, indentN)
+		for i := range indentB {
+			indentB[i] = ' '
+		}
+		indent = string(indentB)
+
+	case nitro.String:
+		indent = v.String()
+		if len(indent) > 20 {
+			return "", fmt.Errorf("invalid length %v", len(indent))
+		}
+
+	default:
+		return "", fmt.Errorf(
+			"must be an int or string. It was %v",
+			nitro.TypeName(v))
+	}
+
+	return indent, nil
+}
+
+func ToJSON(v nitro.Value, prefix, indent string) ([]byte, error) {
 	marshaler := jsonMarshaler{}
 	err := marshaler.marshal(v)
 	if err != nil {
@@ -169,7 +197,7 @@ func ToJSON(v nitro.Value, indent string) ([]byte, error) {
 
 	if indent != "" {
 		buf := bytes.Buffer{}
-		err = json.Indent(&buf, jsonBytes, "", indent)
+		err = json.Indent(&buf, jsonBytes, prefix, indent)
 		if err != nil {
 			return nil, err
 		}

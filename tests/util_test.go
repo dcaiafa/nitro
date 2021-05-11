@@ -86,7 +86,7 @@ func run(prog string, params map[string]nitro.Value) (output string, err error) 
 		}
 	}
 
-	err = vm.Run()
+	err = vm.Run(nil)
 	if err != nil {
 		return "", err
 	}

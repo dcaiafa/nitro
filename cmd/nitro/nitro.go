@@ -18,7 +18,7 @@ func emit(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) < 1 {
 		return nil, fmt.Errorf("not enough arguments")
 	}
-	json, err := lib.ToJSON(args[0], "  ")
+	json, err := lib.ToJSON(args[0], "", "  ")
 	if err != nil {
 		return nil, err
 	}
@@ -120,10 +120,6 @@ func main() {
 		printProgUsage(progFlags)
 	}
 
-	if len(args) != 0 {
-		log.Fatalf("Invalid argument %v", args[0])
-	}
-
 	cpuProfile := *flagP.Value.(*string)
 	if cpuProfile != "" {
 		f, err := os.Create(cpuProfile)
@@ -144,7 +140,15 @@ func main() {
 		}
 	}
 
-	err = vm.Run()
+	var programArgs []nitro.Value
+	if len(args) != 0 {
+		programArgs = make([]nitro.Value, len(args))
+		for i, arg := range args {
+			programArgs[i] = nitro.NewString(arg)
+		}
+	}
+
+	err = vm.Run(programArgs)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)

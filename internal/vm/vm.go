@@ -101,9 +101,15 @@ func (m *VM) SetParam(n string, v Value) error {
 	return nil
 }
 
-func (m *VM) Run() error {
+func (m *VM) Run(args []Value) error {
+	copy(m.stack, args)
+	m.sp = len(args)
+
 	f := m.newFrame()
 	f.fn = &m.program.fns[0]
+	f.nArg = len(args)
+	f.bp = len(args)
+
 	return m.runFrame(f)
 }
 

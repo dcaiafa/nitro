@@ -27,32 +27,39 @@ func (d Duration) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) 
 	case nitro.OpAdd, nitro.OpSub, nitro.OpLT, nitro.OpLE,
 		nitro.OpGT, nitro.OpGE, nitro.OpEq, nitro.OpMod:
 
+		otherDur := time.Duration(0)
 		operandDur, ok := operand.(Duration)
-		if !ok {
+		if ok {
+			otherDur = operandDur.dur
+		} else if operandInt, ok := operand.(nitro.Int); ok && operandInt.Int64() == 0 {
+			// Zero is a special case. It is useful to express `dur < 0` without
+			// having to create a duration value for the right side.
+			otherDur = 0
+		} else {
 			return nil, fmt.Errorf(
 				"%w between duration and %v", errInvalidOp, nitro.TypeName(operand))
 		}
 
 		switch op {
 		case nitro.OpAdd:
-			return Duration{d.dur + operandDur.dur}, nil
+			return Duration{d.dur + otherDur}, nil
 		case nitro.OpSub:
-			return Duration{d.dur - operandDur.dur}, nil
+			return Duration{d.dur - otherDur}, nil
 		case nitro.OpLT:
-			return nitro.NewBool(d.dur < operandDur.dur), nil
+			return nitro.NewBool(d.dur < otherDur), nil
 		case nitro.OpLE:
-			return nitro.NewBool(d.dur <= operandDur.dur), nil
+			return nitro.NewBool(d.dur <= otherDur), nil
 		case nitro.OpGT:
-			return nitro.NewBool(d.dur > operandDur.dur), nil
+			return nitro.NewBool(d.dur > otherDur), nil
 		case nitro.OpGE:
-			return nitro.NewBool(d.dur >= operandDur.dur), nil
+			return nitro.NewBool(d.dur >= otherDur), nil
 		case nitro.OpEq:
 			return nitro.NewBool(d == operand), nil
 		case nitro.OpMod:
-			if operandDur.dur == 0 {
+			if otherDur == 0 {
 				return nil, errDivByZero
 			}
-			return Duration{d.dur % operandDur.dur}, nil
+			return Duration{d.dur % otherDur}, nil
 		}
 
 	case nitro.OpMult:

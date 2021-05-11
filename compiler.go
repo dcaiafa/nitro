@@ -25,18 +25,24 @@ func (fs *nativeFileLoader) LoadFile(name string) ([]byte, error) {
 	return ioutil.ReadFile(name)
 }
 
+type moduleRegistry struct {
+	// moduleSet is the set of modules already loaded. The key is the module's
+	// canonical import path.
+	moduleSet map[string]bool
+}
+
 type Compiler struct {
-	fileLoader  FileLoader
-	diag        bool
-	main        *ast.Main
-	externalFns map[string]vm.NativeFn
+	fileLoader FileLoader
+	diag       bool
+	main       *ast.Main
+	nativeFns  map[string]vm.NativeFn
 }
 
 func NewCompiler(fileLoader FileLoader) *Compiler {
 	c := &Compiler{
-		fileLoader:  fileLoader,
-		main:        &ast.Main{},
-		externalFns: make(map[string]vm.NativeFn),
+		fileLoader: fileLoader,
+		main:       &ast.Main{},
+		nativeFns:  make(map[string]vm.NativeFn),
 	}
 	std.Register(c)
 	return c

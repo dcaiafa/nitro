@@ -53,7 +53,7 @@ func run(prog string, params map[string]nitro.Value) (output string, err error) 
 
 	SetStdout(vm, outBuilder)
 
-	err = vm.Run()
+	err = vm.Run(nil)
 	if err != nil {
 		return "", err
 	}

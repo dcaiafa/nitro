@@ -16,11 +16,55 @@ type File struct {
 	*os.File
 }
 
+var _ /* implements */ nitro.Indexable = (*File)(nil)
+var _ /* implements */ nitro.Callable = (*File)(nil)
+
 func (f *File) String() string { return fmt.Sprintf("File:%v", f.File.Name()) }
 func (f *File) Type() string   { return "File" }
 
 func (f *File) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) {
 	return nil, fmt.Errorf("file does not support this operation")
+}
+
+func (f *File) Call(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	if len(args) != 1 {
+		return nil, errWriterCallUsage
+	}
+
+	reader, err := ToReader(m, args[0])
+	if err != nil {
+		return nil, errWriterCallUsage
+	}
+
+	n, err := io.Copy(f.File, reader)
+	if err != nil {
+		return nil, err
+	}
+
+	return []nitro.Value{nitro.NewInt(n)}, nil
+}
+
+func (f *File) Index(key nitro.Value) (nitro.Value, error) {
+	keyStr, ok := key.(nitro.String)
+	if !ok {
+		return nil, fmt.Errorf(
+			"file cannot be indexed by %q",
+			nitro.TypeName(key))
+	}
+
+	switch keyStr.String() {
+	case "name":
+		return nitro.NewString(f.File.Name()), nil
+
+	default:
+		return nil, fmt.Errorf(
+			"file does not have method %q",
+			keyStr.String())
+	}
+}
+
+func (f *File) IndexRef(key nitro.Value) (nitro.ValueRef, error) {
+	return nitro.ValueRef{}, fmt.Errorf("file is not assignable")
 }
 
 type openOptions struct {

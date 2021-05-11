@@ -262,6 +262,40 @@ func trim(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	return []nitro.Value{nitro.NewString(res)}, nil
 }
 
+var errToUpperUsage = errors.New(
+	"invalid usage. Expected toupper(string)")
+
+func toupper(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	if len(args) != 1 {
+		return nil, errToUpperUsage
+	}
+
+	s, ok := args[0].(nitro.String)
+	if !ok {
+		return nil, errToUpperUsage
+	}
+
+	res := strings.ToUpper(s.String())
+	return []nitro.Value{nitro.NewString(res)}, nil
+}
+
+var errToLowerUsage = errors.New(
+	"invalid usage. Expected tolower(string)")
+
+func tolower(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	if len(args) != 1 {
+		return nil, errToLowerUsage
+	}
+
+	s, ok := args[0].(nitro.String)
+	if !ok {
+		return nil, errToLowerUsage
+	}
+
+	res := strings.ToLower(s.String())
+	return []nitro.Value{nitro.NewString(res)}, nil
+}
+
 func hasprefix(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	str, err := getStringArg(args, 0)
 	if err != nil {
