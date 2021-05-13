@@ -106,7 +106,7 @@ func (d Duration) Index(key nitro.Value) (nitro.Value, error) {
 		return nitro.NativeFn(d.truncate), nil
 	default:
 		return nil, fmt.Errorf(
-			"time does not have method %q",
+			"duration does not have method %q",
 			keyStr.String())
 	}
 }

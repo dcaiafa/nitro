@@ -22,7 +22,7 @@ func RegisterAll(c *nitro.Compiler) {
 	c.AddNativeFn("createtemp", createtemp)
 	c.AddNativeFn("dur", dur)
 	c.AddNativeFn("env", env)
-	c.AddNativeFn("err", stderr)
+	c.AddNativeFn("stderr", stderr)
 	c.AddNativeFn("exec", exec)
 	c.AddNativeFn("fileexists", fileexists)
 	c.AddNativeFn("filter", filter)
