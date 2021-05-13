@@ -57,6 +57,11 @@ const (
 	OpNE     = vm.OpNE
 )
 
+var (
+	True  = vm.True
+	False = vm.False
+)
+
 var ErrCannotCallNil = vm.ErrCannotCallNil
 
 func NewVM(ctx context.Context, p *Program) *VM {

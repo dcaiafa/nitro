@@ -2,6 +2,7 @@ package lib
 
 import (
 	"fmt"
+	golog "log"
 	"reflect"
 	"sync"
 
@@ -85,16 +86,35 @@ func (s *Value2Structer) Convert(from nitro.Value, to interface{}) error {
 					kstr.String(), nitro.TypeName(v))
 				return false
 			}
+
+			var newSlice reflect.Value
 			for i := 0; i < va.Len(); i++ {
 				entry := va.Get(i)
-				entryStr, ok := entry.(nitro.String)
-				if !ok {
-					err = fmt.Errorf(
-						"option %v expected array of string; but entry %d was %v",
-						kstr.String(), i, nitro.TypeName(entry))
-					return false
+
+				switch rfield.Type().Elem().Kind() {
+				case reflect.String:
+					entryStr, ok := entry.(nitro.String)
+					if !ok {
+						err = fmt.Errorf(
+							"option %v expected array of string; but entry %d was %v",
+							kstr.String(), i, nitro.TypeName(entry))
+						return false
+					}
+					newSlice = reflect.Append(rfield, reflect.ValueOf(entryStr.String()))
+
+				case reflect.Int64:
+					entryInt, ok := entry.(nitro.Int)
+					if !ok {
+						err = fmt.Errorf(
+							"option %v expected array of int; but entry %d was %v",
+							kstr.String(), i, nitro.TypeName(entry))
+						return false
+					}
+					newSlice = reflect.Append(rfield, reflect.ValueOf(entryInt.Int64()))
+
+				default:
+					golog.Panicf("Unsupported option array elem type %v", rfield.Elem().Type())
 				}
-				newSlice := reflect.Append(rfield, reflect.ValueOf(entryStr.String()))
 				rfield.Set(newSlice)
 			}
 

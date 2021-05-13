@@ -13,6 +13,7 @@ var (
 )
 
 func RegisterAll(c *nitro.Compiler) {
+	c.AddNativeFn("parsecsv", parsecsv)
 	c.AddNativeFn("avg", avg)
 	c.AddNativeFn("buf", buf)
 	c.AddNativeFn("close", closep)
