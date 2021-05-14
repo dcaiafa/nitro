@@ -13,9 +13,11 @@ var (
 )
 
 func RegisterAll(c *nitro.Compiler) {
+	c.AddNativeFn("nonl", nonl)
 	c.AddNativeFn("avg", avg)
 	c.AddNativeFn("buf", buf)
 	c.AddNativeFn("close", closep)
+	c.AddNativeFn("color", color)
 	c.AddNativeFn("count", count)
 	c.AddNativeFn("cp", cp)
 	c.AddNativeFn("create", create)
