@@ -2,8 +2,8 @@ package ast
 
 import (
 	"github.com/dcaiafa/nitro/internal/errlogger"
-	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/internal/symbol"
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
 type Pass int
@@ -20,13 +20,18 @@ type Context struct {
 	Stack
 	*errlogger.ErrLoggerWrapper
 
-	emitter *vm.Emitter
+	emitter        *vm.Emitter
+	moduleRegistry *ModuleRegistry
 }
 
-func NewContext(l *errlogger.ErrLoggerWrapper) *Context {
+func NewContext(
+	moduleRegistry *ModuleRegistry,
+	l *errlogger.ErrLoggerWrapper,
+) *Context {
 	return &Context{
 		ErrLoggerWrapper: l,
 		emitter:          vm.NewEmitter(),
+		moduleRegistry:   moduleRegistry,
 	}
 }
 
@@ -115,6 +120,10 @@ func (c *Context) CurrentScope() *symbol.Scope {
 
 func (c *Context) Emitter() *vm.Emitter {
 	return c.emitter
+}
+
+func (c *Context) ModuleRegistry() *ModuleRegistry {
+	return c.moduleRegistry
 }
 
 type PassRunner interface {

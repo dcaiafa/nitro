@@ -9,7 +9,8 @@ type SimpleRef struct {
 	astBase
 	ID token.Token
 
-	sym symbol.Symbol
+	sym       symbol.Symbol
+	ModuleRef *symbol.ModuleRef
 }
 
 func (r *SimpleRef) isExpr() {}
@@ -25,12 +26,26 @@ func (r *SimpleRef) RunPass(ctx *Context, pass Pass) {
 			return
 		}
 
-	case Emit:
-		emit := emitSymbolPush
-		_, isLValue := ctx.Parent().(*LValue)
-		if isLValue {
-			emit = emitSymbolRefPush
+		var ok bool
+		r.ModuleRef, ok = r.sym.(*symbol.ModuleRef)
+		if ok {
+			if _, ok := ctx.Parent().(*MemberAccess); !ok {
+				ctx.Failf(
+					r.Pos(),
+					"%v is a module reference, and cannot be used as a value",
+					r.ID.Str)
+				return
+			}
 		}
-		emit(r.Pos(), ctx.Emitter(), r.sym)
+
+	case Emit:
+		if r.ModuleRef == nil {
+			emit := emitSymbolPush
+			_, isLValue := ctx.Parent().(*LValue)
+			if isLValue {
+				emit = emitSymbolRefPush
+			}
+			emit(r.Pos(), ctx.Emitter(), r.sym)
+		}
 	}
 }

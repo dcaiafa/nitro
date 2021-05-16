@@ -26,6 +26,9 @@ type NitroParserListener interface {
 	// EnterMeta_literal is called when entering the meta_literal production.
 	EnterMeta_literal(c *Meta_literalContext)
 
+	// EnterImport_stmt is called when entering the import_stmt production.
+	EnterImport_stmt(c *Import_stmtContext)
+
 	// EnterStmts is called when entering the stmts production.
 	EnterStmts(c *StmtsContext)
 
@@ -277,6 +280,9 @@ type NitroParserListener interface {
 
 	// ExitMeta_literal is called when exiting the meta_literal production.
 	ExitMeta_literal(c *Meta_literalContext)
+
+	// ExitImport_stmt is called when exiting the import_stmt production.
+	ExitImport_stmt(c *Import_stmtContext)
 
 	// ExitStmts is called when exiting the stmts production.
 	ExitStmts(c *StmtsContext)

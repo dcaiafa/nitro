@@ -12,6 +12,9 @@ func TestHelloWorld(t *testing.T) {
 meta param disable_drm = false [type="any", required, desc="Disable DRM"]
 meta param has_cc = true
 
+import "foo/bar"
+import yo "github.com/dcaiafa/nitro/yay"
+
 lines() | split("\t")
 
 a | b() | c()

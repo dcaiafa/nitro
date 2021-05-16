@@ -57,6 +57,12 @@ func (s *BaseNitroParserListener) EnterMeta_literal(ctx *Meta_literalContext) {}
 // ExitMeta_literal is called when production meta_literal is exited.
 func (s *BaseNitroParserListener) ExitMeta_literal(ctx *Meta_literalContext) {}
 
+// EnterImport_stmt is called when production import_stmt is entered.
+func (s *BaseNitroParserListener) EnterImport_stmt(ctx *Import_stmtContext) {}
+
+// ExitImport_stmt is called when production import_stmt is exited.
+func (s *BaseNitroParserListener) ExitImport_stmt(ctx *Import_stmtContext) {}
+
 // EnterStmts is called when production stmts is entered.
 func (s *BaseNitroParserListener) EnterStmts(ctx *StmtsContext) {}
 

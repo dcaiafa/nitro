@@ -4,6 +4,7 @@ import (
 	"context"
 	"regexp"
 
+	"github.com/dcaiafa/nitro/internal/ast"
 	"github.com/dcaiafa/nitro/internal/errlogger"
 	"github.com/dcaiafa/nitro/internal/meta"
 	"github.com/dcaiafa/nitro/internal/token"
@@ -34,7 +35,8 @@ type (
 	NativeFn  = vm.NativeFn
 	Metadata  = meta.Metadata
 
-	RuntimeError = vm.RuntimeError
+	RuntimeError        = vm.RuntimeError
+	NativeModuleContext = ast.NativeModuleContext
 
 	ErrLogger = errlogger.ErrLogger
 	Pos       = token.Pos

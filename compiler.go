@@ -25,24 +25,18 @@ func (fs *nativeFileLoader) LoadFile(name string) ([]byte, error) {
 	return ioutil.ReadFile(name)
 }
 
-type moduleRegistry struct {
-	// moduleSet is the set of modules already loaded. The key is the module's
-	// canonical import path.
-	moduleSet map[string]bool
-}
-
 type Compiler struct {
 	fileLoader FileLoader
+	moduleReg  *ast.ModuleRegistry
 	diag       bool
 	main       *ast.Main
-	nativeFns  map[string]vm.NativeFn
 }
 
 func NewCompiler(fileLoader FileLoader) *Compiler {
 	c := &Compiler{
 		fileLoader: fileLoader,
+		moduleReg:  ast.NewModuleRegistry(),
 		main:       &ast.Main{},
-		nativeFns:  make(map[string]vm.NativeFn),
 	}
 	std.Register(c)
 	return c
@@ -54,6 +48,10 @@ func (c *Compiler) SetDiag(diag bool) {
 
 func (c *Compiler) AddNativeFn(name string, fn vm.NativeFn) {
 	c.main.AddNativeFn(name, fn)
+}
+
+func (c *Compiler) RegisterNativeModuleLoader(name string, regFn func(r NativeModuleContext)) {
+	c.moduleReg.RegisterNativeModuleLoader(name, regFn)
 }
 
 func (c *Compiler) Compile(
@@ -96,7 +94,7 @@ func (c *Compiler) compile(
 ) (*vm.Program, error) {
 	c.main.AddModule(module)
 
-	ctx := ast.NewContext(errLoggerWrapper)
+	ctx := ast.NewContext(c.moduleReg, errLoggerWrapper)
 
 	c.main.RunPass(ctx, ast.Rewrite)
 	if errLoggerWrapper.Error() != nil {

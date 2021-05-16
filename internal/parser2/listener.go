@@ -157,7 +157,7 @@ func (l *listener) ExitStart(ctx *parser.StartContext) {
 	l.Module = l.takeAST(ctx.Module()).(*ast.Module)
 }
 
-// module: meta_directive* stmts;
+// module: meta_directive* import_stmt* stmts;
 func (l *listener) ExitModule(ctx *parser.ModuleContext) {
 	m := &ast.Module{}
 
@@ -165,6 +165,12 @@ func (l *listener) ExitModule(ctx *parser.ModuleContext) {
 	m.Meta = make(ast.ASTs, 0, len(allMeta))
 	for _, meta := range allMeta {
 		m.Meta = append(m.Meta, l.takeAST(meta))
+	}
+
+	allImport := ctx.AllImport_stmt()
+	m.Imports = make(ast.ASTs, 0, len(allImport))
+	for _, imp := range allImport {
+		m.Imports = append(m.Imports, l.takeAST(imp))
 	}
 
 	m.Block = l.takeAST(ctx.Stmts()).(*ast.StmtBlock)
@@ -235,6 +241,19 @@ func (l *listener) ExitMeta_literal(ctx *parser.Meta_literalContext) {
 		panic("unreachable")
 	}
 	l.put(ctx, v)
+}
+
+// import_stmt: IMPORT ID? STRING ';';
+func (l *listener) ExitImport_stmt(ctx *parser.Import_stmtContext) {
+	alias := ""
+	if ctx.ID() != nil {
+		alias = l.tokenToNitro(ctx.ID().GetSymbol()).Str
+	}
+	importName := l.tokenToNitro(ctx.STRING().GetSymbol()).Str
+	l.put(ctx, &ast.Import{
+		Alias:      alias,
+		ModuleName: importName,
+	})
 }
 
 // stmts: stmt_list?;

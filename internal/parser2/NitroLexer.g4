@@ -11,6 +11,7 @@ FALSE: 'false';
 FOR: 'for';
 FUNC: 'func';
 IF: 'if';
+IMPORT: 'import';
 META: 'meta';
 NIL: 'nil';
 NOT: 'not';

@@ -90,6 +90,10 @@ func main() {
 
 	lib.RegisterAll(compiler)
 
+	compiler.RegisterNativeModuleLoader("blah", func(r nitro.NativeModuleContext) {
+		r.RegisterNativeFn("otheremit", emit)
+	})
+
 	var compiled *nitro.Program
 	if *flagN.Value.(*bool) {
 		compiled, err = compiler.CompileInline(target, nitro.NewConsoleErrLogger())

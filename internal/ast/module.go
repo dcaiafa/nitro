@@ -1,15 +1,16 @@
 package ast
 
 import (
-	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/internal/symbol"
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
 type Module struct {
 	astBase
 
-	Meta  ASTs
-	Block *StmtBlock
+	Meta    ASTs
+	Imports ASTs
+	Block   *StmtBlock
 
 	scope *symbol.Scope
 	fn    int
@@ -32,6 +33,7 @@ func (m *Module) RunPass(ctx *Context, pass Pass) {
 	}
 
 	ctx.RunPassChild(m, m.Meta, pass)
+	ctx.RunPassChild(m, m.Imports, pass)
 	ctx.RunPassChild(m, m.Block, pass)
 
 	switch pass {

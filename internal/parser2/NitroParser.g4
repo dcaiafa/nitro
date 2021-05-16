@@ -4,7 +4,7 @@ options { tokenVocab=NitroLexer; }
 
 start: module EOF;
 
-module: meta_directive* stmts;
+module: meta_directive* import_stmt* stmts;
 
 // Meta
 
@@ -14,6 +14,8 @@ meta_attrib: id_or_keyword ('=' meta_literal)?;
 meta_literal: val=(STRING | NUMBER | CHAR | TRUE | FALSE | NIL);
 
 // Statements
+
+import_stmt: IMPORT ID? STRING ';';
 
 stmts: stmt_list? ';'*;
 
@@ -160,6 +162,7 @@ id_or_keyword:
       FOR |
       FUNC |
       IF |
+      IMPORT |
       META |
       NIL |
       NOT |

@@ -35,7 +35,7 @@ func (b *baseSymbol) SetPos(pos token.Pos) {
 type FuncSymbol struct {
 	baseSymbol
 	External bool
-	IdxFunc    int
+	IdxFunc  int
 }
 
 type GlobalVarSymbol struct {
@@ -69,3 +69,20 @@ type LocalVarSymbol struct {
 }
 
 func (s *LocalVarSymbol) isCapturable() {}
+
+type ModuleRef struct {
+	baseSymbol
+	Module *Module
+}
+
+type Module struct {
+	Name  string
+	Scope *Scope
+}
+
+func NewModule(name string) *Module {
+	return &Module{
+		Name:  name,
+		Scope: NewScope(),
+	}
+}
