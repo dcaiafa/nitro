@@ -93,3 +93,15 @@ func (e *RuntimeError) Unwrap() error {
 
 var ErrCannotCallNil = errors.New("cannot evaluate function call because target is nil")
 var ErrIsNotIterable = errors.New("is not iterable")
+
+type InvalidUsageError struct {
+	expected string
+}
+
+func NewInvalidUsageError(expected string) *InvalidUsageError {
+	return &InvalidUsageError{expected: expected}
+}
+
+func (e *InvalidUsageError) Error() string {
+	return "invalid usage. Expected " + e.expected
+}
