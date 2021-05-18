@@ -11,6 +11,7 @@ import (
 
 	"github.com/dcaiafa/nitro"
 	"github.com/dcaiafa/nitro/lib"
+	"github.com/dcaiafa/nitro/lib/nitromath"
 )
 
 func emit(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
@@ -89,6 +90,7 @@ func main() {
 	compiler.AddNativeFn("emit", emit)
 
 	lib.RegisterAll(compiler)
+	nitromath.RegisterNativePackage(compiler)
 
 	var compiled *nitro.Program
 	if *flagN.Value.(*bool) {
