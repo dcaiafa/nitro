@@ -78,6 +78,7 @@ func RegisterAll(c *nitro.Compiler) {
 	c.AddNativeFn("timefromunix", timefromunix)
 	c.AddNativeFn("toarray", toarray)
 	c.AddNativeFn("tobase64", tobase64)
+	c.AddNativeFn("toint", toint)
 	c.AddNativeFn("tojson", tojson)
 	c.AddNativeFn("tomap", tomap)
 	c.AddNativeFn("tostring", tostring)
