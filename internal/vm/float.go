@@ -13,7 +13,7 @@ func NewFloat(v float64) Float { return Float{v} }
 
 func (f Float) Float64() float64 { return f.v }
 func (f Float) String() string   { return strconv.FormatFloat(f.v, 'g', -1, 64) }
-func (f Float) Type() string     { return "Float" }
+func (f Float) Type() string     { return "float" }
 
 func (f Float) EvalOp(op Op, operand Value) (Value, error) {
 	if op == OpUMinus {
