@@ -7,6 +7,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"text/tabwriter"
 
 	"github.com/dcaiafa/nitro"
 )
@@ -14,18 +15,13 @@ import (
 type Flag struct {
 	Name     string
 	Desc     string
-	Sys      bool
 	Required bool
 	Value    interface{}
 	Set      bool
 }
 
 func (f *Flag) FullName() string {
-	if f.Sys {
-		return "-" + f.Name
-	} else {
-		return "--" + f.Name
-	}
+	return "-" + f.Name
 }
 
 type Flags struct {
@@ -41,18 +37,21 @@ func NewFlags() *Flags {
 }
 
 func (f *Flags) Print(w io.Writer) {
+	tabw := tabwriter.NewWriter(
+		w,
+		3,   /*minwidth*/
+		0,   /*tabwidth*/
+		2,   /*padding*/
+		' ', /*padchar*/
+		0,   /*flags*/
+	)
+
 	flags := f.GetFlags()
-	maxWidth := 0
 	for _, f := range flags {
-		l := len(f.FullName())
-		if l > maxWidth {
-			maxWidth = l
-		}
+		fmt.Fprintf(tabw, "  %s\t%s\n", f.FullName(), f.Desc)
 	}
-	fmtSpec := fmt.Sprintf("  %%-%ds %%s\n", maxWidth)
-	for _, f := range flags {
-		fmt.Fprintf(w, fmtSpec, f.FullName(), f.Desc)
-	}
+
+	tabw.Flush()
 }
 
 func (f *Flags) GetFlags() []*Flag {
@@ -157,9 +156,7 @@ func (f *Flags) parseFlag(args []string) ([]string, error) {
 		return nil, fmt.Errorf("invalid flag without name")
 	}
 
-	isSys := true
 	if flagName[0] == '-' {
-		isSys = false
 		flagName = flagName[1:]
 	}
 
@@ -173,7 +170,7 @@ func (f *Flags) parseFlag(args []string) ([]string, error) {
 	}
 
 	flag := f.flags[flagName]
-	if flag == nil || flag.Sys != isSys {
+	if flag == nil {
 		return nil, fmt.Errorf("invalid flag %v", origFlag)
 	}
 

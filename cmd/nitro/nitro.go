@@ -12,6 +12,7 @@ import (
 	"github.com/dcaiafa/nitro"
 	"github.com/dcaiafa/nitro/lib"
 	"github.com/dcaiafa/nitro/lib/nitromath"
+	"github.com/fatih/color"
 )
 
 func emit(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
@@ -35,24 +36,25 @@ func emit(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 }
 
 func printSysUsage(flags *Flags) {
+	bold := color.New(color.Bold)
 	p := func(s string, arg ...interface{}) {
 		fmt.Fprintf(os.Stderr, s+"\n", arg...)
 	}
 
-	p("nitro <sys-opt> program.n <prog-opt>")
-	p("nitro <sys-opt> -n <inline-program>")
+	bold.Fprintln(os.Stderr, "USAGE")
+	p("  nitro <sys-flags> program.n <prog-flags>")
+	p("  nitro <sys-flags> -n <inline-program>")
 	p("")
-	p("System Options:")
+
+	bold.Fprintln(os.Stderr, "FLAGS")
 	flags.Print(os.Stderr)
 	os.Exit(1)
 }
 
 func printProgUsage(flags *Flags) {
-	p := func(s string, arg ...interface{}) {
-		fmt.Fprintf(os.Stderr, s+"\n", arg...)
-	}
+	bold := color.New(color.Bold)
 
-	p("Options:")
+	bold.Fprintln(os.Stderr, "FLAGS")
 	flags.Print(os.Stderr)
 	os.Exit(1)
 }
@@ -64,9 +66,9 @@ func main() {
 
 	sysFlags := NewFlags()
 
-	flagN := sysFlags.AddFlag(&Flag{Name: "n", Sys: true, Desc: "Inline program", Value: new(bool)})
-	flagP := sysFlags.AddFlag(&Flag{Name: "p", Sys: true, Desc: "Create CPU profile", Value: new(string)})
-	flagD := sysFlags.AddFlag(&Flag{Name: "d", Sys: true, Desc: "Enable parser diagnostics", Value: new(bool)})
+	flagN := sysFlags.AddFlag(&Flag{Name: "n", Desc: "Inline program", Value: new(bool)})
+	flagP := sysFlags.AddFlag(&Flag{Name: "p", Desc: "Create CPU profile", Value: new(string)})
+	flagD := sysFlags.AddFlag(&Flag{Name: "d", Desc: "Enable parser diagnostics", Value: new(bool)})
 
 	args := os.Args[1:]
 	if len(args) == 0 {
