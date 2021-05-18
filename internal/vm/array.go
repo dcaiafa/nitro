@@ -17,10 +17,10 @@ func NewArrayWithSlice(s []Value) *Array {
 	return &Array{array: s}
 }
 
-func (a *Array) Type() string { return "Array" }
+func (a *Array) Type() string { return "list" }
 
 func (a *Array) EvalOp(op Op, operand Value) (Value, error) {
-	return nil, fmt.Errorf("array does not support this operation")
+	return nil, fmt.Errorf("list does not support this operation")
 }
 
 func (a *Array) Push(v Value) {
@@ -46,42 +46,53 @@ func (a *Array) Put(index int, v Value) {
 }
 
 func (a *Array) Index(key Value) (Value, error) {
-	index, ok := key.(Int)
-	if !ok {
+	switch key := key.(type) {
+	case String:
+		switch key.String() {
+		case "push":
+			return NativeFn(a.push), nil
+		case "len":
+			return NativeFn(a.len), nil
+		case "find":
+			return NativeFn(a.find), nil
+		default:
+			return nil, fmt.Errorf("list does not have method %q", key.String())
+		}
+
+	case Int:
+		idx := int(key.Int64())
+		if idx < 0 {
+			idx = len(a.array) + idx
+		}
+		if idx < 0 || idx >= len(a.array) {
+			return nil, nil
+		}
+		return a.array[idx], nil
+
+	default:
 		return nil, fmt.Errorf(
-			"cannot index array: index must be Int, but it is %v",
+			"cannot index string using key type %v",
 			TypeName(key))
 	}
-	if index.Int64() < 0 || index.Int64() > math.MaxInt32 {
-		return nil, fmt.Errorf(
-			"cannot index array: invalid index %v",
-			index.Int64())
-	}
-
-	i := int(index.Int64())
-	if i >= len(a.array) {
-		return nil, nil
-	}
-	return a.array[i], nil
 }
 
 func (a *Array) IndexRef(key Value) (ValueRef, error) {
 	index, ok := key.(Int)
 	if !ok {
 		return ValueRef{}, fmt.Errorf(
-			"cannot index array: index must be Int, but it is %v",
+			"cannot index list: index must be Int, but it is %v",
 			TypeName(key))
 	}
 	if index.Int64() < 0 || index.Int64() > math.MaxInt32 {
 		return ValueRef{}, fmt.Errorf(
-			"cannot index array: invalid index %v",
+			"cannot index list: invalid index %v",
 			index.Int64())
 	}
 
 	i := int(index.Int64())
 	if i >= len(a.array) {
 		return ValueRef{}, fmt.Errorf(
-			"cannot index array: index %v is greater than array size %v",
+			"cannot index list: index %v is greater than array size %v",
 			i, len(a.array))
 	}
 	return NewValueRef(&a.array[i]), nil
@@ -151,4 +162,44 @@ func (i *arrayIter) Next(m *VM, args []Value, nret int) ([]Value, error) {
 	v := i.arr.Get(idx)
 
 	return []Value{NewBool(true), v, NewInt(int64(idx))}, nil
+}
+
+var errArrayPushUsage error = NewInvalidUsageError("<list>.push(any)")
+
+func (a *Array) push(m *VM, args []Value, nRet int) ([]Value, error) {
+	if len(args) != 1 {
+		return nil, errArrayPushUsage
+	}
+
+	v := args[0]
+	a.Push(v)
+
+	return nil, nil
+}
+
+var errListLenUsage error = NewInvalidUsageError("<list>.len()")
+
+func (a *Array) len(m *VM, args []Value, nRet int) ([]Value, error) {
+	if len(args) != 0 {
+		return nil, errListLenUsage
+	}
+
+	res := len(a.array)
+
+	return []Value{NewInt(int64(res))}, nil
+}
+
+var errListContainsUsage error = NewInvalidUsageError("<list>.contains(any)")
+
+func (a *Array) find(m *VM, args []Value, nRet int) ([]Value, error) {
+	if len(args) != 1 {
+		return nil, errListContainsUsage
+	}
+	v := args[0]
+	for i, entry := range a.array {
+		if entry == v {
+			return []Value{NewInt(int64(i))}, nil
+		}
+	}
+	return []Value{nil}, nil
 }
