@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -8,7 +9,9 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sync"
 
+	"github.com/bmatcuk/doublestar/v4"
 	"github.com/dcaiafa/nitro"
 )
 
@@ -466,33 +469,106 @@ func isdir(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	return []nitro.Value{nitro.NewBool(fi.IsDir())}, nil
 }
 
+var errLsUsage = nitro.NewInvalidUsageError("ls(string)")
+
 func ls(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	path, err := getStringArg(args, 0)
-	if err != nil {
-		return nil, err
+	if len(args) != 1 {
+		return nil, errLsUsage
 	}
 
-	entries, err := os.ReadDir(path)
-	if err != nil {
-		return nil, err
+	path, ok := args[0].(nitro.String)
+	if !ok {
+		return nil, errLsUsage
 	}
 
-	iter := &lsIter{
-		root:    path,
-		entries: entries,
+	base, pattern := doublestar.SplitPattern(filepath.ToSlash(path.String()))
+	if pattern == "" || pattern == "." {
+		// This is a simple path. I.e. it does not include a pattern. Using
+		// os.ReadDir is simpler/faster/leaner (no goroutines).
+		entries, err := os.ReadDir(path.String())
+		if err != nil {
+			return nil, err
+		}
+
+		iter := &lsSimpleIter{
+			root:    path.String(),
+			entries: entries,
+		}
+
+		return []nitro.Value{nitro.NewIterator(iter.Next, 2)}, nil
 	}
 
+	iter := newLSDoubleStarIter(m.Context(), base, pattern)
 	return []nitro.Value{nitro.NewIterator(iter.Next, 2)}, nil
 }
 
-type lsIter struct {
+type lsDoubleStarIterEntry struct {
+	path     string
+	dirEntry fs.DirEntry
+}
+
+type lsDoubleStarIter struct {
+	base    string
+	pattern string
+	outChan chan *lsDoubleStarIterEntry
+	wg      sync.WaitGroup
+	cancel  context.CancelFunc
+}
+
+func newLSDoubleStarIter(ctx context.Context, base, pattern string) *lsDoubleStarIter {
+	i := &lsDoubleStarIter{
+		base:    base,
+		pattern: pattern,
+		outChan: make(chan *lsDoubleStarIterEntry, 100),
+	}
+
+	ctx, i.cancel = context.WithCancel(ctx)
+	i.wg.Add(1)
+	go i.run(ctx)
+
+	return i
+}
+
+func (i *lsDoubleStarIter) run(ctx context.Context) {
+	defer i.wg.Done()
+	defer close(i.outChan)
+
+	fsys := os.DirFS(i.base)
+	doublestar.GlobWalk(fsys, i.pattern, func(path string, d fs.DirEntry) error {
+		if d.Name() == "." || d.Name() == ".." {
+			return ctx.Err()
+		}
+
+		select {
+		case i.outChan <- &lsDoubleStarIterEntry{path, d}:
+			return nil
+		case <-ctx.Done():
+			return ctx.Err()
+		}
+	})
+}
+
+func (i *lsDoubleStarIter) Next(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	entry, ok := <-i.outChan
+	if !ok {
+		i.cancel()
+		return iterDone(nRet)
+	}
+
+	return []nitro.Value{
+		nitro.NewBool(true),
+		nitro.NewString(filepath.FromSlash(filepath.Join(i.base, entry.path))),
+		nitro.NewBool(entry.dirEntry.IsDir())}, nil
+}
+
+type lsSimpleIter struct {
 	root    string
 	entries []fs.DirEntry
 }
 
-func (i *lsIter) Next(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func (i *lsSimpleIter) Next(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(i.entries) == 0 {
-		return []nitro.Value{nitro.NewBool(false), nil, nil}, nil
+		return iterDone(nRet)
 	}
 
 	res := []nitro.Value{

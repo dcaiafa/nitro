@@ -4,6 +4,7 @@ import (
 	"errors"
 	"path/filepath"
 
+	"github.com/bmatcuk/doublestar/v4"
 	"github.com/dcaiafa/nitro"
 )
 
@@ -89,18 +90,19 @@ func pathmatch(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error)
 		return nil, errPathMatchUsage
 	}
 
-	name, ok := args[0].(nitro.String)
-	if !ok {
-		return nil, errPathMatchUsage
-	}
-	pattern, ok := args[1].(nitro.String)
+	pattern, ok := args[0].(nitro.String)
 	if !ok {
 		return nil, errPathMatchUsage
 	}
 
-	res, err := filepath.Match(pattern.String(), name.String())
-	if err != nil {
+	path, ok := args[1].(nitro.String)
+	if !ok {
 		return nil, errPathMatchUsage
+	}
+
+	res, err := doublestar.PathMatch(pattern.String(), path.String())
+	if err != nil {
+		return nil, err
 	}
 
 	return []nitro.Value{nitro.NewBool(res)}, nil

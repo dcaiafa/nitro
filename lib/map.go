@@ -34,7 +34,7 @@ func (i *mapIter) Next(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value
 		return nil, err
 	}
 	if !ok {
-		return []nitro.Value{nitro.NewBool(false), nil}, nil
+		return iterDone(nRet)
 	}
 	res, err := m.Call(i.fn, v, 1)
 	if err != nil {

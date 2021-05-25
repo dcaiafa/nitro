@@ -1,5 +1,7 @@
 github.com/antlr/antlr4 v0.0.0-20210221031308-60fd27ff93a8 h1:U9u8WXsKqHa6T2QJpatkePkDKqesefzIQCMXGWIDTD8=
 github.com/antlr/antlr4 v0.0.0-20210221031308-60fd27ff93a8/go.mod h1:T7PbCXFs94rrTttyxjbyT5+/1V8T2TYDejxUfHJjw1Y=
+github.com/bmatcuk/doublestar/v4 v4.0.1 h1:v5DFrvGpNnIKPlG7gcF4TlceHwBTvHdmjgDEkbDk9t8=
+github.com/bmatcuk/doublestar/v4 v4.0.1/go.mod h1:xBQ8jztBU6kakFMg+8WGxn0c6z1fTSPVIjEY1Wr7jzc=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/fatih/color v1.11.0 h1:l4iX0RqNnx/pU7rY2DB/I+znuYY0K3x6Ywac6EIr0PA=

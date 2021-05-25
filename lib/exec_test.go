@@ -47,8 +47,8 @@ func TestExec(t *testing.T) {
 				cmd: ["go", "run", "./testexec/testexec.go", "-echo-to-stderr", "-range", "11", "-range-stdout"]
 				stderr: err_buf
 			})
-    var out_sum = out | lines() | map(parseint) | reduce(sum)
-		var err_sum = err_buf | lines() | map(parseint) | reduce(sum)
+    var out_sum = out | lines() | map(&l -> parseint(l)) | reduce(sum)
+		var err_sum = err_buf | lines() | map(&l -> parseint(l)) | reduce(sum)
 		print(out_sum, err_sum)
 	`, `55 2098176`)
 
