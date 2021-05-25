@@ -25,7 +25,7 @@ func take(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 }
 
 type takeIter struct {
-	inIter *nitro.Iterator
+	inIter nitro.Iterator
 	count  int
 }
 

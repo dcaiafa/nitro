@@ -26,7 +26,7 @@ func filter(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 }
 
 type filterIter struct {
-	inIter *nitro.Iterator
+	inIter nitro.Iterator
 	test   nitro.Value
 }
 

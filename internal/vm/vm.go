@@ -42,7 +42,7 @@ type frame struct {
 	nRet       int
 	nArg       int
 	nLocals    int
-	iter       *Iterator
+	iter       *ILIterator
 	fn         *Fn
 	extFn      Callable
 	caps       []ValueRef
@@ -186,48 +186,47 @@ func (m *VM) call(callable Value, narg int, nret int, pipeline bool) error {
 		f.pipeline = pipeline
 		return m.runFrame(f)
 
-	case *Iterator:
-		if callable.extFn != nil {
-			return m.callExtFn(callable.extFn, callable.captures, narg, nret, false)
-		} else {
-			if callable.ip == -1 {
-				m.stack[m.sp] = False
-				for i := 1; i < nret; i++ {
-					m.stack[m.sp+i] = nil
-				}
-				m.sp += nret
-				return nil
+	case *NativeIterator:
+		return m.callExtFn(callable.extFn, nil, narg, nret, false)
+
+	case *ILIterator:
+		if callable.ip == -1 {
+			m.stack[m.sp] = False
+			for i := 1; i < nret; i++ {
+				m.stack[m.sp+i] = nil
 			}
-
-			rsp := m.sp
-			rstack := m.stack
-
-			f := m.newFrame()
-			f.fn = callable.fn
-			f.iter = callable
-			f.caps = callable.captures
-			f.tryCatches = callable.tryCatches
-			f.defers = callable.defers
-			f.nRet = nret
-			f.nLocals = callable.nlocals
-			f.ip = callable.ip
-
-			m.stack = callable.stack
-			m.sp = callable.sp
-
-			err := m.runFrame(f)
-			if err != nil {
-				m.stack = rstack
-				m.sp = rsp
-				return err
-			}
-
-			copy(rstack[rsp:], m.stack[m.sp-nret:m.sp])
-			callable.sp = m.sp - nret
-			m.stack = rstack
-			m.sp = rsp + nret
+			m.sp += nret
 			return nil
 		}
+
+		rsp := m.sp
+		rstack := m.stack
+
+		f := m.newFrame()
+		f.fn = callable.fn
+		f.iter = callable
+		f.caps = callable.captures
+		f.tryCatches = callable.tryCatches
+		f.defers = callable.defers
+		f.nRet = nret
+		f.nLocals = callable.nlocals
+		f.ip = callable.ip
+
+		m.stack = callable.stack
+		m.sp = callable.sp
+
+		err := m.runFrame(f)
+		if err != nil {
+			m.stack = rstack
+			m.sp = rsp
+			return err
+		}
+
+		copy(rstack[rsp:], m.stack[m.sp-nret:m.sp])
+		callable.sp = m.sp - nret
+		m.stack = rstack
+		m.sp = rsp + nret
+		return nil
 
 	case *Fn:
 		f := m.newFrame()
@@ -435,7 +434,7 @@ func (m *VM) resume() (err error) {
 				m.sp -= capN
 			}
 
-			iter := &Iterator{
+			iter := &ILIterator{
 				fn:       &m.program.fns[fn],
 				captures: caps,
 				iterNRet: iterNRet,
@@ -664,7 +663,7 @@ func (m *VM) resume() (err error) {
 		case OpMakeIter:
 			v := m.stack[m.sp-1]
 			switch v := v.(type) {
-			case *Iterator:
+			case Iterator:
 				// Ready to go.
 			case Iterable:
 				m.stack[m.sp-1] = v.Iterate()

@@ -70,7 +70,7 @@ func NewVM(ctx context.Context, p *Program) *VM {
 	return vm.NewVM(ctx, p)
 }
 
-func MakeIterator(m *VM, v Value) (*Iterator, error) {
+func MakeIterator(m *VM, v Value) (Iterator, error) {
 	return vm.MakeIterator(m, v)
 }
 
@@ -102,6 +102,6 @@ func NewObject() *Object                 { return vm.NewObject() }
 func NewRegex(r *regexp.Regexp) *Regex   { return vm.NewRegex(r) }
 func CoerceToBool(v Value) bool          { return vm.CoerceToBool(v) }
 
-func NewIterator(f ExternFn, nret int) *Iterator {
+func NewIterator(f ExternFn, nret int) Iterator {
 	return vm.NewIterator(f, nret)
 }

@@ -25,7 +25,7 @@ func skip(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 }
 
 type skipIter struct {
-	inIter *nitro.Iterator
+	inIter nitro.Iterator
 	skip   int
 }
 

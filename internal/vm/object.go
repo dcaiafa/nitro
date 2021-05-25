@@ -138,7 +138,7 @@ func (o *Object) String() string {
 	return formatObject(o)
 }
 
-func (o *Object) Iterate() *Iterator {
+func (o *Object) Iterate() Iterator {
 	key, _ := o.GetFirst()
 
 	i := &objectIter{

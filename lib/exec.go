@@ -536,7 +536,7 @@ func exec(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 			args = args[1:]
 		}
 
-	case *nitro.Iterator:
+	case nitro.Iterator:
 		stdin = &iterReader{
 			m: m,
 			e: arg,

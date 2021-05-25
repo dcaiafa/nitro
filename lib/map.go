@@ -24,7 +24,7 @@ func mapp(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 }
 
 type mapIter struct {
-	inIter *nitro.Iterator
+	inIter nitro.Iterator
 	fn     nitro.Value
 }
 

@@ -86,7 +86,7 @@ func getWriterArg(args []vm.Value, ndx int) (io.Writer, error) {
 	}
 }
 
-func getIterArg(m *nitro.VM, args []vm.Value, ndx int) (*nitro.Iterator, error) {
+func getIterArg(m *nitro.VM, args []vm.Value, ndx int) (nitro.Iterator, error) {
 	if ndx >= len(args) {
 		return nil, errNotEnoughArgs
 	}
@@ -176,7 +176,7 @@ func ToReader(m *nitro.VM, v vm.Value) (io.Reader, error) {
 			e: iter,
 		}, nil
 
-	case *nitro.Iterator:
+	case nitro.Iterator:
 		return &iterReader{
 			m: m,
 			e: v,

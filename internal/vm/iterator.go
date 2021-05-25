@@ -2,9 +2,13 @@ package vm
 
 import "fmt"
 
-type Iterator struct {
+type Iterator interface {
+	Callable
+	IterNRet() int
+}
+
+type ILIterator struct {
 	fn         *Fn
-	extFn      NativeFn
 	captures   []ValueRef
 	iterNRet   int
 	tryCatches []tryCatch
@@ -17,22 +21,45 @@ type Iterator struct {
 	preAllocStack [stackSize]Value
 }
 
-func (e *Iterator) String() string { return "<Iterator>" }
-func (e *Iterator) Type() string   { return "Iterator" }
+var _ Iterator = (*ILIterator)(nil)
 
-func (e *Iterator) EvalOp(op Op, operand Value) (Value, error) {
+func (e *ILIterator) String() string { return "<Iterator>" }
+func (e *ILIterator) Type() string   { return "Iterator" }
+
+func (e *ILIterator) EvalOp(op Op, operand Value) (Value, error) {
 	return nil, fmt.Errorf("iterator does not support this operation")
 }
 
-func (i *Iterator) Call(m *VM, args []Value, nRet int) ([]Value, error) {
+func (i *ILIterator) Call(m *VM, args []Value, nRet int) ([]Value, error) {
 	// Iterator calls are handled directly by the VM.
 	panic("not called")
 }
 
-func (e *Iterator) IterNRet() int { return e.iterNRet }
+func (i *ILIterator) IterNRet() int { return i.iterNRet }
 
-func NewIterator(extFn NativeFn, nret int) *Iterator {
-	i := &Iterator{
+type NativeIterator struct {
+	extFn    NativeFn
+	iterNRet int
+}
+
+var _ Iterator = (*NativeIterator)(nil)
+
+func (e *NativeIterator) String() string { return "<Iterator>" }
+func (e *NativeIterator) Type() string   { return "Iterator" }
+
+func (e *NativeIterator) EvalOp(op Op, operand Value) (Value, error) {
+	return nil, fmt.Errorf("iterator does not support this operation")
+}
+
+func (i *NativeIterator) Call(m *VM, args []Value, nRet int) ([]Value, error) {
+	// Iterator calls are handled directly by the VM.
+	panic("not called")
+}
+
+func (i *NativeIterator) IterNRet() int { return i.iterNRet }
+
+func NewIterator(extFn NativeFn, nret int) Iterator {
+	i := &NativeIterator{
 		extFn:    extFn,
 		iterNRet: nret,
 	}

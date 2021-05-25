@@ -7,15 +7,15 @@ import (
 
 type Iterable interface {
 	Value
-	Iterate() *Iterator
+	Iterate() Iterator
 }
 
-func MakeIterator(m *VM, v Value) (*Iterator, error) {
+func MakeIterator(m *VM, v Value) (Iterator, error) {
 	if v == nil {
 		return NewIterator(emptyIter, 1), nil
 	}
 	switch v := v.(type) {
-	case *Iterator:
+	case Iterator:
 		return v, nil
 	case Iterable:
 		return v.Iterate(), nil
@@ -25,7 +25,7 @@ func MakeIterator(m *VM, v Value) (*Iterator, error) {
 }
 
 func Next(m *VM, e Value, n int) ([]Value, bool, error) {
-	c, ok := e.(*Iterator)
+	c, ok := e.(Iterator)
 	if !ok {
 		return nil, false, fmt.Errorf("not an iterator")
 	}
