@@ -143,7 +143,7 @@ func (a *Array) Iterate() Iterator {
 		arr:  a,
 		next: 0,
 	}
-	return NewIterator(i.Next, 2)
+	return NewIterator(i.Next, nil, 2)
 }
 
 type arrayIter struct {

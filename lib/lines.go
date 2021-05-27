@@ -44,7 +44,7 @@ func lines(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 		l.scanner.Buffer(nil, int(opt.MaxLineSize))
 	}
 
-	outIter := nitro.NewIterator(l.Next, 2)
+	outIter := nitro.NewIterator(l.Next, nil, 2)
 	return []nitro.Value{outIter}, nil
 }
 

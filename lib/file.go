@@ -495,11 +495,11 @@ func ls(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 			entries: entries,
 		}
 
-		return []nitro.Value{nitro.NewIterator(iter.Next, 2)}, nil
+		return []nitro.Value{nitro.NewIterator(iter.Next, nil, 2)}, nil
 	}
 
 	iter := newLSDoubleStarIter(m.Context(), base, pattern)
-	return []nitro.Value{nitro.NewIterator(iter.Next, 2)}, nil
+	return []nitro.Value{nitro.NewIterator(iter.Next, nil, 2)}, nil
 }
 
 type lsDoubleStarIterEntry struct {

@@ -12,7 +12,7 @@ type Iterable interface {
 
 func MakeIterator(m *VM, v Value) (Iterator, error) {
 	if v == nil {
-		return NewIterator(emptyIter, 1), nil
+		return NewIterator(emptyIter, nil, 1), nil
 	}
 	switch v := v.(type) {
 	case Iterator:

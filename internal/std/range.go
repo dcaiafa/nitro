@@ -67,7 +67,7 @@ func Range(m *vm.VM, args []vm.Value, nRet int) ([]vm.Value, error) {
 		step: step,
 	}
 
-	return []vm.Value{vm.NewIterator(i.Next, 1)}, nil
+	return []vm.Value{vm.NewIterator(i.Next, nil, 1)}, nil
 }
 
 type rangeIter struct {

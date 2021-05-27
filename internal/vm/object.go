@@ -146,7 +146,7 @@ func (o *Object) Iterate() Iterator {
 		key: key,
 	}
 
-	return NewIterator(i.Next, 2)
+	return NewIterator(i.Next, nil, 2)
 }
 
 type objectFormatter struct {

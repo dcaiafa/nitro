@@ -669,7 +669,7 @@ func (m *VM) resume() (err error) {
 				m.stack[m.sp-1] = v.Iterate()
 			default:
 				if v == nil {
-					m.stack[m.sp-1] = NewIterator(emptyIter, 1)
+					m.stack[m.sp-1] = NewIterator(emptyIter, nil, 1)
 				} else {
 					return fmt.Errorf(
 						"cannot iterate over value of type %q", TypeName(v))

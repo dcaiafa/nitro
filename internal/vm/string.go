@@ -130,7 +130,7 @@ func (s String) Iterate() Iterator {
 		str:  s.v,
 		next: 0,
 	}
-	return NewIterator(i.Next, 2)
+	return NewIterator(i.Next, nil, 2)
 }
 
 type stringIter struct {

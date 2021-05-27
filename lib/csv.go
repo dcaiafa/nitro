@@ -51,7 +51,7 @@ func parsecsv(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) 
 	}
 	i.csvReader.ReuseRecord = true
 
-	return []nitro.Value{nitro.NewIterator(i.Next, 1)}, nil
+	return []nitro.Value{nitro.NewIterator(i.Next, nil, 1)}, nil
 }
 
 type csvIter struct {

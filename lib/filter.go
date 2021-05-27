@@ -20,7 +20,7 @@ func filter(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 		test:   test,
 	}
 
-	outIter := nitro.NewIterator(filterIter.Next, inIter.IterNRet())
+	outIter := nitro.NewIterator(filterIter.Next, nil, inIter.IterNRet())
 
 	return []nitro.Value{outIter}, nil
 }
