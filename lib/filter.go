@@ -32,19 +32,19 @@ type filterIter struct {
 
 func (i *filterIter) Next(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	for {
-		v, ok, err := nitro.Next(m, i.inIter, i.inIter.IterNRet())
+		v, err := m.IterNext(i.inIter, i.inIter.IterNRet())
 		if err != nil {
 			return nil, err
 		}
-		if !ok {
-			return iterDone(nRet)
+		if v == nil {
+			return nil, nil
 		}
 		res, err := m.Call(i.test, v, 1)
 		if err != nil {
 			return nil, err
 		}
 		if nitro.CoerceToBool(res[0]) {
-			return append([]nitro.Value{nitro.NewBool(true)}, v...), nil
+			return v, nil
 		}
 	}
 }

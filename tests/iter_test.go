@@ -16,6 +16,19 @@ func TestIter(t *testing.T) {
 2
 `)
 
+	RunSubO(t, "simple2", `
+		func iterable() {
+			yield 1,10
+			yield 2,20
+		}
+		for i,j in iterable() {
+    	print(i,j)
+		}
+`, `
+1 10
+2 20
+`)
+
 	RunSubO(t, "a_little_more_complex", `
 		func counter(n, m) {
 			var last

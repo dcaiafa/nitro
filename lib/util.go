@@ -115,7 +115,7 @@ func getCallableArg(args []vm.Value, ndx int) (nitro.Callable, error) {
 
 type iterReader struct {
 	m   *nitro.VM
-	e   nitro.Value
+	e   nitro.Iterator
 	buf ByteQueue
 }
 
@@ -128,11 +128,11 @@ func (r *iterReader) Read(b []byte) (int, error) {
 	}
 
 	for len(r.buf.Peek()) < len(b) {
-		v, ok, err := nitro.Next(r.m, r.e, 1)
+		v, err := r.m.IterNext(r.e, 1)
 		if err != nil {
 			return 0, err
 		}
-		if !ok {
+		if v == nil {
 			break
 		}
 		str, ok := v[0].(nitro.String)
@@ -187,15 +187,4 @@ func ToReader(m *nitro.VM, v vm.Value) (io.Reader, error) {
 			"value of type %q is not a reader",
 			nitro.TypeName(v))
 	}
-}
-
-func iterDone(nRet int) ([]nitro.Value, error) {
-	if nRet < 1 {
-		// This should not be possible.
-		return nil, fmt.Errorf(
-			"iterator nRet < 1")
-	}
-	rets := make([]nitro.Value, nRet)
-	rets[0] = nitro.NewBool(false)
-	return rets, nil
 }

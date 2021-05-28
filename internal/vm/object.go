@@ -233,7 +233,7 @@ type objectIter struct {
 
 func (i *objectIter) Next(m *VM, args []Value, nRet int) ([]Value, error) {
 	if i.key == nil {
-		return []Value{NewBool(false), nil, nil}, nil
+		return nil, nil
 	}
 
 	// TODO: This wouldn't work with nil keys/values. Maybe change Index to return
@@ -246,10 +246,10 @@ func (i *objectIter) Next(m *VM, args []Value, nRet int) ([]Value, error) {
 		return nil, err
 	}
 	if val == nil {
-		return []Value{NewBool(false), nil, nil}, nil
+		return nil, nil
 	}
 
 	i.key, _ = i.obj.GetNext(key)
 
-	return []Value{NewBool(true), key, val}, nil
+	return []Value{key, val}, nil
 }

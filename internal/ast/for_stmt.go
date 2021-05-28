@@ -1,9 +1,9 @@
 package ast
 
 import (
-	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/internal/symbol"
 	"github.com/dcaiafa/nitro/internal/token"
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
 type ForStmt struct {
@@ -40,14 +40,17 @@ func (s *ForStmt) RunPass(ctx *Context, pass Pass) {
 		e := ctx.Emitter()
 		s.begin = e.NewLabel()
 		s.end = e.NewLabel()
+
+		// Make iterator and store it in "$iter".
 		e.Emit(s.Pos(), vm.OpMakeIter, 0, 0)
 		e.Emit(s.Pos(), vm.OpStore, 1, 0)
+
 		e.ResolveLabel(s.begin)
+
 		for _, v := range s.ForVars {
 			emitSymbolRefPush(s.Pos(), e, v.(*ForVar).sym)
 		}
 		emitSymbolPush(s.Pos(), e, s.iter)
-		e.Emit(s.Pos(), vm.OpCall, 0, uint16(len(s.ForVars)+1))
 		e.EmitJump(s.Pos(), vm.OpNext, s.end, uint16(len(s.ForVars)))
 	}
 

@@ -90,11 +90,11 @@ func avg(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	count := 0
 	var sum float64
 	for {
-		v, ok, err := nitro.Next(m, iter, 1)
+		v, err := m.IterNext(iter, 1)
 		if err != nil {
 			return nil, err
 		}
-		if !ok {
+		if v == nil {
 			break
 		}
 		count++
@@ -130,11 +130,11 @@ func max(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 		if err == nil {
 			var maxV nitro.Value
 			for {
-				v, ok, err := nitro.Next(m, iter, 1)
+				v, err := m.IterNext(iter, 1)
 				if err != nil {
 					return nil, err
 				}
-				if !ok {
+				if v == nil {
 					break
 				}
 				if v[0] == nil {
@@ -189,11 +189,11 @@ func min(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 		if err == nil {
 			var minV nitro.Value
 			for {
-				v, ok, err := nitro.Next(m, iter, 1)
+				v, err := m.IterNext(iter, 1)
 				if err != nil {
 					return nil, err
 				}
-				if !ok {
+				if v == nil {
 					break
 				}
 				if v[0] == nil {
@@ -250,11 +250,11 @@ func sum(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 		if err == nil {
 			var sumV nitro.Value
 			for {
-				v, ok, err := nitro.Next(m, iter, 1)
+				v, err := m.IterNext(iter, 1)
 				if err != nil {
 					return nil, err
 				}
-				if !ok {
+				if v == nil {
 					break
 				}
 				if v[0] == nil {
@@ -330,11 +330,11 @@ func count(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 		if err == nil {
 			c := 0
 			for {
-				v, ok, err := nitro.Next(m, iter, 1)
+				v, err := m.IterNext(iter, 1)
 				if err != nil {
 					return nil, err
 				}
-				if !ok {
+				if v == nil {
 					break
 				}
 				if v[0] == nil {

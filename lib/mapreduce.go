@@ -37,11 +37,11 @@ func mapreduce(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error)
 
 	res := nitro.NewObject()
 	for {
-		cur, has, err := nitro.Next(m, iter, 1)
+		cur, err := m.IterNext(iter, 1)
 		if err != nil {
 			return nil, err
 		}
-		if !has {
+		if cur == nil {
 			break
 		}
 

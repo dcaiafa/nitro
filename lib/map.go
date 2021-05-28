@@ -29,16 +29,16 @@ type mapIter struct {
 }
 
 func (i *mapIter) Next(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	v, ok, err := nitro.Next(m, i.inIter, i.inIter.IterNRet())
+	v, err := m.IterNext(i.inIter, i.inIter.IterNRet())
 	if err != nil {
 		return nil, err
 	}
-	if !ok {
-		return iterDone(nRet)
+	if v == nil {
+		return nil, nil
 	}
 	res, err := m.Call(i.fn, v, 1)
 	if err != nil {
 		return nil, err
 	}
-	return []nitro.Value{nitro.NewBool(true), res[0]}, nil
+	return []nitro.Value{res[0]}, nil
 }

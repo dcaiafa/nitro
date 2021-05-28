@@ -31,17 +31,17 @@ type skipIter struct {
 
 func (i *skipIter) Next(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	for {
-		v, ok, err := nitro.Next(m, i.inIter, i.inIter.IterNRet())
+		v, err := m.IterNext(i.inIter, i.inIter.IterNRet())
 		if err != nil {
 			return nil, err
 		}
-		if !ok {
-			return []nitro.Value{nitro.NewBool(false), nil}, nil
+		if v == nil {
+			return nil, nil
 		}
 		if i.skip > 0 {
 			i.skip--
 			continue
 		}
-		return append([]nitro.Value{nitro.NewBool(true)}, v...), nil
+		return v, nil
 	}
 }

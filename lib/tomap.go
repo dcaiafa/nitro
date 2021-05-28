@@ -27,11 +27,11 @@ func tomap(m *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
 
 	mapv := nitro.NewObject()
 	for {
-		v, ok, err := nitro.Next(m, iter, 1)
+		v, err := m.IterNext(iter, 1)
 		if err != nil {
 			return nil, errToMapUsage
 		}
-		if !ok {
+		if v == nil {
 			break
 		}
 		res, err := m.Call(fn, []nitro.Value{v[0]}, 1)

@@ -65,7 +65,7 @@ func (i *csvIter) Next(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value
 	if err != nil {
 		CloseReader(i.origReader)
 		if err == io.EOF {
-			return iterDone(nRet)
+			return nil, nil
 		} else {
 			return nil, err
 		}
@@ -89,5 +89,5 @@ func (i *csvIter) Next(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value
 		}
 	}
 
-	return []nitro.Value{nitro.True, nitro.NewArrayFromSlice(res)}, nil
+	return []nitro.Value{nitro.NewArrayFromSlice(res)}, nil
 }

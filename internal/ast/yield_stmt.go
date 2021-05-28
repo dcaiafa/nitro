@@ -23,14 +23,11 @@ func (s *YieldStmt) RunPass(ctx *Context, pass Pass) {
 			return
 		}
 		fn.SetIterNRet(len(s.Values))
-
-	case Emit:
-		ctx.Emitter().Emit(s.Pos(), vm.OpNewBool, 1, 0)
 	}
 
 	ctx.RunPassChild(s, s.Values, pass)
 
 	if pass == Emit {
-		ctx.Emitter().Emit(s.Pos(), vm.OpIterYield, uint32(len(s.Values))+1, 0)
+		ctx.Emitter().Emit(s.Pos(), vm.OpIterYield, uint32(len(s.Values)), 0)
 	}
 }

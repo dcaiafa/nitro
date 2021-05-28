@@ -80,11 +80,11 @@ func (i *rangeIter) Next(m *vm.VM, args []vm.Value, nRet int) ([]vm.Value, error
 	if (i.step > 0 && i.cur >= i.end) ||
 		(i.step < 0 && i.cur <= i.end) ||
 		(i.step == 0) {
-		return []vm.Value{vm.NewBool(false), vm.NewInt(0)}, nil
+		return nil, nil
 	}
 
 	cur := i.cur
 	i.cur = i.cur + i.step
 
-	return []vm.Value{vm.NewBool(true), vm.NewInt(cur)}, nil
+	return []vm.Value{vm.NewInt(cur)}, nil
 }

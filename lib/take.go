@@ -31,20 +31,16 @@ type takeIter struct {
 
 func (i *takeIter) Next(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if i.count == 0 {
-		return append(
-			[]nitro.Value{nitro.NewBool(false)},
-			make([]nitro.Value, nRet-1)...), nil
+		return nil, nil
 	}
 
-	v, ok, err := nitro.Next(m, i.inIter, i.inIter.IterNRet())
+	v, err := m.IterNext(i.inIter, i.inIter.IterNRet())
 	if err != nil {
 		return nil, err
 	}
-	if !ok {
-		return append(
-			[]nitro.Value{nitro.NewBool(false)},
-			make([]nitro.Value, nRet-1)...), nil
+	if v == nil {
+		return nil, nil
 	}
 	i.count--
-	return append([]nitro.Value{nitro.NewBool(true)}, v...), nil
+	return v, nil
 }

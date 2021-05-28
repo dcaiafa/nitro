@@ -13,11 +13,11 @@ func unique(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	set := make(map[nitro.Value]bool)
 
 	for {
-		v, ok, err := nitro.Next(m, e, 1)
+		v, err := m.IterNext(e, 1)
 		if err != nil {
 			return nil, err
 		}
-		if !ok {
+		if v == nil {
 			break
 		}
 		set[v[0]] = true

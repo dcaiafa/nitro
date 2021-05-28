@@ -247,6 +247,106 @@ func (m *VM) call(callable Value, narg int, nret int, pipeline bool) error {
 	}
 }
 
+func (m *VM) IterNext(iter Iterator, nret int) ([]Value, error) {
+	if nret == 0 {
+		return nil, errors.New("nret is zero")
+	}
+
+	sp := m.sp
+	ok, err := m.iterNext(iter, nret)
+	if err != nil {
+		return nil, err
+	}
+	if !ok {
+		return nil, nil
+	}
+	ret := make([]Value, nret)
+	copy(ret, m.stack[m.sp-nret:])
+	m.sp = sp
+	return ret, nil
+}
+
+func (m *VM) iterNext(iter Iterator, nret int) (bool, error) {
+	switch iter := iter.(type) {
+	case *NativeIterator:
+		f := m.newFrame()
+		f.nRet = nret
+		f.extFn = iter.extFn
+		f.bp = m.sp
+		m.pushFrame(f)
+
+		rets, err := iter.extFn.Call(m, nil, nret)
+		if err != nil {
+			wrapRuntimeError(m, &err)
+			m.popFrame()
+			return false, err
+		}
+
+		if len(rets) == 0 {
+			m.popFrame()
+			return false, nil
+		}
+
+		if len(rets) < nret {
+			err = fmt.Errorf(
+				"native iterator was expected to return at least %v values, "+
+					"but it returned only %v values", nret, len(rets))
+			wrapRuntimeError(m, &err)
+			m.popFrame()
+			return false, err
+		}
+
+		copy(m.stack[m.sp:], rets[:nret])
+		m.sp = m.sp + nret
+		m.popFrame()
+		return true, nil
+
+	case *ILIterator:
+		if iter.ip == -1 {
+			return false, nil
+		}
+
+		rsp := m.sp
+		rstack := m.stack
+
+		f := m.newFrame()
+		f.fn = iter.fn
+		f.iter = iter
+		f.caps = iter.captures
+		f.tryCatches = iter.tryCatches
+		f.defers = iter.defers
+		f.nRet = nret
+		f.nLocals = iter.nlocals
+		f.ip = iter.ip
+
+		m.stack = iter.stack
+		m.sp = iter.sp
+
+		err := m.runFrame(f)
+		if err != nil {
+			m.stack = rstack
+			m.sp = rsp
+			return false, err
+		}
+
+		if iter.ip == -1 {
+			return false, nil
+		}
+
+		copy(rstack[rsp:], m.stack[m.sp-nret:m.sp])
+		iter.sp = m.sp - nret
+		m.stack = rstack
+		m.sp = rsp + nret
+		return true, nil
+
+	default:
+		if iter == nil {
+			return false, ErrCannotCallNil
+		}
+		return false, fmt.Errorf("cannot call %q", TypeName(iter))
+	}
+}
+
 func (m *VM) pushFrame(frame *frame) {
 	if len(m.callStack) > 0 {
 		m.frame.ip = m.ip
@@ -705,25 +805,37 @@ func (m *VM) resume() (err error) {
 			m.frame.defers = append(m.frame.defers, deferClosure)
 
 		case OpNext:
+			iter, ok := m.stack[m.sp-1].(Iterator)
+			if !ok {
+				return fmt.Errorf("%q is not an iterator", TypeName(m.stack[m.sp-1]))
+			}
+
 			jumpTo := int(instr.op1)
 			n := int(instr.op2)
-			hasRaw := m.stack[m.sp-1-n]
-			has, ok := hasRaw.(Bool)
-			if !ok {
-				return fmt.Errorf(
-					"iterator's first return value must be a bool; but it was %q",
-					TypeName(hasRaw))
+
+			rsp := m.sp - n - 1
+
+			// For n = 3:
+			// rsp  +0  +1  +2  +3  +4  +5  +6
+			//      r1  r2  r3  it               before iterNext
+			//      r1  r2  r3  v1  v2  v3       after iterNext
+
+			ok, err := m.iterNext(iter, n)
+			if err != nil {
+				return err
 			}
-			if has.Bool() {
+
+			if ok {
 				for i := 0; i < n; i++ {
-					rval := m.stack[m.sp-1-(n*2-i)].(ValueRef)
-					val := m.stack[m.sp-(n-i)]
+					rval := m.stack[rsp+i].(ValueRef)
+					val := m.stack[rsp+n+1+i]
 					*rval.Ref = val
 				}
 			} else {
 				m.ip = jumpTo - 1
 			}
-			m.sp -= n*2 + 1
+
+			m.sp = rsp
 
 		case OpSlice:
 			target := m.stack[m.sp-3]
@@ -746,7 +858,7 @@ func (m *VM) resume() (err error) {
 
 		case OpIterYield:
 			nret := m.sp - (m.frame.bp + m.frame.nLocals)
-			if m.frame.nRet > nret {
+			if nret < m.frame.nRet {
 				return fmt.Errorf(
 					"iterator was expected to yield at least %v values, "+
 						"but yielded only %v",
@@ -767,11 +879,6 @@ func (m *VM) resume() (err error) {
 
 		case OpIterRet:
 			m.frame.iter.ip = -1
-			m.stack[m.sp] = False
-			for i := 1; i < m.frame.nRet; i++ {
-				m.stack[m.sp+i] = nil
-			}
-			m.sp += m.frame.nRet
 			return nil
 
 		default:

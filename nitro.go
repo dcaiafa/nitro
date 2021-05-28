@@ -74,10 +74,6 @@ func MakeIterator(m *VM, v Value) (Iterator, error) {
 	return vm.MakeIterator(m, v)
 }
 
-func Next(m *VM, e Value, n int) ([]Value, bool, error) {
-	return vm.Next(m, e, n)
-}
-
 func NewConsoleErrLogger() ErrLogger {
 	return &errlogger.ConsoleErrLogger{}
 }

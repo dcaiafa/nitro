@@ -26,11 +26,11 @@ func reduce(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 
 	var accum nitro.Value
 	for {
-		val, has, err := nitro.Next(m, iter, 1)
+		val, err := m.IterNext(iter, 1)
 		if err != nil {
 			return nil, err
 		}
-		if !has {
+		if val == nil {
 			break
 		}
 		res, err := m.Call(reducer, []nitro.Value{accum, val[0]}, 1)

@@ -29,11 +29,11 @@ func ToArray(m *nitro.VM, v nitro.Value) (*nitro.Array, error) {
 
 	arr := nitro.NewArray()
 	for {
-		v, ok, err := nitro.Next(m, e, 1)
+		v, err := m.IterNext(e, 1)
 		if err != nil {
 			return nil, err
 		}
-		if !ok {
+		if v == nil {
 			break
 		}
 		arr.Push(v[0])

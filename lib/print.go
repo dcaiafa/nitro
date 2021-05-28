@@ -246,11 +246,11 @@ func printall(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) 
 		return nil, err
 	}
 	for {
-		v, ok, err := nitro.Next(m, e, 1)
+		v, err := m.IterNext(e, 1)
 		if err != nil {
 			return nil, err
 		}
-		if !ok {
+		if v == nil {
 			break
 		}
 		fmt.Fprintln(stdout, valuesToInterface(v)...)
@@ -368,11 +368,11 @@ func printtable(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error
 	var headers []nitro.Value
 	var values []nitro.Value
 	for {
-		vs, ok, err := nitro.Next(m, inIter, 1)
+		vs, err := m.IterNext(inIter, 1)
 		if err != nil {
 			return nil, err
 		}
-		if !ok {
+		if vs == nil {
 			break
 		}
 

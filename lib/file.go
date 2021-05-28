@@ -552,11 +552,10 @@ func (i *lsDoubleStarIter) Next(m *nitro.VM, args []nitro.Value, nRet int) ([]ni
 	entry, ok := <-i.outChan
 	if !ok {
 		i.cancel()
-		return iterDone(nRet)
+		return nil, nil
 	}
 
 	return []nitro.Value{
-		nitro.NewBool(true),
 		nitro.NewString(filepath.FromSlash(filepath.Join(i.base, entry.path))),
 		nitro.NewBool(entry.dirEntry.IsDir())}, nil
 }
@@ -568,11 +567,10 @@ type lsSimpleIter struct {
 
 func (i *lsSimpleIter) Next(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(i.entries) == 0 {
-		return iterDone(nRet)
+		return nil, nil
 	}
 
 	res := []nitro.Value{
-		nitro.NewBool(true),
 		nitro.NewString(filepath.Join(i.root, i.entries[0].Name())),
 		nitro.NewBool(i.entries[0].IsDir())}
 

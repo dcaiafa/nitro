@@ -60,11 +60,10 @@ func (l *linesIter) Next(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Val
 		if l.scanner.Err() != nil {
 			return nil, l.scanner.Err()
 		}
-		return iterDone(nRet)
+		return nil, nil
 	}
 	l.idxLine++
 	return []nitro.Value{
-		nitro.NewBool(true),
 		nitro.NewString(l.scanner.Text()),
 		nitro.NewInt(int64(l.idxLine - 1)),
 	}, nil
