@@ -1,11 +1,9 @@
 package main
 
 import (
-	"bufio"
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 )
@@ -17,6 +15,7 @@ func main() {
 		flagRange        = flag.Int("range", 0, "")
 		flagRangeStdout  = flag.Bool("range-stdout", false, "")
 		flagRangeStderr  = flag.Bool("range-stderr", false, "")
+		flagRangeAlt     = flag.Bool("range-alt", false, "")
 		flagExitCode     = flag.Int("exit-code", 0, "")
 	)
 
@@ -34,23 +33,14 @@ func main() {
 		}
 	}
 
-	var buf *bufio.Writer
 	if *flagRange != 0 {
-		dest := ioutil.Discard
-		if *flagRangeStdout {
-			dest = os.Stdout
-		} else if *flagRangeStderr {
-			dest = os.Stderr
-		}
-		buf = bufio.NewWriterSize(dest, 10240)
-
 		for i := 0; i < *flagRange; i++ {
-			fmt.Fprintln(buf, i)
+			if *flagRangeStdout || (*flagRangeAlt && i%2 == 0) {
+				fmt.Fprintln(os.Stdout, i)
+			} else if *flagRangeStderr || (*flagRangeAlt && i%2 == 1) {
+				fmt.Fprintln(os.Stderr, i)
+			}
 		}
-	}
-
-	if buf != nil {
-		buf.Flush()
 	}
 
 	os.Exit(*flagExitCode)

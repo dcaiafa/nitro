@@ -60,6 +60,31 @@ func TestExec(t *testing.T) {
 		print(out_sum, err_sum)
 	`, `55 2098176`)
 
+	RunSubO(t, `switch_output`, `
+		var err_buf = buf()
+		var out = range(2049) | 
+			map(tostring) |
+			exec({ 
+				cmd: ["go", "run", "./testexec/testexec.go", "-echo-to-stderr", "-range", "11", "-range-stdout"]
+				stderr: err_buf
+				switchoutput: true
+			})
+    var out_sum = out | lines() | map(&l -> parseint(l)) | reduce(sum)
+		var err_sum = err_buf | lines() | map(&l -> parseint(l)) | reduce(sum)
+		print(out_sum, err_sum)
+	`, `2098176 55`)
+
+	RunSubO(t, `combine_output`, `
+			exec({ 
+				cmd: ["go", "run", "./testexec/testexec.go", "-range", "2049", "-range-alt"]
+				combineoutput: true
+			}) |
+				lines() |
+				map(&l -> parseint(l)) |
+				reduce(sum) |
+				print()
+	`, `2098176`)
+
 	RunSubO(t, `redirect_stderr`, `
 		"hello world" |
 			exec("go", "run", "./testexec/testexec.go", "-echo-to-stdout") |
@@ -89,12 +114,4 @@ exit status 128
 			reduce(sum) |
 			print()
 	`, `45`)
-
-	/*
-			RunSubO(t, `redirect-stdout`, `
-				"howdy" |
-				exec({ stdout: out()}, "go", "run", "./testexec/testexec.go", "-range", "1024", "-range-stdout")
-		  `, `523776`)
-	*/
-
 }

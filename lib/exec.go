@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
+
 	//golog "log"
 	osexec "os/exec"
 	"runtime"
@@ -41,15 +43,16 @@ func releaseProcessBuffer(b *processBuffer) {
 }
 
 type process struct {
-	cmd      *osexec.Cmd
-	stdin    io.Reader
-	stdout   io.Writer
-	stderr   io.Writer
-	errSaver *prefixSuffixSaver
-	inPipe   io.WriteCloser
-	outPipe  io.ReadCloser
-	errPipe  io.ReadCloser
-	wg       sync.WaitGroup
+	cmd        *osexec.Cmd
+	stdin      io.Reader
+	stderr     io.Writer
+	combineOut bool
+	switchOut  bool
+	errSaver   *prefixSuffixSaver
+	inPipe     io.WriteCloser
+	outPipe    io.ReadCloser
+	errPipe    io.ReadCloser
+	wg         sync.WaitGroup
 
 	mu        sync.Mutex
 	inBufs    list.List
@@ -89,12 +92,16 @@ func (p *process) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) 
 	return nil, fmt.Errorf("process does not support this operation")
 }
 
-func (p *process) SetStdout(w io.Writer) {
-	p.stdout = w
-}
-
 func (p *process) SetStderr(w io.Writer) {
 	p.stderr = w
+}
+
+func (p *process) SetCombineOutput(v bool) {
+	p.combineOut = v
+}
+
+func (p *process) SetSwitchOutput(v bool) {
+	p.switchOut = v
 }
 
 func (p *process) Start() error {
@@ -111,22 +118,32 @@ func (p *process) Start() error {
 	}
 
 	if p.stderr == nil {
-		p.errSaver = &prefixSuffixSaver{N: 512}
-		p.stderr = p.errSaver
+		if p.switchOut {
+			p.stderr = ioutil.Discard
+		} else {
+			p.errSaver = &prefixSuffixSaver{N: 512}
+			p.stderr = p.errSaver
+		}
 	}
 
 	p.errPipe, err = p.cmd.StderrPipe()
 	if err != nil {
 		return err
 	}
-	p.wg.Add(1)
-	go p.errLoop()
 
 	p.outPipe, err = p.cmd.StdoutPipe()
 	if err != nil {
 		return err
 	}
-	p.wg.Add(1)
+
+	if p.switchOut {
+		tmp := p.errPipe
+		p.errPipe = p.outPipe
+		p.outPipe = tmp
+	}
+
+	p.wg.Add(2)
+	go p.errLoop()
 	go p.outputLoop()
 
 	err = p.cmd.Start()
@@ -293,7 +310,7 @@ func (p *process) dequeueErr(b []byte) int {
 		b = b[n:]
 	}
 
-	shouldSignal := p.errBufs.Len() == 0
+	shouldSignal := p.errBufs.Len() <= minOutBufferReady
 
 	p.mu.Unlock()
 
@@ -401,6 +418,11 @@ func (p *process) Read(b []byte) (int, error) {
 		}
 
 		if p.hasErr() {
+			if p.combineOut {
+				n := p.dequeueErr(b)
+				return n, nil
+			}
+
 			buf := newProcessBuffer()
 			n := p.dequeueErr(buf.data)
 			_, err := p.stderr.Write(buf.data[:n])
@@ -519,9 +541,9 @@ type execOptions struct {
 	Cmd           []string    `nitro:"cmd"`
 	Env           []string    `nitro:"env"`
 	Dir           string      `nitro:"string"`
-	Stdout        nitro.Value `nitro:"stdout"`
 	Stderr        nitro.Value `nitro:"stderr"`
 	CombineOutput bool        `nitro:"combineoutput"`
+	SwitchOutput  bool        `nitro:"switchoutput"`
 }
 
 var execOptionsConv Value2Structer
@@ -596,6 +618,9 @@ func exec(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 		}
 		p.SetStderr(stderr)
 	}
+
+	p.SetCombineOutput(opt.CombineOutput)
+	p.SetSwitchOutput(opt.SwitchOutput)
 
 	err = p.Start()
 	if err != nil {
