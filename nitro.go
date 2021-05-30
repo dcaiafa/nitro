@@ -33,6 +33,7 @@ type (
 	Callable  = vm.Callable
 	Indexable = vm.Indexable
 	NativeFn  = vm.NativeFn
+	CloseFn   = vm.CloseFn
 	Metadata  = meta.Metadata
 
 	RuntimeError        = vm.RuntimeError
@@ -98,6 +99,6 @@ func NewObject() *Object                 { return vm.NewObject() }
 func NewRegex(r *regexp.Regexp) *Regex   { return vm.NewRegex(r) }
 func CoerceToBool(v Value) bool          { return vm.CoerceToBool(v) }
 
-func NewIterator(f ExternFn, c ExternFn, nret int) Iterator {
+func NewIterator(f ExternFn, c CloseFn, nret int) Iterator {
 	return vm.NewIterator(f, c, nret)
 }

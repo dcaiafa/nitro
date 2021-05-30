@@ -41,6 +41,7 @@ func (i *filterIter) Next(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Va
 		}
 		res, err := m.Call(i.test, v, 1)
 		if err != nil {
+			m.IterClose(i.inIter)
 			return nil, err
 		}
 		if nitro.CoerceToBool(res[0]) {

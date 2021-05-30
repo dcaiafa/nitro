@@ -266,6 +266,15 @@ func (m *VM) IterNext(iter Iterator, nret int) ([]Value, error) {
 	return ret, nil
 }
 
+func (m *VM) IterClose(iter Iterator) error {
+	nativeIter, ok := iter.(*NativeIterator)
+	if !ok {
+		return nil
+	}
+
+	return nativeIter.Close(m)
+}
+
 func (m *VM) iterNext(iter Iterator, nret int) (bool, error) {
 	switch iter := iter.(type) {
 	case *NativeIterator:
@@ -279,18 +288,20 @@ func (m *VM) iterNext(iter Iterator, nret int) (bool, error) {
 		if err != nil {
 			wrapRuntimeError(m, &err)
 			m.popFrame()
+			iter.Close(m)
 			return false, err
 		}
 
 		if len(rets) == 0 {
 			m.popFrame()
-			return false, nil
+			return false, iter.Close(m)
 		}
 
 		if len(rets) < nret {
 			err = fmt.Errorf(
 				"native iterator was expected to return at least %v values, "+
 					"but it returned only %v values", nret, len(rets))
+			iter.Close(m)
 			wrapRuntimeError(m, &err)
 			m.popFrame()
 			return false, err

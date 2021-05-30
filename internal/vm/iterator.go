@@ -6,7 +6,6 @@ type Iterator interface {
 	Callable
 	isIterator()
 	IterNRet() int
-	Close() error
 }
 
 type ILIterator struct {
@@ -40,12 +39,13 @@ func (i *ILIterator) Call(m *VM, args []Value, nRet int) ([]Value, error) {
 
 func (i *ILIterator) IterNRet() int { return i.iterNRet }
 
-func (i *ILIterator) Close() error { return nil }
+type CloseFn func(m *VM) error
 
 type NativeIterator struct {
 	extFn    NativeFn
-	closeFn  NativeFn
+	closeFn  CloseFn
 	iterNRet int
+	closed   bool
 }
 
 var _ Iterator = (*NativeIterator)(nil)
@@ -64,10 +64,24 @@ func (i *NativeIterator) Call(m *VM, args []Value, nRet int) ([]Value, error) {
 }
 
 func (i *NativeIterator) IterNRet() int { return i.iterNRet }
+func (i *NativeIterator) Closed() bool  { return i.closed }
 
-func (i *NativeIterator) Close() error { return nil }
+func (i *NativeIterator) Close(m *VM) error {
+	if i.closed {
+		return nil
+	}
+	i.closed = true
+	if i.closeFn != nil {
+		err := i.closeFn(m)
+		if err != nil {
+			return err
+		}
+	}
 
-func NewIterator(extFn, closeFn NativeFn, nret int) Iterator {
+	return nil
+}
+
+func NewIterator(extFn NativeFn, closeFn CloseFn, nret int) Iterator {
 	i := &NativeIterator{
 		extFn:    extFn,
 		closeFn:  closeFn,

@@ -18,6 +18,7 @@ func reduce(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if err != nil {
 		return nil, errReduceUsage
 	}
+	defer m.IterClose(iter)
 
 	reducer, ok := args[1].(nitro.Callable)
 	if !ok {

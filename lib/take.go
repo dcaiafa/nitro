@@ -21,7 +21,7 @@ func take(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 
 	takeIter := &takeIter{inIter: inIter, count: int(count)}
 
-	return []nitro.Value{nitro.NewIterator(takeIter.Next, nil, inIter.IterNRet())}, nil
+	return []nitro.Value{nitro.NewIterator(takeIter.Next, takeIter.Close, inIter.IterNRet())}, nil
 }
 
 type takeIter struct {
@@ -31,16 +31,24 @@ type takeIter struct {
 
 func (i *takeIter) Next(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if i.count == 0 {
+		i.Close(m)
 		return nil, nil
 	}
 
 	v, err := m.IterNext(i.inIter, i.inIter.IterNRet())
 	if err != nil {
+		i.Close(m)
 		return nil, err
 	}
 	if v == nil {
+		i.Close(m)
 		return nil, nil
 	}
 	i.count--
 	return v, nil
+}
+
+func (i *takeIter) Close(m *nitro.VM) error {
+	m.IterClose(i.inIter)
+	return nil
 }

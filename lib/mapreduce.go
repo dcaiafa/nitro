@@ -19,6 +19,7 @@ func mapreduce(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error)
 	if err != nil {
 		return nil, fmt.Errorf("invalid argument 1: %w", err)
 	}
+	defer m.IterClose(iter)
 
 	mapExpr, _, err := ParsePathExpr(args[1])
 	if err != nil {

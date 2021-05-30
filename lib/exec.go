@@ -14,6 +14,8 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
+var ErrAborted = errors.New("aborted")
+
 const minOutBufferReady = 0
 const minInBufferReady = 0
 
@@ -142,7 +144,10 @@ func (p *process) inputLoop() {
 	defer p.inPipe.Close()
 
 	for p.inLoopWait() {
-		buf := p.dequeueInput()
+		buf, wakeUp := p.dequeueInput()
+		if wakeUp {
+			p.cvRead.Signal()
+		}
 		if buf == nil {
 			break
 		}
@@ -318,7 +323,7 @@ func (p *process) isErrClosed() bool {
 	return p.errBufs.Len() == 0 && p.errClosed
 }
 
-func (p *process) dequeueInput() *processBuffer {
+func (p *process) dequeueInput() (buf *processBuffer, wakeUp bool) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
@@ -326,12 +331,13 @@ func (p *process) dequeueInput() *processBuffer {
 		if !p.inClosed {
 			panic("dequeueInput called but no data")
 		}
-		return nil
+		return nil, false
 	}
 
-	buf := p.inBufs.Front().Value.(*processBuffer)
+	buf = p.inBufs.Front().Value.(*processBuffer)
 	p.inBufs.Remove(p.inBufs.Front())
-	return buf
+	wakeUp = p.inBufs.Len() <= minInBufferReady
+	return buf, wakeUp
 }
 
 func (p *process) error() error {
@@ -357,6 +363,15 @@ func (p *process) setError(err error) {
 	p.cvErrLoop.Signal()
 }
 
+func (p *process) Close() error {
+	p.setError(ErrAborted)
+	p.cmd.Process.Kill()
+	CloseReader(p.stdin)
+	p.cmd.Wait()
+	p.wg.Wait()
+	return nil
+}
+
 func (p *process) Read(b []byte) (int, error) {
 	for {
 		if err := p.error(); err != nil {
@@ -366,6 +381,7 @@ func (p *process) Read(b []byte) (int, error) {
 			CloseReader(p.stdin)
 			p.cmd.Wait()
 			p.wg.Wait()
+			p.Close()
 			return 0, err
 		}
 
@@ -442,7 +458,7 @@ func (p *process) readWait() error {
 func (p *process) isReadyForInput() bool {
 	p.mu.Lock()
 	defer p.mu.Unlock()
-	return !p.inClosed && p.inBufs.Len() <= 1
+	return !p.inClosed && p.inBufs.Len() <= minInBufferReady
 }
 
 func (p *process) enqueueInput(buf *processBuffer) {

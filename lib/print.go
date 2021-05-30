@@ -245,6 +245,8 @@ func printall(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) 
 	if err != nil {
 		return nil, err
 	}
+	defer m.IterClose(e)
+
 	for {
 		v, err := m.IterNext(e, 1)
 		if err != nil {
@@ -317,6 +319,7 @@ func printtable(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error
 	if err != nil {
 		return nil, errPrintTableUsage
 	}
+	defer m.IterClose(inIter)
 
 	opts := printTableOptions{
 		Padding: -1,

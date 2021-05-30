@@ -20,14 +20,22 @@ func TestExec(t *testing.T) {
 	`, `523776`)
 
 	RunSubO(t, `input`, `
-		range(1024) | 
+		range(100000) | 
 			map(tostring) |
 			exec({ cmd: ["go", "run", "./testexec/testexec.go", "-echo-to-stdout"] }) |
+				read() |
 				lines() |
-				map(&e -> parseint(e)) |
-				reduce(sum) |
+				count() |
 				print()
-  `, `523776`)
+  `, `100000`)
+
+	RunSubO(t, `pipe`, `
+		exec("go", "run", "./testexec/testexec.go", "-range", "100000", "-range-stdout") |
+		exec("go", "run", "./testexec/testexec.go", "-echo-to-stdout") |
+		lines() |
+		count() |
+		print() 
+	`, `100000`)
 
 	RunSubO(t, `input_concise`, `
 		range(100001) |
@@ -72,6 +80,15 @@ exit status 1
 this will go in the error
 exit status 128
 `)
+
+	RunSubO(t, `abort`, `
+		exec("go", "run", "./testexec/testexec.go", "-range", "1024", "-range-stdout") |
+			lines() |
+			take(10) |
+			map(&e -> parseint(e)) |
+			reduce(sum) |
+			print()
+	`, `45`)
 
 	/*
 			RunSubO(t, `redirect-stdout`, `

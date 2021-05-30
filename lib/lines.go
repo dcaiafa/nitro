@@ -44,7 +44,7 @@ func lines(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 		l.scanner.Buffer(nil, int(opt.MaxLineSize))
 	}
 
-	outIter := nitro.NewIterator(l.Next, nil, 2)
+	outIter := nitro.NewIterator(l.Next, l.Close, 2)
 	return []nitro.Value{outIter}, nil
 }
 
@@ -56,7 +56,7 @@ type linesIter struct {
 
 func (l *linesIter) Next(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if !l.scanner.Scan() {
-		CloseReader(l.input)
+		l.Close(m)
 		if l.scanner.Err() != nil {
 			return nil, l.scanner.Err()
 		}
@@ -67,4 +67,9 @@ func (l *linesIter) Next(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Val
 		nitro.NewString(l.scanner.Text()),
 		nitro.NewInt(int64(l.idxLine - 1)),
 	}, nil
+}
+
+func (l *linesIter) Close(m *nitro.VM) error {
+	CloseReader(l.input)
+	return nil
 }
