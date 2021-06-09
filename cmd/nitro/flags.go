@@ -21,7 +21,11 @@ type Flag struct {
 }
 
 func (f *Flag) FullName() string {
-	return "-" + f.Name
+	prefix := "-"
+	if len(f.Name) > 1 {
+		prefix = "--"
+	}
+	return prefix + f.Name
 }
 
 type Flags struct {
@@ -79,7 +83,7 @@ func (f *Flags) AddFlagsFromMetadata(md *nitro.Metadata) error {
 		switch param.Type {
 		case "bool":
 			flag.Value = new(bool)
-		case "string":
+		case "", "string":
 			flag.Value = new(string)
 		case "[]string":
 			flag.Value = new([]string)
@@ -87,8 +91,6 @@ func (f *Flags) AddFlagsFromMetadata(md *nitro.Metadata) error {
 			flag.Value = new(int64)
 		case "float":
 			flag.Value = new(float64)
-		case "", "any":
-			flag.Value = new(interface{})
 		default:
 			return fmt.Errorf("unsupported param type %q", param.Type)
 		}
@@ -156,8 +158,14 @@ func (f *Flags) parseFlag(args []string) ([]string, error) {
 		return nil, fmt.Errorf("invalid flag without name")
 	}
 
+	short := true
 	if flagName[0] == '-' {
+		short = false
 		flagName = flagName[1:]
+	}
+
+	if !short && len(flagName) <= 1 {
+		return nil, fmt.Errorf("unknown flag %v", origFlag)
 	}
 
 	hasValue := false
@@ -169,30 +177,65 @@ func (f *Flags) parseFlag(args []string) ([]string, error) {
 		hasValue = true
 	}
 
-	flag := f.flags[flagName]
-	if flag == nil {
-		return nil, fmt.Errorf("invalid flag %v", origFlag)
-	}
+	if short {
+		for i := 0; i < len(flagName); i++ {
+			shortFlagName := flagName[i : i+1]
+			flag := f.flags[shortFlagName]
+			if flag == nil {
+				return nil, fmt.Errorf("invalid flag -%v", shortFlagName)
+			}
+			if i < len(flagName)-1 {
+				if _, ok := flag.Value.(*bool); !ok {
+					return nil, fmt.Errorf("flag -%v requires a value", shortFlagName)
+				}
+			}
 
-	if !hasValue {
-		if _, ok := flag.Value.(*bool); ok {
-			flagValue = "true"
-		} else {
-			if len(args) != 0 && !IsFlag(args[0]) {
-				flagValue = args[0]
-				args = args[1:]
+			if !hasValue {
+				if _, ok := flag.Value.(*bool); ok {
+					flagValue = "true"
+				} else {
+					if len(args) != 0 && !IsFlag(args[0]) {
+						flagValue = args[0]
+						args = args[1:]
+					} else {
+						return nil, fmt.Errorf("flag %v requires a value", origFlag)
+					}
+				}
+			}
+
+			err := f.parseFlagValue(flagValue, flag.Value)
+			if err != nil {
+				return nil, err
+			}
+
+			flag.Set = true
+		}
+	} else {
+		flag := f.flags[flagName]
+		if flag == nil {
+			return nil, fmt.Errorf("invalid flag %v", origFlag)
+		}
+
+		if !hasValue {
+			if _, ok := flag.Value.(*bool); ok {
+				flagValue = "true"
 			} else {
-				return nil, fmt.Errorf("flag %v requires a value", origFlag)
+				if len(args) != 0 && !IsFlag(args[0]) {
+					flagValue = args[0]
+					args = args[1:]
+				} else {
+					return nil, fmt.Errorf("flag %v requires a value", origFlag)
+				}
 			}
 		}
-	}
 
-	err := f.parseFlagValue(flagValue, flag.Value)
-	if err != nil {
-		return nil, err
-	}
+		err := f.parseFlagValue(flagValue, flag.Value)
+		if err != nil {
+			return nil, err
+		}
 
-	flag.Set = true
+		flag.Set = true
+	}
 
 	return args, nil
 }

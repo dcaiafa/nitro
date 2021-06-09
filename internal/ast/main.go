@@ -2,9 +2,9 @@ package ast
 
 import (
 	"github.com/dcaiafa/nitro/internal/meta"
-	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/internal/symbol"
 	"github.com/dcaiafa/nitro/internal/token"
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
 type Main struct {
@@ -27,9 +27,9 @@ func (m *Main) AddNativeFn(name string, extFn vm.NativeFn) {
 		})
 }
 
-func (m *Main) AddGlobalParam(ctx *Context, param *meta.Param, pos token.Pos) symbol.Symbol {
+func (m *Main) AddGlobalParam(ctx *Context, name string, param *meta.Param, pos token.Pos) symbol.Symbol {
 	g := m.NewGlobal()
-	g.SetName(param.Name)
+	g.SetName(name)
 	g.SetPos(pos)
 	if !m.rootScope.PutSymbol(ctx, g) {
 		return nil

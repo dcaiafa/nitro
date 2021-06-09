@@ -2,8 +2,8 @@ package ast
 
 import (
 	"github.com/dcaiafa/nitro/internal/meta"
-	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/internal/symbol"
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
 type MetaParam struct {
@@ -45,7 +45,7 @@ func (p *MetaParam) RunPass(ctx *Context, pass Pass) {
 	ctx.RunPassChild(p, p.Attribs, pass)
 
 	if pass == Check {
-		p.globalSym = ctx.Main().AddGlobalParam(ctx, p.param, p.Pos())
+		p.globalSym = ctx.Main().AddGlobalParam(ctx, p.Name, p.param, p.Pos())
 		if p.globalSym == nil {
 			return
 		}
@@ -63,6 +63,14 @@ func (a *MetaAttrib) RunPass(ctx *Context, pass Pass) {
 	if pass == Check {
 		paramAST := ctx.Parent().(*MetaParam)
 		switch a.Name {
+		case "name":
+			nameStr, ok := a.Value.(vm.String)
+			if !ok {
+				ctx.Failf(a.Pos(), "'name' attribute value must be string")
+				return
+			}
+			paramAST.param.Name = nameStr.String()
+
 		case "type":
 			typeStr, ok := a.Value.(vm.String)
 			if !ok {
@@ -78,6 +86,15 @@ func (a *MetaAttrib) RunPass(ctx *Context, pass Pass) {
 				return
 			}
 			paramAST.param.Desc = descStr.String()
+
+		case "required":
+			if a.Value == nil {
+				paramAST.param.Required = true
+			} else if reqBool, ok := a.Value.(vm.Bool); ok {
+				paramAST.param.Required = reqBool.Bool()
+			} else {
+				ctx.Failf(a.Pos(), "'required' attribute value must be bool")
+			}
 
 		default:
 			ctx.Failf(a.Pos(), "invalid attribute %q", a.Name)
