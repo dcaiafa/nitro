@@ -38,10 +38,14 @@ func NewEmitter() *Emitter {
 func (e *Emitter) AddGlobalParam(
 	name string,
 	global int,
-) {
+) bool {
+	if e.params[name] != nil {
+		return false
+	}
 	e.params[name] = &Param{
 		global: global,
 	}
+	return true
 }
 
 func (e *Emitter) NewFn(name string) int {

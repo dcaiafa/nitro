@@ -23,7 +23,7 @@ func (s *Scope) PutSymbol(l errlogger.ErrLogger, sym Symbol) bool {
 	if existing != nil {
 		l.Failf(
 			sym.Pos(),
-			"There is already something named %q in the current scope.",
+			"there is already something named %q in the current scope.",
 			sym.Name())
 		l.Detailf(existing.Pos(), "%q was previously declared here.", sym.Name())
 		return false

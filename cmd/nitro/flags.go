@@ -77,8 +77,9 @@ func (f *Flags) AddFlag(flag *Flag) *Flag {
 func (f *Flags) AddFlagsFromMetadata(md *nitro.Metadata) error {
 	for _, param := range md.Params {
 		flag := &Flag{
-			Name: param.Name,
-			Desc: param.Desc,
+			Name:     param.Name,
+			Desc:     param.Desc,
+			Required: param.Required,
 		}
 		switch param.Type {
 		case "bool":
@@ -94,6 +95,7 @@ func (f *Flags) AddFlagsFromMetadata(md *nitro.Metadata) error {
 		default:
 			return fmt.Errorf("unsupported param type %q", param.Type)
 		}
+
 		f.AddFlag(flag)
 	}
 	return nil
@@ -145,6 +147,14 @@ func (f *Flags) Parse(args []string) ([]string, error) {
 			return nil, err
 		}
 	}
+
+	for _, flag := range f.flags {
+		if flag.Required && !flag.Set {
+			return nil, fmt.Errorf(
+				"%v is required", flag.FullName())
+		}
+	}
+
 	return args, nil
 }
 
@@ -158,6 +168,8 @@ func (f *Flags) parseFlag(args []string) ([]string, error) {
 		return nil, fmt.Errorf("invalid flag without name")
 	}
 
+	// Single dash = short. E.g. -x
+	// Double dash = long. E.g. --file
 	short := true
 	if flagName[0] == '-' {
 		short = false
@@ -170,6 +182,10 @@ func (f *Flags) parseFlag(args []string) ([]string, error) {
 
 	hasValue := false
 	flagValue := ""
+
+	// Both short and long formats can have a value specified via '='.
+	// E.g. --foo=bar or -y=123
+
 	idxEq := strings.IndexByte(flagName, '=')
 	if idxEq != -1 {
 		flagValue = flagName[idxEq+1:]
@@ -178,15 +194,26 @@ func (f *Flags) parseFlag(args []string) ([]string, error) {
 	}
 
 	if short {
+		// Multiple short flags can be specified in a single arg, and it can even
+		// include a value for the last flag. All of the following lines are
+		// equivalent.
+		// -x -y -z=123
+		// -xy -z 123
+		// -xyz=123
+		// -xyz123
+
 		for i := 0; i < len(flagName); i++ {
 			shortFlagName := flagName[i : i+1]
 			flag := f.flags[shortFlagName]
 			if flag == nil {
 				return nil, fmt.Errorf("invalid flag -%v", shortFlagName)
 			}
+
 			if i < len(flagName)-1 {
 				if _, ok := flag.Value.(*bool); !ok {
-					return nil, fmt.Errorf("flag -%v requires a value", shortFlagName)
+					hasValue = true
+					flagValue = flagName[i+1:]
+					i = len(flagName)
 				}
 			}
 
@@ -198,7 +225,7 @@ func (f *Flags) parseFlag(args []string) ([]string, error) {
 						flagValue = args[0]
 						args = args[1:]
 					} else {
-						return nil, fmt.Errorf("flag %v requires a value", origFlag)
+						return nil, fmt.Errorf("%v requires a value", flag.FullName())
 					}
 				}
 			}

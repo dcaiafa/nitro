@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"math/rand"
 	"os"
 	"runtime/pprof"
@@ -59,6 +58,11 @@ func printProgUsage(flags *Flags) {
 	os.Exit(1)
 }
 
+func fatal(err error) {
+	fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+	os.Exit(2)
+}
+
 func main() {
 	var err error
 
@@ -76,11 +80,16 @@ func main() {
 	}
 
 	args, err = sysFlags.Parse(args)
-	if err != nil {
-		log.Fatal(err)
+
+	if sysFlags.Help {
+		printSysUsage(sysFlags)
 	}
 
-	if sysFlags.Help || len(args) == 0 {
+	if err != nil {
+		fatal(err)
+	}
+
+	if len(args) == 0 {
 		printSysUsage(sysFlags)
 	}
 
@@ -112,23 +121,24 @@ func main() {
 	progFlags := NewFlags()
 	err = progFlags.AddFlagsFromMetadata(compiled.Metadata)
 	if err != nil {
-		log.Fatal(err)
+		fatal(err)
 	}
 
 	args, err = progFlags.Parse(args)
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	if progFlags.Help {
 		printProgUsage(progFlags)
+	}
+
+	if err != nil {
+		fatal(err)
 	}
 
 	cpuProfile := *flagP.Value.(*string)
 	if cpuProfile != "" {
 		f, err := os.Create(cpuProfile)
 		if err != nil {
-			log.Fatal(err)
+			fatal(err)
 		}
 		pprof.StartCPUProfile(f)
 		defer pprof.StopCPUProfile()
@@ -140,7 +150,7 @@ func main() {
 	for paramName, paramValue := range nitroParams {
 		err := vm.SetParam(paramName, paramValue)
 		if err != nil {
-			log.Fatal(err)
+			fatal(err)
 		}
 	}
 

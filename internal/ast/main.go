@@ -34,7 +34,10 @@ func (m *Main) AddGlobalParam(ctx *Context, name string, param *meta.Param, pos 
 	if !m.rootScope.PutSymbol(ctx, g) {
 		return nil
 	}
-	ctx.Emitter().AddGlobalParam(param.Name, g.GlobalNdx)
+	if !ctx.Emitter().AddGlobalParam(param.Name, g.GlobalNdx) {
+		ctx.Failf(pos, "there is already a parameter named %q", name)
+		return nil
+	}
 	m.metadata.Params = append(m.metadata.Params, param)
 	return g
 }
