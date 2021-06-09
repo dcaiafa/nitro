@@ -3,9 +3,9 @@ package vm
 import "fmt"
 
 type Iterator interface {
-	Callable
-	isIterator()
+	Value
 	IterNRet() int
+	isIterator()
 }
 
 type ILIterator struct {
@@ -32,11 +32,6 @@ func (e *ILIterator) EvalOp(op Op, operand Value) (Value, error) {
 	return nil, fmt.Errorf("iterator does not support this operation")
 }
 
-func (i *ILIterator) Call(m *VM, args []Value, nRet int) ([]Value, error) {
-	// Iterator calls are handled directly by the VM.
-	panic("not called")
-}
-
 func (i *ILIterator) IterNRet() int { return i.iterNRet }
 
 type CloseFn func(m *VM) error
@@ -56,11 +51,6 @@ func (e *NativeIterator) Type() string   { return "Iterator" }
 
 func (e *NativeIterator) EvalOp(op Op, operand Value) (Value, error) {
 	return nil, fmt.Errorf("iterator does not support this operation")
-}
-
-func (i *NativeIterator) Call(m *VM, args []Value, nRet int) ([]Value, error) {
-	// Iterator calls are handled directly by the VM.
-	panic("not called")
 }
 
 func (i *NativeIterator) IterNRet() int { return i.iterNRet }

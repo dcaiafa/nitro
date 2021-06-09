@@ -239,27 +239,6 @@ func printf(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	return nil, nil
 }
 
-func printall(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	stdout := Stdout(m)
-	e, err := getIterArg(m, args, 0)
-	if err != nil {
-		return nil, err
-	}
-	defer m.IterClose(e)
-
-	for {
-		v, err := m.IterNext(e, 1)
-		if err != nil {
-			return nil, err
-		}
-		if v == nil {
-			break
-		}
-		fmt.Fprintln(stdout, valuesToInterface(v)...)
-	}
-	return nil, nil
-}
-
 func log(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	iargs := valuesToInterface(args)
 	fmt.Fprintln(os.Stderr, iargs...)

@@ -53,7 +53,6 @@ func RegisterAll(c *nitro.Compiler) {
 	c.AddNativeFn("pathmatch", pathmatch)
 	c.AddNativeFn("popstdout", popstdout)
 	c.AddNativeFn("print", print)
-	c.AddNativeFn("printall", printall)
 	c.AddNativeFn("printf", printf)
 	c.AddNativeFn("printtable", printtable)
 	c.AddNativeFn("prompt", prompt)

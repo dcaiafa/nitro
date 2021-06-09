@@ -135,13 +135,7 @@ func (r *iterReader) Read(b []byte) (int, error) {
 		if v == nil {
 			break
 		}
-		str, ok := v[0].(nitro.String)
-		if !ok {
-			return 0, fmt.Errorf(
-				"cannot stream iterator of %q",
-				nitro.TypeName(v[0]))
-		}
-		r.buf.Write([]byte(str.String()))
+		r.buf.Write([]byte(v[0].String()))
 		r.buf.Write([]byte{'\n'})
 	}
 
