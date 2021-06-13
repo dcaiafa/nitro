@@ -66,13 +66,19 @@ func (e *RuntimeError) Type() string {
 	return "RuntimeError"
 }
 
+func (e *RuntimeError) Message() string {
+	if e.Err != nil {
+		return e.Err.Error()
+	} else if e.ErrValue != nil {
+		return e.ErrValue.String()
+	} else {
+		return "<no message>"
+	}
+}
+
 func (e *RuntimeError) Error() string {
 	str := strings.Builder{}
-	if e.Err != nil {
-		str.WriteString(e.Err.Error())
-	} else if e.ErrValue != nil {
-		str.WriteString(e.ErrValue.String())
-	}
+	str.WriteString(e.Message())
 
 	for _, f := range e.Stack {
 		var loc string
