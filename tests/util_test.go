@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -78,7 +77,7 @@ func run(prog string, params map[string]nitro.Value) (output string, err error) 
 		return "", err
 	}
 
-	vm := nitro.NewVM(context.Background(), compiled)
+	vm := nitro.NewVM(compiled)
 	for n, v := range params {
 		err = vm.SetParam(n, v)
 		if err != nil {

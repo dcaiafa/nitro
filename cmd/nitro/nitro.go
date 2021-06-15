@@ -1,11 +1,13 @@
 package main
 
 import (
-	"context"
+	"errors"
 	"fmt"
 	"math/rand"
 	"os"
+	"os/signal"
 	"runtime/pprof"
+	"sync"
 	"time"
 
 	"github.com/dcaiafa/nitro"
@@ -65,6 +67,9 @@ func fatal(err error) {
 
 func main() {
 	var err error
+
+	var wg sync.WaitGroup
+	defer wg.Wait()
 
 	rand.Seed(time.Now().Unix())
 
@@ -144,7 +149,26 @@ func main() {
 		defer pprof.StopCPUProfile()
 	}
 
-	vm := nitro.NewVM(context.Background(), compiled)
+	vm := nitro.NewVM(compiled)
+
+	signalCh := make(chan os.Signal)
+	stopCh := make(chan struct{})
+	defer close(stopCh)
+
+	signal.Notify(signalCh, os.Interrupt)
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for {
+			select {
+			case <-signalCh:
+				vm.Interrupt(errors.New("SIGINT"))
+			case <-stopCh:
+				return
+			}
+		}
+	}()
 
 	nitroParams := progFlags.GetNitroValues()
 	for paramName, paramValue := range nitroParams {

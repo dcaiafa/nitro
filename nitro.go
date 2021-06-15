@@ -1,7 +1,6 @@
 package nitro
 
 import (
-	"context"
 	"regexp"
 
 	"github.com/dcaiafa/nitro/internal/ast"
@@ -67,8 +66,8 @@ var (
 
 var ErrCannotCallNil = vm.ErrCannotCallNil
 
-func NewVM(ctx context.Context, p *Program) *VM {
-	return vm.NewVM(ctx, p)
+func NewVM(p *Program) *VM {
+	return vm.NewVM(p)
 }
 
 func MakeIterator(m *VM, v Value) (Iterator, error) {

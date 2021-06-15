@@ -498,7 +498,7 @@ func ls(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 		return []nitro.Value{nitro.NewIterator(iter.Next, nil, 2)}, nil
 	}
 
-	iter := newLSDoubleStarIter(m.Context(), base, pattern)
+	iter := newLSDoubleStarIter(base, pattern)
 	return []nitro.Value{nitro.NewIterator(iter.Next, nil, 2)}, nil
 }
 
@@ -515,13 +515,14 @@ type lsDoubleStarIter struct {
 	cancel  context.CancelFunc
 }
 
-func newLSDoubleStarIter(ctx context.Context, base, pattern string) *lsDoubleStarIter {
+func newLSDoubleStarIter(base, pattern string) *lsDoubleStarIter {
 	i := &lsDoubleStarIter{
 		base:    base,
 		pattern: pattern,
 		outChan: make(chan *lsDoubleStarIterEntry, 100),
 	}
 
+	var ctx context.Context
 	ctx, i.cancel = context.WithCancel(ctx)
 	i.wg.Add(1)
 	go i.run(ctx)

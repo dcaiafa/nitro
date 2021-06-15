@@ -1,12 +1,13 @@
 package vm
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"reflect"
 	"runtime"
 	"strings"
+	"sync"
+	"sync/atomic"
 )
 
 const stackSize = 1000
@@ -54,7 +55,6 @@ type frame struct {
 }
 
 type VM struct {
-	ctx       context.Context
 	userData  map[interface{}]interface{}
 	program   *Program
 	globals   []Value
@@ -66,22 +66,29 @@ type VM struct {
 	ip        int
 	framePool []*frame
 
+	interrupt      int32
+	interruptErrMu sync.Mutex
+	interruptErr   error
+
 	preAllocStack [stackSize]Value
 }
 
-func NewVM(ctx context.Context, prog *Program) *VM {
+func NewVM(prog *Program) *VM {
 	m := &VM{
-		ctx:      ctx,
 		program:  prog,
 		globals:  make([]Value, prog.globals),
 		userData: make(map[interface{}]interface{}),
 	}
+
 	m.stack = m.preAllocStack[:]
 	return m
 }
 
-func (m *VM) Context() context.Context {
-	return m.ctx
+func (m *VM) Interrupt(err error) {
+	m.interruptErrMu.Lock()
+	m.interruptErr = err
+	atomic.StoreInt32(&m.interrupt, 1)
+	m.interruptErrMu.Unlock()
 }
 
 func (m *VM) SetUserData(key, value interface{}) {
@@ -439,6 +446,16 @@ func (m *VM) runDefers() error {
 
 func (m *VM) resume() (err error) {
 	for {
+		if atomic.LoadInt32(&m.interrupt) != 0 {
+			m.interruptErrMu.Lock()
+			err = m.interruptErr
+			atomic.StoreInt32(&m.interrupt, 0)
+			m.interruptErrMu.Unlock()
+			if err != nil {
+				return err
+			}
+		}
+
 		instr := m.instrs[m.ip]
 
 		switch instr.opc {
