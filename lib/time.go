@@ -14,6 +14,10 @@ type Time struct {
 
 var _ /* implements */ nitro.Indexable = Time{}
 
+func NewTime(t time.Time) Time {
+	return Time{time: t}
+}
+
 func (t Time) String() string { return t.time.String() }
 func (t Time) Type() string   { return "time" }
 
@@ -79,9 +83,23 @@ func (t Time) Index(key nitro.Value) (nitro.Value, error) {
 		return nitro.NativeFn(t.unix), nil
 	case "unixnano":
 		return nitro.NativeFn(t.unixnano), nil
+	case "year":
+		return nitro.NewInt(int64(t.time.Year())), nil
+	case "month":
+		return nitro.NewInt(int64(t.time.Month())), nil
+	case "day":
+		return nitro.NewInt(int64(t.time.Day())), nil
+	case "hour":
+		return nitro.NewInt(int64(t.time.Hour())), nil
+	case "minute":
+		return nitro.NewInt(int64(t.time.Minute())), nil
+	case "second":
+		return nitro.NewInt(int64(t.time.Second())), nil
+	case "nanosecond":
+		return nitro.NewInt(int64(t.time.Nanosecond())), nil
 	default:
 		return nil, fmt.Errorf(
-			"time does not have method %q",
+			"time does not have member %q",
 			keyStr.String())
 	}
 }

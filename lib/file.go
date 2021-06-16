@@ -158,6 +158,68 @@ func open(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	return []nitro.Value{&File{f}}, nil
 }
 
+type fileInfo struct {
+	fs.FileInfo
+}
+
+func (i *fileInfo) String() string { return "<fileinfo>" }
+func (i *fileInfo) Type() string   { return "fileinfo" }
+
+func (i *fileInfo) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) {
+	return nil, errors.New("operation not supported")
+}
+
+func (i *fileInfo) Index(key nitro.Value) (nitro.Value, error) {
+	keyStr, ok := key.(nitro.String)
+	if !ok {
+		return nil, fmt.Errorf(
+			"fileinfo cannot be indexed by %q",
+			nitro.TypeName(key))
+	}
+
+	switch keyStr.String() {
+	case "name":
+		return nitro.NewString(i.FileInfo.Name()), nil
+	case "size":
+		return nitro.NewInt(i.FileInfo.Size()), nil
+	case "modtime":
+		return NewTime(i.FileInfo.ModTime()), nil
+	case "isdir":
+		return nitro.NewBool(i.FileInfo.IsDir()), nil
+	default:
+		return nil, fmt.Errorf(
+			"fileinfo does not have method %q",
+			keyStr.String())
+	}
+}
+
+func (i *fileInfo) IndexRef(key nitro.Value) (nitro.ValueRef, error) {
+	return nitro.ValueRef{}, fmt.Errorf("fileinfo cannot be modified")
+}
+
+var errStatUsage = nitro.NewInvalidUsageError("stat(string)")
+
+func stat(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	if len(args) != 1 {
+		return nil, errStatUsage
+	}
+
+	filepath, ok := args[0].(nitro.String)
+	if !ok {
+		return nil, errStatUsage
+	}
+
+	fi, err := os.Stat(filepath.String())
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return []nitro.Value{nil}, nil
+		}
+		return nil, err
+	}
+
+	return []nitro.Value{&fileInfo{FileInfo: fi}}, nil
+}
+
 var errSeekUsage = errors.New(
 	`invalid usage. Expected seek(seeker, int, string?)`)
 
@@ -283,6 +345,34 @@ func read(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	return []nitro.Value{nitro.NewString(string(data))}, nil
 }
 
+var errUTimesUsage = nitro.NewInvalidUsageError("fchtimes(string, time, time)")
+
+func utime(vm *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	if len(args) != 3 {
+		return nil, errUTimesUsage
+	}
+
+	filepath, ok := args[0].(nitro.String)
+	if !ok {
+		return nil, errUTimesUsage
+	}
+	atime, ok := args[1].(Time)
+	if !ok {
+		return nil, errUTimesUsage
+	}
+	mtime, ok := args[2].(Time)
+	if !ok {
+		return nil, errUTimesUsage
+	}
+
+	err := os.Chtimes(filepath.String(), atime.time, mtime.time)
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, nil
+}
+
 var errReadFileUsage = errors.New(
 	`invalid usage. Expected readfile(string)`)
 
@@ -302,45 +392,6 @@ func readfile(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) 
 	}
 
 	return []nitro.Value{nitro.NewString(string(data))}, nil
-}
-
-var errWriteToUsage = errors.New(
-	`invalid usage. Expected writeto(reader, writer, int?)`)
-
-func writeto(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) != 2 && len(args) != 3 {
-		return nil, errWriteToUsage
-	}
-
-	src, err := ToReader(m, args[0])
-	if err != nil {
-		return nil, errWriteToUsage
-	}
-
-	dst, ok := args[1].(io.Writer)
-	if !ok {
-		return nil, errWriteToUsage
-	}
-
-	if len(args) == 3 {
-		count, ok := args[2].(nitro.Int)
-		if !ok {
-			return nil, errWriteToUsage
-		}
-
-		n, err := io.CopyN(dst, src, count.Int64())
-		if err != nil && err != io.EOF {
-			return nil, err
-		}
-
-		return []nitro.Value{nitro.NewInt(n)}, nil
-	} else {
-		n, err := io.Copy(dst, src)
-		if err != nil {
-			return nil, err
-		}
-		return []nitro.Value{nitro.NewInt(n)}, nil
-	}
 }
 
 var errWriteFileUsage = errors.New(
@@ -381,24 +432,19 @@ func writefile(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error)
 	return nil, nil
 }
 
-func rm(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func removefile(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) < 1 {
 		return nil, errNotEnoughArgs
 	}
 
+	var err error
 	switch arg := args[0].(type) {
 	case nitro.String:
-		err := os.Remove(arg.String())
-		if err != nil {
-			return nil, err
-		}
+		err = os.Remove(arg.String())
 
 	case *File:
 		arg.Close()
-		err := os.Remove(arg.Name())
-		if err != nil {
-			return nil, err
-		}
+		err = os.Remove(arg.Name())
 
 	default:
 		return nil, fmt.Errorf(
@@ -406,10 +452,41 @@ func rm(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 			nitro.TypeName(args[0]))
 	}
 
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return []nitro.Value{nitro.False}, nil
+		}
+		return nil, err
+	}
+
+	return []nitro.Value{nitro.True}, nil
+}
+
+var errRenameUsage = nitro.NewInvalidUsageError("rename(string, string)")
+
+func rename(vm *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
+	if len(args) != 2 {
+		return nil, errRenameUsage
+	}
+
+	oldPath, ok := args[0].(nitro.String)
+	if !ok {
+		return nil, errRenameUsage
+	}
+	newPath, ok := args[1].(nitro.String)
+	if !ok {
+		return nil, errRenameUsage
+	}
+
+	err := os.Rename(oldPath.String(), newPath.String())
+	if err != nil {
+		return nil, err
+	}
+
 	return nil, nil
 }
 
-func rmall(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func removeall(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	path, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -423,13 +500,29 @@ func rmall(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	return nil, nil
 }
 
+type createTempOptions struct {
+	Dir     string `nitro:"dir"`
+	Pattern string `nitro:"pattern"`
+}
+
+var createTempOptConv Value2Structer
+
+var errCreateTempUsage = nitro.NewInvalidUsageError("createtemp(map?)")
+
 func createtemp(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	pattern, err := getStringArg(args, 0)
-	if err != nil {
-		return nil, err
+	if len(args) != 0 && len(args) != 1 {
+		return nil, errCreateTempUsage
 	}
 
-	f, err := ioutil.TempFile("", pattern)
+	var opt createTempOptions
+	if len(args) == 1 {
+		err := createTempOptConv.Convert(args[0], &opt)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	f, err := ioutil.TempFile(opt.Dir, opt.Pattern)
 	if err != nil {
 		return nil, err
 	}
@@ -523,7 +616,7 @@ func newLSDoubleStarIter(base, pattern string) *lsDoubleStarIter {
 	}
 
 	var ctx context.Context
-	ctx, i.cancel = context.WithCancel(ctx)
+	ctx, i.cancel = context.WithCancel(context.Background())
 	i.wg.Add(1)
 	go i.run(ctx)
 
@@ -579,13 +672,12 @@ func (i *lsSimpleIter) Next(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.
 	return res, nil
 }
 
-func cp(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	from, err := getStringArg(args, 0)
+func copyfile(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	to, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
 	}
-
-	to, err := getStringArg(args, 1)
+	from, err := getStringArg(args, 1)
 	if err != nil {
 		return nil, err
 	}
@@ -618,4 +710,24 @@ func cp(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	}
 
 	return []nitro.Value{nitro.NewString(to)}, nil
+}
+
+var errMkdirAllUsage = nitro.NewInvalidUsageError("mkdirall(string)")
+
+func mkdirall(vm *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	if len(args) != 1 {
+		return nil, errMkdirAllUsage
+	}
+
+	path, ok := args[0].(nitro.String)
+	if !ok {
+		return nil, errMkdirAllUsage
+	}
+
+	err := os.MkdirAll(path.String(), 755)
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, nil
 }
