@@ -70,7 +70,7 @@ func (s *Value2Structer) Convert(from nitro.Value, to interface{}) error {
 			}
 			rfield.SetString(vstr.String())
 
-		case reflect.Int64:
+		case reflect.Int64, reflect.Int:
 			vint, ok := v.(nitro.Int)
 			if !ok {
 				err = fmt.Errorf("option %v expected int; received %v",
