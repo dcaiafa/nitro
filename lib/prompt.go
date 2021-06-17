@@ -56,6 +56,7 @@ type promptOptions struct {
 	PageSize      int         `nitro:"pagesize"`
 	FilterMessage string      `nitro:"filtermessage"`
 	Validate      nitro.Value `nitro:"validate"`
+	VimMode       bool        `nitro:"vimmode"`
 }
 
 var promptOptionsConv Value2Structer
@@ -111,6 +112,7 @@ func prompt(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 			Help:          opt.Help,
 			PageSize:      opt.PageSize,
 			FilterMessage: opt.FilterMessage,
+			VimMode:       opt.VimMode,
 		}
 
 	default:
