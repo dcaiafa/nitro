@@ -125,7 +125,7 @@ func (s String) EvalUnaryMinus() (Value, error) {
 	return nil, fmt.Errorf("operator not supported by string")
 }
 
-func (s String) Iterate() Iterator {
+func (s String) MakeIterator() Iterator {
 	i := &stringIter{
 		str:  s.v,
 		next: 0,

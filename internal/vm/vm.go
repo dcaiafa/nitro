@@ -794,7 +794,7 @@ func (m *VM) resume() (err error) {
 			case Iterator:
 				// Ready to go.
 			case Iterable:
-				m.stack[m.sp-1] = v.Iterate()
+				m.stack[m.sp-1] = v.MakeIterator()
 			default:
 				if v == nil {
 					m.stack[m.sp-1] = NewIterator(emptyIter, nil, 1)

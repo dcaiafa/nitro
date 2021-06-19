@@ -6,7 +6,7 @@ import (
 
 type Iterable interface {
 	Value
-	Iterate() Iterator
+	MakeIterator() Iterator
 }
 
 func MakeIterator(m *VM, v Value) (Iterator, error) {
@@ -17,7 +17,7 @@ func MakeIterator(m *VM, v Value) (Iterator, error) {
 	case Iterator:
 		return v, nil
 	case Iterable:
-		return v.Iterate(), nil
+		return v.MakeIterator(), nil
 	default:
 		return nil, fmt.Errorf("Value of type %q %w", TypeName(v), ErrIsNotIterable)
 	}

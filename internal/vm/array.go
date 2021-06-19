@@ -138,7 +138,7 @@ func (a *Array) String() string {
 	return formatObject(a)
 }
 
-func (a *Array) Iterate() Iterator {
+func (a *Array) MakeIterator() Iterator {
 	i := &arrayIter{
 		arr:  a,
 		next: 0,
