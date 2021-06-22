@@ -84,4 +84,16 @@ func TestIter(t *testing.T) {
 1
 2
 `)
+
+	RunSubO(t, "nil", `
+		print("begin")
+		for x, y in nil {
+    	print("not reached")
+		}
+		print("end")
+`, `
+begin
+end
+`)
+
 }
