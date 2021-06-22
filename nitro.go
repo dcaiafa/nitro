@@ -73,8 +73,20 @@ func NewVM(p *Program) *VM {
 	return vm.NewVM(p)
 }
 
+func IsIterable(v Value) bool {
+	return vm.IsIterable(v)
+}
+
 func MakeIterator(m *VM, v Value) (Iterator, error) {
 	return vm.MakeIterator(m, v)
+}
+
+func IsReadable(v Value) bool {
+	return vm.IsReadable(v)
+}
+
+func MakeReader(m *VM, v Value) (Reader, error) {
+	return vm.MakeReader(m, v)
 }
 
 func NewConsoleErrLogger() ErrLogger {

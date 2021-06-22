@@ -10,7 +10,6 @@ import (
 	//golog "log"
 	osexec "os/exec"
 	"runtime"
-	"strings"
 	"sync"
 
 	"github.com/dcaiafa/nitro"
@@ -562,24 +561,26 @@ func exec(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	}
 
 	switch arg := args[0].(type) {
-	case io.Reader:
-		stdin = arg
-		args = args[1:]
-
-	case nitro.String:
-		// Only use this string argument as "stdin" if it was provided via pipeline.
-		// Otherwise, this is probably the "command" argument in the concise form.
+	case nitro.String, *nitro.Object:
+		// Only use the first string or map argument as "stdin" if it was
+		// provided via pipeline. Otherwise, this is probably the command argument
+		// in concise form, or the options map.
 		if m.IsPipeline() {
-			stdin = strings.NewReader(arg.String())
+			stdin, err = nitro.MakeReader(m, arg)
+			if err != nil {
+				return nil, err
+			}
 			args = args[1:]
 		}
 
-	case nitro.Iterator:
-		stdin = &iterReader{
-			m: m,
-			e: arg,
+	default:
+		if nitro.IsReadable(args[0]) {
+			stdin, err = nitro.MakeReader(m, args[0])
+			if err != nil {
+				return nil, err
+			}
+			args = args[1:]
 		}
-		args = args[1:]
 	}
 
 	if len(args) < 1 {

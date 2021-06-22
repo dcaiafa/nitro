@@ -45,6 +45,7 @@ func (i *mapIter) Next(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value
 		i.Close(m)
 		return nil, err
 	}
+
 	return []nitro.Value{res[0]}, nil
 }
 

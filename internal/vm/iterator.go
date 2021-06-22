@@ -11,24 +11,30 @@ func IsIterable(v Value) bool {
 	if v == nil {
 		return true
 	}
-	if _, ok := v.(Iterable); ok {
+	switch v.(type) {
+	case Iterable, Iterator:
 		return true
+	default:
+		return false
 	}
-	return false
 }
 
 func MakeIterator(m *VM, v Value) (Iterator, error) {
 	if v == nil {
 		return NewIterator(emptyIter, nil, 1), nil
 	}
-	if i, ok := v.(Iterable); ok {
+	switch i := v.(type) {
+	case Iterator:
+		return i, nil
+	case Iterable:
 		return i.MakeIterator(), nil
+	default:
+		return nil, fmt.Errorf("value of type %q %w", TypeName(v), ErrIsNotIterable)
 	}
-	return nil, fmt.Errorf("value of type %q %w", TypeName(v), ErrIsNotIterable)
 }
 
 type Iterator interface {
-	Iterable
+	Value
 	IterNRet() int
 	isIterator()
 }
@@ -49,10 +55,9 @@ type ILIterator struct {
 
 var _ Iterator = (*ILIterator)(nil)
 
-func (e *ILIterator) isIterator()            {}
-func (e *ILIterator) String() string         { return "<iterator>" }
-func (e *ILIterator) Type() string           { return "iterator" }
-func (i *ILIterator) MakeIterator() Iterator { return i }
+func (e *ILIterator) isIterator()    {}
+func (e *ILIterator) String() string { return "<iterator>" }
+func (e *ILIterator) Type() string   { return "iterator" }
 
 func (e *ILIterator) EvalOp(op Op, operand Value) (Value, error) {
 	return nil, fmt.Errorf("iterator does not support this operation")
@@ -71,10 +76,9 @@ type NativeIterator struct {
 
 var _ Iterator = (*NativeIterator)(nil)
 
-func (i *NativeIterator) isIterator()            {}
-func (i *NativeIterator) String() string         { return "<Iterator>" }
-func (i *NativeIterator) Type() string           { return "Iterator" }
-func (i *NativeIterator) MakeIterator() Iterator { return i }
+func (i *NativeIterator) isIterator()    {}
+func (i *NativeIterator) String() string { return "<Iterator>" }
+func (i *NativeIterator) Type() string   { return "Iterator" }
 
 func (i *NativeIterator) EvalOp(op Op, operand Value) (Value, error) {
 	return nil, fmt.Errorf("iterator does not support this operation")

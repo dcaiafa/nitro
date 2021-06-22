@@ -18,7 +18,7 @@ func lines(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) != 1 && len(args) != 2 {
 		return nil, errNotEnoughArgs
 	}
-	input, err := ToReader(m, args[0])
+	input, err := nitro.MakeReader(m, args[0])
 	if err != nil {
 		return nil, fmt.Errorf("invalid argument #1: %w", err)
 	}

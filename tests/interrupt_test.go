@@ -49,11 +49,11 @@ func TestInterrupt(t *testing.T) {
 	vm := nitro.NewVM(compiled)
 
 	go func() {
-		time.Sleep(300)
+		time.Sleep(100 * time.Millisecond)
 		vm.Interrupt(errors.New("INT1"))
-		time.Sleep(300)
+		time.Sleep(100 * time.Millisecond)
 		vm.Interrupt(errors.New("INT2"))
-		time.Sleep(300)
+		time.Sleep(100 * time.Millisecond)
 		vm.Interrupt(io.EOF)
 	}()
 

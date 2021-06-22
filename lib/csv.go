@@ -23,7 +23,7 @@ func parsecsv(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) 
 		return nil, errParseCSVUsage
 	}
 
-	reader, err := ToReader(m, args[0])
+	reader, err := nitro.MakeReader(m, args[0])
 	if err != nil {
 		return nil, errParseCSVUsage
 	}

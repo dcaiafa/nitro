@@ -3,12 +3,19 @@ package vm
 import (
 	"errors"
 	"fmt"
+	"io"
 	"strings"
 )
 
 type String struct {
 	v string
 }
+
+var (
+	_ Readable  = String{}
+	_ Indexable = String{}
+	_ Iterable  = String{}
+)
 
 func NewString(v string) String { return String{v} }
 
@@ -117,12 +124,12 @@ func (s String) EvalOp(op Op, operand Value) (Value, error) {
 	case OpEq:
 		return NewBool(s.v == operandStr.String()), nil
 	default:
-		return nil, fmt.Errorf("operator not supported by string")
+		return nil, fmt.Errorf("string does not support this operation")
 	}
 }
 
 func (s String) EvalUnaryMinus() (Value, error) {
-	return nil, fmt.Errorf("operator not supported by string")
+	return nil, fmt.Errorf("string does not support this operation")
 }
 
 func (s String) MakeIterator() Iterator {
@@ -149,6 +156,18 @@ func (i *stringIter) Next(m *VM, args []Value, nret int) ([]Value, error) {
 	v := NewInt(int64(i.str[idx]))
 
 	return []Value{v, NewInt(int64(idx))}, nil
+}
+
+func (s String) MakeReader() Reader {
+	return &stringReader{
+		BaseValue: BaseValue{"stringreader"},
+		Reader:    strings.NewReader(s.v),
+	}
+}
+
+type stringReader struct {
+	BaseValue
+	io.Reader
 }
 
 var errStringFindUsage = errors.New(

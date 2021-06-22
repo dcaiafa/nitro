@@ -14,7 +14,7 @@ func parsejson(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error)
 	if len(args) < 0 {
 		return nil, errNotEnoughArgs
 	}
-	input, err := ToReader(m, args[0])
+	input, err := nitro.MakeReader(m, args[0])
 	if err != nil {
 		return nil, err
 	}

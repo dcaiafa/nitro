@@ -59,7 +59,7 @@ func (b *writerBase) Call(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Va
 		return nil, errWriterCallUsage
 	}
 
-	reader, err := ToReader(m, args[0])
+	reader, err := nitro.MakeReader(m, args[0])
 	if err != nil {
 		return nil, errWriterCallUsage
 	}
@@ -135,7 +135,7 @@ func stdout(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 		return nil, errOutUsage
 	}
 
-	reader, err := ToReader(m, args[0])
+	reader, err := nitro.MakeReader(m, args[0])
 	if err != nil {
 		return nil, errWriterCallUsage
 	}
@@ -191,7 +191,7 @@ func stderr(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 		return nil, errErrUsage
 	}
 
-	reader, err := ToReader(m, args[0])
+	reader, err := nitro.MakeReader(m, args[0])
 	if err != nil {
 		return nil, errWriterCallUsage
 	}

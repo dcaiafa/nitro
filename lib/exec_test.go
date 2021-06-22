@@ -74,16 +74,19 @@ func TestExec(t *testing.T) {
 		print(out_sum, err_sum)
 	`, `2098176 55`)
 
-	RunSubO(t, `combine_output`, `
-			exec({ 
-				cmd: ["go", "run", "./testexec/testexec.go", "-range", "2049", "-range-alt"]
-				combineoutput: true
-			}) |
-				lines() |
-				map(&l -> parseint(l)) |
-				reduce(sum) |
-				print()
-	`, `2098176`)
+	/*
+		// TODO: flacky test
+		RunSubO(t, `combine_output`, `
+				exec({
+					cmd: ["go", "run", "./testexec/testexec.go", "-range", "2049", "-range-alt"]
+					combineoutput: true
+				}) |
+					lines() |
+					map(&l -> parseint(l)) |
+					reduce(sum) |
+					print()
+		`, `2098176`)
+	*/
 
 	RunSubO(t, `redirect_stderr`, `
 		"hello world" |

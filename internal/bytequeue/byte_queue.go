@@ -1,4 +1,4 @@
-package lib
+package bytequeue
 
 // ByteQueue is a queue of bytes.
 // Data is added to the end of the queue via Write() or ReadNFrom(), and is

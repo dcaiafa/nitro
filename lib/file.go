@@ -34,7 +34,7 @@ func (f *File) Call(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, e
 		return nil, errWriterCallUsage
 	}
 
-	reader, err := ToReader(m, args[0])
+	reader, err := nitro.MakeReader(m, args[0])
 	if err != nil {
 		return nil, errWriterCallUsage
 	}
@@ -402,7 +402,7 @@ func writefile(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error)
 		return nil, errWriteFileUsage
 	}
 
-	src, err := ToReader(m, args[0])
+	src, err := nitro.MakeReader(m, args[0])
 	if err != nil {
 		return nil, errWriteFileUsage
 	}
