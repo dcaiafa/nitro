@@ -11,6 +11,17 @@ type Value interface {
 	EvalOp(op Op, operand Value) (Value, error)
 }
 
+type BaseValue struct {
+	TypeName string
+}
+
+func (v BaseValue) String() string { return "<" + v.TypeName + ">" }
+func (v BaseValue) Type() string   { return v.TypeName }
+
+func (v BaseValue) EvalOp(op Op, operand Value) (Value, error) {
+	return nil, fmt.Errorf("%v does not support this operation", v.TypeName)
+}
+
 func TypeName(v Value) string {
 	if v == nil {
 		return "nil"

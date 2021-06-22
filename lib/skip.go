@@ -1,25 +1,25 @@
 package lib
 
 import (
-	"fmt"
-
 	"github.com/dcaiafa/nitro"
 )
 
+var errSkipUsage = nitro.NewInvalidUsageError("skip(iter, int)")
+
 func skip(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) < 2 {
-		return nil, fmt.Errorf("not enough arguments")
+	if len(args) != 2 {
+		return nil, errSkipUsage
 	}
-	inIter, err := getIterArg(m, args, 0)
+	inIter, err := nitro.MakeIterator(m, args[0])
 	if err != nil {
-		return nil, err
+		return nil, errSkipUsage
 	}
-	skip, err := getIntArg(args, 1)
-	if err != nil {
-		return nil, err
+	skip, ok := args[1].(nitro.Int)
+	if !ok {
+		return nil, errSkipUsage
 	}
 
-	skipIter := &skipIter{inIter: inIter, skip: int(skip)}
+	skipIter := &skipIter{inIter: inIter, skip: int(skip.Int64())}
 
 	return []nitro.Value{nitro.NewIterator(skipIter.Next, nil, inIter.IterNRet())}, nil
 }

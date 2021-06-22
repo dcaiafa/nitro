@@ -4,15 +4,21 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
+var errFilterUsage = nitro.NewInvalidUsageError("filter(iter, callable)")
+
 func filter(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	inIter, err := getIterArg(m, args, 0)
-	if err != nil {
-		return nil, err
+	if len(args) != 2 {
+		return nil, errFilterUsage
 	}
 
-	test, err := getCallableArg(args, 1)
+	inIter, err := nitro.MakeIterator(m, args[0])
 	if err != nil {
-		return nil, err
+		return nil, errFilterUsage
+	}
+
+	test, ok := args[1].(nitro.Callable)
+	if !ok {
+		return nil, errFilterUsage
 	}
 
 	filterIter := &filterIter{

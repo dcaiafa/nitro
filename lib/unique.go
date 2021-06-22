@@ -4,10 +4,16 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
+var errUniqueUsage = nitro.NewInvalidUsageError("unique(iter)")
+
 func unique(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	e, err := getIterArg(m, args, 0)
+	if len(args) != 1 {
+		return nil, errUniqueUsage
+	}
+
+	e, err := nitro.MakeIterator(m, args[0])
 	if err != nil {
-		return nil, err
+		return nil, errUniqueUsage
 	}
 
 	set := make(map[nitro.Value]bool)

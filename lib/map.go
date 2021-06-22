@@ -4,14 +4,16 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
+var errMapUsage = nitro.NewInvalidUsageError("map(iter, callable)")
+
 func mapp(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	inIter, err := getIterArg(m, args, 0)
+	inIter, err := nitro.MakeIterator(m, args[0])
 	if err != nil {
-		return nil, err
+		return nil, errMapUsage
 	}
-	fn, err := getCallableArg(args, 1)
-	if err != nil {
-		return nil, err
+	fn, ok := args[1].(nitro.Callable)
+	if !ok {
+		return nil, errMapUsage
 	}
 
 	mapIter := &mapIter{

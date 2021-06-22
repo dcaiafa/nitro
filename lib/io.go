@@ -10,14 +10,8 @@ import (
 )
 
 type stdinWrapper struct {
+	nitro.BaseValue
 	io.Reader
-}
-
-func (r *stdinWrapper) String() string { return "<reader>" }
-func (r *stdinWrapper) Type() string   { return "reader" }
-
-func (r *stdinWrapper) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) {
-	return nil, fmt.Errorf("reader does not support this operation")
 }
 
 func wrapStdin(r io.Reader) nitro.Value {
@@ -25,7 +19,10 @@ func wrapStdin(r io.Reader) nitro.Value {
 	if ok {
 		return v
 	}
-	return &stdinWrapper{r}
+	return &stdinWrapper{
+		BaseValue: nitro.BaseValue{TypeName: "reader"},
+		Reader:    r,
+	}
 }
 
 func CloseReader(r io.Reader) {

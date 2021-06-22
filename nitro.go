@@ -14,26 +14,29 @@ type (
 	VM = vm.VM
 
 	Array     = vm.Array
+	BaseValue = vm.BaseValue
 	Bool      = vm.Bool
+	Callable  = vm.Callable
+	CloseFn   = vm.CloseFn
 	Closure   = vm.Closure
-	Iterator  = vm.Iterator
-	Iterable  = vm.Iterable
 	ExternFn  = vm.NativeFn
 	Float     = vm.Float
 	Frame     = vm.FrameInfo
 	Func      = vm.Fn
+	Indexable = vm.Indexable
 	Int       = vm.Int
+	Iterable  = vm.Iterable
+	Iterator  = vm.Iterator
+	Metadata  = meta.Metadata
+	NativeFn  = vm.NativeFn
 	Object    = vm.Object
 	Program   = vm.Program
+	Readable  = vm.Readable
+	Reader    = vm.Reader
 	Regex     = vm.Regex
 	String    = vm.String
 	Value     = vm.Value
 	ValueRef  = vm.ValueRef
-	Callable  = vm.Callable
-	Indexable = vm.Indexable
-	NativeFn  = vm.NativeFn
-	CloseFn   = vm.CloseFn
-	Metadata  = meta.Metadata
 
 	RuntimeError        = vm.RuntimeError
 	NativeModuleContext = ast.NativeModuleContext

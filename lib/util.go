@@ -86,33 +86,6 @@ func getWriterArg(args []vm.Value, ndx int) (io.Writer, error) {
 	}
 }
 
-func getIterArg(m *nitro.VM, args []vm.Value, ndx int) (nitro.Iterator, error) {
-	if ndx >= len(args) {
-		return nil, errNotEnoughArgs
-	}
-
-	v, err := nitro.MakeIterator(m, args[ndx])
-	if err != nil {
-		return nil, fmt.Errorf("argument %v is not iterable: %v", args[ndx], err)
-	}
-
-	return v, nil
-}
-
-func getCallableArg(args []vm.Value, ndx int) (nitro.Callable, error) {
-	if ndx >= len(args) {
-		return nil, errNotEnoughArgs
-	}
-
-	switch v := args[ndx].(type) {
-	case nitro.Callable:
-		return v, nil
-
-	default:
-		return nil, fmt.Errorf("argument %v is not callable", args[ndx])
-	}
-}
-
 type iterReader struct {
 	m   *nitro.VM
 	e   nitro.Iterator

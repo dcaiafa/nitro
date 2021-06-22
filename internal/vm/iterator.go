@@ -7,6 +7,16 @@ type Iterable interface {
 	MakeIterator() Iterator
 }
 
+func IsIterable(v Value) bool {
+	if v == nil {
+		return true
+	}
+	if _, ok := v.(Iterable); ok {
+		return true
+	}
+	return false
+}
+
 func MakeIterator(m *VM, v Value) (Iterator, error) {
 	if v == nil {
 		return NewIterator(emptyIter, nil, 1), nil
