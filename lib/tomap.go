@@ -29,7 +29,7 @@ func tomap(m *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
 	for {
 		v, err := m.IterNext(iter, 1)
 		if err != nil {
-			return nil, errToMapUsage
+			return nil, err
 		}
 		if v == nil {
 			break
