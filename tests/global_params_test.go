@@ -9,7 +9,7 @@ import (
 func TestGlobalParams(t *testing.T) {
 	RunSubPO(t, "set_all", `
 		meta param foo = 1
-		meta param bar [type="int"]
+		meta param bar {type:"int"}
 
 		print(foo, bar)
 	`, map[string]vm.Value{

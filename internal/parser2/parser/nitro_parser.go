@@ -109,15 +109,15 @@ var parserATN = []uint16{
 	2, 2, 125, 127, 3, 2, 2, 2, 126, 124, 3, 2, 2, 2, 127, 128, 5, 16, 9, 2,
 	128, 5, 3, 2, 2, 2, 129, 130, 7, 14, 2, 2, 130, 131, 7, 53, 2, 2, 131,
 	134, 7, 53, 2, 2, 132, 133, 7, 25, 2, 2, 133, 135, 5, 62, 32, 2, 134, 132,
-	3, 2, 2, 2, 134, 135, 3, 2, 2, 2, 135, 140, 3, 2, 2, 2, 136, 137, 7, 44,
-	2, 2, 137, 138, 5, 8, 5, 2, 138, 139, 7, 45, 2, 2, 139, 141, 3, 2, 2, 2,
+	3, 2, 2, 2, 134, 135, 3, 2, 2, 2, 135, 140, 3, 2, 2, 2, 136, 137, 7, 46,
+	2, 2, 137, 138, 5, 8, 5, 2, 138, 139, 7, 47, 2, 2, 139, 141, 3, 2, 2, 2,
 	140, 136, 3, 2, 2, 2, 140, 141, 3, 2, 2, 2, 141, 142, 3, 2, 2, 2, 142,
 	143, 7, 38, 2, 2, 143, 7, 3, 2, 2, 2, 144, 149, 5, 10, 6, 2, 145, 146,
 	9, 2, 2, 2, 146, 148, 5, 10, 6, 2, 147, 145, 3, 2, 2, 2, 148, 151, 3, 2,
 	2, 2, 149, 147, 3, 2, 2, 2, 149, 150, 3, 2, 2, 2, 150, 153, 3, 2, 2, 2,
 	151, 149, 3, 2, 2, 2, 152, 154, 9, 2, 2, 2, 153, 152, 3, 2, 2, 2, 153,
 	154, 3, 2, 2, 2, 154, 9, 3, 2, 2, 2, 155, 158, 5, 110, 56, 2, 156, 157,
-	7, 25, 2, 2, 157, 159, 5, 12, 7, 2, 158, 156, 3, 2, 2, 2, 158, 159, 3,
+	7, 40, 2, 2, 157, 159, 5, 12, 7, 2, 158, 156, 3, 2, 2, 2, 158, 159, 3,
 	2, 2, 2, 159, 11, 3, 2, 2, 2, 160, 161, 9, 3, 2, 2, 161, 13, 3, 2, 2, 2,
 	162, 164, 7, 13, 2, 2, 163, 165, 7, 53, 2, 2, 164, 163, 3, 2, 2, 2, 164,
 	165, 3, 2, 2, 2, 165, 166, 3, 2, 2, 2, 166, 167, 7, 59, 2, 2, 167, 168,
@@ -814,8 +814,8 @@ func (s *Meta_directiveContext) Expr() IExprContext {
 	return t.(IExprContext)
 }
 
-func (s *Meta_directiveContext) OBRACKET() antlr.TerminalNode {
-	return s.GetToken(NitroParserOBRACKET, 0)
+func (s *Meta_directiveContext) OCURLY() antlr.TerminalNode {
+	return s.GetToken(NitroParserOCURLY, 0)
 }
 
 func (s *Meta_directiveContext) Meta_attribs() IMeta_attribsContext {
@@ -828,8 +828,8 @@ func (s *Meta_directiveContext) Meta_attribs() IMeta_attribsContext {
 	return t.(IMeta_attribsContext)
 }
 
-func (s *Meta_directiveContext) CBRACKET() antlr.TerminalNode {
-	return s.GetToken(NitroParserCBRACKET, 0)
+func (s *Meta_directiveContext) CCURLY() antlr.TerminalNode {
+	return s.GetToken(NitroParserCCURLY, 0)
 }
 
 func (s *Meta_directiveContext) GetRuleContext() antlr.RuleContext {
@@ -905,10 +905,10 @@ func (p *NitroParser) Meta_directive() (localctx IMeta_directiveContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if _la == NitroParserOBRACKET {
+	if _la == NitroParserOCURLY {
 		{
 			p.SetState(134)
-			p.Match(NitroParserOBRACKET)
+			p.Match(NitroParserOCURLY)
 		}
 		{
 			p.SetState(135)
@@ -916,7 +916,7 @@ func (p *NitroParser) Meta_directive() (localctx IMeta_directiveContext) {
 		}
 		{
 			p.SetState(136)
-			p.Match(NitroParserCBRACKET)
+			p.Match(NitroParserCCURLY)
 		}
 
 	}
@@ -1150,8 +1150,8 @@ func (s *Meta_attribContext) Id_or_keyword() IId_or_keywordContext {
 	return t.(IId_or_keywordContext)
 }
 
-func (s *Meta_attribContext) ASSIGN() antlr.TerminalNode {
-	return s.GetToken(NitroParserASSIGN, 0)
+func (s *Meta_attribContext) COLON() antlr.TerminalNode {
+	return s.GetToken(NitroParserCOLON, 0)
 }
 
 func (s *Meta_attribContext) Meta_literal() IMeta_literalContext {
@@ -1214,10 +1214,10 @@ func (p *NitroParser) Meta_attrib() (localctx IMeta_attribContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if _la == NitroParserASSIGN {
+	if _la == NitroParserCOLON {
 		{
 			p.SetState(154)
-			p.Match(NitroParserASSIGN)
+			p.Match(NitroParserCOLON)
 		}
 		{
 			p.SetState(155)

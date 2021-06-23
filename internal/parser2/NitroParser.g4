@@ -8,9 +8,9 @@ module: meta_directive* import_stmt* stmts;
 
 // Meta
 
-meta_directive: META ID ID ('=' expr)? ('[' meta_attribs ']')? ';';
+meta_directive: META ID ID ('=' expr)? ('{' meta_attribs '}')? ';';
 meta_attribs: meta_attrib ((','|';') meta_attrib)* (','|';')?;
-meta_attrib: id_or_keyword ('=' meta_literal)?;
+meta_attrib: id_or_keyword (':' meta_literal)?;
 meta_literal: val=(STRING | NUMBER | CHAR | TRUE | FALSE | NIL);
 
 // Statements
