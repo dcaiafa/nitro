@@ -11,6 +11,12 @@ func TestHelloWorld(t *testing.T) {
 	prog := `
 meta param disable_drm = false {type:"any", required, desc:"Disable DRM"}
 meta param has_cc = true
+meta param multi_line {
+	name: "multi_line"
+	type: "bool";
+	desc: "Parameter attributes in multiple lines",
+	required
+}
 
 import "foo/bar"
 import yo "github.com/dcaiafa/nitro/yay"
