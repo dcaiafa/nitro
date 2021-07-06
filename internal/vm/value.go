@@ -2,6 +2,7 @@ package vm
 
 import (
 	"fmt"
+	"io"
 )
 
 type Value interface {
@@ -9,6 +10,11 @@ type Value interface {
 
 	Type() string
 	EvalOp(op Op, operand Value) (Value, error)
+}
+
+type Closer interface {
+	Value
+	io.Closer
 }
 
 type BaseValue struct {

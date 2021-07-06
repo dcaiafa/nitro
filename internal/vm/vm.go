@@ -55,16 +55,18 @@ type frame struct {
 }
 
 type VM struct {
-	userData  map[interface{}]interface{}
-	program   *Program
-	globals   []Value
-	callStack []*frame
-	frame     *frame
-	stack     []Value
-	instrs    []Instr
-	sp        int
-	ip        int
-	framePool []*frame
+	userData     map[interface{}]interface{}
+	program      *Program
+	globals      []Value
+	callStack    []*frame
+	frame        *frame
+	stack        []Value
+	instrs       []Instr
+	sp           int
+	ip           int
+	framePool    []*frame
+	shuttingDown bool
+	closers      map[Closer]struct{}
 
 	interrupt      int32
 	interruptErrMu sync.Mutex
@@ -78,6 +80,7 @@ func NewVM(prog *Program) *VM {
 		program:  prog,
 		globals:  make([]Value, prog.globals),
 		userData: make(map[interface{}]interface{}),
+		closers:  make(map[Closer]struct{}),
 	}
 
 	m.stack = m.preAllocStack[:]
@@ -117,6 +120,7 @@ func (m *VM) Run(args []Value) error {
 	f.nArg = len(args)
 	f.bp = len(args)
 
+	defer m.shutdown()
 	return m.runFrame(f)
 }
 
@@ -135,6 +139,14 @@ func (m *VM) Call(callable Value, args []Value, nret int) ([]Value, error) {
 	copy(ret, m.stack[m.sp-nret:])
 	m.sp = sp
 	return ret, nil
+}
+
+func (m *VM) RegisterCloser(c Closer) {
+	m.closers[c] = struct{}{}
+}
+
+func (m *VM) UnregisterCloser(c Closer) {
+	delete(m.closers, c)
 }
 
 func (m *VM) callExtFn(
@@ -280,6 +292,10 @@ func (m *VM) IterClose(iter Iterator) error {
 	}
 
 	return nativeIter.Close(m)
+}
+
+func (m *VM) ShuttingDown() bool {
+	return m.shuttingDown
 }
 
 func (m *VM) iterNext(iter Iterator, nret int) (bool, error) {
@@ -1016,4 +1032,11 @@ func (m *VM) newFrame() *frame {
 	f := m.framePool[len(m.framePool)-1]
 	m.framePool = m.framePool[:len(m.framePool)-1]
 	return f
+}
+
+func (m *VM) shutdown() {
+	m.shuttingDown = true
+	for c := range m.closers {
+		c.Close()
+	}
 }

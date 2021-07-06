@@ -42,6 +42,7 @@ func releaseProcessBuffer(b *processBuffer) {
 }
 
 type process struct {
+	vm         *nitro.VM
 	cmd        *osexec.Cmd
 	stdin      io.Reader
 	stderr     io.Writer
@@ -71,6 +72,7 @@ var _ io.Reader = (*process)(nil)
 
 func newProcess(m *nitro.VM, cmd *osexec.Cmd, stdin io.Reader) *process {
 	p := &process{
+		vm:    m,
 		cmd:   cmd,
 		stdin: stdin,
 	}
@@ -380,6 +382,11 @@ func (p *process) setError(err error) {
 }
 
 func (p *process) Close() error {
+	if p.vm.ShuttingDown() {
+		fmt.Fprintln(Stderr(p.vm), "WARNING: unterminated process")
+	}
+	p.vm.UnregisterCloser(p)
+
 	p.setError(ErrAborted)
 	p.cmd.Process.Kill()
 	CloseReader(p.stdin)
@@ -627,6 +634,8 @@ func exec(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	m.RegisterCloser(p)
 
 	return []nitro.Value{p}, nil
 }
