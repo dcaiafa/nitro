@@ -592,7 +592,7 @@ func ls(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	}
 
 	iter := newLSDoubleStarIter(base, pattern)
-	return []nitro.Value{nitro.NewIterator(iter.Next, nil, 2)}, nil
+	return []nitro.Value{nitro.NewIterator(iter.Next, iter.Close, 2)}, nil
 }
 
 type lsDoubleStarIterEntry struct {
@@ -652,6 +652,11 @@ func (i *lsDoubleStarIter) Next(m *nitro.VM, args []nitro.Value, nRet int) ([]ni
 	return []nitro.Value{
 		nitro.NewString(filepath.FromSlash(filepath.Join(i.base, entry.path))),
 		nitro.NewBool(entry.dirEntry.IsDir())}, nil
+}
+
+func (i *lsDoubleStarIter) Close(vm *nitro.VM) error {
+	i.cancel()
+	return nil
 }
 
 type lsSimpleIter struct {
