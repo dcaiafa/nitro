@@ -43,6 +43,7 @@ func releaseProcessBuffer(b *processBuffer) {
 
 type process struct {
 	vm         *nitro.VM
+	crumb      nitro.FrameCrumb
 	cmd        *osexec.Cmd
 	stdin      io.Reader
 	stderr     io.Writer
@@ -383,7 +384,10 @@ func (p *process) setError(err error) {
 
 func (p *process) Close() error {
 	if p.vm.ShuttingDown() {
-		fmt.Fprintln(Stderr(p.vm), "WARNING: unterminated process")
+		fmt.Fprintf(
+			Stderr(p.vm), "WARNING: unterminated process, started at %v\n",
+			p.vm.GetFrameInfo(p.crumb),
+		)
 	}
 	p.vm.UnregisterCloser(p)
 
@@ -635,6 +639,7 @@ func exec(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 		return nil, err
 	}
 
+	p.crumb = m.GetFrameCrumb(1)
 	m.RegisterCloser(p)
 
 	return []nitro.Value{p}, nil

@@ -81,13 +81,7 @@ func (e *RuntimeError) Error() string {
 	str.WriteString(e.Message())
 
 	for _, f := range e.Stack {
-		var loc string
-		if f.Filename != "" {
-			loc = fmt.Sprintf("%v:%v", f.Filename, f.Line)
-		} else {
-			loc = "<builtin>"
-		}
-		fmt.Fprintf(&str, "\n %v  %v", loc, f.Func)
+		fmt.Fprintf(&str, "\n %v", f.String())
 	}
 
 	return str.String()

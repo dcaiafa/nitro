@@ -26,7 +26,7 @@ func filter(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 		test:   test,
 	}
 
-	outIter := nitro.NewIterator(filterIter.Next, nil, inIter.IterNRet())
+	outIter := nitro.NewIterator(filterIter.Next, filterIter.Close, inIter.IterNRet())
 
 	return []nitro.Value{outIter}, nil
 }
@@ -54,4 +54,9 @@ func (i *filterIter) Next(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Va
 			return v, nil
 		}
 	}
+}
+
+func (i *filterIter) Close(m *nitro.VM) error {
+	m.IterClose(i.inIter)
+	return nil
 }

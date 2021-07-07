@@ -29,10 +29,30 @@ const (
 	OpNE
 )
 
+type FrameCrumb struct {
+	fn    *Fn
+	ip    int
+	extFn Callable
+}
+
+func (c *FrameCrumb) IsZero() bool {
+	return c.fn == nil && c.extFn == nil
+}
+
 type FrameInfo struct {
 	Filename string
 	Line     int
 	Func     string
+}
+
+func (i FrameInfo) String() string {
+	var loc string
+	if i.Filename != "" {
+		loc = fmt.Sprintf("%v:%v", i.Filename, i.Line)
+	} else {
+		loc = "<builtin>"
+	}
+	return fmt.Sprintf("%v  %v", loc, i.Func)
 }
 
 type tryCatch struct {
@@ -933,14 +953,6 @@ func (m *VM) resume() (err error) {
 	}
 }
 
-func (m *VM) GetStackInfo() []FrameInfo {
-	stack := make([]FrameInfo, 0, len(m.callStack))
-	for i := len(m.callStack) - 1; i >= 0; i-- {
-		stack = append(stack, m.getFrameInfo(m.callStack[i]))
-	}
-	return stack
-}
-
 func (m *VM) GetCallerNArg() int {
 	if len(m.callStack) < 2 {
 		return 0
@@ -971,9 +983,29 @@ func (m *VM) IsCallerPipeline() bool {
 	return m.callStack[len(m.callStack)-2].pipeline
 }
 
-func (m *VM) getFrameInfo(frame *frame) FrameInfo {
-	if frame.fn != nil {
-		loc := m.getLocation(frame.fn, frame.ip)
+func (m *VM) GetStackInfo() []FrameInfo {
+	stack := make([]FrameInfo, 0, len(m.callStack))
+	for i := 0; i < len(m.callStack); i++ {
+		stack = append(stack, m.GetFrameInfo(m.GetFrameCrumb(i)))
+	}
+	return stack
+}
+
+func (m *VM) GetFrameCrumb(n int) FrameCrumb {
+	if n >= len(m.callStack) {
+		return FrameCrumb{}
+	}
+	frame := m.callStack[len(m.callStack)-n-1]
+	return FrameCrumb{
+		fn:    frame.fn,
+		ip:    frame.ip,
+		extFn: frame.extFn,
+	}
+}
+
+func (m *VM) GetFrameInfo(crumb FrameCrumb) FrameInfo {
+	if crumb.fn != nil {
+		loc := m.getLocation(crumb.fn, crumb.ip)
 		if loc == nil {
 			return FrameInfo{
 				Filename: "???",
@@ -988,7 +1020,7 @@ func (m *VM) getFrameInfo(frame *frame) FrameInfo {
 		}
 	}
 
-	fn := runtime.FuncForPC(reflect.ValueOf(frame.extFn).Pointer())
+	fn := runtime.FuncForPC(reflect.ValueOf(crumb.extFn).Pointer())
 	if fn == nil {
 		return FrameInfo{
 			Filename: "???",
@@ -1021,6 +1053,7 @@ func (m *VM) getLocation(fn *Fn, ip int) *Location {
 			return &locs[i-1]
 		}
 	}
+
 	return &locs[len(fn.locations)-1]
 }
 

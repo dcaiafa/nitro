@@ -21,7 +21,7 @@ func mapp(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 		fn:     fn,
 	}
 
-	outIter := nitro.NewIterator(mapIter.Next, nil, 1)
+	outIter := nitro.NewIterator(mapIter.Next, mapIter.Close, 1)
 	return []nitro.Value{outIter}, nil
 }
 
