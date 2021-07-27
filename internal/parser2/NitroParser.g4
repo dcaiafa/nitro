@@ -72,14 +72,17 @@ continue_stmt: CONTINUE;
 
 // Expressions
 
-expr: <assoc=right> expr '?' expr ':' expr
-    | expr '|' expr
-    | pipeline_term_expr
+expr: expr '|' expr
+    | expr2
     ;
 
-pipeline_term_expr: binary_expr           # pipeline_term_expr_binary
-                  | short_lambda_expr     # pipeline_term_expr_short_lambda
-                  ;
+expr2: short_lambda_expr
+     | expr3
+     ;
+
+expr3: <assoc=right> expr3 '?' expr3 ':' expr3
+     | binary_expr
+     ;
 
 binary_expr: unary_expr
            | binary_expr op=('*'|'/'|'%') binary_expr
@@ -119,7 +122,7 @@ lvalue_expr: ID                          # lvalue_expr_simple_ref
 
 lambda_expr: FUNC '(' param_list? ')' '{' stmts '}';
 
-short_lambda_expr: '&' param_list? '->' binary_expr;
+short_lambda_expr: '&' param_list? '->' expr3;
 
 object_literal: '{' object_fields '}';
 object_fields: (object_field ((','|';') object_field)* (','|';')?)?;

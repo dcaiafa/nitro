@@ -140,11 +140,11 @@ type NitroParserListener interface {
 	// EnterExpr is called when entering the expr production.
 	EnterExpr(c *ExprContext)
 
-	// EnterPipeline_term_expr_binary is called when entering the pipeline_term_expr_binary production.
-	EnterPipeline_term_expr_binary(c *Pipeline_term_expr_binaryContext)
+	// EnterExpr2 is called when entering the expr2 production.
+	EnterExpr2(c *Expr2Context)
 
-	// EnterPipeline_term_expr_short_lambda is called when entering the pipeline_term_expr_short_lambda production.
-	EnterPipeline_term_expr_short_lambda(c *Pipeline_term_expr_short_lambdaContext)
+	// EnterExpr3 is called when entering the expr3 production.
+	EnterExpr3(c *Expr3Context)
 
 	// EnterBinary_expr is called when entering the binary_expr production.
 	EnterBinary_expr(c *Binary_exprContext)
@@ -395,11 +395,11 @@ type NitroParserListener interface {
 	// ExitExpr is called when exiting the expr production.
 	ExitExpr(c *ExprContext)
 
-	// ExitPipeline_term_expr_binary is called when exiting the pipeline_term_expr_binary production.
-	ExitPipeline_term_expr_binary(c *Pipeline_term_expr_binaryContext)
+	// ExitExpr2 is called when exiting the expr2 production.
+	ExitExpr2(c *Expr2Context)
 
-	// ExitPipeline_term_expr_short_lambda is called when exiting the pipeline_term_expr_short_lambda production.
-	ExitPipeline_term_expr_short_lambda(c *Pipeline_term_expr_short_lambdaContext)
+	// ExitExpr3 is called when exiting the expr3 production.
+	ExitExpr3(c *Expr3Context)
 
 	// ExitBinary_expr is called when exiting the binary_expr production.
 	ExitBinary_expr(c *Binary_exprContext)

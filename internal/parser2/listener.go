@@ -569,25 +569,12 @@ func (l *listener) ExitContinue_stmt(ctx *parser.Continue_stmtContext) {
 	l.put(ctx, &ast.ContinueStmt{})
 }
 
-// expr: expr '?' expr ':' expr
-//     | expr '|' expr
-//     | pipeline_term_expr
+// expr: expr ('|' expr)
+//     | expr2
 //     ;
 func (l *listener) ExitExpr(ctx *parser.ExprContext) {
-	if ctx.Pipeline_term_expr() != nil {
-		l.put(ctx, l.takeExpr(ctx.Pipeline_term_expr()))
-		return
-	}
-
 	allExpr := ctx.AllExpr()
-
-	if len(allExpr) == 3 {
-		l.put(ctx, &ast.TernaryExpr{
-			Condition: l.takeExpr(allExpr[0]),
-			Then:      l.takeExpr(allExpr[1]),
-			Else:      l.takeExpr(allExpr[2]),
-		})
-	} else {
+	if len(allExpr) != 0 {
 		left := l.takeExpr(allExpr[0])
 		right := l.takeExpr(allExpr[1])
 
@@ -607,27 +594,45 @@ func (l *listener) ExitExpr(ctx *parser.ExprContext) {
 			l.put(ctx, fnCall)
 
 		default:
-			r := ctx.Expr(1)
+			r := allExpr[1]
 			l.errListener.LogError(
 				r.GetStart().GetLine(),
 				r.GetStart().GetColumn(),
-				"Pipeline term on the right is not an invocation expression")
+				"Right pipeline term must be a call expression")
 			l.put(ctx, &ast.ZeroExpr{})
 			return
 		}
+	} else {
+		l.put(ctx, l.takeExpr(ctx.Expr2()))
 	}
 }
 
-// pipeline_term_expr: binary_expr           # pipeline_term_expr_binary
-//                   | short_lambda_expr     # pipeline_term_expr_short_lambda
-//                   ;
-
-func (l *listener) ExitPipeline_term_expr_binary(ctx *parser.Pipeline_term_expr_binaryContext) {
-	l.put(ctx, l.takeExpr(ctx.Binary_expr()))
+// expr2: short_lambda_expr
+//      | expr3
+//      ;
+func (l *listener) ExitExpr2(ctx *parser.Expr2Context) {
+	if ctx.Short_lambda_expr() != nil {
+		l.put(ctx, l.takeExpr(ctx.Short_lambda_expr()))
+	} else {
+		l.put(ctx, l.takeExpr(ctx.Expr3()))
+	}
 }
 
-func (l *listener) ExitPipeline_term_expr_short_lambda(ctx *parser.Pipeline_term_expr_short_lambdaContext) {
-	l.put(ctx, l.takeExpr(ctx.Short_lambda_expr()))
+// expr3: <assoc=right> expr3 '?' expr3 ':' expr3
+//      | binary_expr
+//      ;
+func (l *listener) ExitExpr3(ctx *parser.Expr3Context) {
+	allExpr := ctx.AllExpr3()
+	if len(allExpr) != 0 {
+		l.put(ctx, &ast.TernaryExpr{
+			Condition: l.takeExpr(allExpr[0]),
+			Then:      l.takeExpr(allExpr[1]),
+			Else:      l.takeExpr(allExpr[2]),
+		})
+		return
+	}
+
+	l.put(ctx, l.takeExpr(ctx.Binary_expr()))
 }
 
 // binary_expr: unary_expr
@@ -837,14 +842,14 @@ func (l *listener) ExitLambda_expr(ctx *parser.Lambda_exprContext) {
 	l.put(ctx, lambda)
 }
 
-// short_lambda_expr: '&' param_list? '->' binary_expr;
+// short_lambda_expr: '&' param_list? '->' expr2;
 func (l *listener) ExitShort_lambda_expr(ctx *parser.Short_lambda_exprContext) {
 	lambda := &ast.AnonFuncExpr{}
 	lambda.Params = l.takeASTs(ctx.Param_list())
 	lambda.Block = &ast.StmtBlock{
 		Stmts: ast.ASTs{
 			&ast.ReturnStmt{
-				Values: ast.Exprs{l.takeExpr(ctx.Binary_expr())},
+				Values: ast.Exprs{l.takeExpr(ctx.Expr3())},
 			},
 		},
 	}
