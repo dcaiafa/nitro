@@ -45,6 +45,8 @@ func (s String) Index(key Value) (Value, error) {
 			return NativeFn(s.tolower), nil
 		case "hasprefix":
 			return NativeFn(s.hasprefix), nil
+		case "hassuffix":
+			return NativeFn(s.hassuffix), nil
 		default:
 			return nil, fmt.Errorf("string does not have method %q", key.String())
 		}
@@ -392,5 +394,16 @@ func (s String) hasprefix(m *VM, args []Value, nRet int) ([]Value, error) {
 		return nil, errStringHasPrefixUsage
 	}
 	res := strings.HasPrefix(s.v, prefix.String())
+	return []Value{NewBool(res)}, nil
+}
+
+var errStringHasSuffixUsage = NewInvalidUsageError("<string>.hassuffix(string)")
+
+func (s String) hassuffix(m *VM, args []Value, nRet int) ([]Value, error) {
+	prefix, ok := args[0].(String)
+	if !ok {
+		return nil, errStringHasSuffixUsage
+	}
+	res := strings.HasSuffix(s.v, prefix.String())
 	return []Value{NewBool(res)}, nil
 }
