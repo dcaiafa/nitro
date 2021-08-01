@@ -282,7 +282,7 @@ func (s String) replace(m *VM, args []Value, nRet int) ([]Value, error) {
 
 		switch newArg := args[1].(type) {
 		case String:
-			res := oldArg.Regexp.ReplaceAllString(s.v, newArg.String())
+			res := oldArg.ReplaceAllString(s.v, newArg.String())
 			return []Value{NewString(res)}, nil
 
 		case Callable:

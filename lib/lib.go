@@ -28,6 +28,7 @@ func RegisterAll(c *nitro.Compiler) {
 	c.AddNativeFn("filter", filter)
 	c.AddNativeFn("group", group)
 	c.AddNativeFn("isdir", isdir)
+	c.AddNativeFn("join", join)
 	c.AddNativeFn("lines", lines)
 	c.AddNativeFn("log", log)
 	c.AddNativeFn("logf", logf)
