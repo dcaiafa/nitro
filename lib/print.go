@@ -383,8 +383,10 @@ func printtable(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error
 				if ok {
 					if vstr, ok := v.(nitro.String); ok {
 						values[i] = vstr
+					} else if str, ok := v.(fmt.Stringer); ok {
+						values[i] = nitro.NewString(str.String())
 					} else {
-						values[i] = nitro.NewString(v.String())
+						values[i] = nitro.NewString("")
 					}
 				} else {
 					values[i] = nitro.NewString("")
