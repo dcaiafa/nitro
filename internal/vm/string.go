@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"unicode"
 )
 
 type String struct {
@@ -29,6 +30,8 @@ func (s String) Index(key Value) (Value, error) {
 		switch key.String() {
 		case "find":
 			return NativeFn(s.find), nil
+		case "findlast":
+			return NativeFn(s.findlast), nil
 		case "match":
 			return NativeFn(s.match), nil
 		case "matchall":
@@ -39,6 +42,14 @@ func (s String) Index(key Value) (Value, error) {
 			return NativeFn(s.split), nil
 		case "trim":
 			return NativeFn(s.trim), nil
+		case "trimleft":
+			return NativeFn(s.trimleft), nil
+		case "trimright":
+			return NativeFn(s.trimright), nil
+		case "trimprefix":
+			return NativeFn(s.trimprefix), nil
+		case "trimsuffix":
+			return NativeFn(s.trimsuffix), nil
 		case "toupper":
 			return NativeFn(s.toupper), nil
 		case "tolower":
@@ -47,6 +58,10 @@ func (s String) Index(key Value) (Value, error) {
 			return NativeFn(s.hasprefix), nil
 		case "hassuffix":
 			return NativeFn(s.hassuffix), nil
+		case "fields":
+			return NativeFn(s.fields), nil
+		case "repeat":
+			return NativeFn(s.repeat), nil
 		default:
 			return nil, fmt.Errorf("string does not have method %q", key.String())
 		}
@@ -190,6 +205,24 @@ func (s String) find(m *VM, args []Value, nRet int) ([]Value, error) {
 	return []Value{NewInt(int64(idx))}, nil
 }
 
+var errStringFindLastUsage = errors.New(
+	`invalid usage. Expected <string>.findlast(string)`)
+
+func (s String) findlast(m *VM, args []Value, nRet int) ([]Value, error) {
+	if len(args) != 1 {
+		return nil, errStringFindLastUsage
+	}
+	sub, ok := args[0].(String)
+	if !ok {
+		return nil, errStringFindLastUsage
+	}
+	idx := strings.LastIndex(s.v, sub.String())
+	if idx == -1 {
+		return []Value{nil}, nil
+	}
+	return []Value{NewInt(int64(idx))}, nil
+}
+
 var errStringMatchUsage = errors.New(
 	`invalid usage. Expected <string>.match(regex)`)
 
@@ -247,7 +280,7 @@ func (s String) matchall(m *VM, args []Value, nRet int) ([]Value, error) {
 
 var errStringReplaceUsage = NewInvalidUsageError(
 	`<string>.replace(string, string, num?) or ` +
-		`<string>.replace(string, func)`)
+		`<string>.replace(regex, string|func)`)
 
 func (s String) replace(m *VM, args []Value, nRet int) ([]Value, error) {
 	if len(args) < 1 {
@@ -366,6 +399,54 @@ func (s String) trim(m *VM, args []Value, nRet int) ([]Value, error) {
 	return []Value{NewString(res)}, nil
 }
 
+var errStringTrimLeftUsage = NewInvalidUsageError("<string>.trimleft()")
+
+func (s String) trimleft(m *VM, args []Value, nRet int) ([]Value, error) {
+	if len(args) != 0 {
+		return nil, errStringTrimLeftUsage
+	}
+	res := strings.TrimLeftFunc(s.v, unicode.IsSpace)
+	return []Value{NewString(res)}, nil
+}
+
+var errStringTrimRightUsage = NewInvalidUsageError("<string>.trimright()")
+
+func (s String) trimright(m *VM, args []Value, nRet int) ([]Value, error) {
+	if len(args) != 0 {
+		return nil, errStringTrimRightUsage
+	}
+	res := strings.TrimRightFunc(s.v, unicode.IsSpace)
+	return []Value{NewString(res)}, nil
+}
+
+var errStringTrimPrefixUsage = NewInvalidUsageError("<string>.trimprefix(prefix)")
+
+func (s String) trimprefix(m *VM, args []Value, nRet int) ([]Value, error) {
+	if len(args) != 1 {
+		return nil, errStringTrimPrefixUsage
+	}
+	prefix, ok := args[0].(String)
+	if !ok {
+		return nil, errStringTrimPrefixUsage
+	}
+	res := strings.TrimPrefix(s.v, prefix.String())
+	return []Value{NewString(res)}, nil
+}
+
+var errStringTrimSuffixUsage = NewInvalidUsageError("<string>.trimsuffix(suffix)")
+
+func (s String) trimsuffix(m *VM, args []Value, nRet int) ([]Value, error) {
+	if len(args) != 1 {
+		return nil, errStringTrimSuffixUsage
+	}
+	suffix, ok := args[0].(String)
+	if !ok {
+		return nil, errStringTrimSuffixUsage
+	}
+	res := strings.TrimSuffix(s.v, suffix.String())
+	return []Value{NewString(res)}, nil
+}
+
 var errStringToUpperUsage = NewInvalidUsageError("<string>.toupper()")
 
 func (s String) toupper(m *VM, args []Value, nRet int) ([]Value, error) {
@@ -389,6 +470,9 @@ func (s String) tolower(m *VM, args []Value, nRet int) ([]Value, error) {
 var errStringHasPrefixUsage = NewInvalidUsageError("<string>.hasprefix(string)")
 
 func (s String) hasprefix(m *VM, args []Value, nRet int) ([]Value, error) {
+	if len(args) != 1 {
+		return nil, errStringHasPrefixUsage
+	}
 	prefix, ok := args[0].(String)
 	if !ok {
 		return nil, errStringHasPrefixUsage
@@ -400,10 +484,41 @@ func (s String) hasprefix(m *VM, args []Value, nRet int) ([]Value, error) {
 var errStringHasSuffixUsage = NewInvalidUsageError("<string>.hassuffix(string)")
 
 func (s String) hassuffix(m *VM, args []Value, nRet int) ([]Value, error) {
+	if len(args) != 1 {
+		return nil, errStringHasSuffixUsage
+	}
 	prefix, ok := args[0].(String)
 	if !ok {
 		return nil, errStringHasSuffixUsage
 	}
 	res := strings.HasSuffix(s.v, prefix.String())
 	return []Value{NewBool(res)}, nil
+}
+
+var errStringFieldsUsage = NewInvalidUsageError("<string>.fields()")
+
+func (s String) fields(m *VM, args []Value, nRet int) ([]Value, error) {
+	if len(args) != 0 {
+		return nil, errStringFieldsUsage
+	}
+	res := strings.Fields(s.v)
+	resList := make([]Value, len(res))
+	for i, v := range res {
+		resList[i] = NewString(v)
+	}
+	return []Value{NewArrayWithSlice(resList)}, nil
+}
+
+var errStringRepeatUsage = NewInvalidUsageError("<string>.repeat(int)")
+
+func (s String) repeat(m *VM, args []Value, nRet int) ([]Value, error) {
+	if len(args) != 1 {
+		return nil, errStringRepeatUsage
+	}
+	n, ok := args[0].(Int)
+	if !ok {
+		return nil, errStringRepeatUsage
+	}
+	res := strings.Repeat(s.v, int(n.Int64()))
+	return []Value{NewString(res)}, nil
 }
