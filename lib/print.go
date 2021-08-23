@@ -11,6 +11,11 @@ import (
 	fatihcolor "github.com/fatih/color"
 )
 
+type printMods struct {
+	NoNL  bool
+	Color *fatihcolor.Color
+}
+
 type nonlMod struct{}
 
 func (m *nonlMod) String() string { return "<nonl>" }
@@ -20,15 +25,23 @@ func (m *nonlMod) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) 
 	return nil, errors.New("nonl does not support this operation")
 }
 
-func getNoNL(args []nitro.Value) (bool, []nitro.Value) {
-	if len(args) == 0 {
-		return false, args
+func getPrintMods(args []nitro.Value) (printMods, []nitro.Value) {
+	var mods printMods
+
+Loop:
+	for len(args) > 0 {
+		switch m := args[0].(type) {
+		case *nonlMod:
+			mods.NoNL = true
+		case *colorMod:
+			mods.Color = m.color
+		default:
+			break Loop
+		}
+		args = args[1:]
 	}
-	_, ok := args[0].(*nonlMod)
-	if !ok {
-		return false, args
-	}
-	return true, args[1:]
+
+	return mods, args
 }
 
 var errNoNLUsage = errors.New(
@@ -176,47 +189,64 @@ func colorAttribute(v string) (attrib fatihcolor.Attribute, err error) {
 	return attrib, nil
 }
 
-func getColorModArg(args []nitro.Value) (*colorMod, []nitro.Value) {
-	if len(args) == 0 {
-		return nil, args
-	}
-	color, ok := args[0].(*colorMod)
-	if !ok {
-		return nil, args
-	}
-	return color, args[1:]
-}
-
 func print(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	nonl, args := getNoNL(args)
+	if m.IsPipeline() && len(args) > 1 {
+		first := args[0]
+		copy(args, args[1:])
+		args[len(args)-1] = first
+	}
+
+	mods, args := getPrintMods(args)
 
 	fprint := fmt.Fprintln
-	if nonl {
+	if mods.NoNL {
 		fprint = fmt.Fprint
 	}
-
-	colorMod, args := getColorModArg(args)
-	if colorMod != nil {
-		if nonl {
-			fprint = colorMod.color.Fprint
+	if mods.Color != nil {
+		if mods.NoNL {
+			fprint = mods.Color.Fprint
 		} else {
-			fprint = colorMod.color.Fprintln
+			fprint = mods.Color.Fprintln
 		}
 	}
 
 	stdout := Stdout(m)
+
+	if len(args) == 1 {
+		if it, ok := args[0].(nitro.Iterator); ok {
+			first := true
+			for {
+				if mods.NoNL && !first {
+					fprint(stdout, " ")
+				}
+				nret := it.IterNRet()
+				v, err := m.IterNext(it, nret)
+				if err != nil {
+					return nil, err
+				}
+				if v == nil {
+					break
+				}
+				iargs := valuesToInterface(v)
+				fprint(stdout, iargs...)
+				first = false
+			}
+			return nil, nil
+		}
+	}
+
 	iargs := valuesToInterface(args)
 	fprint(stdout, iargs...)
+
 	return nil, nil
 }
 
 func printf(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	nonl, args := getNoNL(args)
+	mods, args := getPrintMods(args)
 
 	fprintf := fmt.Fprintf
-	colorMod, args := getColorModArg(args)
-	if colorMod != nil {
-		fprintf = colorMod.color.Fprintf
+	if mods.Color != nil {
+		fprintf = mods.Color.Fprintf
 	}
 
 	if len(args) < 1 {
@@ -228,7 +258,7 @@ func printf(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 		return nil, err
 	}
 
-	if !nonl {
+	if !mods.NoNL {
 		format = format + "\n"
 	}
 
