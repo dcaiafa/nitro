@@ -58,6 +58,7 @@ func RegisterAll(c *nitro.Compiler) {
 	c.AddNativeFn("print", print)
 	c.AddNativeFn("printf", printf)
 	c.AddNativeFn("printtable", printtable)
+	c.AddNativeFn("probe", probe)
 	c.AddNativeFn("prompt", prompt)
 	c.AddNativeFn("pushstdout", pushstdout)
 	c.AddNativeFn("read", read)

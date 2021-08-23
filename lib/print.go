@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"os"
+	"io"
 	"text/tabwriter"
 
 	"github.com/dcaiafa/nitro"
@@ -26,22 +26,36 @@ func (m *nonlMod) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) 
 }
 
 func getPrintMods(args []nitro.Value) (printMods, []nitro.Value) {
-	var mods printMods
-
+	hasMods := false
 Loop:
-	for len(args) > 0 {
-		switch m := args[0].(type) {
+	for _, arg := range args {
+		switch arg.(type) {
+		case *nonlMod, *colorMod:
+			hasMods = true
+			break Loop
+		}
+	}
+
+	if !hasMods {
+		// Shortcut: there are no mod arguments.
+		return printMods{}, args
+	}
+
+	// Compute mods while simultaneously compiling the list of non-mod args.
+	var mods printMods
+	newArgs := make([]nitro.Value, 0, len(args))
+	for _, arg := range args {
+		switch m := arg.(type) {
 		case *nonlMod:
 			mods.NoNL = true
 		case *colorMod:
 			mods.Color = m.color
 		default:
-			break Loop
+			newArgs = append(newArgs, arg)
 		}
-		args = args[1:]
 	}
 
-	return mods, args
+	return mods, newArgs
 }
 
 var errNoNLUsage = errors.New(
@@ -189,13 +203,11 @@ func colorAttribute(v string) (attrib fatihcolor.Attribute, err error) {
 	return attrib, nil
 }
 
-func print(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if m.IsPipeline() && len(args) > 1 {
-		first := args[0]
-		copy(args, args[1:])
-		args[len(args)-1] = first
-	}
+func print(vm *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	return basePrint(Stdout(vm), vm, args, nRet)
+}
 
+func basePrint(out io.Writer, m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	mods, args := getPrintMods(args)
 
 	fprint := fmt.Fprintln
@@ -210,14 +222,12 @@ func print(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 		}
 	}
 
-	stdout := Stdout(m)
-
 	if len(args) == 1 {
 		if it, ok := args[0].(nitro.Iterator); ok {
 			first := true
 			for {
 				if mods.NoNL && !first {
-					fprint(stdout, " ")
+					fprint(out, " ")
 				}
 				nret := it.IterNRet()
 				v, err := m.IterNext(it, nret)
@@ -228,7 +238,7 @@ func print(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 					break
 				}
 				iargs := valuesToInterface(v)
-				fprint(stdout, iargs...)
+				fprint(out, iargs...)
 				first = false
 			}
 			return nil, nil
@@ -236,12 +246,16 @@ func print(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	}
 
 	iargs := valuesToInterface(args)
-	fprint(stdout, iargs...)
+	fprint(out, iargs...)
 
 	return nil, nil
 }
 
-func printf(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func printf(vm *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	return basePrintf(Stdout(vm), vm, args, nRet)
+}
+
+func basePrintf(out io.Writer, m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	mods, args := getPrintMods(args)
 
 	fprintf := fmt.Fprintf
@@ -262,33 +276,18 @@ func printf(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 		format = format + "\n"
 	}
 
-	stdout := Stdout(m)
 	iargs := valuesToInterface(args[1:])
-	fprintf(stdout, format, iargs...)
+	fprintf(out, format, iargs...)
 
 	return nil, nil
 }
 
-func log(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	iargs := valuesToInterface(args)
-	fmt.Fprintln(os.Stderr, iargs...)
-	return nil, nil
+func log(vm *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	return basePrint(Stderr(vm), vm, args, nRet)
 }
 
-func logf(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) < 1 {
-		return nil, errNotEnoughArgs
-	}
-
-	format, err := getStringArg(args, 0)
-	if err != nil {
-		return nil, err
-	}
-
-	iargs := valuesToInterface(args[1:])
-	fmt.Fprintf(os.Stderr, format+"\n", iargs...)
-
-	return nil, nil
+func logf(vm *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	return basePrintf(Stderr(vm), vm, args, nRet)
 }
 
 func sprintf(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
