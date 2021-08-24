@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"runtime/pprof"
 	"sync"
 	"time"
@@ -48,15 +49,38 @@ func printSysUsage(flags *Flags) {
 	p("")
 
 	bold.Fprintln(os.Stderr, "FLAGS")
-	flags.Print(os.Stderr)
+	flags.PrintFlags(os.Stderr)
+
 	os.Exit(1)
 }
 
-func printProgUsage(flags *Flags) {
+func printProgUsage(name string, flags *Flags) {
 	bold := color.New(color.Bold)
 
-	bold.Fprintln(os.Stderr, "FLAGS")
-	flags.Print(os.Stderr)
+	usage := name
+	if flags.HasFlags() {
+		usage += " [flags]"
+	}
+	if flags.HasArgs() {
+		for _, arg := range flags.GetArgs() {
+			usage += " " + arg.FullName()
+		}
+	}
+
+	bold.Fprintln(os.Stderr, "USAGE")
+	fmt.Fprintf(os.Stderr, "  %v\n", usage)
+
+	if flags.HasArgs() {
+		fmt.Fprintln(os.Stderr, "")
+		bold.Fprintln(os.Stderr, "ARGS")
+		flags.PrintArgs(os.Stderr)
+	}
+
+	if flags.HasFlags() {
+		fmt.Fprintln(os.Stderr, "")
+		bold.Fprintln(os.Stderr, "FLAGS")
+		flags.PrintFlags(os.Stderr)
+	}
 	os.Exit(1)
 }
 
@@ -75,7 +99,7 @@ func main() {
 
 	sysFlags := NewFlags()
 
-	flagN := sysFlags.AddFlag(&Flag{Name: "n", Desc: "Inline program", Value: new(bool)})
+	flagN := sysFlags.AddFlag(&Flag{Name: "n", Desc: "Inline program", Value: new(string)})
 	flagP := sysFlags.AddFlag(&Flag{Name: "p", Desc: "Create CPU profile", Value: new(string)})
 	flagD := sysFlags.AddFlag(&Flag{Name: "d", Desc: "Enable parser diagnostics", Value: new(bool)})
 
@@ -94,12 +118,9 @@ func main() {
 		fatal(err)
 	}
 
-	if len(args) == 0 {
+	if *flagN.Value.(*string) == "" && len(args) == 0 {
 		printSysUsage(sysFlags)
 	}
-
-	target := args[0]
-	args = args[1:]
 
 	compiler := nitro.NewCompiler(nitro.NewNativeFileLoader())
 	compiler.SetDiag(*flagD.Value.(*bool))
@@ -108,14 +129,19 @@ func main() {
 	lib.RegisterAll(compiler)
 	nitromath.RegisterNativePackage(compiler)
 
+	var progName string
 	var compiled *nitro.Program
-	if *flagN.Value.(*bool) {
-		compiled, err = compiler.CompileInline(target, nitro.NewConsoleErrLogger())
+	if *flagN.Value.(*string) != "" {
+		progName = "<inline>"
+		compiled, err = compiler.CompileInline(*flagN.Value.(*string), nitro.NewConsoleErrLogger())
 		if err != nil {
 			// Error was already logged by ConsoleErrLogger.
 			os.Exit(1)
 		}
 	} else {
+		target := args[0]
+		args = args[1:]
+		progName = filepath.Base(target)
 		compiled, err = compiler.Compile(target, nitro.NewConsoleErrLogger())
 		if err != nil {
 			// Error was already logged by ConsoleErrLogger.
@@ -132,11 +158,15 @@ func main() {
 	args, err = progFlags.Parse(args)
 
 	if progFlags.Help {
-		printProgUsage(progFlags)
+		printProgUsage(progName, progFlags)
 	}
 
 	if err != nil {
 		fatal(err)
+	}
+
+	if len(args) != 0 {
+		fatal(fmt.Errorf("unknown argument %v", args[0]))
 	}
 
 	cpuProfile := *flagP.Value.(*string)

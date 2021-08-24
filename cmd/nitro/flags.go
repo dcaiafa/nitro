@@ -17,21 +17,32 @@ type Flag struct {
 	Desc     string
 	Required bool
 	Value    interface{}
+	IsList   bool
 	Set      bool
+	Pos      *int
 }
 
 func (f *Flag) FullName() string {
-	prefix := "-"
-	if len(f.Name) > 1 {
-		prefix = "--"
+	if f.Pos == nil {
+		prefix := "-"
+		if len(f.Name) > 1 {
+			prefix = "--"
+		}
+		return prefix + f.Name
+	} else {
+		if f.Required {
+			return fmt.Sprintf("<%v>", f.Name)
+		} else {
+			return fmt.Sprintf("[<%v>]", f.Name)
+		}
 	}
-	return prefix + f.Name
 }
 
 type Flags struct {
 	Help bool
 
-	flags map[string]*Flag
+	flags   map[string]*Flag
+	posArgs []*Flag
 }
 
 func NewFlags() *Flags {
@@ -40,7 +51,36 @@ func NewFlags() *Flags {
 	}
 }
 
-func (f *Flags) Print(w io.Writer) {
+func (f *Flags) HasArgs() bool {
+	return len(f.posArgs) != 0
+}
+
+func (f *Flags) PrintArgs(w io.Writer) {
+	tabw := tabwriter.NewWriter(
+		w,
+		3,   /*minwidth*/
+		0,   /*tabwidth*/
+		2,   /*padding*/
+		' ', /*padchar*/
+		0,   /*flags*/
+	)
+
+	args := f.posArgs
+	for _, arg := range args {
+		fmt.Fprintf(tabw, "  %s\t%s\n", arg.FullName(), arg.Desc)
+	}
+	tabw.Flush()
+}
+
+func (f *Flags) GetArgs() []*Flag {
+	return f.posArgs
+}
+
+func (f *Flags) HasFlags() bool {
+	return len(f.flags) != 0
+}
+
+func (f *Flags) PrintFlags(w io.Writer) {
 	tabw := tabwriter.NewWriter(
 		w,
 		3,   /*minwidth*/
@@ -54,14 +94,15 @@ func (f *Flags) Print(w io.Writer) {
 	for _, f := range flags {
 		fmt.Fprintf(tabw, "  %s\t%s\n", f.FullName(), f.Desc)
 	}
-
 	tabw.Flush()
 }
 
 func (f *Flags) GetFlags() []*Flag {
 	flags := make([]*Flag, 0, len(f.flags))
 	for _, flag := range f.flags {
-		flags = append(flags, flag)
+		if flag.Pos == nil {
+			flags = append(flags, flag)
+		}
 	}
 	sort.Slice(flags, func(i, j int) bool {
 		return flags[i].Name < flags[j].Name
@@ -70,23 +111,35 @@ func (f *Flags) GetFlags() []*Flag {
 }
 
 func (f *Flags) AddFlag(flag *Flag) *Flag {
-	f.flags[flag.Name] = flag
+	if flag.Pos == nil {
+		f.flags[flag.Name] = flag
+	} else {
+		f.posArgs = append(f.posArgs, flag)
+	}
 	return flag
 }
 
 func (f *Flags) AddFlagsFromMetadata(md *nitro.Metadata) error {
+	posIndex := 0
 	for _, param := range md.Params {
 		flag := &Flag{
 			Name:     param.Name,
 			Desc:     param.Desc,
 			Required: param.Required,
 		}
+		if param.Positional {
+			flag.Pos = new(int)
+			*flag.Pos = posIndex
+			posIndex++
+		}
+
 		switch param.Type {
 		case "bool":
 			flag.Value = new(bool)
 		case "", "string":
 			flag.Value = new(string)
 		case "[]string":
+			flag.IsList = true
 			flag.Value = new([]string)
 		case "int":
 			flag.Value = new(int64)
@@ -98,15 +151,18 @@ func (f *Flags) AddFlagsFromMetadata(md *nitro.Metadata) error {
 
 		f.AddFlag(flag)
 	}
+	sort.Slice(f.posArgs, func(i, j int) bool {
+		return *f.posArgs[i].Pos < *f.posArgs[j].Pos
+	})
+
 	return nil
 }
 
 func (f *Flags) GetNitroValues() map[string]nitro.Value {
 	values := make(map[string]nitro.Value, len(f.flags))
-
-	for _, flag := range f.flags {
+	processFlag := func(flag *Flag) {
 		if !flag.Set {
-			continue
+			return
 		}
 		switch v := flag.Value.(type) {
 		case *bool:
@@ -128,30 +184,63 @@ func (f *Flags) GetNitroValues() map[string]nitro.Value {
 		}
 	}
 
+	for _, flag := range f.flags {
+		processFlag(flag)
+	}
+	for _, posArg := range f.posArgs {
+		processFlag(posArg)
+	}
+
 	return values
 }
 
 func (f *Flags) Parse(args []string) ([]string, error) {
 	var err error
+
+	posIndex := 0
 	for len(args) > 0 {
-		if !IsFlag(args[0]) {
-			break
-		}
-		if args[0] == "-h" || args[0] == "--help" {
-			f.Help = true
+		if IsFlag(args[0]) {
+			if args[0] == "-h" || args[0] == "--help" {
+				f.Help = true
+				args = args[1:]
+				continue
+			}
+			args, err = f.parseFlag(args)
+			if err != nil {
+				return nil, err
+			}
+		} else if posIndex < len(f.posArgs) {
+			posArg := f.posArgs[posIndex]
+			if !posArg.IsList {
+				// Don't advance/consume argument if it is a list because all
+				// remaining positional arguments, if available, will be added to it
+				// (validation will have ensured that only the last argument is a
+				// list).
+				posIndex++
+			}
+			err = f.parseFlagValue(args[0], posArg.Value)
+			if err != nil {
+				return nil, fmt.Errorf(
+					"invalid value for positional argument %v (%v): %w",
+					posArg.Name, *posArg.Pos, err)
+			}
+			posArg.Set = true
 			args = args[1:]
-			continue
-		}
-		args, err = f.parseFlag(args)
-		if err != nil {
-			return nil, err
+		} else {
+			break
 		}
 	}
 
 	for _, flag := range f.flags {
 		if flag.Required && !flag.Set {
 			return nil, fmt.Errorf(
-				"%v is required", flag.FullName())
+				"missing %v", flag.FullName())
+		}
+	}
+	for _, flag := range f.posArgs {
+		if flag.Required && !flag.Set {
+			return nil, fmt.Errorf(
+				"missing %v", flag.FullName())
 		}
 	}
 

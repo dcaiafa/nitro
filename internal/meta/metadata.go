@@ -5,8 +5,9 @@ type Metadata struct {
 }
 
 type Param struct {
-	Name     string
-	Type     string
-	Desc     string
-	Required bool
+	Name       string
+	Positional bool
+	Type       string
+	Desc       string
+	Required   bool
 }

@@ -71,6 +71,15 @@ func (a *MetaAttrib) RunPass(ctx *Context, pass Pass) {
 			}
 			paramAST.param.Name = nameStr.String()
 
+		case "positional":
+			if a.Value == nil {
+				paramAST.param.Positional = true
+			} else if posBool, ok := a.Value.(vm.Bool); ok {
+				paramAST.param.Positional = posBool.Bool()
+			} else {
+				ctx.Failf(a.Pos(), "'positional' attribute value must be bool")
+			}
+
 		case "type":
 			typeStr, ok := a.Value.(vm.String)
 			if !ok {
