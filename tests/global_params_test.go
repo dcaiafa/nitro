@@ -25,4 +25,13 @@ func TestGlobalParams(t *testing.T) {
 	`, map[string]vm.Value{
 		"bar": vm.NewInt(2),
 	}, `1 2`)
+
+	// Even though `len` is a global function, the parameter `len` is defined in
+	// the module's scope.
+	RunSubPO(t, "shadow_global", `
+		meta param len
+		print(len)
+	`, map[string]vm.Value{
+		"len": vm.NewInt(2),
+	}, `2`)
 }

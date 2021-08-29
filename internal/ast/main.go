@@ -31,7 +31,8 @@ func (m *Main) AddGlobalParam(ctx *Context, name string, param *meta.Param, pos 
 	g := m.NewGlobal()
 	g.SetName(name)
 	g.SetPos(pos)
-	if !m.rootScope.PutSymbol(ctx, g) {
+
+	if !ctx.CurrentScope().PutSymbol(ctx, g) {
 		return nil
 	}
 	if !ctx.Emitter().AddGlobalParam(param.Name, g.GlobalNdx) {
