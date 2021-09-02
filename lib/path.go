@@ -63,6 +63,17 @@ func pathfromslash(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, er
 	return []nitro.Value{nitro.NewString(fromSlash)}, nil
 }
 
+func pathtoslash(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	path, err := getStringArg(args, 0)
+	if err != nil {
+		return nil, err
+	}
+
+	p := filepath.ToSlash(path)
+
+	return []nitro.Value{nitro.NewString(p)}, nil
+}
+
 func pathjoin(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) < 2 {
 		return nil, errNotEnoughArgs

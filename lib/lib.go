@@ -52,6 +52,7 @@ func RegisterAll(c *nitro.Compiler) {
 	c.AddNativeFn("pathdir", pathdir)
 	c.AddNativeFn("pathext", pathext)
 	c.AddNativeFn("pathfromslash", pathfromslash)
+	c.AddNativeFn("pathtoslash", pathtoslash)
 	c.AddNativeFn("pathjoin", pathjoin)
 	c.AddNativeFn("pathmatch", pathmatch)
 	c.AddNativeFn("popstdout", popstdout)
