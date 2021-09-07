@@ -584,7 +584,7 @@ func (l *listener) ExitExpr(ctx *parser.ExprContext) {
 			fn.Pipeline = true
 			l.put(ctx, fn)
 
-		case *ast.AnonFuncExpr:
+		default:
 			fnCall := &ast.FuncCallExpr{
 				Target: fn,
 				Args:   ast.Exprs{left},
@@ -592,15 +592,6 @@ func (l *listener) ExitExpr(ctx *parser.ExprContext) {
 			}
 			fnCall.Pipeline = true
 			l.put(ctx, fnCall)
-
-		default:
-			r := allExpr[1]
-			l.errListener.LogError(
-				r.GetStart().GetLine(),
-				r.GetStart().GetColumn(),
-				"Right pipeline term must be a call expression")
-			l.put(ctx, &ast.ZeroExpr{})
-			return
 		}
 	} else {
 		l.put(ctx, l.takeExpr(ctx.Expr2()))
