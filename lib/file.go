@@ -345,34 +345,6 @@ func read(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	return []nitro.Value{nitro.NewString(string(data))}, nil
 }
 
-var errUTimesUsage = nitro.NewInvalidUsageError("fchtimes(string, time, time)")
-
-func utime(vm *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) != 3 {
-		return nil, errUTimesUsage
-	}
-
-	filepath, ok := args[0].(nitro.String)
-	if !ok {
-		return nil, errUTimesUsage
-	}
-	atime, ok := args[1].(Time)
-	if !ok {
-		return nil, errUTimesUsage
-	}
-	mtime, ok := args[2].(Time)
-	if !ok {
-		return nil, errUTimesUsage
-	}
-
-	err := os.Chtimes(filepath.String(), atime.time, mtime.time)
-	if err != nil {
-		return nil, err
-	}
-
-	return nil, nil
-}
-
 var errReadFileUsage = errors.New(
 	`invalid usage. Expected readfile(string)`)
 

@@ -90,6 +90,5 @@ func RegisterAll(c *nitro.Compiler) {
 	c.AddNativeFn("type", typep)
 	c.AddNativeFn("unique", unique)
 	c.AddNativeFn("userhomedir", userhomedir)
-	c.AddNativeFn("utime", utime)
 	c.AddNativeFn("writefile", writefile)
 }
