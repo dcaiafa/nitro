@@ -39,6 +39,24 @@ func (s *BaseNitroParserListener) EnterMeta_directive(ctx *Meta_directiveContext
 // ExitMeta_directive is called when production meta_directive is exited.
 func (s *BaseNitroParserListener) ExitMeta_directive(ctx *Meta_directiveContext) {}
 
+// EnterMeta_info is called when production meta_info is entered.
+func (s *BaseNitroParserListener) EnterMeta_info(ctx *Meta_infoContext) {}
+
+// ExitMeta_info is called when production meta_info is exited.
+func (s *BaseNitroParserListener) ExitMeta_info(ctx *Meta_infoContext) {}
+
+// EnterMeta_param is called when production meta_param is entered.
+func (s *BaseNitroParserListener) EnterMeta_param(ctx *Meta_paramContext) {}
+
+// ExitMeta_param is called when production meta_param is exited.
+func (s *BaseNitroParserListener) ExitMeta_param(ctx *Meta_paramContext) {}
+
+// EnterMeta_flag is called when production meta_flag is entered.
+func (s *BaseNitroParserListener) EnterMeta_flag(ctx *Meta_flagContext) {}
+
+// ExitMeta_flag is called when production meta_flag is exited.
+func (s *BaseNitroParserListener) ExitMeta_flag(ctx *Meta_flagContext) {}
+
 // EnterMeta_attribs is called when production meta_attribs is entered.
 func (s *BaseNitroParserListener) EnterMeta_attribs(ctx *Meta_attribsContext) {}
 

@@ -17,6 +17,15 @@ type NitroParserListener interface {
 	// EnterMeta_directive is called when entering the meta_directive production.
 	EnterMeta_directive(c *Meta_directiveContext)
 
+	// EnterMeta_info is called when entering the meta_info production.
+	EnterMeta_info(c *Meta_infoContext)
+
+	// EnterMeta_param is called when entering the meta_param production.
+	EnterMeta_param(c *Meta_paramContext)
+
+	// EnterMeta_flag is called when entering the meta_flag production.
+	EnterMeta_flag(c *Meta_flagContext)
+
 	// EnterMeta_attribs is called when entering the meta_attribs production.
 	EnterMeta_attribs(c *Meta_attribsContext)
 
@@ -271,6 +280,15 @@ type NitroParserListener interface {
 
 	// ExitMeta_directive is called when exiting the meta_directive production.
 	ExitMeta_directive(c *Meta_directiveContext)
+
+	// ExitMeta_info is called when exiting the meta_info production.
+	ExitMeta_info(c *Meta_infoContext)
+
+	// ExitMeta_param is called when exiting the meta_param production.
+	ExitMeta_param(c *Meta_paramContext)
+
+	// ExitMeta_flag is called when exiting the meta_flag production.
+	ExitMeta_flag(c *Meta_flagContext)
 
 	// ExitMeta_attribs is called when exiting the meta_attribs production.
 	ExitMeta_attribs(c *Meta_attribsContext)

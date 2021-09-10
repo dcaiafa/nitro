@@ -8,8 +8,8 @@ import (
 
 func TestGlobalParams(t *testing.T) {
 	RunSubPO(t, "set_all", `
-		meta param foo = 1
-		meta param bar {type:"int"}
+		!param foo = 1
+		!flag bar {type:"int"}
 
 		print(foo, bar)
 	`, map[string]vm.Value{
@@ -18,8 +18,8 @@ func TestGlobalParams(t *testing.T) {
 	}, `3 2`)
 
 	RunSubPO(t, "use_default", `
-		meta param foo = 1
-		meta param bar
+		!param foo = 1
+		!flag bar
 
 		print(foo, bar)
 	`, map[string]vm.Value{
@@ -29,7 +29,7 @@ func TestGlobalParams(t *testing.T) {
 	// Even though `len` is a global function, the parameter `len` is defined in
 	// the module's scope.
 	RunSubPO(t, "shadow_global", `
-		meta param len
+		!param len
 		print(len)
 	`, map[string]vm.Value{
 		"len": vm.NewInt(2),

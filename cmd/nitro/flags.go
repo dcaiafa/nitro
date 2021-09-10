@@ -127,7 +127,7 @@ func (f *Flags) AddFlagsFromMetadata(md *nitro.Metadata) error {
 			Desc:     param.Desc,
 			Required: param.Required,
 		}
-		if param.Positional {
+		if !param.IsFlag {
 			flag.Pos = new(int)
 			*flag.Pos = posIndex
 			posIndex++

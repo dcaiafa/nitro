@@ -1,6 +1,10 @@
 lexer grammar NitroLexer;
 import Strings;
 
+M_INFO: '!info';
+M_PARAM: '!param';
+M_FLAG: '!flag';
+
 AND: 'and';
 BREAK: 'break';
 CATCH: 'catch';
@@ -12,7 +16,6 @@ FOR: 'for';
 FUNC: 'func';
 IF: 'if';
 IMPORT: 'import';
-META: 'meta';
 NIL: 'nil';
 NOT: 'not';
 OR: 'or';

@@ -10,6 +10,7 @@ type MetaParam struct {
 	astBase
 
 	Name    string
+	IsFlag  bool
 	Default Expr
 	Attribs ASTs
 
@@ -22,7 +23,8 @@ func (p *MetaParam) RunPass(ctx *Context, pass Pass) {
 
 	if pass == Check {
 		p.param = &meta.Param{
-			Name: p.Name,
+			Name:   p.Name,
+			IsFlag: p.IsFlag,
 		}
 	}
 
@@ -70,15 +72,6 @@ func (a *MetaAttrib) RunPass(ctx *Context, pass Pass) {
 				return
 			}
 			paramAST.param.Name = nameStr.String()
-
-		case "positional":
-			if a.Value == nil {
-				paramAST.param.Positional = true
-			} else if posBool, ok := a.Value.(vm.Bool); ok {
-				paramAST.param.Positional = posBool.Bool()
-			} else {
-				ctx.Failf(a.Pos(), "'positional' attribute value must be bool")
-			}
 
 		case "type":
 			typeStr, ok := a.Value.(vm.String)

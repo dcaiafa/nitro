@@ -178,27 +178,51 @@ func (l *listener) ExitModule(ctx *parser.ModuleContext) {
 }
 
 func (l *listener) ExitMeta_directive(ctx *parser.Meta_directiveContext) {
-	if ctx.ID(0).GetText() != "param" {
-		l.errListener.LogError(
-			ctx.ID(0).GetSymbol().GetLine(),
-			ctx.ID(0).GetSymbol().GetColumn(),
-			"Unsupported metadata type %q",
-			ctx.ID(0).GetText())
-		return
+	var ast ast.AST
+	if ctx.Meta_info() != nil {
+		ast = l.takeAST(ctx.Meta_info())
+	} else if ctx.Meta_param() != nil {
+		ast = l.takeAST(ctx.Meta_param())
+	} else if ctx.Meta_flag() != nil {
+		ast = l.takeAST(ctx.Meta_flag())
+	} else {
+		panic("not reached")
 	}
+	l.put(ctx, ast)
+}
 
+func (l *listener) ExitMeta_info(ctx *parser.Meta_infoContext) {
+	l.errListener.LogError(
+		ctx.M_INFO().GetSymbol().GetLine(),
+		ctx.M_INFO().GetSymbol().GetColumn(),
+		"Info metadata not implemented")
+}
+
+func (l *listener) ExitMeta_param(ctx *parser.Meta_paramContext) {
 	param := &ast.MetaParam{
-		Name: ctx.ID(1).GetText(),
+		Name:   ctx.ID().GetText(),
+		IsFlag: false,
 	}
-
 	if ctx.Expr() != nil {
 		param.Default = l.takeExpr(ctx.Expr())
 	}
-
 	if ctx.Meta_attribs() != nil {
 		param.Attribs = l.takeASTs(ctx.Meta_attribs())
 	}
+	l.put(ctx, param)
+}
 
+func (l *listener) ExitMeta_flag(ctx *parser.Meta_flagContext) {
+	param := &ast.MetaParam{
+		Name:   ctx.ID().GetText(),
+		IsFlag: true,
+	}
+	if ctx.Expr() != nil {
+		param.Default = l.takeExpr(ctx.Expr())
+	}
+	if ctx.Meta_attribs() != nil {
+		param.Attribs = l.takeASTs(ctx.Meta_attribs())
+	}
 	l.put(ctx, param)
 }
 

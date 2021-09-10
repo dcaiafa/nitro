@@ -8,7 +8,13 @@ module: meta_directive* import_stmt* stmts;
 
 // Meta
 
-meta_directive: META ID ID ('=' expr)? ('{' meta_attribs '}')? ';';
+meta_directive: meta_info 
+              | meta_param
+              | meta_flag;
+
+meta_info: M_INFO ('{' meta_attribs '}')? ';';
+meta_param: M_PARAM ID ('=' expr)? ('{' meta_attribs '}')? ';';
+meta_flag: M_FLAG ID ('=' expr)? ('{' meta_attribs '}')? ';';
 meta_attribs: meta_attrib ((','|';') meta_attrib)* (','|';')?;
 meta_attrib: id_or_keyword (':' meta_literal)?;
 meta_literal: val=(STRING | NUMBER | CHAR | TRUE | FALSE | NIL);
@@ -166,7 +172,6 @@ id_or_keyword:
       FUNC |
       IF |
       IMPORT |
-      META |
       NIL |
       NOT |
       OR |
