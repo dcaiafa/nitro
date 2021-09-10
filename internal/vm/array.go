@@ -23,7 +23,7 @@ func (a *Array) EvalOp(op Op, operand Value) (Value, error) {
 	return nil, fmt.Errorf("list does not support this operation")
 }
 
-func (a *Array) Push(v Value) {
+func (a *Array) Add(v Value) {
 	a.array = append(a.array, v)
 }
 
@@ -49,8 +49,10 @@ func (a *Array) Index(key Value) (Value, error) {
 	switch key := key.(type) {
 	case String:
 		switch key.String() {
-		case "push":
-			return NativeFn(a.push), nil
+		case "add":
+			return NativeFn(a.add), nil
+		case "additer":
+			return NativeFn(a.additer), nil
 		case "len":
 			return NativeFn(a.len), nil
 		case "find":
@@ -164,15 +166,45 @@ func (i *arrayIter) Next(m *VM, args []Value, nret int) ([]Value, error) {
 	return []Value{v, NewInt(int64(idx))}, nil
 }
 
-var errArrayPushUsage error = NewInvalidUsageError("<list>.push(any)")
+var errListAddUsage error = NewInvalidUsageError("<list>.add(any)")
 
-func (a *Array) push(m *VM, args []Value, nRet int) ([]Value, error) {
+func (a *Array) add(m *VM, args []Value, nRet int) ([]Value, error) {
 	if len(args) != 1 {
-		return nil, errArrayPushUsage
+		return nil, errListAddUsage
 	}
 
 	v := args[0]
-	a.Push(v)
+	a.Add(v)
+
+	return nil, nil
+}
+
+var errListAddIterUsage error = NewInvalidUsageError("<list>.additer(iter)")
+
+func (a *Array) additer(m *VM, args []Value, nret int) ([]Value, error) {
+	if len(args) != 1 {
+		return nil, errListAddIterUsage
+	}
+
+	switch arg := args[0].(type) {
+	case *Array:
+		a.array = append(a.array, arg.array...)
+	case Iterator, Iterable:
+		iter, err := MakeIterator(m, arg)
+		if err != nil {
+			return nil, err
+		}
+		for {
+			v, err := m.IterNext(iter, 1)
+			if err != nil {
+				return nil, err
+			}
+			if v == nil {
+				break
+			}
+			a.array = append(a.array, v[0])
+		}
+	}
 
 	return nil, nil
 }

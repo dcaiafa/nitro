@@ -12,6 +12,5 @@ func Register(c Compiler) {
 	c.AddNativeFn("has", has)
 	c.AddNativeFn("len", Len)
 	c.AddNativeFn("narg", narg)
-	c.AddNativeFn("push", push)
 	c.AddNativeFn("range", Range)
 }

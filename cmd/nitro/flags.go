@@ -172,7 +172,7 @@ func (f *Flags) GetNitroValues() map[string]nitro.Value {
 		case *[]string:
 			a := nitro.NewArray()
 			for _, s := range *v {
-				a.Push(nitro.NewString(s))
+				a.Add(nitro.NewString(s))
 			}
 			values[flag.Name] = a
 		case *int64:

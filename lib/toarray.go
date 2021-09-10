@@ -37,7 +37,7 @@ func ToArray(m *nitro.VM, v nitro.Value) (*nitro.Array, error) {
 		if v == nil {
 			break
 		}
-		arr.Push(v[0])
+		arr.Add(v[0])
 	}
 
 	return arr, nil

@@ -243,7 +243,7 @@ func (s String) match(m *VM, args []Value, nRet int) ([]Value, error) {
 
 	a := NewArrayWithSlice(make([]Value, 0, len(matches)))
 	for _, match := range matches {
-		a.Push(NewString(match))
+		a.Add(NewString(match))
 	}
 
 	return []Value{a}, nil
@@ -270,9 +270,9 @@ func (s String) matchall(m *VM, args []Value, nRet int) ([]Value, error) {
 	for _, match := range matches {
 		a2 := NewArrayWithSlice(make([]Value, 0, len(match)))
 		for _, submatch := range match {
-			a2.Push(NewString(submatch))
+			a2.Add(NewString(submatch))
 		}
-		a.Push(a2)
+		a.Add(a2)
 	}
 
 	return []Value{a}, nil
@@ -383,7 +383,7 @@ func (s String) split(m *VM, args []Value, nRet int) ([]Value, error) {
 
 	a := NewArrayWithSlice(make([]Value, 0, len(parts)))
 	for _, part := range parts {
-		a.Push(NewString(part))
+		a.Add(NewString(part))
 	}
 
 	return []Value{a}, nil

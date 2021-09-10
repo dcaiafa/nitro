@@ -791,7 +791,7 @@ func (m *VM) resume() (err error) {
 		case OpArrayAppendNoPop:
 			array := m.stack[m.sp-2].(*Array)
 			value := m.stack[m.sp-1]
-			array.Push(value)
+			array.Add(value)
 			m.sp--
 
 		case OpRet:

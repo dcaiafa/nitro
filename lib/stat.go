@@ -375,6 +375,6 @@ func group(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) == 1 || args[1] == nil {
 		return []nitro.Value{accum}, nil
 	}
-	accum.Push(args[1])
+	accum.Add(args[1])
 	return []nitro.Value{accum}, nil
 }

@@ -31,7 +31,7 @@ func unique(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 
 	arr := nitro.NewArrayFromSlice(make([]nitro.Value, 0, len(set)))
 	for v := range set {
-		arr.Push(v)
+		arr.Add(v)
 	}
 
 	return []nitro.Value{arr}, nil

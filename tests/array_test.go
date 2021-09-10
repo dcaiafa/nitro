@@ -84,11 +84,17 @@ func TestArrayLiteral(t *testing.T) {
 		print(r)
 		`, `{names: [{first: "alice", last: "smith"} {first: "alice", last: "hunter"} {first: "bob", last: "smith"} {first: "bob", last: "hunter"}]}`)
 
-	RunSubO(t, "push", `
+	RunSubO(t, "add", `
 		var a = ["foo"]
-		push(a, "bar")
+		a.add("bar")
 		print(a)
 	`, `[foo bar]`)
+
+	RunSubO(t, "additer_list", `
+		var a = ["foo"]
+		a.additer(["bar", "baz"])
+		print(a)
+	`, `[foo bar baz]`)
 
 	RunSubO(t, "iter", `
 		for e, i in ["a", "b", "c"] {
