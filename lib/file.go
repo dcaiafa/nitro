@@ -22,7 +22,7 @@ type File struct {
 var _ /* implements */ nitro.Indexable = (*File)(nil)
 var _ /* implements */ nitro.Callable = (*File)(nil)
 
-func (f *File) String() string { return fmt.Sprintf("File:%v", f.File.Name()) }
+func (f *File) String() string { return fmt.Sprintf("File:%v", f.Name()) }
 func (f *File) Type() string   { return "File" }
 
 func (f *File) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) {
@@ -57,7 +57,7 @@ func (f *File) Index(key nitro.Value) (nitro.Value, error) {
 
 	switch keyStr.String() {
 	case "name":
-		return nitro.NewString(f.File.Name()), nil
+		return nitro.NewString(f.Name()), nil
 
 	default:
 		return nil, fmt.Errorf(
@@ -104,7 +104,7 @@ func open(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 		if !ok {
 			return nil, errOpenUsage
 		}
-		err := openOptionsConv.Convert(optsMap, opts)
+		err = openOptionsConv.Convert(optsMap, opts)
 		if err != nil {
 			return nil, err
 		}
@@ -179,13 +179,13 @@ func (i *fileInfo) Index(key nitro.Value) (nitro.Value, error) {
 
 	switch keyStr.String() {
 	case "name":
-		return nitro.NewString(i.FileInfo.Name()), nil
+		return nitro.NewString(i.Name()), nil
 	case "size":
-		return nitro.NewInt(i.FileInfo.Size()), nil
+		return nitro.NewInt(i.Size()), nil
 	case "modtime":
-		return NewTime(i.FileInfo.ModTime()), nil
+		return NewTime(i.ModTime()), nil
 	case "isdir":
-		return nitro.NewBool(i.FileInfo.IsDir()), nil
+		return nitro.NewBool(i.IsDir()), nil
 	default:
 		return nil, fmt.Errorf(
 			"fileinfo does not have method %q",
@@ -701,7 +701,7 @@ func mkdirall(vm *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error)
 		return nil, errMkdirAllUsage
 	}
 
-	err := os.MkdirAll(path.String(), 755)
+	err := os.MkdirAll(path.String(), 0755)
 	if err != nil {
 		return nil, err
 	}

@@ -2,6 +2,8 @@ package lib
 
 import (
 	"bufio"
+	"bytes"
+	"fmt"
 	"io"
 	"runtime"
 	"strings"
@@ -18,14 +20,14 @@ func fromcrlf(vm *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error)
 
 	switch source := args[0].(type) {
 	case nitro.String:
-		converter := newFromCRLFReader(strings.NewReader(source.String()))
+		converter := newFromCRLFReader(source.MakeReader())
 		converted, err := io.ReadAll(converter)
 		if err != nil {
 			return nil, err
 		}
 		return []nitro.Value{nitro.NewString(string(converted))}, nil
 
-	case io.Reader:
+	case io.Reader, io.Writer:
 		converter := newFromCRLFReader(source)
 		return []nitro.Value{converter}, nil
 
@@ -76,72 +78,104 @@ func tocrlf(vm *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
 	}
 }
 
-type fromCRLFReader struct {
+type fromCRLFReaderWriter struct {
 	nitro.BaseValue
 
+	c   io.Closer
 	r   io.Reader
+	w   io.Writer
 	buf *bufio.Reader
 }
 
-func newFromCRLFReader(r io.Reader) *fromCRLFReader {
-	c := &fromCRLFReader{
+func newFromCRLFReader(v nitro.Value) *fromCRLFReaderWriter {
+	c := &fromCRLFReaderWriter{
 		BaseValue: nitro.BaseValue{TypeName: "fromcrlf"},
-		r:         r,
 	}
 
 	var ok bool
-	c.buf, ok = r.(*bufio.Reader)
-	if !ok {
-		c.buf = bufio.NewReader(r)
+	c.c, _ = v.(io.Closer)
+	c.r, _ = v.(io.Reader)
+	c.w, _ = v.(io.Writer)
+
+	if c.r != nil {
+		c.buf, ok = c.r.(*bufio.Reader)
+		if !ok {
+			c.buf = bufio.NewReader(c.r)
+		}
 	}
 
 	return c
 }
 
-func (c *fromCRLFReader) Read(buf []byte) (int, error) {
+func (c *fromCRLFReaderWriter) Read(buf []byte) (int, error) {
+	if c.r == nil {
+		return 0, fmt.Errorf("cannot read from %v", c.TypeName)
+	}
+
 	n := 0
 	for n < len(buf) {
-		b, err := c.readByte(false)
+		b, err := c.buf.ReadByte()
 		if err != nil {
 			return n, err
 		}
-		buf[n] = b
-		n++
+		if b != '\r' {
+			buf[n] = b
+			n++
+		}
 	}
 	return n, nil
 }
 
-func (c *fromCRLFReader) readByte(cr bool) (byte, error) {
-	b, err := c.buf.ReadByte()
-	if err == io.EOF && cr {
-		return '\r', nil
-	} else if err != nil {
-		return 0, err
+func (c *fromCRLFReaderWriter) Write(buf []byte) (int, error) {
+	if c.w == nil {
+		return 0, fmt.Errorf("cannot write to %v", c.TypeName)
 	}
-	if b == '\r' && !cr {
-		return c.readByte(true)
+
+	n := 0
+	for len(buf) > 0 {
+		if buf[0] == '\r' {
+			buf = buf[1:]
+			n++
+		}
+		i := bytes.IndexByte(buf, '\r')
+		if i == -1 {
+			i = len(buf)
+		}
+		if i > 0 {
+			pn, err := c.w.Write(buf[:i])
+			n += pn
+			if err != nil {
+				return n, err
+			}
+			buf = buf[i:]
+		}
 	}
-	if b != '\n' && cr {
-		c.buf.UnreadByte()
-		return '\r', nil
-	}
-	return b, nil
+	return n, nil
 }
 
-func (c *fromCRLFReader) Close() error {
-	if closer, ok := c.r.(io.Closer); ok {
-		return closer.Close()
+func (c *fromCRLFReaderWriter) Call(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	if len(args) != 1 {
+		return nil, errWriterCallUsage
+	}
+
+	reader, err := nitro.MakeReader(m, args[0])
+	if err != nil {
+		return nil, errWriterCallUsage
+	}
+
+	n, err := io.Copy(c, reader)
+	if err != nil {
+		return nil, err
+	}
+
+	return []nitro.Value{nitro.NewInt(n)}, nil
+}
+
+func (c *fromCRLFReaderWriter) Close() error {
+	if c.c != nil {
+		return c.c.Close()
 	}
 	return nil
-}
-
-type fromCRLFWriter struct {
-	nitro.BaseValue
-	w io.Writer
-}
-
-func (c *fromCRLFWriter) Write(buf []byte) (int, error) {
-	panic("not implemented")
 }
 
 type toCRLFReader struct {
