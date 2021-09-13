@@ -9,6 +9,32 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
+type RunOption struct {
+	beforeCompile func(c *nitro.Compiler)
+	beforeRun     func(vm *nitro.VM)
+}
+
+func WithParams(params map[string]nitro.Value) RunOption {
+	return RunOption{
+		beforeRun: func(vm *nitro.VM) {
+			for n, v := range params {
+				err := vm.SetParam(n, v)
+				if err != nil {
+					panic(err)
+				}
+			}
+		},
+	}
+}
+
+func WithFn(name string, fn nitro.NativeFn) RunOption {
+	return RunOption{
+		beforeCompile: func(c *nitro.Compiler) {
+			c.AddNativeFn(name, fn)
+		},
+	}
+}
+
 type MemoryFileLoader map[string]string
 
 func (fs MemoryFileLoader) LoadFile(name string) ([]byte, error) {
@@ -19,7 +45,7 @@ func (fs MemoryFileLoader) LoadFile(name string) ([]byte, error) {
 	return []byte(data), nil
 }
 
-func run(prog string, params map[string]nitro.Value) (output string, err error) {
+func run(prog string, opts ...RunOption) (output string, err error) {
 	fs := make(MemoryFileLoader)
 	fs["main.n"] = prog
 
@@ -28,12 +54,11 @@ func run(prog string, params map[string]nitro.Value) (output string, err error) 
 	compiler := nitro.NewCompiler(fs)
 	compiler.SetDiag(true)
 
-	compiler.AddNativeFn(
-		"call",
-		func(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-			callable := args[0].(nitro.Callable)
-			return m.Call(callable, args, nRet)
-		})
+	for _, opt := range opts {
+		if opt.beforeCompile != nil {
+			opt.beforeCompile(compiler)
+		}
+	}
 
 	RegisterAll(compiler)
 
@@ -43,10 +68,10 @@ func run(prog string, params map[string]nitro.Value) (output string, err error) 
 	}
 
 	vm := nitro.NewVM(compiled)
-	for n, v := range params {
-		err = vm.SetParam(n, v)
-		if err != nil {
-			return "", err
+
+	for _, opt := range opts {
+		if opt.beforeRun != nil {
+			opt.beforeRun(vm)
 		}
 	}
 
@@ -61,12 +86,12 @@ func run(prog string, params map[string]nitro.Value) (output string, err error) 
 	return output, nil
 }
 
-func RunO(t *testing.T, prog string, expectedOutput string) {
+func RunO(t *testing.T, prog string, expectedOutput string, opts ...RunOption) {
 	t.Helper()
 
 	expectedOutput = strings.Trim(expectedOutput, "\r\n\t ")
 
-	output, err := run(prog, nil)
+	output, err := run(prog, opts...)
 	if err != nil {
 		t.Fatalf("Unexpected error: %v", err)
 	}
@@ -76,39 +101,17 @@ func RunO(t *testing.T, prog string, expectedOutput string) {
 	}
 }
 
-func RunSubO(t *testing.T, name string, prog string, expectedOutput string) {
+func RunSubO(t *testing.T, name string, prog string, expectedOutput string, opts ...RunOption) {
 	t.Run(name, func(t *testing.T) {
 		t.Helper()
-		RunO(t, prog, expectedOutput)
+		RunO(t, prog, expectedOutput, opts...)
 	})
 }
 
-func RunPO(t *testing.T, prog string, params map[string]nitro.Value, expectedOutput string) {
+func RunErr(t *testing.T, prog string, expectedErr error, opts ...RunOption) {
 	t.Helper()
 
-	expectedOutput = strings.Trim(expectedOutput, "\r\n\t ")
-
-	output, err := run(prog, params)
-	if err != nil {
-		t.Fatalf("Unexpected error: %v", err)
-	}
-
-	if output != expectedOutput {
-		t.Fatalf("Expected output:\n%v\nActual:\n%v", expectedOutput, output)
-	}
-}
-
-func RunSubPO(t *testing.T, name string, prog string, params map[string]nitro.Value, expectedOutput string) {
-	t.Run(name, func(t *testing.T) {
-		t.Helper()
-		RunPO(t, prog, params, expectedOutput)
-	})
-}
-
-func RunErr(t *testing.T, prog string, expectedErr error) {
-	t.Helper()
-
-	_, err := run(prog, nil)
+	_, err := run(prog, opts...)
 	if err == nil {
 		t.Fatalf("Error expected but operation succeeded")
 	}
@@ -118,9 +121,9 @@ func RunErr(t *testing.T, prog string, expectedErr error) {
 	}
 }
 
-func RunSubErr(t *testing.T, name string, prog string, expectedErr error) {
+func RunSubErr(t *testing.T, name string, prog string, expectedErr error, opts ...RunOption) {
 	t.Run(name, func(t *testing.T) {
 		t.Helper()
-		RunErr(t, prog, expectedErr)
+		RunErr(t, prog, expectedErr, opts...)
 	})
 }
