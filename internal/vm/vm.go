@@ -1,6 +1,7 @@
 package vm
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"reflect"
@@ -74,6 +75,11 @@ type frame struct {
 	bp         int
 }
 
+type contextInfo struct {
+	ctx    context.Context
+	cancel context.CancelFunc
+}
+
 type VM struct {
 	userData     map[interface{}]interface{}
 	program      *Program
@@ -88,30 +94,87 @@ type VM struct {
 	shuttingDown bool
 	closers      map[Closer]struct{}
 
-	interrupt      int32
-	interruptErrMu sync.Mutex
-	interruptErr   error
+	mu            sync.Mutex
+	wg            sync.WaitGroup
+	interrupt     int32
+	injectedErr   error
+	contextStack  []contextInfo
+	ctxWatchdogCh chan context.Context
 
 	preAllocStack [stackSize]Value
 }
 
 func NewVM(prog *Program) *VM {
 	m := &VM{
-		program:  prog,
-		globals:  make([]Value, prog.globals),
-		userData: make(map[interface{}]interface{}),
-		closers:  make(map[Closer]struct{}),
+		program:       prog,
+		globals:       make([]Value, prog.globals),
+		userData:      make(map[interface{}]interface{}),
+		closers:       make(map[Closer]struct{}),
+		ctxWatchdogCh: make(chan context.Context, 10),
 	}
 
 	m.stack = m.preAllocStack[:]
 	return m
 }
 
-func (m *VM) Interrupt(err error) {
-	m.interruptErrMu.Lock()
-	m.interruptErr = err
-	atomic.StoreInt32(&m.interrupt, 1)
-	m.interruptErrMu.Unlock()
+func (m *VM) ctxWatchdog() {
+	m.wg.Done()
+
+	var ctxDone <-chan struct{}
+	for {
+		select {
+		case ctx, ok := <-m.ctxWatchdogCh:
+			if !ok {
+				return
+			}
+			ctxDone = ctx.Done()
+		case <-ctxDone:
+			ctxDone = nil
+			atomic.StoreInt32(&m.interrupt, 1)
+		}
+	}
+}
+
+func (m *VM) CreateContext(baseCtx context.Context) context.Context {
+	if baseCtx == nil {
+		baseCtx = context.Background()
+	}
+
+	ctx, cancel := context.WithCancel(baseCtx)
+
+	m.mu.Lock()
+
+	m.contextStack = append(m.contextStack, contextInfo{
+		ctx:    ctx,
+		cancel: cancel,
+	})
+
+	if m.injectedErr != nil {
+		cancel()
+	}
+
+	m.mu.Unlock()
+
+	m.ctxWatchdogCh <- ctx
+
+	return ctx
+}
+
+func (m *VM) ReleaseContext(ctx context.Context) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	n := len(m.contextStack)
+	if n == 0 || m.contextStack[n-1].ctx != ctx {
+		panic("Mismatched CreateContext/ReleaseContext")
+	}
+
+	m.contextStack[n-1].cancel()
+	m.contextStack = m.contextStack[:n-1]
+
+	if n >= 2 {
+		m.ctxWatchdogCh <- m.contextStack[n-2].ctx
+	}
 }
 
 func (m *VM) SetUserData(key, value interface{}) {
@@ -139,6 +202,9 @@ func (m *VM) Run(args []Value) error {
 	f.fn = &m.program.fns[0]
 	f.nArg = len(args)
 	f.bp = len(args)
+
+	m.wg.Add(1)
+	go m.ctxWatchdog()
 
 	defer m.shutdown()
 	return m.runFrame(f)
@@ -480,16 +546,44 @@ func (m *VM) runDefers() error {
 	return nil
 }
 
+func (m *VM) checkInterrupt() error {
+	if atomic.LoadInt32(&m.interrupt) == 0 {
+		return nil
+	}
+
+	atomic.StoreInt32(&m.interrupt, 0)
+
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if m.injectedErr != nil {
+		err := m.injectedErr
+		m.injectedErr = nil
+		return err
+	}
+
+	if len(m.contextStack) != 0 {
+		ctx := m.contextStack[len(m.contextStack)-1].ctx
+		if ctx.Err() != nil {
+			return ctx.Err()
+		}
+	}
+
+	return nil
+}
+
 func (m *VM) resume() (err error) {
+	defer func() {
+		ierr := m.checkInterrupt()
+		if ierr != nil {
+			err = ierr
+		}
+	}()
+
 	for {
-		if atomic.LoadInt32(&m.interrupt) != 0 {
-			m.interruptErrMu.Lock()
-			err = m.interruptErr
-			atomic.StoreInt32(&m.interrupt, 0)
-			m.interruptErrMu.Unlock()
-			if err != nil {
-				return err
-			}
+		err = m.checkInterrupt()
+		if err != nil {
+			return err
 		}
 
 		instr := m.instrs[m.ip]
@@ -953,6 +1047,18 @@ func (m *VM) resume() (err error) {
 	}
 }
 
+func (m *VM) SignalError(err error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	m.injectedErr = err
+	if len(m.contextStack) != 0 {
+		m.contextStack[len(m.contextStack)-1].cancel()
+	}
+
+	atomic.StoreInt32(&m.interrupt, 1)
+}
+
 func (m *VM) GetCallerNArg() int {
 	if len(m.callStack) < 2 {
 		return 0
@@ -1072,4 +1178,7 @@ func (m *VM) shutdown() {
 	for c := range m.closers {
 		c.Close()
 	}
+
+	close(m.ctxWatchdogCh)
+	m.wg.Wait()
 }

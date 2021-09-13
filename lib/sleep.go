@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"context"
 	"errors"
 	"time"
 
@@ -25,6 +26,16 @@ func sleep(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 		return nil, errSleepUsage
 	}
 
-	time.Sleep(dur)
-	return nil, nil
+	timer := time.NewTimer(dur)
+	defer timer.Stop()
+
+	ctx := m.CreateContext(context.Background())
+	defer m.ReleaseContext(ctx)
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+
+	case <-timer.C:
+		return nil, nil
+	}
 }

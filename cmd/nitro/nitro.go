@@ -193,7 +193,7 @@ func main() {
 		for {
 			select {
 			case <-signalCh:
-				vm.Interrupt(errors.New("SIGINT"))
+				vm.SignalError(errors.New("SIGINT"))
 			case <-stopCh:
 				return
 			}
@@ -202,7 +202,7 @@ func main() {
 
 	nitroParams := progFlags.GetNitroValues()
 	for paramName, paramValue := range nitroParams {
-		err := vm.SetParam(paramName, paramValue)
+		err = vm.SetParam(paramName, paramValue)
 		if err != nil {
 			fatal(err)
 		}

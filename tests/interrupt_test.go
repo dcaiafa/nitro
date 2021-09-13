@@ -50,11 +50,11 @@ func TestInterrupt(t *testing.T) {
 
 	go func() {
 		time.Sleep(100 * time.Millisecond)
-		vm.Interrupt(errors.New("INT1"))
+		vm.SignalError(errors.New("INT1"))
 		time.Sleep(100 * time.Millisecond)
-		vm.Interrupt(errors.New("INT2"))
+		vm.SignalError(errors.New("INT2"))
 		time.Sleep(100 * time.Millisecond)
-		vm.Interrupt(io.EOF)
+		vm.SignalError(io.EOF)
 	}()
 
 	err = vm.Run(nil)
