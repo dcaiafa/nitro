@@ -104,7 +104,23 @@ func prompt(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 			Help:    opt.Help,
 		}
 
+		var resp string
+		err := survey.AskOne(p, &resp, askOptions...)
+		if err != nil {
+			return nil, err
+		}
+
+		return []nitro.Value{nitro.NewString(resp)}, nil
+
 	case "select":
+		if len(opt.Options) == 0 {
+			return nil, fmt.Errorf("options cannot be nil or an empty list")
+		}
+
+		if opt.Default == "" {
+			opt.Default = opt.Options[0]
+		}
+
 		p = &survey.Select{
 			Message:       opt.Message,
 			Options:       opt.Options,
@@ -115,17 +131,23 @@ func prompt(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 			VimMode:       opt.VimMode,
 		}
 
+		var selIndex int
+		err := survey.AskOne(p, &selIndex, askOptions...)
+		if err != nil {
+			return nil, err
+		}
+
+		if selIndex < 0 {
+			return []nitro.Value{nil, nil}, nil
+		}
+
+		return []nitro.Value{
+			nitro.NewString(opt.Options[selIndex]),
+			nitro.NewInt(int64(selIndex))}, nil
+
 	default:
 		return nil, fmt.Errorf("invalid type %q", opt.Type)
 	}
-
-	var resp string
-	err := survey.AskOne(p, &resp, askOptions...)
-	if err != nil {
-		return nil, err
-	}
-
-	return []nitro.Value{nitro.NewString(resp)}, nil
 }
 
 func wrapSurveyValidator(vm *nitro.VM, fn nitro.Value) (survey.Validator, error) {
