@@ -24,11 +24,14 @@ const (
 	OpNewArray
 	OpLoadGlobal
 	OpLoadGlobalRef
+	OpLoadGlobalDeref
 	OpLoadLocal
 	OpLoadLocalRef
+	OpLoadLocalDeref
 	OpCaptureLocal
 	OpLoadArg
 	OpLoadArgRef
+	OpLoadArgDeref
 	OpCaptureArg
 	OpLoadCapture
 	OpLoadCaptureRef
@@ -56,6 +59,9 @@ const (
 	OpIterYield
 	OpIterRet
 	OpNewIter
+	OpLiftArg
+	OpInitLiftedLocal
+	OpInitLiftedGlobal
 )
 
 const (

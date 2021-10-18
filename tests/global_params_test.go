@@ -34,4 +34,19 @@ func TestGlobalParams(t *testing.T) {
 	`, map[string]vm.Value{
 		"len": vm.NewInt(2),
 	}, `2`)
+
+	RunSubPO(t, "closure", `
+		!param foo = 1
+		!param bar = 2
+
+		func x() {
+			return func() {
+				print(foo, bar)
+			}
+		}
+		x()()
+	`, map[string]vm.Value{
+		"bar": vm.NewInt(3),
+	},
+		`1 3`)
 }

@@ -1,8 +1,8 @@
 package ast
 
 import (
-	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/internal/symbol"
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
 type Func struct {
@@ -20,6 +20,12 @@ type Func struct {
 	captures   []*symbol.CaptureSymbol
 	iterNRet   int
 }
+
+func (f *Func) Scope() *symbol.Scope {
+	return f.scope
+}
+
+func (f *Func) IsLiftableScope() {}
 
 func (f *Func) RunPass(ctx *Context, pass Pass) {
 	switch pass {
@@ -80,7 +86,7 @@ func (f *Func) RunPass(ctx *Context, pass Pass) {
 
 		if f.IsClosure {
 			for _, capture := range f.captures {
-				emitSymbolCapture(f.Pos(), emitter, capture.Captured)
+				emitSymbolRefPush(f.Pos(), emitter, capture.Capture)
 			}
 			op := vm.OpNewClosure
 			operand1 := uint32(f.idxFunc)
@@ -127,11 +133,12 @@ func (f *Func) NewParam() *symbol.ParamSymbol {
 
 func (f *Func) NewCapture(sym symbol.Symbol) *symbol.CaptureSymbol {
 	c := &symbol.CaptureSymbol{
-		Captured:   sym,
+		Capture:    sym,
 		CaptureNdx: len(f.captures),
 	}
 	c.SetName(sym.Name())
 	c.SetPos(sym.Pos())
+	c.SetLiftable(true)
 	f.captures = append(f.captures, c)
 	if !f.scope.PutSymbol(nil, c) {
 		// This cannot happen because the caller should have already ensured that
@@ -139,8 +146,4 @@ func (f *Func) NewCapture(sym symbol.Symbol) *symbol.CaptureSymbol {
 		panic("assert failed")
 	}
 	return c
-}
-
-func (f *Func) Scope() *symbol.Scope {
-	return f.scope
 }

@@ -9,11 +9,17 @@ type Symbol interface {
 	SetName(name string)
 	Pos() token.Pos
 	SetPos(pos token.Pos)
+	Liftable() bool
+	SetLiftable(l bool)
+	Lifted() bool
+	Lift()
 }
 
 type baseSymbol struct {
-	name string
-	pos  token.Pos
+	name     string
+	pos      token.Pos
+	liftable bool
+	lifted   bool
 }
 
 func (b *baseSymbol) Name() string {
@@ -32,6 +38,22 @@ func (b *baseSymbol) SetPos(pos token.Pos) {
 	b.pos = pos
 }
 
+func (b *baseSymbol) Liftable() bool {
+	return b.liftable
+}
+
+func (b *baseSymbol) SetLiftable(l bool) {
+	b.liftable = l
+}
+
+func (b *baseSymbol) Lifted() bool {
+	return b.lifted
+}
+
+func (b *baseSymbol) Lift() {
+	b.lifted = true
+}
+
 type FuncSymbol struct {
 	baseSymbol
 	External bool
@@ -43,32 +65,22 @@ type GlobalVarSymbol struct {
 	GlobalNdx int
 }
 
-type Capturable interface {
-	isCapturable()
-}
-
 type CaptureSymbol struct {
 	baseSymbol
 
-	Captured   Symbol
+	Capture    Symbol
 	CaptureNdx int
 }
-
-func (s *CaptureSymbol) isCapturable() {}
 
 type ParamSymbol struct {
 	baseSymbol
 	ParamNdx int
 }
 
-func (s *ParamSymbol) isCapturable() {}
-
 type LocalVarSymbol struct {
 	baseSymbol
 	LocalNdx int
 }
-
-func (s *LocalVarSymbol) isCapturable() {}
 
 type ModuleRef struct {
 	baseSymbol

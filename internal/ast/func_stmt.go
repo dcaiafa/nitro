@@ -1,8 +1,8 @@
 package ast
 
 import (
-	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/internal/symbol"
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
 type FuncStmt struct {
@@ -20,12 +20,12 @@ func (s *FuncStmt) RunPass(ctx *Context, pass Pass) {
 
 		if parentFn != nil {
 			s.sym = parentFn.NewLocal()
-			s.Func.IsClosure = true
+			s.IsClosure = true
 		} else {
 			s.sym = &symbol.FuncSymbol{}
 		}
 
-		s.Func.DebugName = s.Name
+		s.DebugName = s.Name
 		s.sym.SetName(s.Name)
 		s.sym.SetPos(s.Pos())
 		if !ctx.CurrentScope().PutSymbol(ctx, s.sym) {
@@ -43,7 +43,7 @@ func (s *FuncStmt) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Check:
 		if fnSym, ok := s.sym.(*symbol.FuncSymbol); ok {
-			fnSym.IdxFunc = s.Func.IdxFunc()
+			fnSym.IdxFunc = s.IdxFunc()
 		}
 
 	case Emit:

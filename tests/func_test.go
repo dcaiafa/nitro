@@ -80,6 +80,35 @@ func TestFn(t *testing.T) {
 		print(f1(), f2(), f1(), f2())
 `, `1 1 2 2`)
 
+	RunSubO(t, "cap_forloop", `
+    var inc = []
+		for i in range(2) {
+			var a = 0
+			var f = func() {
+				a = a + 1
+				return a
+			}
+			inc.add(f)
+		}
+		print(inc[0](), inc[1](), inc[0](), inc[1]())
+`, `1 1 2 2`)
+
+	RunSubO(t, "func_cap_forloop", `
+		func x() {
+			var inc = []
+			for i in range(2) {
+				var a = 0
+				var f = func() {
+					a = a + 1
+					return a
+				}
+				inc.add(f)
+			}
+			print(inc[0](), inc[1](), inc[0](), inc[1]())
+		}
+		x()
+`, `1 1 2 2`)
+
 	RunSubO(t, "sub_func_cap_arg", `
 		func x(a) {
 			func y() {

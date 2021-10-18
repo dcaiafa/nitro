@@ -1,9 +1,9 @@
 package ast
 
 import (
-	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/internal/symbol"
 	"github.com/dcaiafa/nitro/internal/token"
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
 type Type int
@@ -29,6 +29,10 @@ type AST interface {
 
 type Scope interface {
 	Scope() *symbol.Scope
+}
+
+type LiftableScope interface {
+	IsLiftableScope()
 }
 
 type astBase struct {

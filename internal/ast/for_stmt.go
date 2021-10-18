@@ -18,6 +18,8 @@ type ForStmt struct {
 	end   *vm.Label
 }
 
+func (s *ForStmt) IsLiftableScope() {}
+
 func (s *ForStmt) Scope() *symbol.Scope {
 	return s.scope
 }

@@ -726,21 +726,20 @@ func (m *VM) resume() (err error) {
 			m.stack[m.sp] = ValueRef{&m.globals[int(instr.op1)]}
 			m.sp++
 
+		case OpLoadGlobalDeref:
+			m.stack[m.sp] = *m.globals[int(instr.op1)].(ValueRef).Ref
+			m.sp++
+
 		case OpLoadLocal:
-			l := m.stack[m.frame.bp+int(instr.op1)]
-			if ref, ok := l.(ValueRef); ok {
-				l = *ref.Ref
-			}
-			m.stack[m.sp] = l
+			m.stack[m.sp] = m.stack[m.frame.bp+int(instr.op1)]
 			m.sp++
 
 		case OpLoadLocalRef:
-			ref, ok := m.stack[m.frame.bp+int(instr.op1)].(ValueRef)
-			if ok {
-				m.stack[m.sp] = ref
-			} else {
-				m.stack[m.sp] = ValueRef{&m.stack[m.frame.bp+int(instr.op1)]}
-			}
+			m.stack[m.sp] = ValueRef{&m.stack[m.frame.bp+int(instr.op1)]}
+			m.sp++
+
+		case OpLoadLocalDeref:
+			m.stack[m.sp] = *m.stack[m.frame.bp+int(instr.op1)].(ValueRef).Ref
 			m.sp++
 
 		case OpCaptureLocal:
@@ -757,11 +756,7 @@ func (m *VM) resume() (err error) {
 		case OpLoadArg:
 			idx := int(instr.op1)
 			if idx < m.frame.nArg {
-				a := m.stack[m.frame.bp-m.frame.nArg+idx]
-				if ref, ok := a.(ValueRef); ok {
-					a = *ref.Ref
-				}
-				m.stack[m.sp] = a
+				m.stack[m.sp] = m.stack[m.frame.bp-m.frame.nArg+idx]
 			} else {
 				m.stack[m.sp] = nil
 			}
@@ -774,12 +769,15 @@ func (m *VM) resume() (err error) {
 				return fmt.Errorf(
 					"cannot assign to arg because it was not provided by caller")
 			}
-			ref, ok := m.stack[m.frame.bp-m.frame.nArg+idx].(ValueRef)
-			if ok {
-				m.stack[m.sp] = ref
+			m.stack[m.sp] = ValueRef{&m.stack[m.frame.bp-m.frame.nArg+idx]}
+			m.sp++
+
+		case OpLoadArgDeref:
+			idx := int(instr.op1)
+			if idx < m.frame.nArg {
+				m.stack[m.sp] = *m.stack[m.frame.bp-m.frame.nArg+idx].(ValueRef).Ref
 			} else {
-				m.stack[m.sp] = ValueRef{
-					&m.stack[m.frame.bp-m.frame.nArg+idx]}
+				m.stack[m.sp] = nil
 			}
 			m.sp++
 
@@ -1038,6 +1036,20 @@ func (m *VM) resume() (err error) {
 		case OpIterRet:
 			m.frame.iter.ip = -1
 			return nil
+
+		case OpLiftArg:
+			idx := int(instr.op1)
+			if idx < m.frame.nArg {
+				lifted := ValueRef{new(Value)}
+				*lifted.Ref = m.stack[m.frame.bp-m.frame.nArg+idx]
+				m.stack[m.frame.bp-m.frame.nArg+idx] = lifted
+			}
+
+		case OpInitLiftedLocal:
+			m.stack[m.frame.bp+int(instr.op1)] = ValueRef{new(Value)}
+
+		case OpInitLiftedGlobal:
+			m.globals[int(instr.op1)] = ValueRef{new(Value)}
 
 		default:
 			panic("invalid instruction")

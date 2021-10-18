@@ -60,18 +60,17 @@ func (c *Context) FindSymbol(symName string) symbol.Symbol {
 				break
 			}
 		}
-		if fn, ok := ast.(*Func); ok {
+		if fn, ok := ast.(*Func); ok && fn.IsClosure {
 			fns = append(fns, fn)
 		}
 	}
 	if sym == nil {
 		return nil
 	}
-	if len(fns) != 0 {
-		if _, ok := sym.(symbol.Capturable); ok {
-			for i := len(fns) - 1; i >= 0; i-- {
-				sym = fns[i].NewCapture(sym)
-			}
+	if len(fns) != 0 && sym.Liftable() {
+		sym.Lift()
+		for i := len(fns) - 1; i >= 0; i-- {
+			sym = fns[i].NewCapture(sym)
 		}
 	}
 	return sym
@@ -85,6 +84,16 @@ func (c *Context) CurrentFunc() *Func {
 		}
 	}
 	return nil
+}
+
+func (c *Context) IsInLiftableScope() bool {
+	for i := len(c.stack) - 1; i >= 0; i-- {
+		ast := c.stack[i]
+		if _, ok := ast.(LiftableScope); ok {
+			return true
+		}
+	}
+	return false
 }
 
 func (c *Context) Len() int {

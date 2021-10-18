@@ -9,8 +9,8 @@ func (e *AnonFuncExpr) isExpr() {}
 func (e *AnonFuncExpr) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Check:
-		e.Func.DebugName = "$anon"
-		e.Func.IsClosure = true
+		e.DebugName = "$anon"
+		e.IsClosure = true
 	}
 	ctx.RunPassChild(e, &e.Func, pass)
 }

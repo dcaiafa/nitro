@@ -1,9 +1,9 @@
 package ast
 
 import (
-	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/internal/symbol"
 	"github.com/dcaiafa/nitro/internal/token"
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
 type VarDeclStmt struct {
@@ -36,15 +36,24 @@ func (s *VarDeclStmt) RunPass(ctx *Context, pass Pass) {
 		}
 
 	case Emit:
-		if s.InitValues != nil {
-			emitter := ctx.Emitter()
-			for _, sym := range s.syms {
+		emitter := ctx.Emitter()
+
+		for _, sym := range s.syms {
+			if sym.Lifted() {
 				switch sym := sym.(type) {
 				case *symbol.LocalVarSymbol:
-					emitter.Emit(s.Pos(), vm.OpLoadLocalRef, uint32(sym.LocalNdx), 0)
+					emitter.Emit(s.Pos(), vm.OpInitLiftedLocal, uint32(sym.LocalNdx), 0)
 				case *symbol.GlobalVarSymbol:
-					emitter.Emit(s.Pos(), vm.OpLoadGlobalRef, uint32(sym.GlobalNdx), 0)
+					emitter.Emit(s.Pos(), vm.OpInitLiftedGlobal, uint32(sym.GlobalNdx), 0)
+				default:
+					panic("unreachable")
 				}
+			}
+		}
+
+		if s.InitValues != nil {
+			for _, sym := range s.syms {
+				emitSymbolRefPush(s.Pos(), emitter, sym)
 			}
 		}
 	}
