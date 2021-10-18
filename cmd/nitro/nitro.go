@@ -13,6 +13,7 @@ import (
 
 	"github.com/dcaiafa/nitro"
 	"github.com/dcaiafa/nitro/lib"
+	"github.com/dcaiafa/nitro/lib/nitroco"
 	"github.com/dcaiafa/nitro/lib/nitromath"
 	"github.com/fatih/color"
 )
@@ -128,6 +129,7 @@ func main() {
 
 	lib.RegisterAll(compiler)
 	nitromath.RegisterNativePackage(compiler)
+	nitroco.RegisterNativePackage(compiler)
 
 	var progName string
 	var compiled *nitro.Program
@@ -218,7 +220,7 @@ func main() {
 
 	err = vm.Run(programArgs)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		// Error was already logged by error handler.
 		os.Exit(1)
 	}
 }

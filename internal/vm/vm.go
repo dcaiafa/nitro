@@ -4,11 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
 	"reflect"
 	"runtime"
 	"strings"
 	"sync"
 	"sync/atomic"
+
+	"github.com/dcaiafa/nitro/internal/fiber"
 )
 
 const stackSize = 1000
@@ -75,105 +78,30 @@ type frame struct {
 	bp         int
 }
 
-type contextInfo struct {
-	ctx    context.Context
-	cancel context.CancelFunc
-}
-
 type VM struct {
 	userData     map[interface{}]interface{}
 	program      *Program
 	globals      []Value
-	callStack    []*frame
-	frame        *frame
-	stack        []Value
-	instrs       []Instr
-	sp           int
-	ip           int
-	framePool    []*frame
 	shuttingDown bool
+	sched        *fiber.Scheduler
+	co           *coroutine
 	closers      map[Closer]struct{}
+	errLogger    func(err error)
+	firstErr     error
 
-	mu            sync.Mutex
-	wg            sync.WaitGroup
-	interrupt     int32
-	injectedErr   error
-	contextStack  []contextInfo
-	ctxWatchdogCh chan context.Context
-
-	preAllocStack [stackSize]Value
+	mu          sync.Mutex
+	interrupt   int32
+	injectedErr error
 }
 
 func NewVM(prog *Program) *VM {
-	m := &VM{
-		program:       prog,
-		globals:       make([]Value, prog.globals),
-		userData:      make(map[interface{}]interface{}),
-		closers:       make(map[Closer]struct{}),
-		ctxWatchdogCh: make(chan context.Context, 10),
-	}
-
-	m.stack = m.preAllocStack[:]
-	return m
-}
-
-func (m *VM) ctxWatchdog() {
-	m.wg.Done()
-
-	var ctxDone <-chan struct{}
-	for {
-		select {
-		case ctx, ok := <-m.ctxWatchdogCh:
-			if !ok {
-				return
-			}
-			ctxDone = ctx.Done()
-		case <-ctxDone:
-			ctxDone = nil
-			atomic.StoreInt32(&m.interrupt, 1)
-		}
-	}
-}
-
-func (m *VM) CreateContext(baseCtx context.Context) context.Context {
-	if baseCtx == nil {
-		baseCtx = context.Background()
-	}
-
-	ctx, cancel := context.WithCancel(baseCtx)
-
-	m.mu.Lock()
-
-	m.contextStack = append(m.contextStack, contextInfo{
-		ctx:    ctx,
-		cancel: cancel,
-	})
-
-	if m.injectedErr != nil {
-		cancel()
-	}
-
-	m.mu.Unlock()
-
-	m.ctxWatchdogCh <- ctx
-
-	return ctx
-}
-
-func (m *VM) ReleaseContext(ctx context.Context) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	n := len(m.contextStack)
-	if n == 0 || m.contextStack[n-1].ctx != ctx {
-		panic("Mismatched CreateContext/ReleaseContext")
-	}
-
-	m.contextStack[n-1].cancel()
-	m.contextStack = m.contextStack[:n-1]
-
-	if n >= 2 {
-		m.ctxWatchdogCh <- m.contextStack[n-2].ctx
+	return &VM{
+		program:   prog,
+		globals:   make([]Value, prog.globals),
+		userData:  make(map[interface{}]interface{}),
+		sched:     fiber.NewScheduler(),
+		closers:   make(map[Closer]struct{}),
+		errLogger: func(err error) { fmt.Fprintln(os.Stderr, err) },
 	}
 }
 
@@ -195,25 +123,100 @@ func (m *VM) SetParam(n string, v Value) error {
 }
 
 func (m *VM) Run(args []Value) error {
-	copy(m.stack, args)
-	m.sp = len(args)
+	co := m.newCoroutine()
+	co.PushContext(context.Background())
+	copy(co.stack, args)
+	co.sp = len(args)
 
-	f := m.newFrame()
+	f := co.NewFrame()
 	f.fn = &m.program.fns[0]
 	f.nArg = len(args)
 	f.bp = len(args)
 
-	m.wg.Add(1)
-	go m.ctxWatchdog()
+	co.PushFrame(f)
+	m.sched.Run(co.fiber)
+	m.shutdown()
 
-	defer m.shutdown()
-	return m.runFrame(f)
+	return m.firstErr
+}
+
+func (m *VM) newCoroutine() *coroutine {
+	co := &coroutine{}
+	co.fiber = m.sched.NewFiber(func() {
+		m.co = co
+		err := m.resume()
+		if err != nil {
+			m.errLogger(err)
+		}
+		if m.firstErr == nil {
+			m.firstErr = err
+		}
+	})
+	co.fiber.Data = co
+	co.stack = co.preAllocStack[:]
+	return co
+}
+
+func (m *VM) StartCoroutine(callable Value) error {
+	co := m.newCoroutine()
+	co.PushContext(m.co.TopContext())
+
+	f := co.NewFrame()
+
+	switch callable := callable.(type) {
+	case *Closure:
+		f.fn = callable.fn
+		f.caps = callable.caps
+
+	case *Fn:
+		f.fn = callable
+
+	default:
+		return fmt.Errorf("cannot start coroutine with %v", TypeName(callable))
+	}
+
+	co.PushFrame(f)
+	prev := m.co
+	m.sched.SwitchToNew(co.fiber)
+	m.co = prev
+
+	return nil
+}
+
+func (m *VM) Context() context.Context {
+	return m.co.TopContext()
+}
+
+func (m *VM) PushContext(ctx context.Context) {
+	m.co.PushContext(ctx)
+}
+
+func (m *VM) PopContext() context.Context {
+	return m.co.PopContext()
+}
+
+func (m *VM) Block(f func(ctx context.Context) error) error {
+	self := m.co
+
+	var err error
+	m.sched.Block(self.TopContext(), func(ctx context.Context) {
+		err = f(ctx)
+	})
+	m.co = self
+
+	m.processInterrupt()
+	if m.co.pendingErr != nil {
+		err = m.co.pendingErr
+		m.co.pendingErr = nil
+	}
+
+	return err
 }
 
 func (m *VM) Call(callable Value, args []Value, nret int) ([]Value, error) {
-	sp := m.sp
-	copy(m.stack[m.sp:], args)
-	m.sp += len(args)
+	sp := m.co.sp
+	copy(m.co.stack[m.co.sp:], args)
+	m.co.sp += len(args)
 	err := m.call(callable, len(args), nret, false)
 	if err != nil {
 		return nil, err
@@ -222,8 +225,8 @@ func (m *VM) Call(callable Value, args []Value, nret int) ([]Value, error) {
 	if nret > 0 {
 		ret = make([]Value, nret)
 	}
-	copy(ret, m.stack[m.sp-nret:])
-	m.sp = sp
+	copy(ret, m.co.stack[m.co.sp-nret:])
+	m.co.sp = sp
 	return ret, nil
 }
 
@@ -242,22 +245,22 @@ func (m *VM) callExtFn(
 	nret int,
 	pipeline bool,
 ) (err error) {
-	f := m.newFrame()
+	f := m.co.NewFrame()
 	f.nRet = nret
 	f.nArg = narg
 	f.extFn = extFn
 	f.caps = caps
-	f.bp = m.sp
+	f.bp = m.co.sp
 	f.pipeline = pipeline
 
-	m.pushFrame(f)
+	m.co.PushFrame(f)
 
-	args := m.stack[m.sp-narg : m.sp]
+	args := m.co.stack[m.co.sp-narg : m.co.sp]
 
 	rets, err := extFn.Call(m, args, nret)
 	if err != nil {
 		wrapRuntimeError(m, &err)
-		m.popFrame()
+		m.co.PopFrame()
 		return err
 	}
 
@@ -266,24 +269,24 @@ func (m *VM) callExtFn(
 			"external function was expected to return at least %v values, "+
 				"but it returned only %v values", nret, len(rets))
 		wrapRuntimeError(m, &err)
-		m.popFrame()
+		m.co.PopFrame()
 		return err
 	}
 
 	if nret > 0 {
-		copy(m.stack[m.sp-narg:], rets[:nret])
+		copy(m.co.stack[m.co.sp-narg:], rets[:nret])
 	}
 
-	m.sp = m.sp - narg + nret
+	m.co.sp = m.co.sp - narg + nret
 
-	m.popFrame()
+	m.co.PopFrame()
 	return nil
 }
 
 func (m *VM) call(callable Value, narg int, nret int, pipeline bool) error {
 	switch callable := callable.(type) {
 	case *Closure:
-		f := m.newFrame()
+		f := m.co.NewFrame()
 		f.fn = callable.fn
 		f.caps = callable.caps
 		f.nArg = narg
@@ -296,18 +299,18 @@ func (m *VM) call(callable Value, narg int, nret int, pipeline bool) error {
 
 	case *ILIterator:
 		if callable.ip == -1 {
-			m.stack[m.sp] = False
+			m.co.stack[m.co.sp] = False
 			for i := 1; i < nret; i++ {
-				m.stack[m.sp+i] = nil
+				m.co.stack[m.co.sp+i] = nil
 			}
-			m.sp += nret
+			m.co.sp += nret
 			return nil
 		}
 
-		rsp := m.sp
-		rstack := m.stack
+		rsp := m.co.sp
+		rstack := m.co.stack
 
-		f := m.newFrame()
+		f := m.co.NewFrame()
 		f.fn = callable.fn
 		f.iter = callable
 		f.caps = callable.captures
@@ -317,24 +320,24 @@ func (m *VM) call(callable Value, narg int, nret int, pipeline bool) error {
 		f.nLocals = callable.nlocals
 		f.ip = callable.ip
 
-		m.stack = callable.stack
-		m.sp = callable.sp
+		m.co.stack = callable.stack
+		m.co.sp = callable.sp
 
 		err := m.runFrame(f)
 		if err != nil {
-			m.stack = rstack
-			m.sp = rsp
+			m.co.stack = rstack
+			m.co.sp = rsp
 			return err
 		}
 
-		copy(rstack[rsp:], m.stack[m.sp-nret:m.sp])
-		callable.sp = m.sp - nret
-		m.stack = rstack
-		m.sp = rsp + nret
+		copy(rstack[rsp:], m.co.stack[m.co.sp-nret:m.co.sp])
+		callable.sp = m.co.sp - nret
+		m.co.stack = rstack
+		m.co.sp = rsp + nret
 		return nil
 
 	case *Fn:
-		f := m.newFrame()
+		f := m.co.NewFrame()
 		f.fn = callable
 		f.nArg = narg
 		f.nRet = nret
@@ -357,7 +360,7 @@ func (m *VM) IterNext(iter Iterator, nret int) ([]Value, error) {
 		return nil, errors.New("nret is zero")
 	}
 
-	sp := m.sp
+	sp := m.co.sp
 	ok, err := m.iterNext(iter, nret)
 	if err != nil {
 		return nil, err
@@ -366,8 +369,8 @@ func (m *VM) IterNext(iter Iterator, nret int) ([]Value, error) {
 		return nil, nil
 	}
 	ret := make([]Value, nret)
-	copy(ret, m.stack[m.sp-nret:])
-	m.sp = sp
+	copy(ret, m.co.stack[m.co.sp-nret:])
+	m.co.sp = sp
 	return ret, nil
 }
 
@@ -387,22 +390,22 @@ func (m *VM) ShuttingDown() bool {
 func (m *VM) iterNext(iter Iterator, nret int) (bool, error) {
 	switch iter := iter.(type) {
 	case *NativeIterator:
-		f := m.newFrame()
+		f := m.co.NewFrame()
 		f.nRet = nret
 		f.extFn = iter.extFn
-		f.bp = m.sp
-		m.pushFrame(f)
+		f.bp = m.co.sp
+		m.co.PushFrame(f)
 
 		rets, err := iter.extFn.Call(m, nil, nret)
 		if err != nil {
 			wrapRuntimeError(m, &err)
-			m.popFrame()
+			m.co.PopFrame()
 			iter.Close(m)
 			return false, err
 		}
 
 		if len(rets) == 0 {
-			m.popFrame()
+			m.co.PopFrame()
 			return false, iter.Close(m)
 		}
 
@@ -412,13 +415,13 @@ func (m *VM) iterNext(iter Iterator, nret int) (bool, error) {
 					"but it returned only %v values", nret, len(rets))
 			iter.Close(m)
 			wrapRuntimeError(m, &err)
-			m.popFrame()
+			m.co.PopFrame()
 			return false, err
 		}
 
-		copy(m.stack[m.sp:], rets[:nret])
-		m.sp = m.sp + nret
-		m.popFrame()
+		copy(m.co.stack[m.co.sp:], rets[:nret])
+		m.co.sp = m.co.sp + nret
+		m.co.PopFrame()
 		return true, nil
 
 	case *ILIterator:
@@ -426,10 +429,10 @@ func (m *VM) iterNext(iter Iterator, nret int) (bool, error) {
 			return false, nil
 		}
 
-		rsp := m.sp
-		rstack := m.stack
+		rsp := m.co.sp
+		rstack := m.co.stack
 
-		f := m.newFrame()
+		f := m.co.NewFrame()
 		f.fn = iter.fn
 		f.iter = iter
 		f.caps = iter.captures
@@ -439,13 +442,13 @@ func (m *VM) iterNext(iter Iterator, nret int) (bool, error) {
 		f.nLocals = iter.nlocals
 		f.ip = iter.ip
 
-		m.stack = iter.stack
-		m.sp = iter.sp
+		m.co.stack = iter.stack
+		m.co.sp = iter.sp
 
 		err := m.runFrame(f)
 		if err != nil {
-			m.stack = rstack
-			m.sp = rsp
+			m.co.stack = rstack
+			m.co.sp = rsp
 			return false, err
 		}
 
@@ -453,10 +456,10 @@ func (m *VM) iterNext(iter Iterator, nret int) (bool, error) {
 			return false, nil
 		}
 
-		copy(rstack[rsp:], m.stack[m.sp-nret:m.sp])
-		iter.sp = m.sp - nret
-		m.stack = rstack
-		m.sp = rsp + nret
+		copy(rstack[rsp:], m.co.stack[m.co.sp-nret:m.co.sp])
+		iter.sp = m.co.sp - nret
+		m.co.stack = rstack
+		m.co.sp = rsp + nret
 		return true, nil
 
 	default:
@@ -467,55 +470,27 @@ func (m *VM) iterNext(iter Iterator, nret int) (bool, error) {
 	}
 }
 
-func (m *VM) pushFrame(frame *frame) {
-	if len(m.callStack) > 0 {
-		m.frame.ip = m.ip
-	}
-	m.callStack = append(m.callStack, frame)
-	m.frame = frame
-	if m.frame.fn != nil {
-		m.instrs = m.frame.fn.instrs
-		m.ip = m.frame.ip
-	} else {
-		m.instrs = nil
-	}
+func (m *VM) runFrame(frame *frame) error {
+	m.co.PushFrame(frame)
+	return m.resume()
 }
 
-func (m *VM) popFrame() {
-	f := m.callStack[len(m.callStack)-1]
-	*f = frame{}
-	m.framePool = append(m.framePool, f)
-
-	m.callStack[len(m.callStack)-1] = nil
-	m.callStack = m.callStack[:len(m.callStack)-1]
-
-	if len(m.callStack) > 0 {
-		m.frame = m.callStack[len(m.callStack)-1]
-		if m.frame.fn != nil {
-			m.instrs = m.frame.fn.instrs
-			m.ip = m.frame.ip
-		}
-	}
-}
-
-func (m *VM) runFrame(frame *frame) (err error) {
-	m.pushFrame(frame)
-
+func (m *VM) resume() (err error) {
 	for {
-		err := m.resume()
+		err := m.resumeWithoutRecovery()
 		if err == nil {
 			err = m.runDefers()
-			m.popFrame()
+			m.co.PopFrame()
 			return err
 		}
 
 		// Update the current frame's ip so that the stack trace created by
 		// wrapRuntimeError will reflect the current position.
-		m.frame.ip = m.ip
+		m.co.frame.ip = m.co.ip
 		rerr := wrapRuntimeError(m, &err)
 		err = rerr
 
-		if len(m.frame.tryCatches) == 0 {
+		if len(m.co.frame.tryCatches) == 0 {
 			derr := m.runDefers()
 			if derr != nil {
 				err = fmt.Errorf(
@@ -523,21 +498,21 @@ func (m *VM) runFrame(frame *frame) (err error) {
 						"while handling error:\n%w",
 					derr, err)
 			}
-			m.popFrame()
+			m.co.PopFrame()
 			return err
 		}
 
-		tryCatch := m.frame.tryCatches[len(m.frame.tryCatches)-1]
-		m.frame.tryCatches = m.frame.tryCatches[:len(m.frame.tryCatches)-1]
-		m.ip = tryCatch.CatchAddr
-		m.sp = m.frame.bp + m.frame.nLocals + 1
-		m.stack[m.sp-1] = rerr
+		tryCatch := m.co.frame.tryCatches[len(m.co.frame.tryCatches)-1]
+		m.co.frame.tryCatches = m.co.frame.tryCatches[:len(m.co.frame.tryCatches)-1]
+		m.co.ip = tryCatch.CatchAddr
+		m.co.sp = m.co.frame.bp + m.co.frame.nLocals + 1
+		m.co.stack[m.co.sp-1] = rerr
 	}
 }
 
 func (m *VM) runDefers() error {
-	for i := len(m.frame.defers) - 1; i >= 0; i-- {
-		deferred := m.frame.defers[i]
+	for i := len(m.co.frame.defers) - 1; i >= 0; i-- {
+		deferred := m.co.frame.defers[i]
 		_, err := m.Call(deferred, nil, 0)
 		if err != nil {
 			return err
@@ -546,76 +521,74 @@ func (m *VM) runDefers() error {
 	return nil
 }
 
-func (m *VM) checkInterrupt() error {
+func (m *VM) processInterrupt() {
 	if atomic.LoadInt32(&m.interrupt) == 0 {
-		return nil
+		return
 	}
 
 	atomic.StoreInt32(&m.interrupt, 0)
 
+	var err error
 	m.mu.Lock()
-	defer m.mu.Unlock()
-
 	if m.injectedErr != nil {
-		err := m.injectedErr
+		err = m.injectedErr
 		m.injectedErr = nil
-		return err
 	}
+	m.mu.Unlock()
 
-	if len(m.contextStack) != 0 {
-		ctx := m.contextStack[len(m.contextStack)-1].ctx
-		if ctx.Err() != nil {
-			return ctx.Err()
-		}
+	if err != nil {
+		m.sched.ForEachFiber(func(f *fiber.Fiber) {
+			co := f.Data.(*coroutine)
+			co.pendingErr = err
+		})
 	}
-
-	return nil
 }
 
-func (m *VM) resume() (err error) {
+func (m *VM) resumeWithoutRecovery() (err error) {
 	defer func() {
-		ierr := m.checkInterrupt()
-		if ierr != nil {
-			err = ierr
+		m.processInterrupt()
+		if m.co.pendingErr != nil {
+			err = m.co.pendingErr
+			m.co.pendingErr = nil
 		}
 	}()
 
 	for {
-		err = m.checkInterrupt()
-		if err != nil {
-			return err
+		m.processInterrupt()
+		if m.co.pendingErr != nil {
+			return m.co.pendingErr
 		}
 
-		instr := m.instrs[m.ip]
+		instr := m.co.instrs[m.co.ip]
 
 		switch instr.opc {
 		case OpNop:
 
 		case OpJump:
-			m.ip = int(instr.op1) - 1
+			m.co.ip = int(instr.op1) - 1
 
 		case OpJumpIfTrue:
-			v := m.stack[m.sp-1]
-			m.sp--
+			v := m.co.stack[m.co.sp-1]
+			m.co.sp--
 			b := CoerceToBool(v)
 			if b {
-				m.ip = int(instr.op1) - 1
+				m.co.ip = int(instr.op1) - 1
 			}
 
 		case OpJumpIfFalse:
-			v := m.stack[m.sp-1]
-			m.sp--
+			v := m.co.stack[m.co.sp-1]
+			m.co.sp--
 			b := CoerceToBool(v)
 			if !b {
-				m.ip = int(instr.op1) - 1
+				m.co.ip = int(instr.op1) - 1
 			}
 
 		case OpDup:
-			m.stack[m.sp] = m.stack[m.sp-1]
-			m.sp++
+			m.co.stack[m.co.sp] = m.co.stack[m.co.sp-1]
+			m.co.sp++
 
 		case OpPop:
-			m.sp -= int(instr.op1)
+			m.co.sp -= int(instr.op1)
 
 		case OpCall:
 			nret := int(instr.op2)
@@ -627,36 +600,36 @@ func (m *VM) resume() (err error) {
 				if narg == 0 {
 					return fmt.Errorf("assert: zero arguments in expansion")
 				}
-				lastArg := m.stack[m.sp-1]
+				lastArg := m.co.stack[m.co.sp-1]
 				if lastArg != nil {
 					arr, ok := lastArg.(*Array)
 					if !ok {
 						return fmt.Errorf("cannot expand %v argument", TypeName(lastArg))
 					}
-					copy(m.stack[m.sp-1:], arr.array)
-					m.sp += len(arr.array) - 1
+					copy(m.co.stack[m.co.sp-1:], arr.array)
+					m.co.sp += len(arr.array) - 1
 					narg += len(arr.array) - 1
 				} else {
-					m.sp--
+					m.co.sp--
 					narg--
 				}
 			}
 
-			callable := m.stack[m.sp-narg-1]
-			rsp := m.sp - narg - 1 + nret
+			callable := m.co.stack[m.co.sp-narg-1]
+			rsp := m.co.sp - narg - 1 + nret
 			err = m.call(callable, narg, nret, pipeline)
 			if err != nil {
 				return err
 			}
 			if nret > 0 {
-				rets := m.stack[m.sp-nret : m.sp]
-				copy(m.stack[rsp-nret:], rets)
+				rets := m.co.stack[m.co.sp-nret : m.co.sp]
+				copy(m.co.stack[rsp-nret:], rets)
 			}
-			m.sp = rsp
+			m.co.sp = rsp
 
 		case OpNil:
-			m.stack[m.sp] = nil
-			m.sp++
+			m.co.stack[m.co.sp] = nil
+			m.co.sp++
 
 		case OpNewClosure:
 			capN := int(instr.op2)
@@ -665,18 +638,18 @@ func (m *VM) resume() (err error) {
 			var caps []ValueRef
 			if capN > 0 {
 				caps = make([]ValueRef, capN)
-				for i, capture := range m.stack[m.sp-capN : m.sp] {
+				for i, capture := range m.co.stack[m.co.sp-capN : m.co.sp] {
 					caps[i] = capture.(ValueRef)
 				}
-				m.sp -= capN
+				m.co.sp -= capN
 			}
 
 			closure := &Closure{
 				fn:   &m.program.fns[fn],
 				caps: caps,
 			}
-			m.stack[m.sp] = closure
-			m.sp++
+			m.co.stack[m.co.sp] = closure
+			m.co.sp++
 
 		case OpNewIter:
 			capN := int(instr.op2)
@@ -686,10 +659,10 @@ func (m *VM) resume() (err error) {
 			var caps []ValueRef
 			if capN > 0 {
 				caps = make([]ValueRef, capN)
-				for i, capture := range m.stack[m.sp-capN : m.sp] {
+				for i, capture := range m.co.stack[m.co.sp-capN : m.co.sp] {
 					caps[i] = capture.(ValueRef)
 				}
-				m.sp -= capN
+				m.co.sp -= capN
 			}
 
 			iter := &ILIterator{
@@ -699,136 +672,136 @@ func (m *VM) resume() (err error) {
 			}
 			iter.stack = iter.preAllocStack[:]
 
-			m.stack[m.sp] = iter
-			m.sp++
+			m.co.stack[m.co.sp] = iter
+			m.co.sp++
 
 		case OpNewInt:
-			m.stack[m.sp] = NewInt(int64(instr.op1))
-			m.sp++
+			m.co.stack[m.co.sp] = NewInt(int64(instr.op1))
+			m.co.sp++
 
 		case OpNewBool:
-			m.stack[m.sp] = NewBool(instr.op1 != 0)
-			m.sp++
+			m.co.stack[m.co.sp] = NewBool(instr.op1 != 0)
+			m.co.sp++
 
 		case OpNewObject:
-			m.stack[m.sp] = NewObject()
-			m.sp++
+			m.co.stack[m.co.sp] = NewObject()
+			m.co.sp++
 
 		case OpNewArray:
-			m.stack[m.sp] = NewArray()
-			m.sp++
+			m.co.stack[m.co.sp] = NewArray()
+			m.co.sp++
 
 		case OpLoadGlobal:
-			m.stack[m.sp] = m.globals[int(instr.op1)]
-			m.sp++
+			m.co.stack[m.co.sp] = m.globals[int(instr.op1)]
+			m.co.sp++
 
 		case OpLoadGlobalRef:
-			m.stack[m.sp] = ValueRef{&m.globals[int(instr.op1)]}
-			m.sp++
+			m.co.stack[m.co.sp] = ValueRef{&m.globals[int(instr.op1)]}
+			m.co.sp++
 
 		case OpLoadGlobalDeref:
-			m.stack[m.sp] = *m.globals[int(instr.op1)].(ValueRef).Ref
-			m.sp++
+			m.co.stack[m.co.sp] = *m.globals[int(instr.op1)].(ValueRef).Ref
+			m.co.sp++
 
 		case OpLoadLocal:
-			m.stack[m.sp] = m.stack[m.frame.bp+int(instr.op1)]
-			m.sp++
+			m.co.stack[m.co.sp] = m.co.stack[m.co.frame.bp+int(instr.op1)]
+			m.co.sp++
 
 		case OpLoadLocalRef:
-			m.stack[m.sp] = ValueRef{&m.stack[m.frame.bp+int(instr.op1)]}
-			m.sp++
+			m.co.stack[m.co.sp] = ValueRef{&m.co.stack[m.co.frame.bp+int(instr.op1)]}
+			m.co.sp++
 
 		case OpLoadLocalDeref:
-			m.stack[m.sp] = *m.stack[m.frame.bp+int(instr.op1)].(ValueRef).Ref
-			m.sp++
+			m.co.stack[m.co.sp] = *m.co.stack[m.co.frame.bp+int(instr.op1)].(ValueRef).Ref
+			m.co.sp++
 
 		case OpCaptureLocal:
-			l := m.stack[m.frame.bp+int(instr.op1)]
+			l := m.co.stack[m.co.frame.bp+int(instr.op1)]
 			if _, ok := l.(ValueRef); !ok {
 				ref := ValueRef{Ref: new(Value)}
 				*ref.Ref = l
-				m.stack[m.frame.bp+int(instr.op1)] = ref
+				m.co.stack[m.co.frame.bp+int(instr.op1)] = ref
 				l = ref
 			}
-			m.stack[m.sp] = l
-			m.sp++
+			m.co.stack[m.co.sp] = l
+			m.co.sp++
 
 		case OpLoadArg:
 			idx := int(instr.op1)
-			if idx < m.frame.nArg {
-				m.stack[m.sp] = m.stack[m.frame.bp-m.frame.nArg+idx]
+			if idx < m.co.frame.nArg {
+				m.co.stack[m.co.sp] = m.co.stack[m.co.frame.bp-m.co.frame.nArg+idx]
 			} else {
-				m.stack[m.sp] = nil
+				m.co.stack[m.co.sp] = nil
 			}
-			m.sp++
+			m.co.sp++
 
 		case OpLoadArgRef:
 			idx := int(instr.op1)
-			if idx >= m.frame.nArg {
+			if idx >= m.co.frame.nArg {
 				// TODO: min arg count
 				return fmt.Errorf(
 					"cannot assign to arg because it was not provided by caller")
 			}
-			m.stack[m.sp] = ValueRef{&m.stack[m.frame.bp-m.frame.nArg+idx]}
-			m.sp++
+			m.co.stack[m.co.sp] = ValueRef{&m.co.stack[m.co.frame.bp-m.co.frame.nArg+idx]}
+			m.co.sp++
 
 		case OpLoadArgDeref:
 			idx := int(instr.op1)
-			if idx < m.frame.nArg {
-				m.stack[m.sp] = *m.stack[m.frame.bp-m.frame.nArg+idx].(ValueRef).Ref
+			if idx < m.co.frame.nArg {
+				m.co.stack[m.co.sp] = *m.co.stack[m.co.frame.bp-m.co.frame.nArg+idx].(ValueRef).Ref
 			} else {
-				m.stack[m.sp] = nil
+				m.co.stack[m.co.sp] = nil
 			}
-			m.sp++
+			m.co.sp++
 
 		case OpCaptureArg:
-			a := m.stack[m.frame.bp-m.frame.nArg+int(instr.op1)]
+			a := m.co.stack[m.co.frame.bp-m.co.frame.nArg+int(instr.op1)]
 			if _, ok := a.(ValueRef); !ok {
 				ref := ValueRef{Ref: new(Value)}
 				*ref.Ref = a
-				m.stack[m.frame.bp-m.frame.nArg+int(instr.op1)] = ref
+				m.co.stack[m.co.frame.bp-m.co.frame.nArg+int(instr.op1)] = ref
 				a = ref
 			}
-			m.stack[m.sp] = a
-			m.sp++
+			m.co.stack[m.co.sp] = a
+			m.co.sp++
 
 		case OpLoadCapture:
-			m.stack[m.sp] = *m.frame.caps[int(instr.op1)].Ref
-			m.sp++
+			m.co.stack[m.co.sp] = *m.co.frame.caps[int(instr.op1)].Ref
+			m.co.sp++
 
 		case OpLoadCaptureRef:
-			m.stack[m.sp] = m.frame.caps[int(instr.op1)]
-			m.sp++
+			m.co.stack[m.co.sp] = m.co.frame.caps[int(instr.op1)]
+			m.co.sp++
 
 		case OpLoadFn:
-			m.stack[m.sp] = &m.program.fns[int(instr.op1)]
-			m.sp++
+			m.co.stack[m.co.sp] = &m.program.fns[int(instr.op1)]
+			m.co.sp++
 
 		case OpLoadNativeFn:
-			m.stack[m.sp] = m.program.extFns[int(instr.op1)]
-			m.sp++
+			m.co.stack[m.co.sp] = m.program.extFns[int(instr.op1)]
+			m.co.sp++
 
 		case OpLoadLiteral:
-			m.stack[m.sp] = m.program.literals[int(instr.op1)]
-			m.sp++
+			m.co.stack[m.co.sp] = m.program.literals[int(instr.op1)]
+			m.co.sp++
 
 		case OpEvalBinOp:
 			op := Op(instr.op1)
-			operand1 := m.stack[m.sp-2]
-			operand2 := m.stack[m.sp-1]
+			operand1 := m.co.stack[m.co.sp-2]
+			operand2 := m.co.stack[m.co.sp-1]
 			res, err := EvalOp(op, operand1, operand2)
 			if err != nil {
 				return err
 			}
-			m.stack[m.sp-2] = res
-			m.sp--
+			m.co.stack[m.co.sp-2] = res
+			m.co.sp--
 
 		case OpNot:
-			term := m.stack[m.sp-1]
-			m.stack[m.sp-1] = NewBool(!CoerceToBool(term))
+			term := m.co.stack[m.co.sp-1]
+			m.co.stack[m.co.sp-1] = NewBool(!CoerceToBool(term))
 
 		case OpUnaryMinus:
-			term := m.stack[m.sp-1]
+			term := m.co.stack[m.co.sp-1]
 			if term == nil {
 				return errors.New("value is nil")
 			}
@@ -836,20 +809,20 @@ func (m *VM) resume() (err error) {
 			if err != nil {
 				return err
 			}
-			m.stack[m.sp-1] = res
+			m.co.stack[m.co.sp-1] = res
 
 		case OpObjectPutNoPop:
-			obj := m.stack[m.sp-3].(*Object)
-			key := m.stack[m.sp-2]
-			val := m.stack[m.sp-1]
+			obj := m.co.stack[m.co.sp-3].(*Object)
+			key := m.co.stack[m.co.sp-2]
+			val := m.co.stack[m.co.sp-1]
 			obj.Put(key, val)
-			m.sp -= 2
+			m.co.sp -= 2
 
 		case OpObjectGet:
-			objRaw := m.stack[m.sp-2]
-			key := m.stack[m.sp-1]
+			objRaw := m.co.stack[m.co.sp-2]
+			key := m.co.stack[m.co.sp-1]
 			if objRaw == nil {
-				m.stack[m.sp-2] = nil
+				m.co.stack[m.co.sp-2] = nil
 			} else {
 				indexable, ok := objRaw.(Indexable)
 				if !ok {
@@ -859,13 +832,13 @@ func (m *VM) resume() (err error) {
 				if err != nil {
 					return err
 				}
-				m.stack[m.sp-2] = value
+				m.co.stack[m.co.sp-2] = value
 			}
-			m.sp--
+			m.co.sp--
 
 		case OpObjectGetRef:
-			objRaw := m.stack[m.sp-2]
-			key := m.stack[m.sp-1]
+			objRaw := m.co.stack[m.co.sp-2]
+			key := m.co.stack[m.co.sp-1]
 			if objRaw == nil {
 				return fmt.Errorf("cannot assign: value is nil")
 			}
@@ -877,55 +850,55 @@ func (m *VM) resume() (err error) {
 			if err != nil {
 				return err
 			}
-			m.stack[m.sp-2] = valueRef
-			m.sp--
+			m.co.stack[m.co.sp-2] = valueRef
+			m.co.sp--
 
 		case OpArrayAppendNoPop:
-			array := m.stack[m.sp-2].(*Array)
-			value := m.stack[m.sp-1]
+			array := m.co.stack[m.co.sp-2].(*Array)
+			value := m.co.stack[m.co.sp-1]
 			array.Add(value)
-			m.sp--
+			m.co.sp--
 
 		case OpRet:
-			nret := m.sp - (m.frame.bp + m.frame.nLocals)
-			if m.frame.nRet > nret {
+			nret := m.co.sp - (m.co.frame.bp + m.co.frame.nLocals)
+			if m.co.frame.nRet > nret {
 				return fmt.Errorf(
 					"function was expected to return at least %v values, "+
 						"but returned only %v",
-					m.frame.nRet, nret)
+					m.co.frame.nRet, nret)
 			}
-			if nret > m.frame.nRet {
-				m.sp -= (nret - m.frame.nRet)
+			if nret > m.co.frame.nRet {
+				m.co.sp -= (nret - m.co.frame.nRet)
 			}
 			return nil
 
 		case OpStore:
 			count := int(instr.op1)
 			for i := 0; i < count; i++ {
-				rval := m.stack[m.sp-(count*2-i)].(ValueRef)
-				val := m.stack[m.sp-(count-i)]
+				rval := m.co.stack[m.co.sp-(count*2-i)].(ValueRef)
+				val := m.co.stack[m.co.sp-(count-i)]
 				*rval.Ref = val
 			}
-			m.sp -= count * 2
+			m.co.sp -= count * 2
 
 		case OpInitCallFrame:
-			m.frame.nLocals = int(instr.op1)
-			m.frame.bp = m.sp
-			m.sp += m.frame.nLocals
-			for i := m.frame.bp; i < m.sp; i++ {
-				m.stack[i] = nil
+			m.co.frame.nLocals = int(instr.op1)
+			m.co.frame.bp = m.co.sp
+			m.co.sp += m.co.frame.nLocals
+			for i := m.co.frame.bp; i < m.co.sp; i++ {
+				m.co.stack[i] = nil
 			}
 
 		case OpMakeIter:
-			v := m.stack[m.sp-1]
+			v := m.co.stack[m.co.sp-1]
 			switch v := v.(type) {
 			case Iterator:
 				// Ready to go.
 			case Iterable:
-				m.stack[m.sp-1] = v.MakeIterator()
+				m.co.stack[m.co.sp-1] = v.MakeIterator()
 			default:
 				if v == nil {
-					m.stack[m.sp-1] = NewIterator(emptyIter, nil, 1)
+					m.co.stack[m.co.sp-1] = NewIterator(emptyIter, nil, 1)
 				} else {
 					return fmt.Errorf(
 						"cannot iterate over value of type %q", TypeName(v))
@@ -933,22 +906,22 @@ func (m *VM) resume() (err error) {
 			}
 
 		case OpBeginTry:
-			m.frame.tryCatches = append(m.frame.tryCatches, tryCatch{
+			m.co.frame.tryCatches = append(m.co.frame.tryCatches, tryCatch{
 				CatchAddr: int(instr.op1),
 			})
 
 		case OpEndTry:
-			m.frame.tryCatches = m.frame.tryCatches[:len(m.frame.tryCatches)-1]
-			m.ip = int(instr.op1) - 1
+			m.co.frame.tryCatches = m.co.frame.tryCatches[:len(m.co.frame.tryCatches)-1]
+			m.co.ip = int(instr.op1) - 1
 
 		case OpSwap:
-			i1 := m.sp - 1
+			i1 := m.co.sp - 1
 			i2 := i1 - int(instr.op1)
-			m.stack[i1], m.stack[i2] = m.stack[i2], m.stack[i1]
+			m.co.stack[i1], m.co.stack[i2] = m.co.stack[i2], m.co.stack[i1]
 
 		case OpThrow:
-			errVal := m.stack[m.sp-1]
-			m.sp--
+			errVal := m.co.stack[m.co.sp-1]
+			m.co.sp--
 			err, ok := errVal.(*RuntimeError)
 			if !ok {
 				err = &RuntimeError{ErrValue: errVal}
@@ -956,22 +929,22 @@ func (m *VM) resume() (err error) {
 			return err
 
 		case OpDefer:
-			deferClosure := m.stack[m.sp-1].(*Closure)
-			m.sp--
-			m.frame.defers = append(m.frame.defers, deferClosure)
+			deferClosure := m.co.stack[m.co.sp-1].(*Closure)
+			m.co.sp--
+			m.co.frame.defers = append(m.co.frame.defers, deferClosure)
 
 		case OpNext:
-			iter, ok := m.stack[m.sp-1].(Iterator)
+			iter, ok := m.co.stack[m.co.sp-1].(Iterator)
 			if !ok {
-				return fmt.Errorf("%q is not an iterator", TypeName(m.stack[m.sp-1]))
+				return fmt.Errorf("%q is not an iterator", TypeName(m.co.stack[m.co.sp-1]))
 			}
 
 			jumpTo := int(instr.op1)
 			n := int(instr.op2)
 
-			rsp := m.sp - n - 1
+			rsp := m.co.sp - n - 1
 
-			// For n = 3:
+			// With n = 3:
 			// rsp  +0  +1  +2  +3  +4  +5  +6
 			//      r1  r2  r3  it               before iterNext
 			//      r1  r2  r3  v1  v2  v3       after iterNext
@@ -983,20 +956,20 @@ func (m *VM) resume() (err error) {
 
 			if ok {
 				for i := 0; i < n; i++ {
-					rval := m.stack[rsp+i].(ValueRef)
-					val := m.stack[rsp+n+1+i]
+					rval := m.co.stack[rsp+i].(ValueRef)
+					val := m.co.stack[rsp+n+1+i]
 					*rval.Ref = val
 				}
 			} else {
-				m.ip = jumpTo - 1
+				m.co.ip = jumpTo - 1
 			}
 
-			m.sp = rsp
+			m.co.sp = rsp
 
 		case OpSlice:
-			target := m.stack[m.sp-3]
-			begin := m.stack[m.sp-2]
-			end := m.stack[m.sp-1]
+			target := m.co.stack[m.co.sp-3]
+			begin := m.co.stack[m.co.sp-2]
+			end := m.co.stack[m.co.sp-1]
 
 			sliceable, ok := target.(interface {
 				Slice(begin Value, end Value) (Value, error)
@@ -1009,44 +982,44 @@ func (m *VM) resume() (err error) {
 			if err != nil {
 				return err
 			}
-			m.stack[m.sp-3] = res
-			m.sp -= 2
+			m.co.stack[m.co.sp-3] = res
+			m.co.sp -= 2
 
 		case OpIterYield:
-			nret := m.sp - (m.frame.bp + m.frame.nLocals)
-			if nret < m.frame.nRet {
+			nret := m.co.sp - (m.co.frame.bp + m.co.frame.nLocals)
+			if nret < m.co.frame.nRet {
 				return fmt.Errorf(
 					"iterator was expected to yield at least %v values, "+
 						"but yielded only %v",
-					m.frame.nRet, nret)
+					m.co.frame.nRet, nret)
 			}
 
-			iter := m.frame.iter
-			iter.tryCatches = m.frame.tryCatches
-			iter.defers = m.frame.defers
-			iter.nlocals = m.frame.nLocals
-			iter.ip = m.ip + 1
+			iter := m.co.frame.iter
+			iter.tryCatches = m.co.frame.tryCatches
+			iter.defers = m.co.frame.defers
+			iter.nlocals = m.co.frame.nLocals
+			iter.ip = m.co.ip + 1
 
-			if nret > m.frame.nRet {
-				m.sp -= (nret - m.frame.nRet)
+			if nret > m.co.frame.nRet {
+				m.co.sp -= (nret - m.co.frame.nRet)
 			}
 
 			return nil
 
 		case OpIterRet:
-			m.frame.iter.ip = -1
+			m.co.frame.iter.ip = -1
 			return nil
 
 		case OpLiftArg:
 			idx := int(instr.op1)
-			if idx < m.frame.nArg {
+			if idx < m.co.frame.nArg {
 				lifted := ValueRef{new(Value)}
-				*lifted.Ref = m.stack[m.frame.bp-m.frame.nArg+idx]
-				m.stack[m.frame.bp-m.frame.nArg+idx] = lifted
+				*lifted.Ref = m.co.stack[m.co.frame.bp-m.co.frame.nArg+idx]
+				m.co.stack[m.co.frame.bp-m.co.frame.nArg+idx] = lifted
 			}
 
 		case OpInitLiftedLocal:
-			m.stack[m.frame.bp+int(instr.op1)] = ValueRef{new(Value)}
+			m.co.stack[m.co.frame.bp+int(instr.op1)] = ValueRef{new(Value)}
 
 		case OpInitLiftedGlobal:
 			m.globals[int(instr.op1)] = ValueRef{new(Value)}
@@ -1055,7 +1028,7 @@ func (m *VM) resume() (err error) {
 			panic("invalid instruction")
 		}
 
-		m.ip++
+		m.co.ip++
 	}
 }
 
@@ -1064,56 +1037,55 @@ func (m *VM) SignalError(err error) {
 	defer m.mu.Unlock()
 
 	m.injectedErr = err
-	if len(m.contextStack) != 0 {
-		m.contextStack[len(m.contextStack)-1].cancel()
-	}
 
 	atomic.StoreInt32(&m.interrupt, 1)
+
+	m.sched.CancelBlocked()
 }
 
 func (m *VM) GetCallerNArg() int {
-	if len(m.callStack) < 2 {
+	if len(m.co.callStack) < 2 {
 		return 0
 	}
-	return m.callStack[len(m.callStack)-2].nArg
+	return m.co.callStack[len(m.co.callStack)-2].nArg
 }
 
 func (m *VM) GetCallerArgs() []Value {
-	if len(m.callStack) < 2 {
+	if len(m.co.callStack) < 2 {
 		return nil
 	}
-	f := m.callStack[len(m.callStack)-2]
-	args := m.stack[f.bp-f.nArg : f.bp]
+	f := m.co.callStack[len(m.co.callStack)-2]
+	args := m.co.stack[f.bp-f.nArg : f.bp]
 	return args
 }
 
 func (m *VM) IsPipeline() bool {
-	if len(m.callStack) < 1 {
+	if len(m.co.callStack) < 1 {
 		return false
 	}
-	return m.callStack[len(m.callStack)-1].pipeline
+	return m.co.callStack[len(m.co.callStack)-1].pipeline
 }
 
 func (m *VM) IsCallerPipeline() bool {
-	if len(m.callStack) < 2 {
+	if len(m.co.callStack) < 2 {
 		return false
 	}
-	return m.callStack[len(m.callStack)-2].pipeline
+	return m.co.callStack[len(m.co.callStack)-2].pipeline
 }
 
 func (m *VM) GetStackInfo() []FrameInfo {
-	stack := make([]FrameInfo, 0, len(m.callStack))
-	for i := 0; i < len(m.callStack); i++ {
+	stack := make([]FrameInfo, 0, len(m.co.callStack))
+	for i := 0; i < len(m.co.callStack); i++ {
 		stack = append(stack, m.GetFrameInfo(m.GetFrameCrumb(i)))
 	}
 	return stack
 }
 
 func (m *VM) GetFrameCrumb(n int) FrameCrumb {
-	if n >= len(m.callStack) {
+	if n >= len(m.co.callStack) {
 		return FrameCrumb{}
 	}
-	frame := m.callStack[len(m.callStack)-n-1]
+	frame := m.co.callStack[len(m.co.callStack)-n-1]
 	return FrameCrumb{
 		fn:    frame.fn,
 		ip:    frame.ip,
@@ -1175,22 +1147,9 @@ func (m *VM) getLocation(fn *Fn, ip int) *Location {
 	return &locs[len(fn.locations)-1]
 }
 
-func (m *VM) newFrame() *frame {
-	if len(m.framePool) == 0 {
-		return &frame{}
-	}
-
-	f := m.framePool[len(m.framePool)-1]
-	m.framePool = m.framePool[:len(m.framePool)-1]
-	return f
-}
-
 func (m *VM) shutdown() {
 	m.shuttingDown = true
 	for c := range m.closers {
 		c.Close()
 	}
-
-	close(m.ctxWatchdogCh)
-	m.wg.Wait()
 }

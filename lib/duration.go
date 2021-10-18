@@ -93,6 +93,10 @@ func (d Duration) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) 
 	return nil, fmt.Errorf("operation not supported by duration")
 }
 
+func (d Duration) Duration() time.Duration {
+	return d.dur
+}
+
 func (d Duration) Index(key nitro.Value) (nitro.Value, error) {
 	keyStr, ok := key.(nitro.String)
 	if !ok {

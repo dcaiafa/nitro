@@ -29,13 +29,14 @@ func sleep(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	timer := time.NewTimer(dur)
 	defer timer.Stop()
 
-	ctx := m.CreateContext(context.Background())
-	defer m.ReleaseContext(ctx)
-	select {
-	case <-ctx.Done():
-		return nil, ctx.Err()
+	err := m.Block(func(ctx context.Context) error {
+		select {
+		case <-timer.C:
+			return nil
+		case <-ctx.Done():
+			return ctx.Err()
+		}
+	})
 
-	case <-timer.C:
-		return nil, nil
-	}
+	return nil, err
 }
