@@ -434,20 +434,20 @@ func removeFile(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error
 	return []nitro.Value{nitro.True}, nil
 }
 
-var errRenameUsage = nitro.NewInvalidUsageError("rename(string, string)")
+var errMoveFileUsage = nitro.NewInvalidUsageError("move_file(string, string)")
 
-func rename(vm *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
+func moveFile(vm *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
 	if len(args) != 2 {
-		return nil, errRenameUsage
+		return nil, errMoveFileUsage
 	}
 
 	oldPath, ok := args[0].(nitro.String)
 	if !ok {
-		return nil, errRenameUsage
+		return nil, errMoveFileUsage
 	}
 	newPath, ok := args[1].(nitro.String)
 	if !ok {
-		return nil, errRenameUsage
+		return nil, errMoveFileUsage
 	}
 
 	err := os.Rename(oldPath.String(), newPath.String())
