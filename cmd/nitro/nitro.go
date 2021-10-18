@@ -15,6 +15,7 @@ import (
 	"github.com/dcaiafa/nitro/lib"
 	"github.com/dcaiafa/nitro/lib/nitroco"
 	"github.com/dcaiafa/nitro/lib/nitromath"
+	"github.com/dcaiafa/nitro/lib/nitropath"
 	"github.com/fatih/color"
 )
 
@@ -130,6 +131,7 @@ func main() {
 	lib.RegisterAll(compiler)
 	nitromath.RegisterNativePackage(compiler)
 	nitroco.RegisterNativePackage(compiler)
+	nitropath.RegisterNativePackage(compiler)
 
 	var progName string
 	var compiled *nitro.Program
