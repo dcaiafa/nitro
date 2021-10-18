@@ -7,9 +7,9 @@ import (
 )
 
 var errToStringUsage = errors.New(
-	`invalid usage. Expected tostring(any)`)
+	`invalid usage. Expected to_string(any)`)
 
-func tostring(m *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
+func toString(m *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
 	if len(args) != 1 {
 		return nil, errToStringUsage
 	}

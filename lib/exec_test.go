@@ -6,7 +6,7 @@ func TestExec(t *testing.T) {
 	RunSubO(t, `no_input_concise`, `
 		exec("go", "run", "./testexec/testexec.go", "-range", "1024", "-range-stdout") |
 			lines() |
-			map(&e -> parseint(e)) |
+			map(&e -> parse_int(e)) |
 			reduce(sum) |
 			print()
 	`, `523776`)
@@ -14,14 +14,14 @@ func TestExec(t *testing.T) {
 	RunSubO(t, `no_input`, `
 		exec({ cmd: ["go", "run", "./testexec/testexec.go", "-range", "1024", "-range-stdout"] }) |
 			lines() |
-			map(&e -> parseint(e)) |
+			map(&e -> parse_int(e)) |
 			reduce(sum) |
 			print()
 	`, `523776`)
 
 	RunSubO(t, `input`, `
 		range(100000) | 
-			map(tostring) |
+			map(to_string) |
 			exec({ cmd: ["go", "run", "./testexec/testexec.go", "-echo-to-stdout"] }) |
 				read() |
 				lines() |
@@ -39,10 +39,10 @@ func TestExec(t *testing.T) {
 
 	RunSubO(t, `input_concise`, `
 		range(100001) |
-			map(tostring) |
+			map(to_string) |
 			exec("go", "run", "./testexec/testexec.go", "-echo-to-stdout") |
 			lines() |
-			map(&e -> parseint(e)) |
+			map(&e -> parse_int(e)) |
 			reduce(sum) |
 			print()
 	`, `5000050000`)
@@ -50,27 +50,27 @@ func TestExec(t *testing.T) {
 	RunSubO(t, `capture_stderr`, `
 		var err_buf = buf()
 		var out = range(2049) | 
-			map(tostring) |
+			map(to_string) |
 			exec({ 
 				cmd: ["go", "run", "./testexec/testexec.go", "-echo-to-stderr", "-range", "11", "-range-stdout"]
 				stderr: err_buf
 			})
-    var out_sum = out | lines() | map(&l -> parseint(l)) | reduce(sum)
-		var err_sum = err_buf | lines() | map(&l -> parseint(l)) | reduce(sum)
+    var out_sum = out | lines() | map(&l -> parse_int(l)) | reduce(sum)
+		var err_sum = err_buf | lines() | map(&l -> parse_int(l)) | reduce(sum)
 		print(out_sum, err_sum)
 	`, `55 2098176`)
 
 	RunSubO(t, `switch_output`, `
 		var err_buf = buf()
 		var out = range(2049) | 
-			map(tostring) |
+			map(to_string) |
 			exec({ 
 				cmd: ["go", "run", "./testexec/testexec.go", "-echo-to-stderr", "-range", "11", "-range-stdout"]
 				stderr: err_buf
 				switchoutput: true
 			})
-    var out_sum = out | lines() | map(&l -> parseint(l)) | reduce(sum)
-		var err_sum = err_buf | lines() | map(&l -> parseint(l)) | reduce(sum)
+    var out_sum = out | lines() | map(&l -> parse_int(l)) | reduce(sum)
+		var err_sum = err_buf | lines() | map(&l -> parse_int(l)) | reduce(sum)
 		print(out_sum, err_sum)
 	`, `2098176 55`)
 
@@ -82,7 +82,7 @@ func TestExec(t *testing.T) {
 					combineoutput: true
 				}) |
 					lines() |
-					map(&l -> parseint(l)) |
+					map(&l -> parse_int(l)) |
 					reduce(sum) |
 					print()
 		`, `2098176`)
@@ -113,7 +113,7 @@ exit status 128
 		exec("go", "run", "./testexec/testexec.go", "-range", "1024", "-range-stdout") |
 			lines() |
 			take(10) |
-			map(&e -> parseint(e)) |
+			map(&e -> parse_int(e)) |
 			reduce(sum) |
 			print()
 	`, `45`)

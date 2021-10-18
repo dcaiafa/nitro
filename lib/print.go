@@ -316,9 +316,9 @@ type printTableOptions struct {
 var printTableConv Value2Structer
 
 var errPrintTableUsage = errors.New(
-	`invalid usage. Expected printtable(iter, map?)`)
+	`invalid usage. Expected print_table(iter, map?)`)
 
-func printtable(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func printTable(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) != 1 && len(args) != 2 {
 		return nil, errPrintTableUsage
 	}

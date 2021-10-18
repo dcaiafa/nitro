@@ -8,7 +8,7 @@ import (
 )
 
 var errParseIntUsage = errors.New(
-	`invalid usage. Expected parseint(str, map?)`)
+	`invalid usage. Expected parse_int(str, map?)`)
 
 type parseIntOptions struct {
 	Base int64
@@ -16,7 +16,7 @@ type parseIntOptions struct {
 
 var parseIntConv Value2Structer
 
-func parseint(m *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
+func parseInt(m *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
 	if len(args) != 1 && len(args) != 2 {
 		return nil, errParseIntUsage
 	}

@@ -6,9 +6,9 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-var errToIntUsage = nitro.NewInvalidUsageError("toint(string|float|int)")
+var errToIntUsage = nitro.NewInvalidUsageError("to_int(string|float|int)")
 
-func toint(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func toInt(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) != 1 {
 		return nil, errToIntUsage
 	}

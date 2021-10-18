@@ -16,9 +16,9 @@ type parseCSVOptions struct {
 var parseCSVConv Value2Structer
 
 var errParseCSVUsage = errors.New(
-	`invalid usage. Expected parsecsv(reader, map?)`)
+	`invalid usage. Expected parse_csv(reader, map?)`)
 
-func parsecsv(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func parseCSV(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) != 1 && len(args) != 2 {
 		return nil, errParseCSVUsage
 	}

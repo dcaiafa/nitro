@@ -30,34 +30,34 @@ func (s String) Index(key Value) (Value, error) {
 		switch key.String() {
 		case "find":
 			return NativeFn(s.find), nil
-		case "findlast":
-			return NativeFn(s.findlast), nil
+		case "find_last":
+			return NativeFn(s.findLast), nil
 		case "match":
 			return NativeFn(s.match), nil
-		case "matchall":
-			return NativeFn(s.matchall), nil
+		case "match_all":
+			return NativeFn(s.matchAll), nil
 		case "replace":
 			return NativeFn(s.replace), nil
 		case "split":
 			return NativeFn(s.split), nil
 		case "trim":
 			return NativeFn(s.trim), nil
-		case "trimleft":
-			return NativeFn(s.trimleft), nil
-		case "trimright":
-			return NativeFn(s.trimright), nil
-		case "trimprefix":
-			return NativeFn(s.trimprefix), nil
-		case "trimsuffix":
-			return NativeFn(s.trimsuffix), nil
-		case "toupper":
-			return NativeFn(s.toupper), nil
-		case "tolower":
-			return NativeFn(s.tolower), nil
-		case "hasprefix":
-			return NativeFn(s.hasprefix), nil
-		case "hassuffix":
-			return NativeFn(s.hassuffix), nil
+		case "trim_left":
+			return NativeFn(s.trimLeft), nil
+		case "trim_right":
+			return NativeFn(s.trimRight), nil
+		case "trim_prefix":
+			return NativeFn(s.trimPrefix), nil
+		case "trim_suffix":
+			return NativeFn(s.trimSuffix), nil
+		case "to_upper":
+			return NativeFn(s.toUpper), nil
+		case "to_lower":
+			return NativeFn(s.toLower), nil
+		case "has_prefix":
+			return NativeFn(s.hasPrefix), nil
+		case "has_suffix":
+			return NativeFn(s.hasSuffix), nil
 		case "fields":
 			return NativeFn(s.fields), nil
 		case "repeat":
@@ -208,7 +208,7 @@ func (s String) find(m *VM, args []Value, nRet int) ([]Value, error) {
 var errStringFindLastUsage = errors.New(
 	`invalid usage. Expected <string>.findlast(string)`)
 
-func (s String) findlast(m *VM, args []Value, nRet int) ([]Value, error) {
+func (s String) findLast(m *VM, args []Value, nRet int) ([]Value, error) {
 	if len(args) != 1 {
 		return nil, errStringFindLastUsage
 	}
@@ -251,7 +251,7 @@ func (s String) match(m *VM, args []Value, nRet int) ([]Value, error) {
 
 var errStringMatchAllUsage = NewInvalidUsageError("<string>.matchall(regex)")
 
-func (s String) matchall(m *VM, args []Value, nRet int) ([]Value, error) {
+func (s String) matchAll(m *VM, args []Value, nRet int) ([]Value, error) {
 	if len(args) != 1 {
 		return nil, errStringMatchAllUsage
 	}
@@ -401,7 +401,7 @@ func (s String) trim(m *VM, args []Value, nRet int) ([]Value, error) {
 
 var errStringTrimLeftUsage = NewInvalidUsageError("<string>.trimleft()")
 
-func (s String) trimleft(m *VM, args []Value, nRet int) ([]Value, error) {
+func (s String) trimLeft(m *VM, args []Value, nRet int) ([]Value, error) {
 	if len(args) != 0 {
 		return nil, errStringTrimLeftUsage
 	}
@@ -411,7 +411,7 @@ func (s String) trimleft(m *VM, args []Value, nRet int) ([]Value, error) {
 
 var errStringTrimRightUsage = NewInvalidUsageError("<string>.trimright()")
 
-func (s String) trimright(m *VM, args []Value, nRet int) ([]Value, error) {
+func (s String) trimRight(m *VM, args []Value, nRet int) ([]Value, error) {
 	if len(args) != 0 {
 		return nil, errStringTrimRightUsage
 	}
@@ -421,7 +421,7 @@ func (s String) trimright(m *VM, args []Value, nRet int) ([]Value, error) {
 
 var errStringTrimPrefixUsage = NewInvalidUsageError("<string>.trimprefix(prefix)")
 
-func (s String) trimprefix(m *VM, args []Value, nRet int) ([]Value, error) {
+func (s String) trimPrefix(m *VM, args []Value, nRet int) ([]Value, error) {
 	if len(args) != 1 {
 		return nil, errStringTrimPrefixUsage
 	}
@@ -435,7 +435,7 @@ func (s String) trimprefix(m *VM, args []Value, nRet int) ([]Value, error) {
 
 var errStringTrimSuffixUsage = NewInvalidUsageError("<string>.trimsuffix(suffix)")
 
-func (s String) trimsuffix(m *VM, args []Value, nRet int) ([]Value, error) {
+func (s String) trimSuffix(m *VM, args []Value, nRet int) ([]Value, error) {
 	if len(args) != 1 {
 		return nil, errStringTrimSuffixUsage
 	}
@@ -449,7 +449,7 @@ func (s String) trimsuffix(m *VM, args []Value, nRet int) ([]Value, error) {
 
 var errStringToUpperUsage = NewInvalidUsageError("<string>.toupper()")
 
-func (s String) toupper(m *VM, args []Value, nRet int) ([]Value, error) {
+func (s String) toUpper(m *VM, args []Value, nRet int) ([]Value, error) {
 	if len(args) != 0 {
 		return nil, errStringToUpperUsage
 	}
@@ -459,7 +459,7 @@ func (s String) toupper(m *VM, args []Value, nRet int) ([]Value, error) {
 
 var errStringToLowerUsage = NewInvalidUsageError("<string>.tolower()")
 
-func (s String) tolower(m *VM, args []Value, nRet int) ([]Value, error) {
+func (s String) toLower(m *VM, args []Value, nRet int) ([]Value, error) {
 	if len(args) != 0 {
 		return nil, errStringToLowerUsage
 	}
@@ -469,7 +469,7 @@ func (s String) tolower(m *VM, args []Value, nRet int) ([]Value, error) {
 
 var errStringHasPrefixUsage = NewInvalidUsageError("<string>.hasprefix(string)")
 
-func (s String) hasprefix(m *VM, args []Value, nRet int) ([]Value, error) {
+func (s String) hasPrefix(m *VM, args []Value, nRet int) ([]Value, error) {
 	if len(args) != 1 {
 		return nil, errStringHasPrefixUsage
 	}
@@ -483,7 +483,7 @@ func (s String) hasprefix(m *VM, args []Value, nRet int) ([]Value, error) {
 
 var errStringHasSuffixUsage = NewInvalidUsageError("<string>.hassuffix(string)")
 
-func (s String) hassuffix(m *VM, args []Value, nRet int) ([]Value, error) {
+func (s String) hasSuffix(m *VM, args []Value, nRet int) ([]Value, error) {
 	if len(args) != 1 {
 		return nil, errStringHasSuffixUsage
 	}

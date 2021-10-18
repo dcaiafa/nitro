@@ -38,6 +38,9 @@ func (f Float) EvalOp(op Op, operand Value) (Value, error) {
 	case OpMult:
 		return NewFloat(f.v * operandFloat.Float64()), nil
 	case OpDiv:
+		if operandFloat.Float64() == 0 {
+			return nil, ErrDivideByZero
+		}
 		return NewFloat(f.v / operandFloat.Float64()), nil
 	case OpLT:
 		return NewBool(f.v < operandFloat.Float64()), nil

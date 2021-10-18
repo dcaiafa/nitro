@@ -8,9 +8,9 @@ import (
 )
 
 var errParseFloatUsage = errors.New(
-	`invalid usage. Expected parsefloat(str, map?)`)
+	`invalid usage. Expected parse_float(str, map?)`)
 
-func parsefloat(m *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
+func parseFloat(m *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
 	if len(args) != 1 {
 		return nil, errParseFloatUsage
 	}

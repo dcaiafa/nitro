@@ -10,7 +10,7 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-func parsejson(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func parseJSON(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) < 0 {
 		return nil, errNotEnoughArgs
 	}
@@ -120,9 +120,9 @@ type toJSONOptions struct {
 var toJSONOptionConv Value2Structer
 
 var errToJSONUsage = errors.New(
-	`invalid usage. Expected tojson(bool|int|float|string|array|map, map?)`)
+	`invalid usage. Expected to_json(bool|int|float|string|array|map, map?)`)
 
-func tojson(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func toJSON(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) != 1 && len(args) != 2 {
 		return nil, errToJSONUsage
 	}

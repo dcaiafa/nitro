@@ -6,9 +6,9 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-var errUserHomeDirUsage = nitro.NewInvalidUsageError("userhomedir()")
+var errUserHomeDirUsage = nitro.NewInvalidUsageError("home_dir()")
 
-func userhomedir(vm *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func homeDir(vm *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) != 0 {
 		return nil, errUserHomeDirUsage
 	}

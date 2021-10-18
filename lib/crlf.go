@@ -11,9 +11,9 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-var errFromCRLFUsage = nitro.NewInvalidUsageError("fromcrlf(string|reader)")
+var errFromCRLFUsage = nitro.NewInvalidUsageError("from_crlf(string|reader)")
 
-func fromcrlf(vm *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func fromCRLF(vm *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) != 1 {
 		return nil, errFromCRLFUsage
 	}
@@ -36,9 +36,9 @@ func fromcrlf(vm *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error)
 	}
 }
 
-var errToCRLFUsage = nitro.NewInvalidUsageError("tocrlf(string|reader, bool?)")
+var errToCRLFUsage = nitro.NewInvalidUsageError("to_crlf(string|reader, bool?)")
 
-func tocrlf(vm *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
+func toCRLF(vm *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
 	if len(args) != 1 && len(args) != 2 {
 		return nil, errToCRLFUsage
 	}

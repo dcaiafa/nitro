@@ -8,7 +8,7 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-func pathbase(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func pathBase(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	path, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -19,7 +19,7 @@ func pathbase(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) 
 	return []nitro.Value{nitro.NewString(base)}, nil
 }
 
-func pathclean(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func pathClean(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	path, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -30,7 +30,7 @@ func pathclean(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error)
 	return []nitro.Value{nitro.NewString(cleanPath)}, nil
 }
 
-func pathdir(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func pathDir(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	path, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -41,7 +41,7 @@ func pathdir(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	return []nitro.Value{nitro.NewString(dir)}, nil
 }
 
-func pathext(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func pathExt(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	path, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -52,7 +52,7 @@ func pathext(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	return []nitro.Value{nitro.NewString(ext)}, nil
 }
 
-func pathfromslash(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func pathFromSlash(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	path, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -63,7 +63,7 @@ func pathfromslash(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, er
 	return []nitro.Value{nitro.NewString(fromSlash)}, nil
 }
 
-func pathtoslash(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func pathToSlash(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	path, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -74,7 +74,7 @@ func pathtoslash(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, erro
 	return []nitro.Value{nitro.NewString(p)}, nil
 }
 
-func pathjoin(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func pathJoin(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) < 2 {
 		return nil, errNotEnoughArgs
 	}
@@ -96,7 +96,7 @@ func pathjoin(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) 
 var errPathMatchUsage = errors.New(
 	`invalid usage. Expected pathmatch(string, string)`)
 
-func pathmatch(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func pathMatch(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) != 2 {
 		return nil, errPathMatchUsage
 	}

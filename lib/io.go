@@ -148,7 +148,7 @@ func stdout(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	return []nitro.Value{nitro.NewInt(n)}, nil
 }
 
-func pushstdout(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func pushStdout(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	out, err := getWriterArg(args, 0)
 	if err != nil {
 		return nil, err
@@ -157,7 +157,7 @@ func pushstdout(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error
 	return nil, nil
 }
 
-func popstdout(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func popStdout(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	prevOut := PopStdout(m)
 	if prevOut == nil {
 		return nil, fmt.Errorf("the stdout stack is empty")

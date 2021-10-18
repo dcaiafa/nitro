@@ -4,7 +4,7 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-func toarray(m *nitro.VM, args []nitro.Value, _ int) ([]nitro.Value, error) {
+func toArray(m *nitro.VM, args []nitro.Value, _ int) ([]nitro.Value, error) {
 	if len(args) < 1 {
 		return nil, errNotEnoughArgs
 	}

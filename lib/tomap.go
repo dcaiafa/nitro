@@ -8,9 +8,9 @@ import (
 )
 
 var errToMapUsage = errors.New(
-	`invalid usage. Expected tomap(iter, func)`)
+	`invalid usage. Expected to_map(iter, func)`)
 
-func tomap(m *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
+func toMap(m *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
 	if len(args) != 2 {
 		return nil, errToMapUsage
 	}

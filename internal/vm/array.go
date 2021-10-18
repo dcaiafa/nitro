@@ -51,8 +51,8 @@ func (a *Array) Index(key Value) (Value, error) {
 		switch key.String() {
 		case "add":
 			return NativeFn(a.add), nil
-		case "additer":
-			return NativeFn(a.additer), nil
+		case "add_iter":
+			return NativeFn(a.add_iter), nil
 		case "len":
 			return NativeFn(a.len), nil
 		case "find":
@@ -181,7 +181,7 @@ func (a *Array) add(m *VM, args []Value, nRet int) ([]Value, error) {
 
 var errListAddIterUsage error = NewInvalidUsageError("<list>.additer(iter)")
 
-func (a *Array) additer(m *VM, args []Value, nret int) ([]Value, error) {
+func (a *Array) add_iter(m *VM, args []Value, nret int) ([]Value, error) {
 	if len(args) != 1 {
 		return nil, errListAddIterUsage
 	}

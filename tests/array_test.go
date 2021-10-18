@@ -92,7 +92,7 @@ func TestArrayLiteral(t *testing.T) {
 
 	RunSubO(t, "additer_list", `
 		var a = ["foo"]
-		a.additer(["bar", "baz"])
+		a.add_iter(["bar", "baz"])
 		print(a)
 	`, `[foo bar baz]`)
 

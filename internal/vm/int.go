@@ -37,8 +37,14 @@ func (i Int) EvalOp(op Op, operand Value) (Value, error) {
 	case OpMult:
 		return NewInt(i.v * operandInt.Int64()), nil
 	case OpDiv:
+		if operandInt.Int64() == 0 {
+			return nil, ErrDivideByZero
+		}
 		return NewInt(i.v / operandInt.Int64()), nil
 	case OpMod:
+		if operandInt.Int64() == 0 {
+			return nil, ErrDivideByZero
+		}
 		return NewInt(i.v % operandInt.Int64()), nil
 	case OpLT:
 		return NewBool(i.v < operandInt.Int64()), nil

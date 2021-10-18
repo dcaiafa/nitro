@@ -8,9 +8,9 @@ import (
 )
 
 var errToHexUsage = errors.New(
-	`invalid usage. Expected tohex(string)`)
+	`invalid usage. Expected to_hex(string)`)
 
-func tohex(vm *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func toHex(vm *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) != 1 {
 		return nil, errToHexUsage
 	}

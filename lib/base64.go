@@ -8,9 +8,9 @@ import (
 )
 
 var errParseBase64Usage = errors.New(
-	`invalid usage. Expected parsebase64(string)`)
+	`invalid usage. Expected parse_base64(string)`)
 
-func parsebase64(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func parseBase64(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) != 1 {
 		return nil, errParseBase64Usage
 	}
@@ -26,9 +26,9 @@ func parsebase64(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, erro
 }
 
 var errUsageToBase64 = errors.New(
-	`invalid usage. Expected tobase64(string)`)
+	`invalid usage. Expected to_base64(string)`)
 
-func tobase64(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func toBase64(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) != 1 {
 		return nil, errUsageToBase64
 	}
