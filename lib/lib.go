@@ -27,6 +27,7 @@ func RegisterAll(c *nitro.Compiler) {
 	c.AddNativeFn("exec", exec)
 	c.AddNativeFn("file_exists", fileExists)
 	c.AddNativeFn("filter", filter)
+	c.AddNativeFn("first", first)
 	c.AddNativeFn("flatten", flatten)
 	c.AddNativeFn("from_crlf", fromCRLF)
 	c.AddNativeFn("group", group)
