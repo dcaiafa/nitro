@@ -82,6 +82,7 @@ func RegisterAll(c *nitro.Compiler) {
 	c.AddNativeFn("time_from_unix", timeFromUnix)
 	c.AddNativeFn("to_array", toArray)
 	c.AddNativeFn("to_base64", toBase64)
+	c.AddNativeFn("to_bool", toBool)
 	c.AddNativeFn("to_crlf", toCRLF)
 	c.AddNativeFn("to_hex", toHex)
 	c.AddNativeFn("to_int", toInt)
