@@ -21,6 +21,7 @@ func RegisterAll(c *nitro.Compiler) {
 	c.AddNativeFn("count", count)
 	c.AddNativeFn("create", create)
 	c.AddNativeFn("create_temp", createTemp)
+	c.AddNativeFn("discard", discard)
 	c.AddNativeFn("do", dop)
 	c.AddNativeFn("dur", dur)
 	c.AddNativeFn("env", env)
