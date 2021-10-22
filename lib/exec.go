@@ -620,6 +620,10 @@ func exec(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 
 	cmd = osexec.Command(opt.Cmd[0], opt.Cmd[1:]...)
 
+	if opt.Env != nil {
+		cmd.Env = opt.Env
+	}
+
 	p := newProcess(m, cmd, stdin)
 
 	if opt.Stderr != nil {

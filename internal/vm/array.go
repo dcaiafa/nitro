@@ -176,7 +176,11 @@ func (a *Array) add(m *VM, args []Value, nRet int) ([]Value, error) {
 	v := args[0]
 	a.Add(v)
 
-	return nil, nil
+	if nRet == 1 {
+		return []Value{a}, nil
+	} else {
+		return nil, nil
+	}
 }
 
 var errListAddIterUsage error = NewInvalidUsageError("<list>.additer(iter)")
@@ -206,7 +210,11 @@ func (a *Array) add_iter(m *VM, args []Value, nret int) ([]Value, error) {
 		}
 	}
 
-	return nil, nil
+	if nret == 1 {
+		return []Value{a}, nil
+	} else {
+		return nil, nil
+	}
 }
 
 var errListLenUsage error = NewInvalidUsageError("<list>.len()")
