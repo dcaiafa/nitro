@@ -90,19 +90,6 @@ exit status 128
 			print()
 	`, `45`)
 
-	RunSubO(t, `explicit_stdout`, `
-		var tmp = create_temp()
-		defer remove_file(tmp)
-		range(100000) | 
-			map(to_string) |
-			exec({ cmd: ["go", "run", "./testexec/testexec.go", "-echo-to-stdout"], stdout: tmp })
-		seek(tmp, 0)
-		read(tmp) |
-			lines() |
-			count() |
-			print()
-`, `100000`)
-
 	RunSubO(t, `stdin_is_file`, `
 		var tmp = create_temp()
 		defer remove_file(tmp)
