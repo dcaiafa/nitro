@@ -213,24 +213,27 @@ func (p *process) Close() error {
 	p.vm.UnregisterCloser(p)
 
 	p.setError(ErrAborted)
-	if err := p.error(); err != io.EOF {
-		p.cmd.Process.Kill()
-	}
 
-	CloseReader(p.stdin)
-
-	err := p.cmd.Wait()
-	if err != nil {
-		if p.errSaver != nil {
-			err = fmt.Errorf("%w\n%v", err, string(p.errSaver.Bytes()))
+	if p.cmd != nil && p.cmd.Process != nil {
+		if err := p.error(); err != io.EOF {
+			p.cmd.Process.Kill()
 		}
-		p.mu.Lock()
-		p.err = err
-		p.mu.Unlock()
+
+		err := p.cmd.Wait()
+		if err != nil {
+			if p.errSaver != nil {
+				err = fmt.Errorf("%w\n%v", err, string(p.errSaver.Bytes()))
+			}
+			p.mu.Lock()
+			p.err = err
+			p.mu.Unlock()
+		}
 	}
 
 	p.wg.Wait()
-	return err
+	CloseReader(p.stdin)
+
+	return nil
 }
 
 func (p *process) Read(b []byte) (written int, err error) {

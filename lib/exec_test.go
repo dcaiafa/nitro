@@ -118,4 +118,12 @@ exit status 128
 			count() |
 			print()
 `, `100000`)
+
+	RunSubO(t, `executable_not_found`, `
+	try {
+		exec("./foo_bar_doesnt_exist") | read()
+	} catch {
+  	print("failed as expected")
+	}
+`, `failed as expected`)
 }
