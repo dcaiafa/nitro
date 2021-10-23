@@ -21,9 +21,19 @@ type File struct {
 
 var _ /* implements */ nitro.Indexable = (*File)(nil)
 var _ /* implements */ nitro.Callable = (*File)(nil)
+var _ /* implements */ NativeReader = (*File)(nil)
+var _ /* implements */ NativeWriter = (*File)(nil)
 
 func (f *File) String() string { return fmt.Sprintf("File:%v", f.Name()) }
 func (f *File) Type() string   { return "File" }
+
+func (f *File) GetNativeReader() io.Reader {
+	return f.File
+}
+
+func (f *File) GetNativeWriter() io.Writer {
+	return f.File
+}
 
 func (f *File) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) {
 	return nil, fmt.Errorf("file does not support this operation")

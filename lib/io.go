@@ -9,19 +9,23 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-type stdinWrapper struct {
-	nitro.BaseValue
-	io.Reader
+type NativeReader interface {
+	GetNativeReader() io.Reader
 }
 
-func wrapStdin(r io.Reader) nitro.Value {
-	v, ok := r.(nitro.Value)
-	if ok {
-		return v
-	}
+type NativeWriter interface {
+	GetNativeWriter() io.Writer
+}
+
+type stdinWrapper struct {
+	nitro.BaseValue
+	*os.File
+}
+
+func wrapStdin() nitro.Value {
 	return &stdinWrapper{
-		BaseValue: nitro.BaseValue{TypeName: "reader"},
-		Reader:    r,
+		BaseValue: nitro.BaseValue{TypeName: "stdin"},
+		File:      os.Stdin,
 	}
 }
 
@@ -32,7 +36,7 @@ func CloseReader(r io.Reader) {
 }
 
 func stdin(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	return []nitro.Value{wrapStdin(os.Stdin)}, nil
+	return []nitro.Value{wrapStdin()}, nil
 }
 
 type writerBase struct {
@@ -91,7 +95,7 @@ func Stdout(m *nitro.VM) io.Writer {
 	outStack, ok := m.GetUserData(&stdoutUserDataKey).(*stdoutStack)
 	if ok {
 		if len(outStack.stack) != 0 {
-			return outStack.stack[len(outStack.stack)-1].(io.Writer)
+			return outStack.stack[len(outStack.stack)-1]
 		}
 	}
 	return os.Stdout
