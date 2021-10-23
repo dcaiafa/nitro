@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -219,15 +220,17 @@ func (p *process) Close() error {
 			p.cmd.Process.Kill()
 		}
 
-		err := p.cmd.Wait()
-		if err != nil {
-			if p.errSaver != nil {
-				err = fmt.Errorf("%w\n%v", err, string(p.errSaver.Bytes()))
+		p.vm.Block(func(ctx context.Context) {
+			err := p.cmd.Wait()
+			if err != nil {
+				if p.errSaver != nil {
+					err = fmt.Errorf("%w\n%v", err, string(p.errSaver.Bytes()))
+				}
+				p.mu.Lock()
+				p.err = err
+				p.mu.Unlock()
 			}
-			p.mu.Lock()
-			p.err = err
-			p.mu.Unlock()
-		}
+		})
 	}
 
 	p.wg.Wait()
@@ -294,35 +297,48 @@ func (p *process) Read(b []byte) (written int, err error) {
 			stdinC = nil
 		}
 
-		select {
-		case stdinC <- p.stdinData:
-			p.stdinData = nil
+		var ok bool
+		var data *ioqueue.Data
+		var stderrData *ioqueue.Data
 
-		case data, ok := <-stdoutC:
-			if ok {
-				n := copy(b, data.Data)
-				written += n
-				b = b[n:]
-				if len(data.Data) == n {
-					ioqueue.ReleaseData(data)
+		p.vm.Block(func(ctx context.Context) {
+			select {
+			case stdinC <- p.stdinData:
+				p.stdinData = nil
+
+			case data, ok = <-stdoutC:
+				if ok {
+					n := copy(b, data.Data)
+					written += n
+					b = b[n:]
+					if len(data.Data) == n {
+						ioqueue.ReleaseData(data)
+					} else {
+						data.Data = data.Data[n:]
+						p.stdoutData = data
+					}
 				} else {
-					data.Data = data.Data[n:]
-					p.stdoutData = data
+					stdoutC = nil
 				}
-			} else {
-				stdoutC = nil
+
+			case stderrData, ok = <-stderrC:
+				if !ok {
+					stderrC = nil
+				}
+
+			case <-ctx.Done():
+				p.setError(ctx.Err())
 			}
+		})
 
-		case data, ok := <-stderrC:
-			if ok {
-				_, err := p.stderr.Write(data.Data)
-				if err == nil {
-					ioqueue.ReleaseData(data)
-				} else {
-					p.setError(err)
-				}
+		// Processing the stderr data must happen outside of Block() because it
+		// could be reentrant.
+		if stderrData != nil {
+			_, err := p.stderr.Write(stderrData.Data)
+			if err == nil {
+				ioqueue.ReleaseData(stderrData)
 			} else {
-				stderrC = nil
+				p.setError(err)
 			}
 		}
 	}

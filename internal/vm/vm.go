@@ -195,22 +195,13 @@ func (m *VM) PopContext() context.Context {
 	return m.co.PopContext()
 }
 
-func (m *VM) Block(f func(ctx context.Context) error) error {
+func (m *VM) Block(f func(ctx context.Context)) {
 	self := m.co
 
-	var err error
 	m.sched.Block(self.TopContext(), func(ctx context.Context) {
-		err = f(ctx)
+		f(ctx)
 	})
 	m.co = self
-
-	m.processInterrupt()
-	if m.co.pendingErr != nil {
-		err = m.co.pendingErr
-		m.co.pendingErr = nil
-	}
-
-	return err
 }
 
 func (m *VM) Call(callable Value, args []Value, nret int) ([]Value, error) {
