@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 
 	//golog "log"
 	osexec "os/exec"
@@ -48,7 +47,6 @@ type process struct {
 	stdin      io.Reader
 	stderr     io.Writer
 	combineOut bool
-	switchOut  bool
 	errSaver   *prefixSuffixSaver
 	inPipe     io.WriteCloser
 	outPipe    io.ReadCloser
@@ -71,11 +69,12 @@ type process struct {
 
 var _ io.Reader = (*process)(nil)
 
-func newProcess(m *nitro.VM, cmd *osexec.Cmd, stdin io.Reader) *process {
+func newProcess(m *nitro.VM, cmd *osexec.Cmd, stdin io.Reader, stderr io.Writer) *process {
 	p := &process{
-		vm:    m,
-		cmd:   cmd,
-		stdin: stdin,
+		vm:     m,
+		cmd:    cmd,
+		stdin:  stdin,
+		stderr: stderr,
 	}
 	p.inBufs.Init()
 	p.cvInLoop = sync.NewCond(&p.mu)
@@ -94,43 +93,43 @@ func (p *process) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) 
 	return nil, fmt.Errorf("process does not support this operation")
 }
 
-func (p *process) SetStderr(w io.Writer) {
-	p.stderr = w
-}
-
 func (p *process) SetCombineOutput(v bool) {
 	p.combineOut = v
-}
-
-func (p *process) SetSwitchOutput(v bool) {
-	p.switchOut = v
 }
 
 func (p *process) Start() error {
 	var err error
 	if p.stdin != nil {
-		p.inPipe, err = p.cmd.StdinPipe()
-		if err != nil {
-			return err
+		if nativeReader, ok := p.stdin.(NativeReader); ok {
+			p.cmd.Stdin = nativeReader.GetNativeReader()
+			p.inClosed = true
+		} else {
+			p.inPipe, err = p.cmd.StdinPipe()
+			if err != nil {
+				return err
+			}
+			p.wg.Add(1)
+			go p.inputLoop()
 		}
-		p.wg.Add(1)
-		go p.inputLoop()
 	} else {
 		p.inClosed = true
 	}
 
 	if p.stderr == nil {
-		if p.switchOut {
-			p.stderr = ioutil.Discard
-		} else {
-			p.errSaver = &prefixSuffixSaver{N: 512}
-			p.stderr = p.errSaver
-		}
+		p.errSaver = &prefixSuffixSaver{N: 512}
+		p.stderr = p.errSaver
 	}
 
-	p.errPipe, err = p.cmd.StderrPipe()
-	if err != nil {
-		return err
+	if nativeWriter, ok := p.stderr.(NativeWriter); ok {
+		p.cmd.Stderr = nativeWriter.GetNativeWriter()
+		p.errClosed = true
+	} else {
+		p.errPipe, err = p.cmd.StderrPipe()
+		if err != nil {
+			return err
+		}
+		p.wg.Add(1)
+		go p.errLoop()
 	}
 
 	p.outPipe, err = p.cmd.StdoutPipe()
@@ -138,14 +137,7 @@ func (p *process) Start() error {
 		return err
 	}
 
-	if p.switchOut {
-		tmp := p.errPipe
-		p.errPipe = p.outPipe
-		p.outPipe = tmp
-	}
-
-	p.wg.Add(2)
-	go p.errLoop()
+	p.wg.Add(1)
 	go p.outputLoop()
 
 	err = p.cmd.Start()
@@ -548,12 +540,11 @@ func (p *process) closeInput() {
 }
 
 type execOptions struct {
-	Cmd           []string    `nitro:"cmd"`
-	Env           []string    `nitro:"env"`
-	Dir           string      `nitro:"string"`
-	Stderr        nitro.Value `nitro:"stderr"`
-	CombineOutput bool        `nitro:"combineoutput"`
-	SwitchOutput  bool        `nitro:"switchoutput"`
+	Cmd    []string    `nitro:"cmd"`
+	Env    []string    `nitro:"env"`
+	Dir    string      `nitro:"string"`
+	Stdout nitro.Value `nitro:"stdout"`
+	Stderr nitro.Value `nitro:"stderr"`
 }
 
 var execOptionsConv Value2Structer
@@ -618,25 +609,31 @@ func exec(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 		return nil, fmt.Errorf("option \"cmd\" cannot be empty")
 	}
 
+	var stdout io.Writer
+	if opt.Stdout != nil {
+		stdout, ok = opt.Stdout.(io.Writer)
+		if !ok {
+			return nil, fmt.Errorf(
+				"option stdout %q is not a writer", nitro.TypeName(opt.Stdout))
+		}
+	}
+
+	var stderr io.Writer
+	if opt.Stderr != nil {
+		stderr, ok = opt.Stderr.(io.Writer)
+		if !ok {
+			return nil, fmt.Errorf(
+				"option stderr %q is not a writer", nitro.TypeName(opt.Stderr))
+		}
+	}
+
 	cmd = osexec.Command(opt.Cmd[0], opt.Cmd[1:]...)
 
 	if opt.Env != nil {
 		cmd.Env = opt.Env
 	}
 
-	p := newProcess(m, cmd, stdin)
-
-	if opt.Stderr != nil {
-		stderr, ok := opt.Stderr.(io.Writer)
-		if !ok {
-			return nil, fmt.Errorf(
-				"option stderr %q is not a writer", nitro.TypeName(opt.Stderr))
-		}
-		p.SetStderr(stderr)
-	}
-
-	p.SetCombineOutput(opt.CombineOutput)
-	p.SetSwitchOutput(opt.SwitchOutput)
+	p := newProcess(m, cmd, stdin, stderr)
 
 	err = p.Start()
 	if err != nil {
@@ -645,6 +642,13 @@ func exec(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 
 	p.crumb = m.GetFrameCrumb(1)
 	m.RegisterCloser(p)
+
+	if stdout != nil {
+		_, err := io.Copy(stdout, p)
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	return []nitro.Value{p}, nil
 }
