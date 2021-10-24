@@ -223,14 +223,18 @@ func basePrint(out io.Writer, m *nitro.VM, args []nitro.Value, nRet int) ([]nitr
 	}
 
 	if len(args) == 1 {
-		if it, ok := args[0].(nitro.Iterator); ok {
+		switch arg := args[0].(type) {
+		case nitro.Iterator:
 			first := true
 			for {
 				if mods.NoNL && !first {
-					fprint(out, " ")
+					_, err := fprint(out, " ")
+					if err != nil {
+						return nil, err
+					}
 				}
-				nret := it.IterNRet()
-				v, err := m.IterNext(it, nret)
+				nret := arg.IterNRet()
+				v, err := m.IterNext(arg, nret)
 				if err != nil {
 					return nil, err
 				}
@@ -238,9 +242,23 @@ func basePrint(out io.Writer, m *nitro.VM, args []nitro.Value, nRet int) ([]nitr
 					break
 				}
 				iargs := valuesToInterface(v)
-				fprint(out, iargs...)
+				_, err = fprint(out, iargs...)
+				if err != nil {
+					return nil, err
+				}
 				first = false
 			}
+			return nil, nil
+
+		case io.Reader:
+			_, err := io.Copy(out, arg)
+			if err != nil {
+				return nil, err
+			}
+			if !mods.NoNL {
+				fmt.Println("")
+			}
+
 			return nil, nil
 		}
 	}
