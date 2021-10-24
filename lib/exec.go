@@ -22,6 +22,7 @@ type process struct {
 	vm         *nitro.VM
 	crumb      nitro.FrameCrumb
 	cmd        *osexec.Cmd
+	closed     bool
 	started    bool
 	stdin      io.Reader
 	stderr     io.Writer
@@ -187,7 +188,7 @@ func (p *process) errLoop() {
 	}
 }
 
-func (p *process) error() error {
+func (p *process) getError() error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	return p.err
@@ -203,11 +204,17 @@ func (p *process) setError(err error) {
 }
 
 func (p *process) Close() error {
+	if p.closed {
+		return nil
+	}
+
+	p.closed = true
 	if p.vm.ShuttingDown() {
 		fmt.Fprintf(
 			Stderr(p.vm),
-			"WARNING: open process created at %v. "+
+			"WARNING: open process %v created at %v. "+
 				"Did you forget to pipe the output?\n",
+			p.cmd.Path,
 			p.vm.GetFrameInfo(p.crumb),
 		)
 	}
@@ -216,11 +223,11 @@ func (p *process) Close() error {
 	p.setError(ErrAborted)
 
 	if p.cmd != nil && p.cmd.Process != nil {
-		if err := p.error(); err != io.EOF {
+		if err := p.getError(); err != io.EOF {
 			p.cmd.Process.Kill()
 		}
 
-		p.vm.Block(func(ctx context.Context) {
+		wait := func(ctx context.Context) {
 			err := p.cmd.Wait()
 			if err != nil {
 				if p.errSaver != nil {
@@ -230,7 +237,13 @@ func (p *process) Close() error {
 				p.err = err
 				p.mu.Unlock()
 			}
-		})
+		}
+
+		if p.vm.ShuttingDown() {
+			wait(context.Background())
+		} else {
+			p.vm.Block(wait)
+		}
 	}
 
 	p.wg.Wait()
@@ -245,9 +258,11 @@ func (p *process) Read(b []byte) (written int, err error) {
 			p.setError(err)
 			p.Close()
 		}
-		err = p.error()
+		err = p.getError()
 	}()
 
+	// There could be stdout left overs to be processed - a block of data received
+	// from outputLoop that was not fully consumed by the previous Read call.
 	if p.stdoutData != nil {
 		n := copy(b, p.stdoutData.Data)
 		b = b[n:]
@@ -260,17 +275,24 @@ func (p *process) Read(b []byte) (written int, err error) {
 		}
 	}
 
-	stdinC := p.stdinQueue.C
-	stderrC := p.stderrQueue.C
-	stdoutC := p.stdoutQueue.C
+	// These are the channels we will be selecting from down below. Store them in
+	// variables so we can set each to nil individually as we determine that the
+	// channel is closed. Sending/Receiving to a nil channel is ignored by the
+	// select statement.
+	var (
+		stdinC  = p.stdinQueue.C
+		stderrC = p.stderrQueue.C
+		stdoutC = p.stdoutQueue.C
+	)
 
 	for len(b) > 0 {
-		if err := p.error(); err != nil {
+		if err := p.getError(); err != nil {
 			return 0, err
 		}
 
-		if stdoutC == nil &&
-			stderrC == nil {
+		// The process closed both stdout and stderr.
+		// There is no more data to read.
+		if stdoutC == nil && stderrC == nil {
 			if written == 0 {
 				return 0, io.EOF
 			} else {
@@ -278,6 +300,8 @@ func (p *process) Read(b []byte) (written int, err error) {
 			}
 		}
 
+		// If there is a stdin, ensure we always have enough data read from it to
+		// send to the inputLoop.
 		if p.stdinData == nil && !p.stdinQueue.Closed() {
 			p.stdinData = ioqueue.NewData()
 			n, err := p.stdin.Read(p.stdinData.Data)
@@ -413,7 +437,7 @@ func exec(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	}
 
 	if len(opt.Cmd) == 0 {
-		return nil, fmt.Errorf("option \"cmd\" cannot be empty")
+		return nil, fmt.Errorf(`option "cmd" cannot be empty`)
 	}
 
 	var stderr io.Writer
