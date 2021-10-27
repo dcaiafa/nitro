@@ -285,7 +285,7 @@ func (p *process) Read(b []byte) (written int, err error) {
 		stdoutC = p.stdoutQueue.C
 	)
 
-	for len(b) > 0 {
+	for written == 0 {
 		if err := p.getError(); err != nil {
 			return 0, err
 		}
@@ -293,11 +293,7 @@ func (p *process) Read(b []byte) (written int, err error) {
 		// The process closed both stdout and stderr.
 		// There is no more data to read.
 		if stdoutC == nil && stderrC == nil {
-			if written == 0 {
-				return 0, io.EOF
-			} else {
-				break
-			}
+			break
 		}
 
 		// If there is a stdin, ensure we always have enough data read from it to
@@ -365,6 +361,10 @@ func (p *process) Read(b []byte) (written int, err error) {
 				p.setError(err)
 			}
 		}
+	}
+
+	if written == 0 {
+		return 0, io.EOF
 	}
 
 	return written, nil
