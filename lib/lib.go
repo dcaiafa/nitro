@@ -14,6 +14,7 @@ var (
 
 func RegisterAll(c *nitro.Compiler) {
 	c.AddNativeFn("avg", avg)
+	c.AddNativeFn("batch", batch)
 	c.AddNativeFn("buf", buf)
 	c.AddNativeFn("close", closep)
 	c.AddNativeFn("color", color)
