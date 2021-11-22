@@ -89,7 +89,7 @@ func mapreduce(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error)
 	res.ForEach(func(k, accum nitro.Value) bool {
 		accumList := accum.(*nitro.Array)
 		for i, reduceFn := range reduceFns {
-			finalRes, callErr := m.Call(reduceFn, []nitro.Value{accumList.Get(i)}, 1)
+			finalRes, callErr := m.Call(reduceFn, []nitro.Value{accumList.Get(i), nil}, 1)
 			if callErr != nil {
 				err = callErr
 				return false

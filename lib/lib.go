@@ -33,6 +33,7 @@ func RegisterAll(c *nitro.Compiler) {
 	c.AddNativeFn("flatten", flatten)
 	c.AddNativeFn("from_crlf", fromCRLF)
 	c.AddNativeFn("group", group)
+	c.AddNativeFn("hist", hist)
 	c.AddNativeFn("home_dir", homeDir)
 	c.AddNativeFn("is_dir", is_dir)
 	c.AddNativeFn("join", join)
