@@ -27,11 +27,11 @@ func (s *BaseNitroParserListener) EnterStart(ctx *StartContext) {}
 // ExitStart is called when production start is exited.
 func (s *BaseNitroParserListener) ExitStart(ctx *StartContext) {}
 
-// EnterModule is called when production module is entered.
-func (s *BaseNitroParserListener) EnterModule(ctx *ModuleContext) {}
+// EnterUnit is called when production unit is entered.
+func (s *BaseNitroParserListener) EnterUnit(ctx *UnitContext) {}
 
-// ExitModule is called when production module is exited.
-func (s *BaseNitroParserListener) ExitModule(ctx *ModuleContext) {}
+// ExitUnit is called when production unit is exited.
+func (s *BaseNitroParserListener) ExitUnit(ctx *UnitContext) {}
 
 // EnterMeta_directive is called when production meta_directive is entered.
 func (s *BaseNitroParserListener) EnterMeta_directive(ctx *Meta_directiveContext) {}

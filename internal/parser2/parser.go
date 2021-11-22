@@ -21,7 +21,7 @@ var lexerPool = sync.Pool{
 	},
 }
 
-func ParseModule(filename string, input string, diagMode bool, errLogger errlogger.ErrLogger) (*ast.Module, error) {
+func ParseUnit(filename string, input string, diagMode bool, errLogger errlogger.ErrLogger) (*ast.Unit, error) {
 	lexer := lexerPool.Get().(*augmentedLexer)
 	lexer.SetInputStream(antlr.NewInputStream(string(input)))
 
@@ -44,5 +44,5 @@ func ParseModule(filename string, input string, diagMode bool, errLogger errlogg
 	if errListener.Error() != nil {
 		return nil, errListener.Error()
 	}
-	return listener.Module, nil
+	return listener.Unit, nil
 }

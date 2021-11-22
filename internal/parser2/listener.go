@@ -15,7 +15,7 @@ import (
 type listener struct {
 	parser.BaseNitroParserListener
 
-	Module *ast.Module
+	Unit *ast.Unit
 
 	filename    string
 	errListener *errorListener
@@ -152,14 +152,14 @@ func (l *listener) ExitEveryRule(ctx antlr.ParserRuleContext) {
 	ast.SetPos(l.tokenToPos(ctx.GetStart()))
 }
 
-// start: module;
+// start: unit EOF;
 func (l *listener) ExitStart(ctx *parser.StartContext) {
-	l.Module = l.takeAST(ctx.Module()).(*ast.Module)
+	l.Unit = l.takeAST(ctx.Unit()).(*ast.Unit)
 }
 
-// module: meta_directive* import_stmt* stmts;
-func (l *listener) ExitModule(ctx *parser.ModuleContext) {
-	m := &ast.Module{}
+// unit: meta_directive* import_stmt* stmts;
+func (l *listener) ExitUnit(ctx *parser.UnitContext) {
+	m := &ast.Unit{}
 
 	allMeta := ctx.AllMeta_directive()
 	m.Meta = make(ast.ASTs, 0, len(allMeta))

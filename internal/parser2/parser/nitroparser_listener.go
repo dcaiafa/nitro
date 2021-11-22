@@ -11,8 +11,8 @@ type NitroParserListener interface {
 	// EnterStart is called when entering the start production.
 	EnterStart(c *StartContext)
 
-	// EnterModule is called when entering the module production.
-	EnterModule(c *ModuleContext)
+	// EnterUnit is called when entering the unit production.
+	EnterUnit(c *UnitContext)
 
 	// EnterMeta_directive is called when entering the meta_directive production.
 	EnterMeta_directive(c *Meta_directiveContext)
@@ -275,8 +275,8 @@ type NitroParserListener interface {
 	// ExitStart is called when exiting the start production.
 	ExitStart(c *StartContext)
 
-	// ExitModule is called when exiting the module production.
-	ExitModule(c *ModuleContext)
+	// ExitUnit is called when exiting the unit production.
+	ExitUnit(c *UnitContext)
 
 	// ExitMeta_directive is called when exiting the meta_directive production.
 	ExitMeta_directive(c *Meta_directiveContext)

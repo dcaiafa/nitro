@@ -325,7 +325,7 @@ var symbolicNames = []string{
 }
 
 var ruleNames = []string{
-	"start", "module", "meta_directive", "meta_info", "meta_param", "meta_flag",
+	"start", "unit", "meta_directive", "meta_info", "meta_param", "meta_flag",
 	"meta_attribs", "meta_attrib", "meta_literal", "import_stmt", "stmts",
 	"stmt_list", "stmt", "assignment_stmt", "assignment_lvalues", "rvalues",
 	"var_decl_stmt", "var_decl_vars", "for_stmt", "for_vars", "while_stmt",
@@ -436,7 +436,7 @@ const (
 // NitroParser rules.
 const (
 	NitroParserRULE_start              = 0
-	NitroParserRULE_module             = 1
+	NitroParserRULE_unit               = 1
 	NitroParserRULE_meta_directive     = 2
 	NitroParserRULE_meta_info          = 3
 	NitroParserRULE_meta_param         = 4
@@ -534,14 +534,14 @@ func NewStartContext(parser antlr.Parser, parent antlr.ParserRuleContext, invoki
 
 func (s *StartContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *StartContext) Module() IModuleContext {
-	var t = s.GetTypedRuleContext(reflect.TypeOf((*IModuleContext)(nil)).Elem(), 0)
+func (s *StartContext) Unit() IUnitContext {
+	var t = s.GetTypedRuleContext(reflect.TypeOf((*IUnitContext)(nil)).Elem(), 0)
 
 	if t == nil {
 		return nil
 	}
 
-	return t.(IModuleContext)
+	return t.(IUnitContext)
 }
 
 func (s *StartContext) EOF() antlr.TerminalNode {
@@ -591,7 +591,7 @@ func (p *NitroParser) Start() (localctx IStartContext) {
 	p.EnterOuterAlt(localctx, 1)
 	{
 		p.SetState(118)
-		p.Module()
+		p.Unit()
 	}
 	{
 		p.SetState(119)
@@ -601,45 +601,45 @@ func (p *NitroParser) Start() (localctx IStartContext) {
 	return localctx
 }
 
-// IModuleContext is an interface to support dynamic dispatch.
-type IModuleContext interface {
+// IUnitContext is an interface to support dynamic dispatch.
+type IUnitContext interface {
 	antlr.ParserRuleContext
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
-	// IsModuleContext differentiates from other interfaces.
-	IsModuleContext()
+	// IsUnitContext differentiates from other interfaces.
+	IsUnitContext()
 }
 
-type ModuleContext struct {
+type UnitContext struct {
 	*antlr.BaseParserRuleContext
 	parser antlr.Parser
 }
 
-func NewEmptyModuleContext() *ModuleContext {
-	var p = new(ModuleContext)
+func NewEmptyUnitContext() *UnitContext {
+	var p = new(UnitContext)
 	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
-	p.RuleIndex = NitroParserRULE_module
+	p.RuleIndex = NitroParserRULE_unit
 	return p
 }
 
-func (*ModuleContext) IsModuleContext() {}
+func (*UnitContext) IsUnitContext() {}
 
-func NewModuleContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *ModuleContext {
-	var p = new(ModuleContext)
+func NewUnitContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *UnitContext {
+	var p = new(UnitContext)
 
 	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
 
 	p.parser = parser
-	p.RuleIndex = NitroParserRULE_module
+	p.RuleIndex = NitroParserRULE_unit
 
 	return p
 }
 
-func (s *ModuleContext) GetParser() antlr.Parser { return s.parser }
+func (s *UnitContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *ModuleContext) Stmts() IStmtsContext {
+func (s *UnitContext) Stmts() IStmtsContext {
 	var t = s.GetTypedRuleContext(reflect.TypeOf((*IStmtsContext)(nil)).Elem(), 0)
 
 	if t == nil {
@@ -649,7 +649,7 @@ func (s *ModuleContext) Stmts() IStmtsContext {
 	return t.(IStmtsContext)
 }
 
-func (s *ModuleContext) AllMeta_directive() []IMeta_directiveContext {
+func (s *UnitContext) AllMeta_directive() []IMeta_directiveContext {
 	var ts = s.GetTypedRuleContexts(reflect.TypeOf((*IMeta_directiveContext)(nil)).Elem())
 	var tst = make([]IMeta_directiveContext, len(ts))
 
@@ -662,7 +662,7 @@ func (s *ModuleContext) AllMeta_directive() []IMeta_directiveContext {
 	return tst
 }
 
-func (s *ModuleContext) Meta_directive(i int) IMeta_directiveContext {
+func (s *UnitContext) Meta_directive(i int) IMeta_directiveContext {
 	var t = s.GetTypedRuleContext(reflect.TypeOf((*IMeta_directiveContext)(nil)).Elem(), i)
 
 	if t == nil {
@@ -672,7 +672,7 @@ func (s *ModuleContext) Meta_directive(i int) IMeta_directiveContext {
 	return t.(IMeta_directiveContext)
 }
 
-func (s *ModuleContext) AllImport_stmt() []IImport_stmtContext {
+func (s *UnitContext) AllImport_stmt() []IImport_stmtContext {
 	var ts = s.GetTypedRuleContexts(reflect.TypeOf((*IImport_stmtContext)(nil)).Elem())
 	var tst = make([]IImport_stmtContext, len(ts))
 
@@ -685,7 +685,7 @@ func (s *ModuleContext) AllImport_stmt() []IImport_stmtContext {
 	return tst
 }
 
-func (s *ModuleContext) Import_stmt(i int) IImport_stmtContext {
+func (s *UnitContext) Import_stmt(i int) IImport_stmtContext {
 	var t = s.GetTypedRuleContext(reflect.TypeOf((*IImport_stmtContext)(nil)).Elem(), i)
 
 	if t == nil {
@@ -695,29 +695,29 @@ func (s *ModuleContext) Import_stmt(i int) IImport_stmtContext {
 	return t.(IImport_stmtContext)
 }
 
-func (s *ModuleContext) GetRuleContext() antlr.RuleContext {
+func (s *UnitContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *ModuleContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+func (s *UnitContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
 	return antlr.TreesStringTree(s, ruleNames, recog)
 }
 
-func (s *ModuleContext) EnterRule(listener antlr.ParseTreeListener) {
+func (s *UnitContext) EnterRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(NitroParserListener); ok {
-		listenerT.EnterModule(s)
+		listenerT.EnterUnit(s)
 	}
 }
 
-func (s *ModuleContext) ExitRule(listener antlr.ParseTreeListener) {
+func (s *UnitContext) ExitRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(NitroParserListener); ok {
-		listenerT.ExitModule(s)
+		listenerT.ExitUnit(s)
 	}
 }
 
-func (p *NitroParser) Module() (localctx IModuleContext) {
-	localctx = NewModuleContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 2, NitroParserRULE_module)
+func (p *NitroParser) Unit() (localctx IUnitContext) {
+	localctx = NewUnitContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 2, NitroParserRULE_unit)
 	var _la int
 
 	defer func() {

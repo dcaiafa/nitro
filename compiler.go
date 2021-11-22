@@ -50,7 +50,9 @@ func (c *Compiler) AddNativeFn(name string, fn vm.NativeFn) {
 	c.main.AddNativeFn(name, fn)
 }
 
-func (c *Compiler) RegisterNativeModuleLoader(name string, regFn func(r NativeModuleContext)) {
+func (c *Compiler) RegisterNativeModuleLoader(
+	name string,
+	regFn func(r NativeModuleContext)) {
 	c.moduleReg.RegisterNativeModuleLoader(name, regFn)
 }
 
@@ -66,7 +68,7 @@ func (c *Compiler) Compile(
 		return nil, errLoggerWrapper.Error()
 	}
 
-	module, err := parser2.ParseModule(filename, string(data), c.diag, errLoggerWrapper)
+	module, err := parser2.ParseUnit(filename, string(data), c.diag, errLoggerWrapper)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +82,7 @@ func (c *Compiler) CompileInline(
 ) (*vm.Program, error) {
 	errLoggerWrapper := errlogger.NewErrLoggerBase(errLogger)
 
-	module, err := parser2.ParseModule("<inline>", inline, c.diag, errLoggerWrapper)
+	module, err := parser2.ParseUnit("<inline>", inline, c.diag, errLoggerWrapper)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +91,7 @@ func (c *Compiler) CompileInline(
 }
 
 func (c *Compiler) compile(
-	module *ast.Module,
+	module *ast.Unit,
 	errLoggerWrapper *errlogger.ErrLoggerWrapper,
 ) (*vm.Program, error) {
 	c.main.AddModule(module)

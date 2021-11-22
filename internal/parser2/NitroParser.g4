@@ -2,9 +2,9 @@ parser grammar NitroParser;
 
 options { tokenVocab=NitroLexer; }
 
-start: module EOF;
+start: unit EOF;
 
-module: meta_directive* import_stmt* stmts;
+unit: meta_directive* import_stmt* stmts;
 
 // Meta
 

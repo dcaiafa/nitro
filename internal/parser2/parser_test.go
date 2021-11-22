@@ -118,7 +118,7 @@ emit(
 }
 		`
 
-	module, err := ParseModule("test.nitro", prog, true, &errlogger.ConsoleErrLogger{})
+	module, err := ParseUnit("test.nitro", prog, true, &errlogger.ConsoleErrLogger{})
 	require.NoError(t, err)
 	require.NotNil(t, module)
 }

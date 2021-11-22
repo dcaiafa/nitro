@@ -5,7 +5,7 @@ import (
 	"github.com/dcaiafa/nitro/internal/vm"
 )
 
-type Module struct {
+type Unit struct {
 	astBase
 
 	Meta    ASTs
@@ -16,11 +16,11 @@ type Module struct {
 	fn    int
 }
 
-func (m *Module) Scope() *symbol.Scope {
+func (m *Unit) Scope() *symbol.Scope {
 	return m.scope
 }
 
-func (m *Module) RunPass(ctx *Context, pass Pass) {
+func (m *Unit) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Check:
 		m.scope = symbol.NewScope()

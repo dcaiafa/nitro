@@ -126,7 +126,7 @@ LDQUOTE
 
 rule names:
 start
-module
+unit
 meta_directive
 meta_info
 meta_param
