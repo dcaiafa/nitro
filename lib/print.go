@@ -8,6 +8,7 @@ import (
 	"text/tabwriter"
 
 	"github.com/dcaiafa/nitro"
+	"github.com/dcaiafa/nitro/lib/core"
 	fatihcolor "github.com/fatih/color"
 )
 
@@ -331,7 +332,7 @@ type printTableOptions struct {
 	PadChar    int64 `nitro:"padchar"`
 }
 
-var printTableConv Value2Structer
+var printTableConv core.Value2Structer
 
 var errPrintTableUsage = errors.New(
 	`invalid usage. Expected print_table(iter, map?)`)

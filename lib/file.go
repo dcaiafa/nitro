@@ -13,6 +13,7 @@ import (
 
 	"github.com/bmatcuk/doublestar/v4"
 	"github.com/dcaiafa/nitro"
+	"github.com/dcaiafa/nitro/lib/core"
 )
 
 type File struct {
@@ -21,8 +22,8 @@ type File struct {
 
 var _ /* implements */ nitro.Indexable = (*File)(nil)
 var _ /* implements */ nitro.Callable = (*File)(nil)
-var _ /* implements */ NativeReader = (*File)(nil)
-var _ /* implements */ NativeWriter = (*File)(nil)
+var _ /* implements */ core.NativeReader = (*File)(nil)
+var _ /* implements */ core.NativeWriter = (*File)(nil)
 
 func (f *File) String() string { return fmt.Sprintf("File:%v", f.Name()) }
 func (f *File) Type() string   { return "File" }
@@ -41,12 +42,12 @@ func (f *File) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) {
 
 func (f *File) Call(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) != 1 {
-		return nil, errWriterCallUsage
+		return nil, core.ErrWriterCallUsage
 	}
 
 	reader, err := nitro.MakeReader(m, args[0])
 	if err != nil {
-		return nil, errWriterCallUsage
+		return nil, core.ErrWriterCallUsage
 	}
 
 	n, err := io.Copy(f.File, reader)
@@ -90,7 +91,7 @@ type openOptions struct {
 	Perm   *int64 `nitro:"perm"`
 }
 
-var openOptionsConv Value2Structer
+var openOptionsConv core.Value2Structer
 
 var errOpenUsage = errors.New(
 	`invalid usage. Expected open(string, map?)`)
@@ -338,7 +339,7 @@ func read(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 
 	var data []byte
 	if count == -1 {
-		defer CloseReader(reader)
+		defer core.CloseReader(reader)
 		data, err = ioutil.ReadAll(reader)
 		if err != nil {
 			return nil, err
@@ -487,7 +488,7 @@ type createTempOptions struct {
 	Pattern string `nitro:"pattern"`
 }
 
-var createTempOptConv Value2Structer
+var createTempOptConv core.Value2Structer
 
 var errCreateTempUsage = nitro.NewInvalidUsageError("create_temp(map?)")
 

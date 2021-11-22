@@ -6,13 +6,14 @@ import (
 	"io"
 
 	"github.com/dcaiafa/nitro"
+	"github.com/dcaiafa/nitro/lib/core"
 )
 
 type linesOptions struct {
 	MaxLineSize int64 `nitro:"maxlinesize"`
 }
 
-var linesOptionsConv Value2Structer
+var linesOptionsConv core.Value2Structer
 
 func lines(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) != 1 && len(args) != 2 {
@@ -70,6 +71,6 @@ func (l *linesIter) Next(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Val
 }
 
 func (l *linesIter) Close(m *nitro.VM) error {
-	CloseReader(l.input)
+	core.CloseReader(l.input)
 	return nil
 }

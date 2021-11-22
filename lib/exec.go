@@ -11,6 +11,7 @@ import (
 
 	"github.com/dcaiafa/nitro"
 	"github.com/dcaiafa/nitro/internal/ioqueue"
+	"github.com/dcaiafa/nitro/lib/core"
 )
 
 var ErrAborted = errors.New("aborted")
@@ -71,7 +72,7 @@ func (p *process) Start() error {
 	var err error
 
 	if p.stdin != nil {
-		if nativeReader, ok := p.stdin.(NativeReader); ok {
+		if nativeReader, ok := p.stdin.(core.NativeReader); ok {
 			p.cmd.Stdin = nativeReader.GetNativeReader()
 			p.stdinQueue.Close()
 		} else {
@@ -91,7 +92,7 @@ func (p *process) Start() error {
 		p.stderr = p.errSaver
 	}
 
-	if nativeWriter, ok := p.stderr.(NativeWriter); ok {
+	if nativeWriter, ok := p.stderr.(core.NativeWriter); ok {
 		p.cmd.Stderr = nativeWriter.GetNativeWriter()
 		p.stderrQueue.Close()
 	} else {
@@ -247,7 +248,7 @@ func (p *process) Close() error {
 	}
 
 	p.wg.Wait()
-	CloseReader(p.stdin)
+	core.CloseReader(p.stdin)
 
 	return nil
 }
@@ -307,7 +308,7 @@ func (p *process) Read(b []byte) (written int, err error) {
 				ioqueue.ReleaseData(p.stdinData)
 				p.stdinData = nil
 				p.stdinQueue.Close()
-				CloseReader(p.stdin)
+				core.CloseReader(p.stdin)
 				if err != io.EOF {
 					p.setError(err)
 				}
@@ -377,7 +378,7 @@ type execOptions struct {
 	Stderr nitro.Value `nitro:"stderr"`
 }
 
-var execOptionsConv Value2Structer
+var execOptionsConv core.Value2Structer
 
 var errExecUsage = errors.New(
 	`invalid usage. Expected exec((string|reader|iter)?, object) or ` +

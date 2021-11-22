@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/dcaiafa/nitro"
+	"github.com/dcaiafa/nitro/lib/core"
 )
 
 var errFromCRLFUsage = nitro.NewInvalidUsageError("from_crlf(string|reader)")
@@ -155,12 +156,12 @@ func (c *fromCRLFReaderWriter) Write(buf []byte) (int, error) {
 
 func (c *fromCRLFReaderWriter) Call(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) != 1 {
-		return nil, errWriterCallUsage
+		return nil, core.ErrWriterCallUsage
 	}
 
 	reader, err := nitro.MakeReader(m, args[0])
 	if err != nil {
-		return nil, errWriterCallUsage
+		return nil, core.ErrWriterCallUsage
 	}
 
 	n, err := io.Copy(c, reader)

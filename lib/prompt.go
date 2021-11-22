@@ -6,6 +6,7 @@ import (
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/dcaiafa/nitro"
+	"github.com/dcaiafa/nitro/lib/core"
 )
 
 func init() {
@@ -59,7 +60,7 @@ type promptOptions struct {
 	VimMode       bool        `nitro:"vimmode"`
 }
 
-var promptOptionsConv Value2Structer
+var promptOptionsConv core.Value2Structer
 
 func prompt(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) != 1 {

@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 
 	"github.com/dcaiafa/nitro"
+	"github.com/dcaiafa/nitro/lib/core"
 )
 
 var errDiscardUsage = nitro.NewInvalidUsageError("discard(iter|reader)")
@@ -19,7 +20,7 @@ func discard(vm *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) 
 		if err != nil {
 			return nil, err
 		}
-		CloseReader(reader)
+		core.CloseReader(reader)
 	} else if iter, err := nitro.MakeIterator(vm, args[0]); err == nil {
 		for {
 			v, err := vm.IterNext(iter, 1)

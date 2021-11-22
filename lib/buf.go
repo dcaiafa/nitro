@@ -5,10 +5,11 @@ import (
 	"errors"
 
 	"github.com/dcaiafa/nitro"
+	"github.com/dcaiafa/nitro/lib/core"
 )
 
 type Buffer struct {
-	writerBase
+	core.WriterBase
 	buf *bytes.Buffer
 }
 
@@ -27,7 +28,7 @@ func NewBuffer(data string) *Buffer {
 	} else {
 		b.buf = new(bytes.Buffer)
 	}
-	b.writerBase = newWriterBase("buffer", b.buf)
+	b.WriterBase = core.NewWriterBase("buffer", b.buf)
 	return b
 }
 

@@ -8,6 +8,7 @@ import (
 	"io"
 
 	"github.com/dcaiafa/nitro"
+	"github.com/dcaiafa/nitro/lib/core"
 )
 
 func parseJSON(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
@@ -19,7 +20,7 @@ func parseJSON(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error)
 		return nil, err
 	}
 
-	defer CloseReader(input)
+	defer core.CloseReader(input)
 
 	v, err := ParseJSON(input)
 	if err != nil {
@@ -117,7 +118,7 @@ type toJSONOptions struct {
 	Prefix nitro.Value `nitro:"prefix"`
 }
 
-var toJSONOptionConv Value2Structer
+var toJSONOptionConv core.Value2Structer
 
 var errToJSONUsage = errors.New(
 	`invalid usage. Expected to_json(bool|int|float|string|array|map, map?)`)

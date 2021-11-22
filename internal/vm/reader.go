@@ -38,7 +38,7 @@ func MakeReader(vm *VM, v Value) (Reader, error) {
 		if err == nil {
 			return newIterReader(vm, i), nil
 		}
-		return nil, fmt.Errorf("value of type %q %w", TypeName(v), ErrIsNotReadable)
+		return nil, fmt.Errorf("type %q %w", TypeName(v), ErrIsNotReadable)
 	}
 }
 

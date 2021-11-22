@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/dcaiafa/nitro"
+	"github.com/dcaiafa/nitro/lib/core"
 )
 
 var errParseIntUsage = errors.New(
@@ -14,7 +15,7 @@ type parseIntOptions struct {
 	Base int64
 }
 
-var parseIntConv Value2Structer
+var parseIntConv core.Value2Structer
 
 func parseInt(m *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
 	if len(args) != 1 && len(args) != 2 {

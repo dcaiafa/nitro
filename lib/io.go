@@ -7,15 +7,8 @@ import (
 	"os"
 
 	"github.com/dcaiafa/nitro"
+	"github.com/dcaiafa/nitro/lib/core"
 )
-
-type NativeReader interface {
-	GetNativeReader() io.Reader
-}
-
-type NativeWriter interface {
-	GetNativeWriter() io.Writer
-}
 
 type stdinWrapper struct {
 	nitro.BaseValue
@@ -29,51 +22,8 @@ func wrapStdin() nitro.Value {
 	}
 }
 
-func CloseReader(r io.Reader) {
-	if c, ok := r.(io.Closer); ok {
-		c.Close()
-	}
-}
-
 func stdin(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	return []nitro.Value{wrapStdin()}, nil
-}
-
-type writerBase struct {
-	io.Writer
-	typ string
-}
-
-func newWriterBase(typ string, w io.Writer) writerBase {
-	return writerBase{Writer: w, typ: typ}
-}
-
-func (b *writerBase) String() string { return "<" + b.Type() + ">" }
-func (b *writerBase) Type() string   { return b.typ }
-
-func (b *writerBase) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) {
-	return nil, fmt.Errorf("<writer> does not support this operation")
-}
-
-var errWriterCallUsage = errors.New(
-	`invalid usage. Expected <writer>(reader)`)
-
-func (b *writerBase) Call(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) != 1 {
-		return nil, errWriterCallUsage
-	}
-
-	reader, err := nitro.MakeReader(m, args[0])
-	if err != nil {
-		return nil, errWriterCallUsage
-	}
-
-	n, err := io.Copy(b.Writer, reader)
-	if err != nil {
-		return nil, err
-	}
-
-	return []nitro.Value{nitro.NewInt(n)}, nil
 }
 
 func wrapWriter(typ string, w io.Writer) nitro.Value {
@@ -81,7 +31,7 @@ func wrapWriter(typ string, w io.Writer) nitro.Value {
 	if ok {
 		return v
 	}
-	wb := newWriterBase(typ, w)
+	wb := core.NewWriterBase(typ, w)
 	return &wb
 }
 
@@ -141,7 +91,7 @@ func stdout(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 
 	reader, err := nitro.MakeReader(m, args[0])
 	if err != nil {
-		return nil, errWriterCallUsage
+		return nil, core.ErrWriterCallUsage
 	}
 
 	n, err := io.Copy(Stdout(m), reader)
@@ -197,7 +147,7 @@ func stderr(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 
 	reader, err := nitro.MakeReader(m, args[0])
 	if err != nil {
-		return nil, errWriterCallUsage
+		return nil, core.ErrWriterCallUsage
 	}
 
 	n, err := io.Copy(Stderr(m), reader)

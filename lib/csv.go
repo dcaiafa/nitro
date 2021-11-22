@@ -7,13 +7,14 @@ import (
 	"io"
 
 	"github.com/dcaiafa/nitro"
+	"github.com/dcaiafa/nitro/lib/core"
 )
 
 type parseCSVOptions struct {
 	Columns []int64 `nitro:"columns"`
 }
 
-var parseCSVConv Value2Structer
+var parseCSVConv core.Value2Structer
 
 var errParseCSVUsage = errors.New(
 	`invalid usage. Expected parse_csv(reader, map?)`)
@@ -63,7 +64,7 @@ type csvIter struct {
 func (i *csvIter) Next(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	record, err := i.csvReader.Read()
 	if err != nil {
-		CloseReader(i.origReader)
+		core.CloseReader(i.origReader)
 		if err == io.EOF {
 			return nil, nil
 		} else {
@@ -93,6 +94,6 @@ func (i *csvIter) Next(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value
 }
 
 func (i *csvIter) Close(vm *nitro.VM) error {
-	CloseReader(i.origReader)
+	core.CloseReader(i.origReader)
 	return nil
 }
