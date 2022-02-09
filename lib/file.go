@@ -661,11 +661,11 @@ func (i *lsSimpleIter) Next(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.
 }
 
 func copyFile(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	to, err := getStringArg(args, 0)
+	from, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
 	}
-	from, err := getStringArg(args, 1)
+	to, err := getStringArg(args, 1)
 	if err != nil {
 		return nil, err
 	}
