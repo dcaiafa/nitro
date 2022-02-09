@@ -43,7 +43,7 @@ func (m *Root) AddGlobalParam(ctx *Context, name string, param *meta.Param, pos 
 	return g
 }
 
-func (m *Root) AddModule(module AST) {
+func (m *Root) AddModule(module *Module) {
 	m.modules = append(m.modules, module)
 }
 

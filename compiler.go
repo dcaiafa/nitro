@@ -2,6 +2,8 @@ package nitro
 
 import (
 	"io/ioutil"
+	"os"
+	"path/filepath"
 
 	"github.com/dcaiafa/nitro/internal/ast"
 	"github.com/dcaiafa/nitro/internal/errlogger"
@@ -62,18 +64,16 @@ func (c *Compiler) Compile(
 ) (*vm.Program, error) {
 	errLoggerWrapper := errlogger.NewErrLoggerBase(errLogger)
 
-	data, err := c.fileLoader.LoadFile(filename)
-	if err != nil {
-		errLoggerWrapper.Failf(token.Pos{}, "Failed to load %q: %v", filename, err)
-		return nil, errLoggerWrapper.Error()
-	}
-
-	module, err := parser2.ParseUnit(filename, string(data), c.diag, errLoggerWrapper)
+	unit, err := c.parseUnit(filename, errLoggerWrapper)
 	if err != nil {
 		return nil, err
 	}
 
-	return c.compile(module, errLoggerWrapper)
+	pkg := &ast.Module{
+		Units: []*ast.Unit{unit},
+	}
+
+	return c.compile(pkg, errLoggerWrapper)
 }
 
 func (c *Compiler) CompileInline(
@@ -82,16 +82,71 @@ func (c *Compiler) CompileInline(
 ) (*vm.Program, error) {
 	errLoggerWrapper := errlogger.NewErrLoggerBase(errLogger)
 
-	module, err := parser2.ParseUnit("<inline>", inline, c.diag, errLoggerWrapper)
+	unit, err := parser2.ParseUnit("<inline>", inline, c.diag, errLoggerWrapper)
 	if err != nil {
 		return nil, err
 	}
 
-	return c.compile(module, errLoggerWrapper)
+	pkg := &ast.Module{
+		Units: []*ast.Unit{unit},
+	}
+
+	return c.compile(pkg, errLoggerWrapper)
+}
+
+func (c *Compiler) parseUnit(
+	filename string,
+	errLogger *errlogger.ErrLoggerWrapper,
+) (*ast.Unit, error) {
+	data, err := c.fileLoader.LoadFile(filename)
+	if err != nil {
+		errLogger.Failf(token.Pos{}, "Failed to load %q: %v", filename, err)
+		return nil, errLogger.Error()
+	}
+
+	unit, err := parser2.ParseUnit(filename, string(data), c.diag, errLogger)
+	if err != nil {
+		return nil, err
+	}
+
+	return unit, nil
+}
+
+func (c *Compiler) compileModule(
+	moduleName string,
+	moduleDir string,
+	errLogger *errlogger.ErrLoggerWrapper,
+) error {
+	wd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+	unitFiles, err := filepath.Glob(filepath.Join(moduleDir, "*.n"))
+	if err != nil {
+		return err
+	}
+
+	moduleAST := new(ast.Module)
+
+	for _, unitFile := range unitFiles {
+		unitFile, err = filepath.Rel(wd, unitFile)
+		if err != nil {
+			return err
+		}
+		unitAST, err := c.parseUnit(unitFile, errLogger)
+		if err != nil {
+			return err
+		}
+		moduleAST.Units = append(moduleAST.Units, unitAST)
+	}
+
+	return nil
+
 }
 
 func (c *Compiler) compile(
-	module *ast.Unit,
+	module *ast.Module,
 	errLoggerWrapper *errlogger.ErrLoggerWrapper,
 ) (*vm.Program, error) {
 	c.main.AddModule(module)
