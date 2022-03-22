@@ -4,10 +4,10 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-var errUniqueUsage = nitro.NewInvalidUsageError("unique(iter)")
+var errUniqueUsage = nitro.NewInvalidUsageError("unique(iter, path_expr?)")
 
 func unique(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) != 1 {
+	if len(args) != 1 && len(args) != 2 {
 		return nil, errUniqueUsage
 	}
 
@@ -16,7 +16,16 @@ func unique(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 		return nil, errUniqueUsage
 	}
 
-	set := make(map[nitro.Value]bool)
+	var keyFn *PathExpr
+	if len(args) == 2 {
+		var err error
+		keyFn, _, err = ParsePathExpr(args[1])
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	set := make(map[nitro.Value]nitro.Value)
 
 	for {
 		v, err := m.IterNext(e, 1)
@@ -26,11 +35,19 @@ func unique(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 		if v == nil {
 			break
 		}
-		set[v[0]] = true
+		key := v[0]
+		if keyFn != nil {
+			key, err = keyFn.Eval(m, v[0])
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		set[key] = v[0]
 	}
 
 	arr := nitro.NewArrayFromSlice(make([]nitro.Value, 0, len(set)))
-	for v := range set {
+	for _, v := range set {
 		arr.Add(v)
 	}
 
