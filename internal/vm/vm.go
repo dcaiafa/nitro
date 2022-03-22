@@ -444,6 +444,8 @@ func (m *VM) iterNext(iter Iterator, nret int) (bool, error) {
 		}
 
 		if iter.ip == -1 {
+			m.co.stack = rstack
+			m.co.sp = rsp
 			return false, nil
 		}
 

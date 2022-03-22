@@ -96,4 +96,24 @@ begin
 end
 `)
 
+	RunSubO(t, "nested", `
+func sum(iter) {
+	var s = 0
+	for v in iter {
+		s = s + v
+	}
+	return s
+}
+
+func pass(iter) {
+	for v in iter {
+		yield v
+	}
+}
+
+range(4) | pass | sum | print
+`, `
+6
+`)
+
 }
