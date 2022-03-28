@@ -5,6 +5,11 @@ import (
 	"sync/atomic"
 )
 
+const (
+	ioQueueClosed     uint32 = 0b01
+	ioQueueWantsClose uint32 = 0b10
+)
+
 type Data struct {
 	Data []byte
 	Err  error
@@ -26,7 +31,7 @@ func NewData() *Data {
 type IOQueue struct {
 	C      chan *Data
 	closer sync.Once
-	closed int32
+	flags  uint32
 }
 
 func New() *IOQueue {
@@ -38,12 +43,29 @@ func New() *IOQueue {
 func (q *IOQueue) Close() {
 	q.closer.Do(func() {
 		close(q.C)
-		atomic.StoreInt32(&q.closed, 1)
+		q.setFlag(ioQueueClosed)
 	})
 }
 
-func (q *IOQueue) Closed() bool {
-	return atomic.LoadInt32(&q.closed) != 0
+func (q *IOQueue) SignalWantsClose() {
+	q.setFlag(ioQueueWantsClose)
+}
+
+func (q *IOQueue) setFlag(flag uint32) {
+	for {
+		oldFlags := atomic.LoadUint32(&q.flags)
+		newFlags := oldFlags | flag
+		if atomic.CompareAndSwapUint32(&q.flags, oldFlags, newFlags) {
+			break
+		}
+	}
+}
+
+func (q *IOQueue) State() (closed, wantsClose bool) {
+	flags := atomic.LoadUint32(&q.flags)
+	closed = (flags & ioQueueClosed) != 0
+	wantsClose = (flags & ioQueueWantsClose) != 0
+	return closed, wantsClose
 }
 
 func ReleaseData(r *Data) {

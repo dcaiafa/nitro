@@ -121,9 +121,14 @@ func (p *process) Start() error {
 	return nil
 }
 
+// inputLoop transfers data from p.stdin (via p.stdinQueue) to the process's
+// stdin (via p.stdinPipe). So it goes like this:
+// 1. Read() reads from p.stdin, sends to p.stdinQueue
+// 2. inputLoop() receives from p.stdinQueue, writes to p.stdinPipe.
 func (p *process) inputLoop() {
 	defer p.wg.Done()
 	defer p.stdinPipe.Close()
+	defer p.stdinQueue.SignalWantsClose()
 
 	for {
 		select {
@@ -131,9 +136,12 @@ func (p *process) inputLoop() {
 			if !ok {
 				return
 			}
+
 			_, err := p.stdinPipe.Write(data.Data)
 			if err != nil {
-				p.setError(err)
+				// The process closed its input pipe. This will be the case for certain
+				// programs like `head`. Leaving inputLoop() will trigger
+				// SignalWantsClose(), which will tell Read() to close p.stdin.
 				return
 			}
 			ioqueue.ReleaseData(data)
@@ -299,21 +307,28 @@ func (p *process) Read(b []byte) (written int, err error) {
 
 		// If there is a stdin, ensure we always have enough data read from it to
 		// send to the inputLoop.
-		if p.stdinData == nil && !p.stdinQueue.Closed() {
-			p.stdinData = ioqueue.NewData()
-			n, err := p.stdin.Read(p.stdinData.Data)
-			if err == nil {
-				p.stdinData.Data = p.stdinData.Data[:n]
-			} else {
-				ioqueue.ReleaseData(p.stdinData)
-				p.stdinData = nil
+		stdinQueueClosed, stdinQueueWantsClose := p.stdinQueue.State()
+		if p.stdinData == nil && !stdinQueueClosed {
+			if stdinQueueWantsClose {
 				p.stdinQueue.Close()
 				core.CloseReader(p.stdin)
-				if err != io.EOF {
-					p.setError(err)
+			} else {
+				p.stdinData = ioqueue.NewData()
+				n, err := p.stdin.Read(p.stdinData.Data)
+				if err == nil {
+					p.stdinData.Data = p.stdinData.Data[:n]
+				} else {
+					ioqueue.ReleaseData(p.stdinData)
+					p.stdinData = nil
+					p.stdinQueue.Close()
+					core.CloseReader(p.stdin)
+					if err != io.EOF {
+						p.setError(err)
+					}
 				}
 			}
 		}
+
 		if p.stdinData == nil {
 			stdinC = nil
 		}
@@ -346,7 +361,6 @@ func (p *process) Read(b []byte) (written int, err error) {
 				if !ok {
 					stderrC = nil
 				}
-
 			case <-ctx.Done():
 				p.setError(ctx.Err())
 			}
