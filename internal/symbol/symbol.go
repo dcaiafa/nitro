@@ -13,6 +13,8 @@ type Symbol interface {
 	SetLiftable(l bool)
 	Lifted() bool
 	Lift()
+	ReadOnly() bool
+	SetReadOnly(ro bool)
 }
 
 type baseSymbol struct {
@@ -20,6 +22,7 @@ type baseSymbol struct {
 	pos      token.Pos
 	liftable bool
 	lifted   bool
+	readOnly bool
 }
 
 func (b *baseSymbol) Name() string {
@@ -52,6 +55,14 @@ func (b *baseSymbol) Lifted() bool {
 
 func (b *baseSymbol) Lift() {
 	b.lifted = true
+}
+
+func (b *baseSymbol) ReadOnly() bool {
+	return b.readOnly
+}
+
+func (b *baseSymbol) SetReadOnly(ro bool) {
+	b.readOnly = ro
 }
 
 type FuncSymbol struct {

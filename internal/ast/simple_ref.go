@@ -38,6 +38,17 @@ func (r *SimpleRef) RunPass(ctx *Context, pass Pass) {
 			}
 		}
 
+		if r.sym.ReadOnly() {
+			_, isLValue := ctx.Parent().(*LValue)
+			if isLValue {
+				ctx.Failf(
+					r.Pos(),
+					"%v is read-only and cannot be assigned to",
+					r.ID.Str)
+				return
+			}
+		}
+
 	case Emit:
 		if r.ModuleRef == nil {
 			emit := emitSymbolPush

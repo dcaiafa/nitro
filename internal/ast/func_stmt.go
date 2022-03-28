@@ -23,6 +23,7 @@ func (s *FuncStmt) RunPass(ctx *Context, pass Pass) {
 			s.IsClosure = true
 		} else {
 			s.sym = &symbol.FuncSymbol{}
+			s.sym.SetReadOnly(true)
 		}
 
 		s.DebugName = s.Name

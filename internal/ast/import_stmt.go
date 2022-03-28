@@ -1,9 +1,10 @@
 package ast
 
 import (
+	"path"
+
 	"github.com/dcaiafa/nitro/internal/symbol"
 	"github.com/dcaiafa/nitro/internal/vm"
-	"path"
 )
 
 type Import struct {
@@ -70,6 +71,7 @@ type nativeModuleRegister struct {
 
 func (r *nativeModuleRegister) RegisterNativeFn(name string, natFn vm.NativeFn) {
 	fn := &symbol.FuncSymbol{}
+	fn.SetReadOnly(true)
 	fn.SetName(name)
 	fn.External = true
 	fn.IdxFunc = r.ctx.Emitter().AddExternalFunc(natFn)

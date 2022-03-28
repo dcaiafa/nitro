@@ -1,9 +1,9 @@
 package ast
 
 import (
-	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/internal/symbol"
 	"github.com/dcaiafa/nitro/internal/token"
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
 type ExternFn struct {
@@ -24,6 +24,7 @@ func (f *ExternFn) RunPass(ctx *Context, pass Pass) {
 		f.sym.SetPos(token.Pos{
 			Filename: "external-funcs",
 		})
+		f.sym.SetReadOnly(true)
 		f.sym.IdxFunc = ctx.Emitter().AddExternalFunc(f.ExternFn)
 		if !ctx.CurrentScope().PutSymbol(ctx, f.sym) {
 			return
