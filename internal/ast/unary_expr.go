@@ -5,7 +5,8 @@ import "github.com/dcaiafa/nitro/internal/vm"
 type UnaryOp int
 
 const (
-	UnaryOpNot UnaryOp = iota
+	UnaryOpUndefined UnaryOp = iota
+	UnaryOpNot
 	UnaryOpPlus
 	UnaryOpMinus
 )

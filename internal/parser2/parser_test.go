@@ -25,6 +25,9 @@ lines() | split("\t")
 
 a | b() | c()
 
+a = a + 'c'
+
+
 1 + 2 | b() | c()
 
 if foo {

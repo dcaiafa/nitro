@@ -709,25 +709,27 @@ func (l *listener) ExitBinary_expr(ctx *parser.Binary_exprContext) {
 //           | primary_expr
 //           ;
 func (l *listener) ExitUnary_expr(ctx *parser.Unary_exprContext) {
-	if ctx.Primary_expr() != nil {
+	if ctx.GetOp() == nil {
 		l.put(ctx, l.takeExpr(ctx.Primary_expr()))
 		return
 	}
 
 	var op ast.UnaryOp
-	switch ctx.GetOp().GetTokenType() {
-	case parser.NitroLexerNOT:
-		op = ast.UnaryOpNot
-	case parser.NitroLexerADD:
-		op = ast.UnaryOpPlus
-	case parser.NitroLexerSUB:
-		op = ast.UnaryOpMinus
-	default:
-		log.Panicf("Invalid operator %v", ctx.GetOp().GetTokenType())
+	if ctx.GetOp() != nil {
+		switch ctx.GetOp().GetTokenType() {
+		case parser.NitroLexerNOT:
+			op = ast.UnaryOpNot
+		case parser.NitroLexerADD:
+			op = ast.UnaryOpPlus
+		case parser.NitroLexerSUB:
+			op = ast.UnaryOpMinus
+		default:
+			log.Panicf("Invalid operator %v", ctx.GetOp().GetTokenType())
+		}
 	}
 
 	l.put(ctx, &ast.UnaryExpr{
-		Term: l.takeExpr(ctx.Unary_expr()),
+		Term: l.takeExpr(ctx.Primary_expr()),
 		Op:   op,
 	})
 }

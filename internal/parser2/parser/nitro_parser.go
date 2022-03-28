@@ -217,8 +217,8 @@ var parserATN = []uint16{
 	418, 403, 3, 2, 2, 2, 418, 406, 3, 2, 2, 2, 418, 409, 3, 2, 2, 2, 418,
 	412, 3, 2, 2, 2, 418, 415, 3, 2, 2, 2, 419, 422, 3, 2, 2, 2, 420, 418,
 	3, 2, 2, 2, 420, 421, 3, 2, 2, 2, 421, 75, 3, 2, 2, 2, 422, 420, 3, 2,
-	2, 2, 423, 424, 7, 18, 2, 2, 424, 431, 5, 76, 39, 2, 425, 426, 7, 34, 2,
-	2, 426, 431, 5, 76, 39, 2, 427, 428, 7, 35, 2, 2, 428, 431, 5, 76, 39,
+	2, 2, 423, 424, 7, 18, 2, 2, 424, 431, 5, 78, 40, 2, 425, 426, 7, 34, 2,
+	2, 426, 431, 5, 78, 40, 2, 427, 428, 7, 35, 2, 2, 428, 431, 5, 78, 40,
 	2, 429, 431, 5, 78, 40, 2, 430, 423, 3, 2, 2, 2, 430, 425, 3, 2, 2, 2,
 	430, 427, 3, 2, 2, 2, 430, 429, 3, 2, 2, 2, 431, 77, 3, 2, 2, 2, 432, 433,
 	8, 40, 1, 2, 433, 444, 7, 55, 2, 2, 434, 444, 5, 86, 44, 2, 435, 444, 5,
@@ -6460,14 +6460,14 @@ func (s *Unary_exprContext) GetOp() antlr.Token { return s.op }
 
 func (s *Unary_exprContext) SetOp(v antlr.Token) { s.op = v }
 
-func (s *Unary_exprContext) Unary_expr() IUnary_exprContext {
-	var t = s.GetTypedRuleContext(reflect.TypeOf((*IUnary_exprContext)(nil)).Elem(), 0)
+func (s *Unary_exprContext) Primary_expr() IPrimary_exprContext {
+	var t = s.GetTypedRuleContext(reflect.TypeOf((*IPrimary_exprContext)(nil)).Elem(), 0)
 
 	if t == nil {
 		return nil
 	}
 
-	return t.(IUnary_exprContext)
+	return t.(IPrimary_exprContext)
 }
 
 func (s *Unary_exprContext) NOT() antlr.TerminalNode {
@@ -6480,16 +6480,6 @@ func (s *Unary_exprContext) ADD() antlr.TerminalNode {
 
 func (s *Unary_exprContext) SUB() antlr.TerminalNode {
 	return s.GetToken(NitroParserSUB, 0)
-}
-
-func (s *Unary_exprContext) Primary_expr() IPrimary_exprContext {
-	var t = s.GetTypedRuleContext(reflect.TypeOf((*IPrimary_exprContext)(nil)).Elem(), 0)
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IPrimary_exprContext)
 }
 
 func (s *Unary_exprContext) GetRuleContext() antlr.RuleContext {
@@ -6547,7 +6537,7 @@ func (p *NitroParser) Unary_expr() (localctx IUnary_exprContext) {
 		}
 		{
 			p.SetState(422)
-			p.Unary_expr()
+			p.primary_expr(0)
 		}
 
 	case NitroParserADD:
@@ -6561,7 +6551,7 @@ func (p *NitroParser) Unary_expr() (localctx IUnary_exprContext) {
 		}
 		{
 			p.SetState(424)
-			p.Unary_expr()
+			p.primary_expr(0)
 		}
 
 	case NitroParserSUB:
@@ -6575,7 +6565,7 @@ func (p *NitroParser) Unary_expr() (localctx IUnary_exprContext) {
 		}
 		{
 			p.SetState(426)
-			p.Unary_expr()
+			p.primary_expr(0)
 		}
 
 	case NitroParserFALSE, NitroParserFUNC, NitroParserNIL, NitroParserTRUE, NitroParserOPAREN, NitroParserOBRACKET, NitroParserOCURLY, NitroParserNUMBER, NitroParserID, NitroParserREGEX, NitroParserCHAR, NitroParserSTRING:

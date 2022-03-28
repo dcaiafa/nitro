@@ -98,9 +98,9 @@ binary_expr: unary_expr
            | binary_expr op=OR binary_expr
            ;
 
-unary_expr: op=NOT unary_expr
-          | op='+' unary_expr
-          | op='-' unary_expr
+unary_expr: op=NOT primary_expr
+          | op='+' primary_expr
+          | op='-' primary_expr
           | primary_expr
           ;
 
