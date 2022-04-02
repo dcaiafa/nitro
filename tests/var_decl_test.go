@@ -61,4 +61,13 @@ func VarDeclTest(t *testing.T) {
   	var a = foo(1)
 		print(a)
 	`, `1`)
+
+	RunSubO(t, "shadow", `
+		var a = 1
+		func f() {
+			var a = a + 1
+			return a
+		}
+		print(f(), a)
+`, `2 1`)
 }

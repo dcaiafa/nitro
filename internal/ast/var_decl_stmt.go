@@ -17,13 +17,6 @@ type VarDeclStmt struct {
 func (s *VarDeclStmt) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Check:
-		s.syms = make([]symbol.Symbol, len(s.Vars))
-		for i, v := range s.Vars {
-			s.syms[i] = AddVariable(ctx, v.Str, v.Pos)
-			if s.syms[i] == nil {
-				return
-			}
-		}
 		if len(s.InitValues) != 0 {
 			if len(s.Vars) != len(s.InitValues) {
 				if funcCall, ok := s.InitValues[0].(*FuncCallExpr); ok && len(s.InitValues) == 1 {
@@ -31,6 +24,7 @@ func (s *VarDeclStmt) RunPass(ctx *Context, pass Pass) {
 				} else {
 					ctx.Failf(s.Pos(), "assigment mismatch: %v variables but %v values",
 						len(s.Vars), len(s.InitValues))
+					return
 				}
 			}
 		}
@@ -63,6 +57,15 @@ func (s *VarDeclStmt) RunPass(ctx *Context, pass Pass) {
 	}
 
 	switch pass {
+	case Check:
+		s.syms = make([]symbol.Symbol, len(s.Vars))
+		for i, v := range s.Vars {
+			s.syms[i] = AddVariable(ctx, v.Str, v.Pos)
+			if s.syms[i] == nil {
+				return
+			}
+		}
+
 	case Emit:
 		if s.InitValues != nil {
 			emitter := ctx.Emitter()
