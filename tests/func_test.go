@@ -167,6 +167,11 @@ func TestFn(t *testing.T) {
 		print((&n->{name: n})("bob"))
 	`, `{name: "bob"}`)
 
+	RunSubO(t, "lambda_precedence", `
+		var lamb = &e -> e.foo ? "Y" : "N"
+		print(lamb({ foo: "bar" }), lamb({}))
+`, `Y N`)
+
 	RunSubO(t, "recursive", `
 		func fib(n) {
     	if n <= 1 {
