@@ -89,6 +89,9 @@ type NitroParserListener interface {
 	// EnterStmt_continue is called when entering the stmt_continue production.
 	EnterStmt_continue(c *Stmt_continueContext)
 
+	// EnterStmt_inc_dec is called when entering the stmt_inc_dec production.
+	EnterStmt_inc_dec(c *Stmt_inc_decContext)
+
 	// EnterAssignment_stmt is called when entering the assignment_stmt production.
 	EnterAssignment_stmt(c *Assignment_stmtContext)
 
@@ -151,6 +154,9 @@ type NitroParserListener interface {
 
 	// EnterContinue_stmt is called when entering the continue_stmt production.
 	EnterContinue_stmt(c *Continue_stmtContext)
+
+	// EnterInc_dec_stmt is called when entering the inc_dec_stmt production.
+	EnterInc_dec_stmt(c *Inc_dec_stmtContext)
 
 	// EnterExpr is called when entering the expr production.
 	EnterExpr(c *ExprContext)
@@ -359,6 +365,9 @@ type NitroParserListener interface {
 	// ExitStmt_continue is called when exiting the stmt_continue production.
 	ExitStmt_continue(c *Stmt_continueContext)
 
+	// ExitStmt_inc_dec is called when exiting the stmt_inc_dec production.
+	ExitStmt_inc_dec(c *Stmt_inc_decContext)
+
 	// ExitAssignment_stmt is called when exiting the assignment_stmt production.
 	ExitAssignment_stmt(c *Assignment_stmtContext)
 
@@ -421,6 +430,9 @@ type NitroParserListener interface {
 
 	// ExitContinue_stmt is called when exiting the continue_stmt production.
 	ExitContinue_stmt(c *Continue_stmtContext)
+
+	// ExitInc_dec_stmt is called when exiting the inc_dec_stmt production.
+	ExitInc_dec_stmt(c *Inc_dec_stmtContext)
 
 	// ExitExpr is called when exiting the expr production.
 	ExitExpr(c *ExprContext)

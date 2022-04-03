@@ -322,6 +322,7 @@ func (l *listener) ExitStmt_list(ctx *parser.Stmt_listContext) {
 //     | yield_stmt           # stmt_yield
 //     | break_stmt           # stmt_break
 //     | continue_stmt        # stmt_continue
+//     | inc_dec_stmt         # stmt_inc_dec
 // ;
 
 func (l *listener) ExitStmt_assignment(ctx *parser.Stmt_assignmentContext) {
@@ -398,6 +399,10 @@ func (l *listener) ExitStmt_break(ctx *parser.Stmt_breakContext) {
 
 func (l *listener) ExitStmt_continue(ctx *parser.Stmt_continueContext) {
 	l.put(ctx, l.takeAST(ctx.Continue_stmt()))
+}
+
+func (l *listener) ExitStmt_inc_dec(ctx *parser.Stmt_inc_decContext) {
+	l.put(ctx, l.takeAST(ctx.Inc_dec_stmt()))
 }
 
 // assignment_stmt: assignment_lvalues '=' rvalues;
@@ -620,6 +625,27 @@ func (l *listener) ExitBreak_stmt(ctx *parser.Break_stmtContext) {
 // continue_stmt: CONTINUE;
 func (l *listener) ExitContinue_stmt(ctx *parser.Continue_stmtContext) {
 	l.put(ctx, &ast.ContinueStmt{})
+}
+
+// inc_dec_stmt: lvalue_expr op=('++'|'--');
+func (l *listener) ExitInc_dec_stmt(ctx *parser.Inc_dec_stmtContext) {
+	if ctx.GetOp() == nil {
+		return
+	}
+	var op ast.IncDecOp
+	switch ctx.GetOp().GetTokenType() {
+	case parser.NitroLexerINC:
+		op = ast.IncDecOpInc
+	case parser.NitroLexerDEC:
+		op = ast.IncDecOpDec
+	default:
+		panic("unreachable")
+	}
+
+	l.put(ctx, &ast.IncDecStmt{
+		LValue: &ast.LValue{Expr: l.takeExpr(ctx.Lvalue_expr())},
+		Op:     op,
+	})
 }
 
 // expr: expr ('|' expr)

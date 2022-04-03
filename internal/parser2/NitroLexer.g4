@@ -45,6 +45,10 @@ SUB: '-';
 MUL: '*';
 DIV: '/';
 MOD: '%';
+
+INC: '++';
+DEC: '--';
+
 QUESTION_MARK: '?';
 SEMICOLON: ';';
 COMMA: ',';

@@ -42,6 +42,7 @@ stmt: assignment_stmt      # stmt_assignment
     | yield_stmt           # stmt_yield
     | break_stmt           # stmt_break
     | continue_stmt        # stmt_continue
+    | inc_dec_stmt         # stmt_inc_dec
     ;
 
 assignment_stmt: assignment_lvalues '=' rvalues;
@@ -78,6 +79,8 @@ yield_stmt: YIELD rvalues;
 break_stmt: BREAK;
 
 continue_stmt: CONTINUE;
+
+inc_dec_stmt: lvalue_expr op=('++'|'--');
 
 // Expressions
 

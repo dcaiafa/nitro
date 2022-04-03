@@ -183,6 +183,12 @@ func (s *BaseNitroParserListener) EnterStmt_continue(ctx *Stmt_continueContext) 
 // ExitStmt_continue is called when production stmt_continue is exited.
 func (s *BaseNitroParserListener) ExitStmt_continue(ctx *Stmt_continueContext) {}
 
+// EnterStmt_inc_dec is called when production stmt_inc_dec is entered.
+func (s *BaseNitroParserListener) EnterStmt_inc_dec(ctx *Stmt_inc_decContext) {}
+
+// ExitStmt_inc_dec is called when production stmt_inc_dec is exited.
+func (s *BaseNitroParserListener) ExitStmt_inc_dec(ctx *Stmt_inc_decContext) {}
+
 // EnterAssignment_stmt is called when production assignment_stmt is entered.
 func (s *BaseNitroParserListener) EnterAssignment_stmt(ctx *Assignment_stmtContext) {}
 
@@ -308,6 +314,12 @@ func (s *BaseNitroParserListener) EnterContinue_stmt(ctx *Continue_stmtContext) 
 
 // ExitContinue_stmt is called when production continue_stmt is exited.
 func (s *BaseNitroParserListener) ExitContinue_stmt(ctx *Continue_stmtContext) {}
+
+// EnterInc_dec_stmt is called when production inc_dec_stmt is entered.
+func (s *BaseNitroParserListener) EnterInc_dec_stmt(ctx *Inc_dec_stmtContext) {}
+
+// ExitInc_dec_stmt is called when production inc_dec_stmt is exited.
+func (s *BaseNitroParserListener) ExitInc_dec_stmt(ctx *Inc_dec_stmtContext) {}
 
 // EnterExpr is called when production expr is entered.
 func (s *BaseNitroParserListener) EnterExpr(ctx *ExprContext) {}
