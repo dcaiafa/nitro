@@ -13,6 +13,9 @@ func (f *Fn) Type() string   { return "Func" }
 func (f *Fn) String() string { return "<func>" }
 
 func (f *Fn) EvalOp(op Op, operand Value) (Value, error) {
+	if op == OpEq {
+		return NewBool(f == operand), nil
+	}
 	return nil, fmt.Errorf("func does not support this operation")
 }
 
