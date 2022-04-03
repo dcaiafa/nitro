@@ -1,4 +1,4 @@
-// Code generated from NitroParser.g4 by ANTLR 4.9.2. DO NOT EDIT.
+// Code generated from NitroParser.g4 by ANTLR 4.9.3. DO NOT EDIT.
 
 package parser // NitroParser
 
@@ -47,6 +47,9 @@ type NitroParserListener interface {
 	// EnterStmt_assignment is called when entering the stmt_assignment production.
 	EnterStmt_assignment(c *Stmt_assignmentContext)
 
+	// EnterStmt_op_assign is called when entering the stmt_op_assign production.
+	EnterStmt_op_assign(c *Stmt_op_assignContext)
+
 	// EnterStmt_var_dec is called when entering the stmt_var_dec production.
 	EnterStmt_var_dec(c *Stmt_var_decContext)
 
@@ -94,6 +97,9 @@ type NitroParserListener interface {
 
 	// EnterRvalues is called when entering the rvalues production.
 	EnterRvalues(c *RvaluesContext)
+
+	// EnterAssignment_op_stmt is called when entering the assignment_op_stmt production.
+	EnterAssignment_op_stmt(c *Assignment_op_stmtContext)
 
 	// EnterVar_decl_stmt is called when entering the var_decl_stmt production.
 	EnterVar_decl_stmt(c *Var_decl_stmtContext)
@@ -311,6 +317,9 @@ type NitroParserListener interface {
 	// ExitStmt_assignment is called when exiting the stmt_assignment production.
 	ExitStmt_assignment(c *Stmt_assignmentContext)
 
+	// ExitStmt_op_assign is called when exiting the stmt_op_assign production.
+	ExitStmt_op_assign(c *Stmt_op_assignContext)
+
 	// ExitStmt_var_dec is called when exiting the stmt_var_dec production.
 	ExitStmt_var_dec(c *Stmt_var_decContext)
 
@@ -358,6 +367,9 @@ type NitroParserListener interface {
 
 	// ExitRvalues is called when exiting the rvalues production.
 	ExitRvalues(c *RvaluesContext)
+
+	// ExitAssignment_op_stmt is called when exiting the assignment_op_stmt production.
+	ExitAssignment_op_stmt(c *Assignment_op_stmtContext)
 
 	// ExitVar_decl_stmt is called when exiting the var_decl_stmt production.
 	ExitVar_decl_stmt(c *Var_decl_stmtContext)

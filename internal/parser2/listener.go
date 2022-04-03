@@ -308,6 +308,7 @@ func (l *listener) ExitStmt_list(ctx *parser.Stmt_listContext) {
 }
 
 // stmt: assignment_stmt      # stmt_assignment
+//     | assignment_op_stmt   # stmt_op_assign
 //     | var_decl_stmt        # stmt_var_dec
 //     | for_stmt             # stmt_for
 //     | while_stmt           # stmt_while
@@ -325,6 +326,10 @@ func (l *listener) ExitStmt_list(ctx *parser.Stmt_listContext) {
 
 func (l *listener) ExitStmt_assignment(ctx *parser.Stmt_assignmentContext) {
 	l.put(ctx, l.takeAST(ctx.Assignment_stmt()))
+}
+
+func (l *listener) ExitStmt_op_assign(ctx *parser.Stmt_op_assignContext) {
+	l.put(ctx, l.takeAST(ctx.Assignment_op_stmt()))
 }
 
 func (l *listener) ExitStmt_var_dec(ctx *parser.Stmt_var_decContext) {
@@ -421,6 +426,30 @@ func (l *listener) ExitRvalues(ctx *parser.RvaluesContext) {
 		exprs[i] = l.takeExpr(child)
 	}
 	l.put(ctx, exprs)
+}
+
+func (l *listener) ExitAssignment_op_stmt(ctx *parser.Assignment_op_stmtContext) {
+	assignOpAST := &ast.AssignOpStmt{
+		LValue: &ast.LValue{Expr: l.takeExpr(ctx.Lvalue_expr())},
+		RValue: l.takeExpr(ctx.Expr()),
+	}
+
+	switch ctx.GetOp().GetTokenType() {
+	case parser.NitroLexerASSIGN_ADD:
+		assignOpAST.Op = ast.BinOpPlus
+	case parser.NitroLexerASSIGN_SUB:
+		assignOpAST.Op = ast.BinOpMinus
+	case parser.NitroLexerASSIGN_MUL:
+		assignOpAST.Op = ast.BinOpMult
+	case parser.NitroLexerASSIGN_DIV:
+		assignOpAST.Op = ast.BinOpDiv
+	case parser.NitroLexerASSIGN_MOD:
+		assignOpAST.Op = ast.BinOpMod
+	default:
+		log.Panicf("Invalid operator %v", ctx.GetOp().GetTokenType())
+	}
+
+	l.put(ctx, assignOpAST)
 }
 
 // var_decl_stmt: VAR var_decl_vars ('=' rvalues)?;

@@ -28,6 +28,7 @@ stmts: stmt_list? ';'*;
 stmt_list: stmt (';'+ stmt)*;
 
 stmt: assignment_stmt      # stmt_assignment
+    | assignment_op_stmt   # stmt_op_assign
     | var_decl_stmt        # stmt_var_dec
     | for_stmt             # stmt_for
     | while_stmt           # stmt_while
@@ -46,6 +47,8 @@ stmt: assignment_stmt      # stmt_assignment
 assignment_stmt: assignment_lvalues '=' rvalues;
 assignment_lvalues: lvalue_expr (',' lvalue_expr)*;
 rvalues: expr (',' expr)*;
+
+assignment_op_stmt: lvalue_expr op=('+='|'-='|'*='|'/='|'%=') expr;
 
 var_decl_stmt: VAR var_decl_vars ('=' rvalues)?;
 var_decl_vars: ID (',' ID)*;

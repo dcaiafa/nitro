@@ -1,4 +1,4 @@
-// Code generated from NitroParser.g4 by ANTLR 4.9.2. DO NOT EDIT.
+// Code generated from NitroParser.g4 by ANTLR 4.9.3. DO NOT EDIT.
 
 package parser // NitroParser
 
@@ -99,6 +99,12 @@ func (s *BaseNitroParserListener) EnterStmt_assignment(ctx *Stmt_assignmentConte
 // ExitStmt_assignment is called when production stmt_assignment is exited.
 func (s *BaseNitroParserListener) ExitStmt_assignment(ctx *Stmt_assignmentContext) {}
 
+// EnterStmt_op_assign is called when production stmt_op_assign is entered.
+func (s *BaseNitroParserListener) EnterStmt_op_assign(ctx *Stmt_op_assignContext) {}
+
+// ExitStmt_op_assign is called when production stmt_op_assign is exited.
+func (s *BaseNitroParserListener) ExitStmt_op_assign(ctx *Stmt_op_assignContext) {}
+
 // EnterStmt_var_dec is called when production stmt_var_dec is entered.
 func (s *BaseNitroParserListener) EnterStmt_var_dec(ctx *Stmt_var_decContext) {}
 
@@ -194,6 +200,12 @@ func (s *BaseNitroParserListener) EnterRvalues(ctx *RvaluesContext) {}
 
 // ExitRvalues is called when production rvalues is exited.
 func (s *BaseNitroParserListener) ExitRvalues(ctx *RvaluesContext) {}
+
+// EnterAssignment_op_stmt is called when production assignment_op_stmt is entered.
+func (s *BaseNitroParserListener) EnterAssignment_op_stmt(ctx *Assignment_op_stmtContext) {}
+
+// ExitAssignment_op_stmt is called when production assignment_op_stmt is exited.
+func (s *BaseNitroParserListener) ExitAssignment_op_stmt(ctx *Assignment_op_stmtContext) {}
 
 // EnterVar_decl_stmt is called when production var_decl_stmt is entered.
 func (s *BaseNitroParserListener) EnterVar_decl_stmt(ctx *Var_decl_stmtContext) {}

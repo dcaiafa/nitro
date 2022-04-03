@@ -28,6 +28,12 @@ WHILE: 'while';
 YIELD: 'yield';
 
 ASSIGN: '=';
+ASSIGN_ADD: '+=';
+ASSIGN_SUB: '-=';
+ASSIGN_MUL: '*=';
+ASSIGN_DIV: '/=';
+ASSIGN_MOD: '%=';
+
 EQ: '==';
 NE: '!=';
 LT: '<';
