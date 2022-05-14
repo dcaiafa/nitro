@@ -46,8 +46,8 @@ func (c *Compiler) SetDiag(diag bool) {
 	c.diag = diag
 }
 
-func (c *Compiler) AddNativeFn(name string, fn vm.NativeFn) {
-	c.main.AddNativeFn(name, fn)
+func (c *Compiler) AddNativeFn(name string, fn func(m *VM, args []Value, nRet int) ([]Value, error)) {
+	c.main.AddNativeFn(name, vm.NewNativeFn(fn))
 }
 
 func (c *Compiler) RegisterNativeModuleLoader(

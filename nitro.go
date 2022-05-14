@@ -19,7 +19,6 @@ type (
 	Callable   = vm.Callable
 	CloseFn    = vm.CloseFn
 	Closure    = vm.Closure
-	ExternFn   = vm.NativeFn
 	Float      = vm.Float
 	Frame      = vm.FrameInfo
 	FrameCrumb = vm.FrameCrumb
@@ -114,6 +113,10 @@ func NewObject() *Object                 { return vm.NewObject() }
 func NewRegex(r *regexp.Regexp) *Regex   { return vm.NewRegex(r) }
 func CoerceToBool(v Value) bool          { return vm.CoerceToBool(v) }
 
-func NewIterator(f ExternFn, c CloseFn, nret int) Iterator {
+func NewIterator(f func(m *VM, args []Value, nRet int) ([]Value, error), c CloseFn, nret int) Iterator {
 	return vm.NewIterator(f, c, nret)
+}
+
+func NewNativeFn(f func(m *VM, args []Value, nRet int) ([]Value, error)) *NativeFn {
+	return vm.NewNativeFn(f)
 }

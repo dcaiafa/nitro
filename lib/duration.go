@@ -107,7 +107,7 @@ func (d Duration) Index(key nitro.Value) (nitro.Value, error) {
 
 	switch keyStr.String() {
 	case "truncate":
-		return nitro.NativeFn(d.truncate), nil
+		return nitro.NewNativeFn(d.truncate), nil
 	default:
 		return nil, fmt.Errorf(
 			"duration does not have method %q",

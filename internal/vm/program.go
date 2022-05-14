@@ -9,7 +9,7 @@ type Program struct {
 
 	globals   int
 	fns       []Fn
-	extFns    []NativeFn
+	extFns    []*NativeFn
 	literals  []Value
 	params    map[string]*Param
 	reqParamN int

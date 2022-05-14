@@ -18,7 +18,7 @@ type Main struct {
 	metadata  *meta.Metadata
 }
 
-func (m *Main) AddNativeFn(name string, extFn vm.NativeFn) {
+func (m *Main) AddNativeFn(name string, extFn *vm.NativeFn) {
 	m.externalFns = append(
 		m.externalFns,
 		&ExternFn{

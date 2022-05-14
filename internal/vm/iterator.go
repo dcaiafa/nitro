@@ -68,7 +68,7 @@ func (i *ILIterator) IterNRet() int { return i.iterNRet }
 type CloseFn func(m *VM) error
 
 type NativeIterator struct {
-	extFn    NativeFn
+	extFn    *NativeFn
 	closeFn  CloseFn
 	iterNRet int
 	closed   bool
@@ -102,9 +102,9 @@ func (i *NativeIterator) Close(m *VM) error {
 	return nil
 }
 
-func NewIterator(extFn NativeFn, closeFn CloseFn, nret int) Iterator {
+func NewIterator(extFn func(m *VM, args []Value, nRet int) ([]Value, error), closeFn CloseFn, nret int) Iterator {
 	i := &NativeIterator{
-		extFn:    extFn,
+		extFn:    NewNativeFn(extFn),
 		closeFn:  closeFn,
 		iterNRet: nret,
 	}

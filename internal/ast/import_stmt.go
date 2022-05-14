@@ -69,11 +69,11 @@ type nativeModuleRegister struct {
 	module *symbol.Module
 }
 
-func (r *nativeModuleRegister) RegisterNativeFn(name string, natFn vm.NativeFn) {
+func (r *nativeModuleRegister) RegisterNativeFn(name string, natFn func(m *vm.VM, args []vm.Value, nRet int) ([]vm.Value, error)) {
 	fn := &symbol.FuncSymbol{}
 	fn.SetReadOnly(true)
 	fn.SetName(name)
 	fn.External = true
-	fn.IdxFunc = r.ctx.Emitter().AddExternalFunc(natFn)
+	fn.IdxFunc = r.ctx.Emitter().AddExternalFunc(vm.NewNativeFn(natFn))
 	r.module.Scope.PutSymbol(r.ctx, fn)
 }

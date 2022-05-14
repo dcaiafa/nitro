@@ -74,15 +74,15 @@ func (t Time) Index(key nitro.Value) (nitro.Value, error) {
 
 	switch keyStr.String() {
 	case "utc":
-		return nitro.NativeFn(t.utc), nil
+		return nitro.NewNativeFn(t.utc), nil
 	case "local":
-		return nitro.NativeFn(t.local), nil
+		return nitro.NewNativeFn(t.local), nil
 	case "format":
-		return nitro.NativeFn(t.format), nil
+		return nitro.NewNativeFn(t.format), nil
 	case "unix":
-		return nitro.NativeFn(t.unix), nil
+		return nitro.NewNativeFn(t.unix), nil
 	case "unixnano":
-		return nitro.NativeFn(t.unixnano), nil
+		return nitro.NewNativeFn(t.unixnano), nil
 	case "year":
 		return nitro.NewInt(int64(t.time.Year())), nil
 	case "month":

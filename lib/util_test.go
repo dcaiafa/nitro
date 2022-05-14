@@ -27,10 +27,10 @@ func WithParams(params map[string]nitro.Value) RunOption {
 	}
 }
 
-func WithFn(name string, fn nitro.NativeFn) RunOption {
+func WithFn(name string, f func(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error)) RunOption {
 	return RunOption{
 		beforeCompile: func(c *nitro.Compiler) {
-			c.AddNativeFn(name, fn)
+			c.AddNativeFn(name, f)
 		},
 	}
 }

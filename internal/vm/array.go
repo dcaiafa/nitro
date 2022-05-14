@@ -50,13 +50,13 @@ func (a *Array) Index(key Value) (Value, error) {
 	case String:
 		switch key.String() {
 		case "add":
-			return NativeFn(a.add), nil
+			return NewNativeFn(a.add), nil
 		case "add_iter":
-			return NativeFn(a.add_iter), nil
+			return NewNativeFn(a.add_iter), nil
 		case "len":
-			return NativeFn(a.len), nil
+			return NewNativeFn(a.len), nil
 		case "find":
-			return NativeFn(a.find), nil
+			return NewNativeFn(a.find), nil
 		default:
 			return nil, fmt.Errorf("list does not have method %q", key.String())
 		}

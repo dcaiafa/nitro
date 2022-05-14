@@ -5,9 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"reflect"
-	"runtime"
-	"strings"
 	"sync"
 	"sync/atomic"
 
@@ -1102,24 +1099,15 @@ func (m *VM) GetFrameInfo(crumb FrameCrumb) FrameInfo {
 			Func:     m.program.literals[loc.fn].(String).String(),
 		}
 	}
-
-	fn := runtime.FuncForPC(reflect.ValueOf(crumb.extFn).Pointer())
-	if fn == nil {
+	if nativeFn, ok := crumb.extFn.(*NativeFn); ok {
 		return FrameInfo{
-			Filename: "???",
-			Line:     0,
-			Func:     "???",
+			Func: nativeFn.Name(),
 		}
 	}
-
-	fnName := fn.Name()
-	lastSlash := strings.LastIndexByte(fnName, '/')
-	if lastSlash != -1 {
-		fnName = fnName[lastSlash+1:]
-	}
-
 	return FrameInfo{
-		Func: fnName,
+		Filename: "???",
+		Line:     0,
+		Func:     "???",
 	}
 }
 

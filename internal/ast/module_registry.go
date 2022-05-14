@@ -8,7 +8,7 @@ import (
 )
 
 type NativeModuleContext interface {
-	RegisterNativeFn(name string, natFn vm.NativeFn)
+	RegisterNativeFn(name string, natFn func(m *vm.VM, args []vm.Value, nRet int) ([]vm.Value, error))
 }
 
 type ModuleRegistry struct {

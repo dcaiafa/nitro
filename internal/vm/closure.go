@@ -11,6 +11,9 @@ func (c *Closure) String() string { return "<func>" }
 func (c *Closure) Type() string   { return "Func" }
 
 func (c *Closure) EvalOp(op Op, operand Value) (Value, error) {
+	if op == OpEq {
+		return NewBool(c == operand), nil
+	}
 	return nil, fmt.Errorf("func does not support this operation")
 }
 

@@ -29,39 +29,39 @@ func (s String) Index(key Value) (Value, error) {
 	case String:
 		switch key.String() {
 		case "find":
-			return NativeFn(s.find), nil
+			return NewNativeFn(s.find), nil
 		case "find_last":
-			return NativeFn(s.findLast), nil
+			return NewNativeFn(s.findLast), nil
 		case "match":
-			return NativeFn(s.match), nil
+			return NewNativeFn(s.match), nil
 		case "match_all":
-			return NativeFn(s.matchAll), nil
+			return NewNativeFn(s.matchAll), nil
 		case "replace":
-			return NativeFn(s.replace), nil
+			return NewNativeFn(s.replace), nil
 		case "split":
-			return NativeFn(s.split), nil
+			return NewNativeFn(s.split), nil
 		case "trim":
-			return NativeFn(s.trim), nil
+			return NewNativeFn(s.trim), nil
 		case "trim_left":
-			return NativeFn(s.trimLeft), nil
+			return NewNativeFn(s.trimLeft), nil
 		case "trim_right":
-			return NativeFn(s.trimRight), nil
+			return NewNativeFn(s.trimRight), nil
 		case "trim_prefix":
-			return NativeFn(s.trimPrefix), nil
+			return NewNativeFn(s.trimPrefix), nil
 		case "trim_suffix":
-			return NativeFn(s.trimSuffix), nil
+			return NewNativeFn(s.trimSuffix), nil
 		case "to_upper":
-			return NativeFn(s.toUpper), nil
+			return NewNativeFn(s.toUpper), nil
 		case "to_lower":
-			return NativeFn(s.toLower), nil
+			return NewNativeFn(s.toLower), nil
 		case "has_prefix":
-			return NativeFn(s.hasPrefix), nil
+			return NewNativeFn(s.hasPrefix), nil
 		case "has_suffix":
-			return NativeFn(s.hasSuffix), nil
+			return NewNativeFn(s.hasSuffix), nil
 		case "fields":
-			return NativeFn(s.fields), nil
+			return NewNativeFn(s.fields), nil
 		case "repeat":
-			return NativeFn(s.repeat), nil
+			return NewNativeFn(s.repeat), nil
 		default:
 			return nil, fmt.Errorf("string does not have method %q", key.String())
 		}

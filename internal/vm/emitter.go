@@ -20,7 +20,7 @@ type Emitter struct {
 
 	globals   int
 	fns       []Fn
-	extFns    []NativeFn
+	extFns    []*NativeFn
 	literals  []Value
 	params    map[string]*Param
 	reqParamN int
@@ -130,7 +130,7 @@ func (e *Emitter) EmitJump(pos token.Pos, op OpCode, label *Label, operand2 uint
 	}
 }
 
-func (e *Emitter) AddExternalFunc(fn NativeFn) int {
+func (e *Emitter) AddExternalFunc(fn *NativeFn) int {
 	e.extFns = append(e.extFns, fn)
 	return len(e.extFns) - 1
 }

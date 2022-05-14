@@ -10,7 +10,7 @@ type ExternFn struct {
 	astBase
 
 	Name     string
-	ExternFn vm.NativeFn
+	ExternFn *vm.NativeFn
 
 	sym *symbol.FuncSymbol
 }
