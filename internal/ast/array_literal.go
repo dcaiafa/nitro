@@ -1,8 +1,8 @@
 package ast
 
 import (
-	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/internal/symbol"
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
 type ArrayLiteral struct {
@@ -28,6 +28,9 @@ func (a *ArrayLiteral) RunPass(ctx *Context, pass Pass) {
 		ctx.Pop()
 
 	case Emit:
+		// For completeness. Nothing can reference the $arr symbol, thus it cannot
+		// be lifted, hence does not require initialization.
+		emitVariableInit(a.Pos(), ctx.Emitter(), a.arr)
 		emitSymbolRefPush(a.Pos(), ctx.Emitter(), a.arr)
 		ctx.Emitter().Emit(a.Pos(), vm.OpNewArray, 0, 0)
 		ctx.Emitter().Emit(a.Pos(), vm.OpStore, 1, 0)

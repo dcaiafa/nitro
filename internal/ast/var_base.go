@@ -6,10 +6,12 @@ import (
 	"github.com/dcaiafa/nitro/internal/vm"
 )
 
+// Don't forget to call emitVariableInit for new variables.
 func AddVariable(ctx *Context, name string, pos token.Pos) symbol.Symbol {
 	return AddVariableToScope(ctx, ctx.CurrentScope(), name, pos)
 }
 
+// Don't forget to call emitVariableInit for new variables.
 func AddVariableToScope(ctx *Context, scope *symbol.Scope, name string, pos token.Pos) symbol.Symbol {
 	fn := ctx.CurrentFunc()
 	if fn != nil {
@@ -33,6 +35,19 @@ func AddVariableToScope(ctx *Context, scope *symbol.Scope, name string, pos toke
 	g.SetLiftable(ctx.IsInLiftableScope())
 
 	return g
+}
+
+func emitVariableInit(pos token.Pos, emitter *vm.Emitter, sym symbol.Symbol) {
+	if sym.Lifted() {
+		switch sym := sym.(type) {
+		case *symbol.LocalVarSymbol:
+			emitter.Emit(pos, vm.OpInitLiftedLocal, uint32(sym.LocalNdx), 0)
+		case *symbol.GlobalVarSymbol:
+			emitter.Emit(pos, vm.OpInitLiftedGlobal, uint32(sym.GlobalNdx), 0)
+		default:
+			panic("unreachable")
+		}
+	}
 }
 
 func emitSymbolPush(pos token.Pos, emitter *vm.Emitter, sym symbol.Symbol) {

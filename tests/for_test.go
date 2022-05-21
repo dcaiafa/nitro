@@ -97,4 +97,12 @@ begin
 end
 `)
 
+	RunSubO(t, "closure", `
+		for i in [1,2] {
+			print((&x -> x+i)(i))
+		}
+`, `
+2
+4
+`)
 }

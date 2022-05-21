@@ -33,6 +33,7 @@ func (s *ForStmt) RunPass(ctx *Context, pass Pass) {
 	ctx.RunPassChild(s, s.ForVars, pass)
 
 	if pass == Emit {
+		emitVariableInit(s.Pos(), ctx.Emitter(), s.iter)
 		emitSymbolRefPush(s.Pos(), ctx.Emitter(), s.iter)
 	}
 
@@ -81,10 +82,14 @@ type ForVar struct {
 }
 
 func (s *ForVar) RunPass(ctx *Context, pass Pass) {
-	if pass == Check {
+	switch pass {
+	case Check:
 		s.sym = AddVariable(ctx, s.VarName.Str, s.VarName.Pos)
 		if s.sym == nil {
 			return
 		}
+
+	case Emit:
+		emitVariableInit(s.Pos(), ctx.Emitter(), s.sym)
 	}
 }

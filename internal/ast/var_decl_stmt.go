@@ -33,16 +33,7 @@ func (s *VarDeclStmt) RunPass(ctx *Context, pass Pass) {
 		emitter := ctx.Emitter()
 
 		for _, sym := range s.syms {
-			if sym.Lifted() {
-				switch sym := sym.(type) {
-				case *symbol.LocalVarSymbol:
-					emitter.Emit(s.Pos(), vm.OpInitLiftedLocal, uint32(sym.LocalNdx), 0)
-				case *symbol.GlobalVarSymbol:
-					emitter.Emit(s.Pos(), vm.OpInitLiftedGlobal, uint32(sym.GlobalNdx), 0)
-				default:
-					panic("unreachable")
-				}
-			}
+			emitVariableInit(s.Pos(), emitter, sym)
 		}
 
 		if s.InitValues != nil {

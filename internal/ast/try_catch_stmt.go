@@ -1,9 +1,9 @@
 package ast
 
 import (
-	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/internal/symbol"
 	"github.com/dcaiafa/nitro/internal/token"
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
 type TryCatchStmt struct {
@@ -64,6 +64,10 @@ type catchBlock struct {
 	catchSym symbol.Symbol
 }
 
+func (b *catchBlock) Scope() *symbol.Scope {
+	return b.scope
+}
+
 func (b *catchBlock) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Check:
@@ -78,6 +82,7 @@ func (b *catchBlock) RunPass(ctx *Context, pass Pass) {
 
 	case Emit:
 		if b.catchSym != nil {
+			emitVariableInit(b.stmts.Pos(), ctx.Emitter(), b.catchSym)
 			emitSymbolRefPush(b.stmts.Pos(), ctx.Emitter(), b.catchSym)
 			ctx.Emitter().Emit(b.stmts.Pos(), vm.OpSwap, 1, 0)
 			ctx.Emitter().Emit(b.stmts.Pos(), vm.OpStore, 1, 0)
@@ -87,8 +92,4 @@ func (b *catchBlock) RunPass(ctx *Context, pass Pass) {
 	}
 
 	ctx.RunPassChild(b, b.stmts, pass)
-}
-
-func (b *catchBlock) Scope() *symbol.Scope {
-	return b.scope
 }
