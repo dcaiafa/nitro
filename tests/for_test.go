@@ -40,6 +40,27 @@ func TestForStmt(t *testing.T) {
 4
 `)
 
+	RunSubO(t, "continue_nested", `
+		for x in range(1,5) {
+			for y in ["a", "b"] {
+				if y == "a" {
+					continue
+				}
+				print(y)
+			}
+    	print(x)
+		}
+	`, `
+b
+1
+b
+2
+b
+3
+b
+4
+`)
+
 	RunSubO(t, "for_array", `
 		for x in ["foo", "bar"] {
     	print(x)

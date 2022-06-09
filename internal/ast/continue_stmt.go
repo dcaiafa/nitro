@@ -12,6 +12,7 @@ func (s *ContinueStmt) RunPass(ctx *Context, pass Pass) {
 			switch ast := ctx.Peek(i).(type) {
 			case BreakContinueEmitter:
 				continuer = ast
+				break Loop
 			case *Func:
 				break Loop
 			}
