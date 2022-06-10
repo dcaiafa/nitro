@@ -18,7 +18,8 @@ type ForStmt struct {
 	end   *vm.Label
 }
 
-func (s *ForStmt) IsLiftableScope() {}
+func (s *ForStmt) IsLiftableScope()   {}
+func (s *ForStmt) IsRepeatableScope() {}
 
 func (s *ForStmt) Scope() *symbol.Scope {
 	return s.scope
@@ -33,7 +34,7 @@ func (s *ForStmt) RunPass(ctx *Context, pass Pass) {
 	ctx.RunPassChild(s, s.ForVars, pass)
 
 	if pass == Emit {
-		emitVariableInit(s.Pos(), ctx.Emitter(), s.iter)
+		emitVariableInit(ctx, s.Pos(), s.iter)
 		emitSymbolRefPush(s.Pos(), ctx.Emitter(), s.iter)
 	}
 
@@ -90,6 +91,6 @@ func (s *ForVar) RunPass(ctx *Context, pass Pass) {
 		}
 
 	case Emit:
-		emitVariableInit(s.Pos(), ctx.Emitter(), s.sym)
+		emitVariableInit(ctx, s.Pos(), s.sym)
 	}
 }

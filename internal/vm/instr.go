@@ -60,7 +60,9 @@ const (
 	OpIterRet
 	OpNewIter
 	OpLiftArg
+	OpInitLocal
 	OpInitLiftedLocal
+	OpInitGlobal
 	OpInitLiftedGlobal
 )
 

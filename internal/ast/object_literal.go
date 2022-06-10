@@ -30,7 +30,7 @@ func (s *ObjectLiteral) RunPass(ctx *Context, pass Pass) {
 	case Emit:
 		// For completeness. Nothing can reference the $arr symbol, thus it cannot
 		// be lifted, hence does not require initialization.
-		emitVariableInit(s.Pos(), ctx.Emitter(), s.obj)
+		emitVariableInit(ctx, s.Pos(), s.obj)
 		emitSymbolRefPush(s.Pos(), ctx.Emitter(), s.obj)
 		ctx.Emitter().Emit(s.Pos(), vm.OpNewObject, 0, 0)
 		ctx.Emitter().Emit(s.Pos(), vm.OpStore, 1, 0)

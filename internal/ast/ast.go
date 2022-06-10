@@ -35,6 +35,10 @@ type LiftableScope interface {
 	IsLiftableScope()
 }
 
+type RepeatableScope interface {
+	IsRepeatableScope()
+}
+
 type astBase struct {
 	pos token.Pos
 }

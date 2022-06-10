@@ -1008,8 +1008,14 @@ func (m *VM) resumeWithoutRecovery() (err error) {
 				m.co.stack[m.co.frame.bp-m.co.frame.nArg+idx] = lifted
 			}
 
+		case OpInitLocal:
+			m.co.stack[m.co.frame.bp+int(instr.op1)] = nil
+
 		case OpInitLiftedLocal:
 			m.co.stack[m.co.frame.bp+int(instr.op1)] = ValueRef{new(Value)}
+
+		case OpInitGlobal:
+			m.globals[int(instr.op1)] = nil
 
 		case OpInitLiftedGlobal:
 			m.globals[int(instr.op1)] = ValueRef{new(Value)}

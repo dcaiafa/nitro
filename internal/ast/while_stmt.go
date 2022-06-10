@@ -1,8 +1,8 @@
 package ast
 
 import (
-	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/internal/token"
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
 type WhileStmt struct {
@@ -14,6 +14,9 @@ type WhileStmt struct {
 	begin *vm.Label
 	end   *vm.Label
 }
+
+func (s *WhileStmt) IsLiftableScope()   {}
+func (s *WhileStmt) IsRepeatableScope() {}
 
 func (s *WhileStmt) RunPass(ctx *Context, pass Pass) {
 	var emitter *vm.Emitter

@@ -37,13 +37,22 @@ func AddVariableToScope(ctx *Context, scope *symbol.Scope, name string, pos toke
 	return g
 }
 
-func emitVariableInit(pos token.Pos, emitter *vm.Emitter, sym symbol.Symbol) {
+func emitVariableInit(ctx *Context, pos token.Pos, sym symbol.Symbol) {
 	if sym.Lifted() {
 		switch sym := sym.(type) {
 		case *symbol.LocalVarSymbol:
-			emitter.Emit(pos, vm.OpInitLiftedLocal, uint32(sym.LocalNdx), 0)
+			ctx.Emitter().Emit(pos, vm.OpInitLiftedLocal, uint32(sym.LocalNdx), 0)
 		case *symbol.GlobalVarSymbol:
-			emitter.Emit(pos, vm.OpInitLiftedGlobal, uint32(sym.GlobalNdx), 0)
+			ctx.Emitter().Emit(pos, vm.OpInitLiftedGlobal, uint32(sym.GlobalNdx), 0)
+		default:
+			panic("unreachable")
+		}
+	} else if ctx.IsInRepeatableScope() {
+		switch sym := sym.(type) {
+		case *symbol.LocalVarSymbol:
+			ctx.Emitter().Emit(pos, vm.OpInitLocal, uint32(sym.LocalNdx), 0)
+		case *symbol.GlobalVarSymbol:
+			ctx.Emitter().Emit(pos, vm.OpInitGlobal, uint32(sym.GlobalNdx), 0)
 		default:
 			panic("unreachable")
 		}

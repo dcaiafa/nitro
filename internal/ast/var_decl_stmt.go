@@ -33,7 +33,7 @@ func (s *VarDeclStmt) RunPass(ctx *Context, pass Pass) {
 		emitter := ctx.Emitter()
 
 		for _, sym := range s.syms {
-			emitVariableInit(s.Pos(), emitter, sym)
+			emitVariableInit(ctx, s.Pos(), sym)
 		}
 
 		if s.InitValues != nil {

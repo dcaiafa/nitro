@@ -2,7 +2,7 @@ package tests
 
 import "testing"
 
-func VarDeclTest(t *testing.T) {
+func TestVarDecl(t *testing.T) {
 	RunSubO(t, "global_no_init", `
 		var a
 		a = 1
@@ -70,4 +70,21 @@ func VarDeclTest(t *testing.T) {
 		}
 		print(f(), a)
 `, `2 1`)
+
+	RunSubO(t, "scope", `
+for i in range(5) {
+  var state
+  if i % 2 == 0 {
+    state = i
+  }
+  print(state)
+}
+`, `
+0
+<nil>
+2
+<nil>
+4
+`)
+
 }

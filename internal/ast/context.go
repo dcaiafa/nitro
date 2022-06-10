@@ -96,6 +96,19 @@ func (c *Context) IsInLiftableScope() bool {
 	return false
 }
 
+func (c *Context) IsInRepeatableScope() bool {
+	for i := len(c.stack) - 1; i >= 0; i-- {
+		ast := c.stack[i]
+		switch ast.(type) {
+		case RepeatableScope:
+			return true
+		case *Func:
+			return false
+		}
+	}
+	return false
+}
+
 func (c *Context) Len() int {
 	return len(c.stack)
 }

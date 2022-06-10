@@ -82,7 +82,7 @@ func (b *catchBlock) RunPass(ctx *Context, pass Pass) {
 
 	case Emit:
 		if b.catchSym != nil {
-			emitVariableInit(b.stmts.Pos(), ctx.Emitter(), b.catchSym)
+			emitVariableInit(ctx, b.stmts.Pos(), b.catchSym)
 			emitSymbolRefPush(b.stmts.Pos(), ctx.Emitter(), b.catchSym)
 			ctx.Emitter().Emit(b.stmts.Pos(), vm.OpSwap, 1, 0)
 			ctx.Emitter().Emit(b.stmts.Pos(), vm.OpStore, 1, 0)
