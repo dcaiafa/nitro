@@ -283,16 +283,23 @@ func closep(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 		return nil, errNotEnoughArgs
 	}
 
-	f, ok := args[0].(io.Closer)
-	if !ok {
-		return nil, fmt.Errorf(
-			"expected argument 1 to be File, but it is %v",
-			nitro.TypeName(args[0]))
-	}
+	switch arg := args[0].(type) {
+	case io.Closer:
+		err := arg.Close()
+		if err != nil && !errors.Is(err, os.ErrClosed) {
+			return nil, err
+		}
 
-	err := f.Close()
-	if err != nil && !errors.Is(err, os.ErrClosed) {
-		return nil, err
+	case nitro.Iterator:
+		err := m.IterClose(arg)
+		if err != nil {
+			return nil, err
+		}
+
+	default:
+		return nil, fmt.Errorf(
+			"arg #1 %v is not closeable",
+			nitro.TypeName(args[0]))
 	}
 
 	return nil, nil
