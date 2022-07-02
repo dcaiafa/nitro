@@ -242,24 +242,6 @@ type NitroParserListener interface {
 	// EnterObject_field_expansion is called when entering the object_field_expansion production.
 	EnterObject_field_expansion(c *Object_field_expansionContext)
 
-	// EnterObject_field_if is called when entering the object_field_if production.
-	EnterObject_field_if(c *Object_field_ifContext)
-
-	// EnterObject_field_for is called when entering the object_field_for production.
-	EnterObject_field_for(c *Object_field_forContext)
-
-	// EnterObject_if is called when entering the object_if production.
-	EnterObject_if(c *Object_ifContext)
-
-	// EnterObject_elif is called when entering the object_elif production.
-	EnterObject_elif(c *Object_elifContext)
-
-	// EnterObject_else is called when entering the object_else production.
-	EnterObject_else(c *Object_elseContext)
-
-	// EnterObject_for is called when entering the object_for production.
-	EnterObject_for(c *Object_forContext)
-
 	// EnterArray_literal is called when entering the array_literal production.
 	EnterArray_literal(c *Array_literalContext)
 
@@ -268,18 +250,6 @@ type NitroParserListener interface {
 
 	// EnterArray_elem is called when entering the array_elem production.
 	EnterArray_elem(c *Array_elemContext)
-
-	// EnterArray_if is called when entering the array_if production.
-	EnterArray_if(c *Array_ifContext)
-
-	// EnterArray_elif is called when entering the array_elif production.
-	EnterArray_elif(c *Array_elifContext)
-
-	// EnterArray_else is called when entering the array_else production.
-	EnterArray_else(c *Array_elseContext)
-
-	// EnterArray_for is called when entering the array_for production.
-	EnterArray_for(c *Array_forContext)
 
 	// EnterId_or_keyword is called when entering the id_or_keyword production.
 	EnterId_or_keyword(c *Id_or_keywordContext)
@@ -518,24 +488,6 @@ type NitroParserListener interface {
 	// ExitObject_field_expansion is called when exiting the object_field_expansion production.
 	ExitObject_field_expansion(c *Object_field_expansionContext)
 
-	// ExitObject_field_if is called when exiting the object_field_if production.
-	ExitObject_field_if(c *Object_field_ifContext)
-
-	// ExitObject_field_for is called when exiting the object_field_for production.
-	ExitObject_field_for(c *Object_field_forContext)
-
-	// ExitObject_if is called when exiting the object_if production.
-	ExitObject_if(c *Object_ifContext)
-
-	// ExitObject_elif is called when exiting the object_elif production.
-	ExitObject_elif(c *Object_elifContext)
-
-	// ExitObject_else is called when exiting the object_else production.
-	ExitObject_else(c *Object_elseContext)
-
-	// ExitObject_for is called when exiting the object_for production.
-	ExitObject_for(c *Object_forContext)
-
 	// ExitArray_literal is called when exiting the array_literal production.
 	ExitArray_literal(c *Array_literalContext)
 
@@ -544,18 +496,6 @@ type NitroParserListener interface {
 
 	// ExitArray_elem is called when exiting the array_elem production.
 	ExitArray_elem(c *Array_elemContext)
-
-	// ExitArray_if is called when exiting the array_if production.
-	ExitArray_if(c *Array_ifContext)
-
-	// ExitArray_elif is called when exiting the array_elif production.
-	ExitArray_elif(c *Array_elifContext)
-
-	// ExitArray_else is called when exiting the array_else production.
-	ExitArray_else(c *Array_elseContext)
-
-	// ExitArray_for is called when exiting the array_for production.
-	ExitArray_for(c *Array_forContext)
 
 	// ExitId_or_keyword is called when exiting the id_or_keyword production.
 	ExitId_or_keyword(c *Id_or_keywordContext)

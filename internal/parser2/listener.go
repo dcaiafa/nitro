@@ -950,8 +950,6 @@ func (l *listener) ExitObject_fields(ctx *parser.Object_fieldsContext) {
 
 // object_field: id_or_keyword ':' expr     # object_field_id_key
 //             | '[' expr ']' ':' expr      # object_field_expr_key
-//             | object_if                  # object_field_if
-//             | object_for                 # object_field_for
 //             ;
 
 func (l *listener) ExitObject_field_id_key(ctx *parser.Object_field_id_keyContext) {
@@ -966,60 +964,6 @@ func (l *listener) ExitObject_field_expr_key(ctx *parser.Object_field_expr_keyCo
 	l.put(ctx, &ast.ObjectField{
 		NameExpr: l.takeExpr(ctx.Expr(0)),
 		Val:      l.takeExpr(ctx.Expr(1)),
-	})
-}
-
-func (l *listener) ExitObject_field_if(ctx *parser.Object_field_ifContext) {
-	l.put(ctx, l.takeAST(ctx.Object_if()))
-}
-
-func (l *listener) ExitObject_field_for(ctx *parser.Object_field_forContext) {
-	l.put(ctx, l.takeAST(ctx.Object_for()))
-}
-
-// object_if: IF expr THEN bject_fields? object_elif* object_else? END;
-func (l *listener) ExitObject_if(ctx *parser.Object_ifContext) {
-	ifBlock := &ast.IfBlock{
-		Pred:  l.takeExpr(ctx.Expr()),
-		Block: l.takeAST(ctx.Object_fields()),
-	}
-
-	allElifs := ctx.AllObject_elif()
-	sections := make(ast.ASTs, 0, len(allElifs)+2)
-	sections = append(sections, ifBlock)
-	for _, elif := range allElifs {
-		sections = append(sections, l.takeAST(elif))
-	}
-	if ctx.Object_else() != nil {
-		sections = append(sections, l.takeAST(ctx.Object_else()))
-	}
-
-	l.put(ctx, &ast.IfStmt{
-		Sections: sections,
-	})
-}
-
-// object_elif: ELIF expr THEN object_fields?;
-func (l *listener) ExitObject_elif(ctx *parser.Object_elifContext) {
-	l.put(ctx, &ast.IfBlock{
-		Pred:  l.takeExpr(ctx.Expr()),
-		Block: l.takeASTs(ctx.Object_fields()),
-	})
-}
-
-// object_else: ELSE object_fields?;
-func (l *listener) ExitObject_else(ctx *parser.Object_elseContext) {
-	l.put(ctx, &ast.IfBlock{
-		Block: l.takeASTs(ctx.Object_fields()),
-	})
-}
-
-// object_for: FOR for_vars IN expr DO object_fields? END;
-func (l *listener) ExitObject_for(ctx *parser.Object_forContext) {
-	l.put(ctx, &ast.ForStmt{
-		ForVars:  l.takeASTs(ctx.For_vars()),
-		IterExpr: l.takeExpr(ctx.Expr()),
-		Block:    l.takeAST(ctx.Object_fields()),
 	})
 }
 
@@ -1043,63 +987,14 @@ func (l *listener) ExitArray_elems(ctx *parser.Array_elemsContext) {
 	l.put(ctx, block)
 }
 
-// array_elem: expr | array_if | array_for;
+// array_elem: expr;
 func (l *listener) ExitArray_elem(ctx *parser.Array_elemContext) {
 	switch {
 	case ctx.Expr() != nil:
 		l.put(ctx, &ast.ArrayElement{Val: l.takeExpr(ctx.Expr())})
-	case ctx.Array_if() != nil:
-		l.put(ctx, l.takeAST(ctx.Array_if()))
-	case ctx.Array_for() != nil:
-		l.put(ctx, l.takeAST(ctx.Array_for()))
 	default:
 		panic("unreachable")
 	}
-}
-
-// array_if: IF expr THEN array_elems? array_elif* array_else? END;
-func (l *listener) ExitArray_if(ctx *parser.Array_ifContext) {
-	ifBlock := &ast.IfBlock{
-		Pred:  l.takeExpr(ctx.Expr()),
-		Block: l.takeAST(ctx.Array_elems()),
-	}
-
-	allElifs := ctx.AllArray_elif()
-	blocks := make(ast.ASTs, 0, len(allElifs)+2)
-	blocks = append(blocks, ifBlock)
-	for _, elif := range allElifs {
-		blocks = append(blocks, l.takeAST(elif))
-	}
-	if ctx.Array_else() != nil {
-		blocks = append(blocks, l.takeAST(ctx.Array_else()))
-	}
-	l.put(ctx, &ast.IfStmt{
-		Sections: blocks,
-	})
-}
-
-// array_elif: ELIF expr THEN array_elems?;
-func (l *listener) ExitArray_elif(ctx *parser.Array_elifContext) {
-	l.put(ctx, &ast.IfBlock{
-		Pred:  l.takeExpr(ctx.Expr()),
-		Block: l.takeAST(ctx.Array_elems()),
-	})
-}
-
-// array_else: ELSE array_elems?;
-func (l *listener) ExitArray_else(ctx *parser.Array_elseContext) {
-	l.put(ctx, &ast.IfBlock{
-		Block: l.takeAST(ctx.Array_elems()),
-	})
-}
-
-// array_for: FOR for_vars IN expr DO array_elems? END;
-func (l *listener) ExitArray_for(ctx *parser.Array_forContext) {
-	l.put(ctx, &ast.ForStmt{
-		ForVars:  l.takeASTs(ctx.For_vars()),
-		IterExpr: l.takeExpr(ctx.Expr()),
-		Block:    l.takeAST(ctx.Array_elems()),
-	})
 }
 
 func (l *listener) ExitId_or_keyword(ctx *parser.Id_or_keywordContext) {

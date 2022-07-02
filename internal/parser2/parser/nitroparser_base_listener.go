@@ -495,42 +495,6 @@ func (s *BaseNitroParserListener) EnterObject_field_expansion(ctx *Object_field_
 // ExitObject_field_expansion is called when production object_field_expansion is exited.
 func (s *BaseNitroParserListener) ExitObject_field_expansion(ctx *Object_field_expansionContext) {}
 
-// EnterObject_field_if is called when production object_field_if is entered.
-func (s *BaseNitroParserListener) EnterObject_field_if(ctx *Object_field_ifContext) {}
-
-// ExitObject_field_if is called when production object_field_if is exited.
-func (s *BaseNitroParserListener) ExitObject_field_if(ctx *Object_field_ifContext) {}
-
-// EnterObject_field_for is called when production object_field_for is entered.
-func (s *BaseNitroParserListener) EnterObject_field_for(ctx *Object_field_forContext) {}
-
-// ExitObject_field_for is called when production object_field_for is exited.
-func (s *BaseNitroParserListener) ExitObject_field_for(ctx *Object_field_forContext) {}
-
-// EnterObject_if is called when production object_if is entered.
-func (s *BaseNitroParserListener) EnterObject_if(ctx *Object_ifContext) {}
-
-// ExitObject_if is called when production object_if is exited.
-func (s *BaseNitroParserListener) ExitObject_if(ctx *Object_ifContext) {}
-
-// EnterObject_elif is called when production object_elif is entered.
-func (s *BaseNitroParserListener) EnterObject_elif(ctx *Object_elifContext) {}
-
-// ExitObject_elif is called when production object_elif is exited.
-func (s *BaseNitroParserListener) ExitObject_elif(ctx *Object_elifContext) {}
-
-// EnterObject_else is called when production object_else is entered.
-func (s *BaseNitroParserListener) EnterObject_else(ctx *Object_elseContext) {}
-
-// ExitObject_else is called when production object_else is exited.
-func (s *BaseNitroParserListener) ExitObject_else(ctx *Object_elseContext) {}
-
-// EnterObject_for is called when production object_for is entered.
-func (s *BaseNitroParserListener) EnterObject_for(ctx *Object_forContext) {}
-
-// ExitObject_for is called when production object_for is exited.
-func (s *BaseNitroParserListener) ExitObject_for(ctx *Object_forContext) {}
-
 // EnterArray_literal is called when production array_literal is entered.
 func (s *BaseNitroParserListener) EnterArray_literal(ctx *Array_literalContext) {}
 
@@ -548,30 +512,6 @@ func (s *BaseNitroParserListener) EnterArray_elem(ctx *Array_elemContext) {}
 
 // ExitArray_elem is called when production array_elem is exited.
 func (s *BaseNitroParserListener) ExitArray_elem(ctx *Array_elemContext) {}
-
-// EnterArray_if is called when production array_if is entered.
-func (s *BaseNitroParserListener) EnterArray_if(ctx *Array_ifContext) {}
-
-// ExitArray_if is called when production array_if is exited.
-func (s *BaseNitroParserListener) ExitArray_if(ctx *Array_ifContext) {}
-
-// EnterArray_elif is called when production array_elif is entered.
-func (s *BaseNitroParserListener) EnterArray_elif(ctx *Array_elifContext) {}
-
-// ExitArray_elif is called when production array_elif is exited.
-func (s *BaseNitroParserListener) ExitArray_elif(ctx *Array_elifContext) {}
-
-// EnterArray_else is called when production array_else is entered.
-func (s *BaseNitroParserListener) EnterArray_else(ctx *Array_elseContext) {}
-
-// ExitArray_else is called when production array_else is exited.
-func (s *BaseNitroParserListener) ExitArray_else(ctx *Array_elseContext) {}
-
-// EnterArray_for is called when production array_for is entered.
-func (s *BaseNitroParserListener) EnterArray_for(ctx *Array_forContext) {}
-
-// ExitArray_for is called when production array_for is exited.
-func (s *BaseNitroParserListener) ExitArray_for(ctx *Array_forContext) {}
 
 // EnterId_or_keyword is called when production id_or_keyword is entered.
 func (s *BaseNitroParserListener) EnterId_or_keyword(ctx *Id_or_keywordContext) {}

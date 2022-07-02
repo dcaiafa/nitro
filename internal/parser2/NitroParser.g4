@@ -142,25 +142,11 @@ object_fields: (object_field ((','|';') object_field)* (','|';')?)?;
 object_field: id_or_keyword ':' expr     # object_field_id_key
             | '[' expr ']' ':' expr      # object_field_expr_key
             | primary_expr '...'         # object_field_expansion
-            | object_if                  # object_field_if
-            | object_for                 # object_field_for
             ;
-
-object_if: IF expr '{' object_fields '}' object_elif* object_else?;
-object_elif: ELSE IF expr '{' object_fields '}';
-object_else: ELSE '{' object_fields '}';
-
-object_for: FOR for_vars ID expr '{' object_fields '}';
 
 array_literal: '[' array_elems ']';
 array_elems: ( array_elem ((','|';') array_elem)* (','|';')* )?;
-array_elem: expr | array_if | array_for;
-
-array_if: IF expr '{' array_elems '}' array_elif* array_else?;
-array_elif: ELSE IF expr '{' array_elems '}';
-array_else: ELSE '{' array_elems '}';
-
-array_for: FOR for_vars ID expr '{' array_elems '}';
+array_elem: expr;
 
 id_or_keyword: 
     t=(
