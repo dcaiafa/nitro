@@ -4,7 +4,9 @@ options { tokenVocab=NitroLexer; }
 
 start: unit EOF;
 
-unit: meta_directive* import_stmt* stmts;
+unit: prologue stmts;
+
+prologue: meta_directive* import_stmt*;
 
 // Meta
 

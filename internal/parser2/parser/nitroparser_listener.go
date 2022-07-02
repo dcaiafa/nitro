@@ -14,6 +14,9 @@ type NitroParserListener interface {
 	// EnterUnit is called when entering the unit production.
 	EnterUnit(c *UnitContext)
 
+	// EnterPrologue is called when entering the prologue production.
+	EnterPrologue(c *PrologueContext)
+
 	// EnterMeta_directive is called when entering the meta_directive production.
 	EnterMeta_directive(c *Meta_directiveContext)
 
@@ -259,6 +262,9 @@ type NitroParserListener interface {
 
 	// ExitUnit is called when exiting the unit production.
 	ExitUnit(c *UnitContext)
+
+	// ExitPrologue is called when exiting the prologue production.
+	ExitPrologue(c *PrologueContext)
 
 	// ExitMeta_directive is called when exiting the meta_directive production.
 	ExitMeta_directive(c *Meta_directiveContext)

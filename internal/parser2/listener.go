@@ -157,23 +157,34 @@ func (l *listener) ExitStart(ctx *parser.StartContext) {
 	l.Unit = l.takeAST(ctx.Unit()).(*ast.Unit)
 }
 
-// unit: meta_directive* import_stmt* stmts;
+// prologue: meta_directive* import_stmt*;
+func (l *listener) ExitPrologue(ctx *parser.PrologueContext) {
+	p := &Prologue{}
+
+	allMeta := ctx.AllMeta_directive()
+	p.Meta = make(ast.ASTs, 0, len(allMeta))
+	for _, meta := range allMeta {
+		p.Meta = append(p.Meta, l.takeAST(meta))
+	}
+	allImport := ctx.AllImport_stmt()
+	p.Imports = make(ast.ASTs, 0, len(allImport))
+	for _, imp := range allImport {
+		p.Imports = append(p.Imports, l.takeAST(imp))
+	}
+	l.put(ctx, p)
+}
+
+// unit: prologue stmts;
 func (l *listener) ExitUnit(ctx *parser.UnitContext) {
 	m := &ast.Unit{}
 
-	allMeta := ctx.AllMeta_directive()
-	m.Meta = make(ast.ASTs, 0, len(allMeta))
-	for _, meta := range allMeta {
-		m.Meta = append(m.Meta, l.takeAST(meta))
-	}
+	pRaw, _ := l.take(ctx.Prologue())
+	p := pRaw.(*Prologue)
 
-	allImport := ctx.AllImport_stmt()
-	m.Imports = make(ast.ASTs, 0, len(allImport))
-	for _, imp := range allImport {
-		m.Imports = append(m.Imports, l.takeAST(imp))
-	}
-
+	m.Meta = p.Meta
+	m.Imports = p.Imports
 	m.Block = l.takeAST(ctx.Stmts()).(*ast.StmtBlock)
+
 	l.put(ctx, m)
 }
 

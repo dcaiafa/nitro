@@ -33,6 +33,12 @@ func (s *BaseNitroParserListener) EnterUnit(ctx *UnitContext) {}
 // ExitUnit is called when production unit is exited.
 func (s *BaseNitroParserListener) ExitUnit(ctx *UnitContext) {}
 
+// EnterPrologue is called when production prologue is entered.
+func (s *BaseNitroParserListener) EnterPrologue(ctx *PrologueContext) {}
+
+// ExitPrologue is called when production prologue is exited.
+func (s *BaseNitroParserListener) ExitPrologue(ctx *PrologueContext) {}
+
 // EnterMeta_directive is called when production meta_directive is entered.
 func (s *BaseNitroParserListener) EnterMeta_directive(ctx *Meta_directiveContext) {}
 
