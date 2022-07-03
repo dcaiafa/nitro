@@ -11,7 +11,7 @@ const (
 )
 
 type IncDecStmt struct {
-	astBase
+	PosImpl
 	LValue *LValue
 	Op     IncDecOp
 

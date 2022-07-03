@@ -1,7 +1,7 @@
 package ast
 
 type LValue struct {
-	astBase
+	PosImpl
 
 	Expr Expr
 }

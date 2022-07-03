@@ -3,7 +3,7 @@ package ast
 import "github.com/dcaiafa/nitro/internal/symbol"
 
 type Package struct {
-	astBase
+	PosImpl
 
 	Units ASTs
 

@@ -3,7 +3,7 @@ package ast
 type AssignOperator int
 
 type AssignOpStmt struct {
-	astBase
+	PosImpl
 	Op     Operator
 	LValue *LValue
 	RValue Expr

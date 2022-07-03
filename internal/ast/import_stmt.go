@@ -8,7 +8,7 @@ import (
 )
 
 type Import struct {
-	astBase
+	PosImpl
 
 	Alias      string
 	ModuleName string

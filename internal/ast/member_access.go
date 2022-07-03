@@ -7,7 +7,7 @@ import (
 )
 
 type MemberAccess struct {
-	astBase
+	PosImpl
 	Target Expr
 	Member token.Token
 

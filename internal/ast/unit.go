@@ -3,7 +3,7 @@ package ast
 import "github.com/dcaiafa/nitro/internal/token"
 
 type Unit struct {
-	astBase
+	PosImpl
 
 	Meta    ASTs
 	Imports ASTs

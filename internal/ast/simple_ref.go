@@ -6,7 +6,7 @@ import (
 )
 
 type SimpleRef struct {
-	astBase
+	PosImpl
 	ID token.Token
 
 	sym       symbol.Symbol

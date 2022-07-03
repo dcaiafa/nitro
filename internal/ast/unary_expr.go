@@ -12,7 +12,7 @@ const (
 )
 
 type UnaryExpr struct {
-	astBase
+	PosImpl
 	Term Expr
 	Op   UnaryOp
 }

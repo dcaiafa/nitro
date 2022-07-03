@@ -39,15 +39,15 @@ type RepeatableScope interface {
 	IsRepeatableScope()
 }
 
-type astBase struct {
+type PosImpl struct {
 	pos token.Pos
 }
 
-func (b *astBase) Pos() token.Pos {
+func (b *PosImpl) Pos() token.Pos {
 	return b.pos
 }
 
-func (b *astBase) SetPos(pos token.Pos) {
+func (b *PosImpl) SetPos(pos token.Pos) {
 	b.pos = pos
 }
 

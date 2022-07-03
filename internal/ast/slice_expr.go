@@ -3,7 +3,7 @@ package ast
 import "github.com/dcaiafa/nitro/internal/vm"
 
 type SliceExpr struct {
-	astBase
+	PosImpl
 	Target Expr
 	Begin  Expr
 	End    Expr

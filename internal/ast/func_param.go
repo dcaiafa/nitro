@@ -6,7 +6,7 @@ import (
 )
 
 type FuncParam struct {
-	astBase
+	PosImpl
 
 	Name string
 

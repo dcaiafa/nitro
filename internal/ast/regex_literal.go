@@ -1,12 +1,13 @@
 package ast
 
 import (
-	"github.com/dcaiafa/nitro/internal/vm"
 	"regexp"
+
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
 type RegexLiteral struct {
-	astBase
+	PosImpl
 
 	RegexDef string
 }

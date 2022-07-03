@@ -1,12 +1,12 @@
 package ast
 
 import (
-	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/internal/symbol"
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
 type ObjectFieldBlock struct {
-	astBase
+	PosImpl
 
 	Fields ASTs
 
@@ -43,7 +43,7 @@ func (b *ObjectFieldBlock) RunPass(ctx *Context, pass Pass) {
 }
 
 type ObjectField struct {
-	astBase
+	PosImpl
 
 	NameID   string
 	NameExpr Expr

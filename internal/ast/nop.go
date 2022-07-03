@@ -1,7 +1,7 @@
 package ast
 
 type Nop struct {
-	astBase
+	PosImpl
 }
 
 func (n *Nop) RunPass(ctx *Context, pass Pass) {}

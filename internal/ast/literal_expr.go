@@ -3,12 +3,12 @@ package ast
 import (
 	"math"
 
-	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/internal/token"
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
 type LiteralExpr struct {
-	astBase
+	PosImpl
 	Val token.Token
 }
 

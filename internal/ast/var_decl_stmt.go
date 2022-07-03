@@ -7,7 +7,7 @@ import (
 )
 
 type VarDeclStmt struct {
-	astBase
+	PosImpl
 	Vars       []token.Token
 	InitValues Exprs
 

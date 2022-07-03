@@ -7,7 +7,7 @@ import (
 )
 
 type MetaParam struct {
-	astBase
+	PosImpl
 
 	Name    string
 	IsFlag  bool
@@ -59,7 +59,7 @@ func (p *MetaParam) RunPass(ctx *Context, pass Pass) {
 }
 
 type MetaAttrib struct {
-	astBase
+	PosImpl
 
 	Name  string
 	Value vm.Value

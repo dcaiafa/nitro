@@ -6,7 +6,7 @@ import (
 )
 
 type ObjectLiteral struct {
-	astBase
+	PosImpl
 	FieldBlock *ObjectFieldBlock
 
 	scope *symbol.Scope

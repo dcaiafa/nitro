@@ -7,7 +7,7 @@ import (
 )
 
 type TryCatchStmt struct {
-	astBase
+	PosImpl
 
 	tryBlock   AST
 	catchBlock *catchBlock
@@ -55,7 +55,7 @@ func (s *TryCatchStmt) RunPass(ctx *Context, pass Pass) {
 }
 
 type catchBlock struct {
-	astBase
+	PosImpl
 
 	catchVar *token.Token
 	stmts    AST

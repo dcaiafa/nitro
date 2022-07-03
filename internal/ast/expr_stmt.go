@@ -1,7 +1,7 @@
 package ast
 
 type ExprStmt struct {
-	astBase
+	PosImpl
 	Expr Expr
 }
 

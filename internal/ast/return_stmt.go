@@ -5,7 +5,7 @@ import (
 )
 
 type ReturnStmt struct {
-	astBase
+	PosImpl
 	Values Exprs
 }
 

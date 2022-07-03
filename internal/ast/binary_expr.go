@@ -19,7 +19,7 @@ const (
 )
 
 type BinaryExpr struct {
-	astBase
+	PosImpl
 	Left  Expr
 	Op    Operator
 	Right Expr

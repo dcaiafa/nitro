@@ -1,7 +1,7 @@
 package ast
 
 type BreakStmt struct {
-	astBase
+	PosImpl
 }
 
 func (s *BreakStmt) RunPass(ctx *Context, pass Pass) {

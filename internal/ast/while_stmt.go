@@ -6,7 +6,7 @@ import (
 )
 
 type WhileStmt struct {
-	astBase
+	PosImpl
 
 	Predicate Expr
 	Block     *StmtBlock

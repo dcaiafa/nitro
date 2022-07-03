@@ -8,7 +8,7 @@ import (
 )
 
 type Root struct {
-	astBase
+	PosImpl
 
 	Package Package
 

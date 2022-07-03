@@ -3,7 +3,7 @@ package ast
 import "github.com/dcaiafa/nitro/internal/vm"
 
 type ZeroExpr struct {
-	astBase
+	PosImpl
 }
 
 func (e *ZeroExpr) isExpr() {}

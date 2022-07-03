@@ -3,7 +3,7 @@ package ast
 import "github.com/dcaiafa/nitro/internal/vm"
 
 type YieldStmt struct {
-	astBase
+	PosImpl
 	Values Exprs
 }
 

@@ -3,7 +3,7 @@ package ast
 import "github.com/dcaiafa/nitro/internal/vm"
 
 type OrExpr struct {
-	astBase
+	PosImpl
 	Left  Expr
 	Right Expr
 }

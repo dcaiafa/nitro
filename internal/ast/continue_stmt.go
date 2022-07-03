@@ -1,7 +1,7 @@
 package ast
 
 type ContinueStmt struct {
-	astBase
+	PosImpl
 }
 
 func (s *ContinueStmt) RunPass(ctx *Context, pass Pass) {

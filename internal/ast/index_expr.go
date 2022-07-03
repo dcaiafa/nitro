@@ -3,7 +3,7 @@ package ast
 import "github.com/dcaiafa/nitro/internal/vm"
 
 type IndexExpr struct {
-	astBase
+	PosImpl
 	Target Expr
 	Index  Expr
 }

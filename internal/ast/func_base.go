@@ -6,7 +6,7 @@ import (
 )
 
 type Func struct {
-	astBase
+	PosImpl
 
 	Params    ASTs
 	Block     *StmtBlock

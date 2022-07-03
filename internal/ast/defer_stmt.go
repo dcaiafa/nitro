@@ -3,7 +3,7 @@ package ast
 import "github.com/dcaiafa/nitro/internal/vm"
 
 type DeferStmt struct {
-	astBase
+	PosImpl
 
 	deferred *deferred
 }

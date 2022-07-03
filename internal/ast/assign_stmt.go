@@ -3,7 +3,7 @@ package ast
 import "github.com/dcaiafa/nitro/internal/vm"
 
 type AssignStmt struct {
-	astBase
+	PosImpl
 	Lvalues ASTs
 	Rvalues Exprs
 }

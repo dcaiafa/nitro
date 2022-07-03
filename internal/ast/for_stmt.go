@@ -7,7 +7,7 @@ import (
 )
 
 type ForStmt struct {
-	astBase
+	PosImpl
 	ForVars  ASTs
 	IterExpr Expr
 	Block    AST
@@ -76,7 +76,7 @@ func (s *ForStmt) EmitContinue(pos token.Pos, e *vm.Emitter) {
 }
 
 type ForVar struct {
-	astBase
+	PosImpl
 	VarName token.Token
 
 	sym symbol.Symbol

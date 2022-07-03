@@ -3,7 +3,7 @@ package ast
 import "github.com/dcaiafa/nitro/internal/vm"
 
 type FuncCallExpr struct {
-	astBase
+	PosImpl
 	Target   Expr
 	Args     Exprs
 	RetN     int

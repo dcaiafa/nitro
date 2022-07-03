@@ -7,7 +7,7 @@ import (
 )
 
 type ExternFn struct {
-	astBase
+	PosImpl
 
 	Name     string
 	ExternFn *vm.NativeFn

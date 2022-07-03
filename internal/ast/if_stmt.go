@@ -3,7 +3,7 @@ package ast
 import "github.com/dcaiafa/nitro/internal/vm"
 
 type IfStmt struct {
-	astBase
+	PosImpl
 	Sections ASTs
 
 	end *vm.Label
@@ -24,7 +24,7 @@ func (s *IfStmt) RunPass(ctx *Context, pass Pass) {
 }
 
 type IfBlock struct {
-	astBase
+	PosImpl
 	Pred  Expr
 	Block AST
 

@@ -6,7 +6,7 @@ import (
 )
 
 type ArrayLiteral struct {
-	astBase
+	PosImpl
 	Block *ArrayElementBlock
 
 	scope *symbol.Scope
@@ -45,7 +45,7 @@ func (a *ArrayLiteral) RunPass(ctx *Context, pass Pass) {
 }
 
 type ArrayElementBlock struct {
-	astBase
+	PosImpl
 
 	Elements ASTs
 
