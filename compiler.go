@@ -31,14 +31,14 @@ type Compiler struct {
 	fileLoader FileLoader
 	moduleReg  *ast.ModuleRegistry
 	diag       bool
-	main       *ast.Main
+	main       *ast.Root
 }
 
 func NewCompiler(fileLoader FileLoader) *Compiler {
 	c := &Compiler{
 		fileLoader: fileLoader,
 		moduleReg:  ast.NewModuleRegistry(),
-		main:       &ast.Main{},
+		main:       &ast.Root{},
 	}
 	std.Register(c)
 	return c
@@ -98,7 +98,7 @@ func (c *Compiler) compile(
 ) (*vm.Program, error) {
 	ast.SimpleScriptToPackage(unit)
 
-	c.main.AddModule(unit)
+	c.main.AddUnit(unit)
 
 	ctx := ast.NewContext(c.moduleReg, errLoggerWrapper)
 

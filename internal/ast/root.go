@@ -7,7 +7,7 @@ import (
 	"github.com/dcaiafa/nitro/internal/vm"
 )
 
-type Main struct {
+type Root struct {
 	astBase
 
 	Package Package
@@ -20,7 +20,7 @@ type Main struct {
 	initSym   *symbol.FuncSymbol
 }
 
-func (m *Main) AddNativeFn(name string, extFn *vm.NativeFn) {
+func (m *Root) AddNativeFn(name string, extFn *vm.NativeFn) {
 	m.externalFns = append(
 		m.externalFns,
 		&ExternFn{
@@ -29,7 +29,7 @@ func (m *Main) AddNativeFn(name string, extFn *vm.NativeFn) {
 		})
 }
 
-func (m *Main) AddGlobalParam(ctx *Context, name string, param *meta.Param, pos token.Pos) symbol.Symbol {
+func (m *Root) AddGlobalParam(ctx *Context, name string, param *meta.Param, pos token.Pos) symbol.Symbol {
 	g := m.NewGlobal()
 	g.SetName(name)
 	g.SetPos(pos)
@@ -45,22 +45,22 @@ func (m *Main) AddGlobalParam(ctx *Context, name string, param *meta.Param, pos 
 	return g
 }
 
-func (m *Main) AddModule(module AST) {
+func (m *Root) AddUnit(module AST) {
 	m.Package.Units = append(m.Package.Units, module)
 }
 
-func (m *Main) NewGlobal() *symbol.GlobalVarSymbol {
+func (m *Root) NewGlobal() *symbol.GlobalVarSymbol {
 	g := &symbol.GlobalVarSymbol{}
 	g.GlobalNdx = m.globals
 	m.globals++
 	return g
 }
 
-func (m *Main) Scope() *symbol.Scope {
+func (m *Root) Scope() *symbol.Scope {
 	return m.rootScope
 }
 
-func (m *Main) RunPass(ctx *Context, pass Pass) {
+func (m *Root) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Check:
 		m.Package.SetPos(m.Pos())
@@ -98,6 +98,6 @@ func (m *Main) RunPass(ctx *Context, pass Pass) {
 	}
 }
 
-func (m *Main) Metadata() *meta.Metadata {
+func (m *Root) Metadata() *meta.Metadata {
 	return m.metadata
 }
