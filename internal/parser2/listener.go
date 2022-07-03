@@ -183,7 +183,8 @@ func (l *listener) ExitUnit(ctx *parser.UnitContext) {
 
 	m.Meta = p.Meta
 	m.Imports = p.Imports
-	m.Block = l.takeAST(ctx.Stmts()).(*ast.StmtBlock)
+	block := l.takeAST(ctx.Stmts()).(*ast.StmtBlock)
+	m.Block = block.Stmts
 
 	l.put(ctx, m)
 }

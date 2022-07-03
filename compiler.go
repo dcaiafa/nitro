@@ -1,12 +1,14 @@
 package nitro
 
 import (
+	"errors"
 	"io/ioutil"
 
 	"github.com/dcaiafa/nitro/internal/ast"
 	"github.com/dcaiafa/nitro/internal/errlogger"
 	"github.com/dcaiafa/nitro/internal/parser2"
 	"github.com/dcaiafa/nitro/internal/std"
+	"github.com/dcaiafa/nitro/internal/symbol"
 	"github.com/dcaiafa/nitro/internal/token"
 	"github.com/dcaiafa/nitro/internal/vm"
 )
@@ -82,19 +84,21 @@ func (c *Compiler) CompileInline(
 ) (*vm.Program, error) {
 	errLoggerWrapper := errlogger.NewErrLoggerBase(errLogger)
 
-	module, err := parser2.ParseUnit("<inline>", inline, c.diag, errLoggerWrapper)
+	unit, err := parser2.ParseUnit("<inline>", inline, c.diag, errLoggerWrapper)
 	if err != nil {
 		return nil, err
 	}
 
-	return c.compile(module, errLoggerWrapper)
+	return c.compile(unit, errLoggerWrapper)
 }
 
 func (c *Compiler) compile(
-	module *ast.Unit,
+	unit *ast.Unit,
 	errLoggerWrapper *errlogger.ErrLoggerWrapper,
 ) (*vm.Program, error) {
-	c.main.AddModule(module)
+	ast.SimpleScriptToPackage(unit)
+
+	c.main.AddModule(unit)
 
 	ctx := ast.NewContext(c.moduleReg, errLoggerWrapper)
 
@@ -113,8 +117,21 @@ func (c *Compiler) compile(
 		return nil, errLoggerWrapper.Error()
 	}
 
+	mainFuncRaw := c.main.Package.Scope().GetSymbol("$main")
+	if mainFuncRaw == nil {
+		mainFuncRaw = c.main.Package.Scope().GetSymbol("main")
+	}
+	if mainFuncRaw == nil {
+		return nil, errors.New("program does not have a 'main' function")
+	}
+	mainFunc, ok := mainFuncRaw.(*symbol.FuncSymbol)
+	if !ok {
+		return nil, errors.New("program does not have a 'main' function")
+	}
+
 	program := ctx.Emitter().ToProgram()
 	program.Metadata = c.main.Metadata()
+	program.MainFnNdx = mainFunc.IdxFunc
 
 	return program, nil
 }

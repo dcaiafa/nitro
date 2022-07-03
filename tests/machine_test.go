@@ -34,7 +34,7 @@ func TestErrorStack(t *testing.T) {
 		{Filename: "main.n", Line: 4, Func: "h"},
 		{Filename: "main.n", Line: 7, Func: "g"},
 		{Filename: "main.n", Line: 10, Func: "f"},
-		{Filename: "main.n", Line: 12, Func: "main"},
+		{Filename: "main.n", Line: 12, Func: "$main"},
 	}
 
 	require.Equal(t, expectedStack, rerr.Stack)

@@ -126,7 +126,7 @@ func (m *VM) Run(args []Value) error {
 	co.sp = len(args)
 
 	f := co.NewFrame()
-	f.fn = &m.program.fns[0]
+	f.fn = &m.program.fns[m.program.MainFnNdx]
 	f.nArg = len(args)
 	f.bp = len(args)
 

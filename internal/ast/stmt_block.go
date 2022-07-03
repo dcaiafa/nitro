@@ -19,6 +19,5 @@ func (b *StmtBlock) RunPass(ctx *Context, pass Pass) {
 	case Check:
 		b.scope = symbol.NewScope()
 	}
-
 	ctx.RunPassChild(b, b.Stmts, pass)
 }

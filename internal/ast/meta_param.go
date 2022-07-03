@@ -30,17 +30,21 @@ func (p *MetaParam) RunPass(ctx *Context, pass Pass) {
 
 	if p.Default != nil {
 		if pass == Emit {
-			skip = ctx.Emitter().NewLabel()
-			emitSymbolPush(p.Pos(), ctx.Emitter(), p.globalSym)
-			ctx.Emitter().EmitJump(p.Pos(), vm.OpJumpIfTrue, skip, 0)
-			emitSymbolRefPush(p.Pos(), ctx.Emitter(), p.globalSym)
+			emitter := ctx.Emitter()
+			emitter.PushFn(ctx.Main().initSym.IdxFunc)
+			defer emitter.PopFn()
+			skip = emitter.NewLabel()
+			emitSymbolPush(p.Pos(), emitter, p.globalSym)
+			emitter.EmitJump(p.Pos(), vm.OpJumpIfTrue, skip, 0)
+			emitSymbolRefPush(p.Pos(), emitter, p.globalSym)
 		}
 
 		ctx.RunPassChild(p, p.Default, pass)
 
 		if pass == Emit {
-			ctx.Emitter().Emit(p.Pos(), vm.OpStore, 1, 0)
-			ctx.Emitter().ResolveLabel(skip)
+			emitter := ctx.Emitter()
+			emitter.Emit(p.Pos(), vm.OpStore, 1, 0)
+			emitter.ResolveLabel(skip)
 		}
 	}
 

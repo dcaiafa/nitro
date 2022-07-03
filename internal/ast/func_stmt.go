@@ -20,6 +20,7 @@ func (s *FuncStmt) RunPass(ctx *Context, pass Pass) {
 
 		if parentFn != nil {
 			s.sym = parentFn.NewLocal()
+			s.sym.SetLiftable(true)
 			s.IsClosure = true
 		} else {
 			s.sym = &symbol.FuncSymbol{}
@@ -29,13 +30,15 @@ func (s *FuncStmt) RunPass(ctx *Context, pass Pass) {
 		s.DebugName = s.Name
 		s.sym.SetName(s.Name)
 		s.sym.SetPos(s.Pos())
+
 		if !ctx.CurrentScope().PutSymbol(ctx, s.sym) {
 			return
 		}
 
 	case Emit:
 		if localSym, ok := s.sym.(*symbol.LocalVarSymbol); ok {
-			ctx.Emitter().Emit(s.Pos(), vm.OpLoadLocalRef, uint32(localSym.LocalNdx), 0)
+			emitVariableInit(ctx, s.Pos(), localSym)
+			emitSymbolRefPush(s.Pos(), ctx.Emitter(), localSym)
 		}
 	}
 

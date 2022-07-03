@@ -5,7 +5,8 @@ import (
 )
 
 type Program struct {
-	Metadata *meta.Metadata
+	Metadata  *meta.Metadata
+	MainFnNdx int
 
 	globals   int
 	fns       []Fn
