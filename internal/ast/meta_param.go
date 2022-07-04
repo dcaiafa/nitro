@@ -33,10 +33,18 @@ func (p *MetaParam) RunPass(ctx *Context, pass Pass) {
 		}
 
 	case CreateGlobals:
+		// Initialize `param` here so that MetaAttrib (in Attribs) can access, and
+		// potentially change it.
 		p.param = &meta.Param{
 			Name:   p.Name,
 			IsFlag: p.IsFlag,
 		}
+	}
+
+	ctx.RunPassChild(p, p.Attribs, pass)
+
+	switch pass {
+	case CreateGlobals:
 		p.globalSym = ctx.Main().AddGlobalParam(ctx, p.Name, p.param, p.Pos())
 		if p.globalSym == nil {
 			return
@@ -44,36 +52,6 @@ func (p *MetaParam) RunPass(ctx *Context, pass Pass) {
 		if p.init != nil {
 			p.init.GlobalSym = p.globalSym
 		}
-	}
-
-	ctx.RunPassChild(p, p.Attribs, pass)
-}
-
-type MetaParamInit struct {
-	PosImpl
-
-	Default Expr
-
-	GlobalSym *symbol.GlobalVarSymbol
-}
-
-func (p *MetaParamInit) RunPass(ctx *Context, pass Pass) {
-	var skip *vm.Label
-
-	if pass == Emit {
-		emitter := ctx.Emitter()
-		skip = emitter.NewLabel()
-		emitSymbolPush(p.Pos(), emitter, p.GlobalSym)
-		emitter.EmitJump(p.Pos(), vm.OpJumpIfTrue, skip, 0)
-		emitSymbolRefPush(p.Pos(), emitter, p.GlobalSym)
-	}
-
-	ctx.RunPassChild(p, p.Default, pass)
-
-	if pass == Emit {
-		emitter := ctx.Emitter()
-		emitter.Emit(p.Pos(), vm.OpStore, 1, 0)
-		emitter.ResolveLabel(skip)
 	}
 }
 
@@ -85,7 +63,11 @@ type MetaAttrib struct {
 }
 
 func (a *MetaAttrib) RunPass(ctx *Context, pass Pass) {
-	if pass == Check {
+	if pass == CreateGlobals {
+		// Attribute evaluation must happen at CreateGlobals because "name" can
+		// override the name of the global parameter which must be created at
+		// CreateGlobals.
+
 		paramAST := ctx.Parent().(*MetaParam)
 		switch a.Name {
 		case "name":
@@ -124,5 +106,33 @@ func (a *MetaAttrib) RunPass(ctx *Context, pass Pass) {
 		default:
 			ctx.Failf(a.Pos(), "invalid attribute %q", a.Name)
 		}
+	}
+}
+
+type MetaParamInit struct {
+	PosImpl
+
+	Default Expr
+
+	GlobalSym *symbol.GlobalVarSymbol
+}
+
+func (p *MetaParamInit) RunPass(ctx *Context, pass Pass) {
+	var skip *vm.Label
+
+	if pass == Emit {
+		emitter := ctx.Emitter()
+		skip = emitter.NewLabel()
+		emitSymbolPush(p.Pos(), emitter, p.GlobalSym)
+		emitter.EmitJump(p.Pos(), vm.OpJumpIfTrue, skip, 0)
+		emitSymbolRefPush(p.Pos(), emitter, p.GlobalSym)
+	}
+
+	ctx.RunPassChild(p, p.Default, pass)
+
+	if pass == Emit {
+		emitter := ctx.Emitter()
+		emitter.Emit(p.Pos(), vm.OpStore, 1, 0)
+		emitter.ResolveLabel(skip)
 	}
 }
