@@ -1,7 +1,5 @@
 package ast
 
-import "github.com/dcaiafa/nitro/internal/token"
-
 type Unit struct {
 	PosImpl
 
@@ -17,21 +15,11 @@ func (m *Unit) RunPass(ctx *Context, pass Pass) {
 }
 
 func SimpleScriptToPackage(u *Unit) {
-	callInit := &FuncCallExpr{
-		Target: &SimpleRef{
-			ID: token.Token{
-				Pos:  u.Pos(),
-				Type: token.String,
-				Str:  "$init",
-			},
-		},
-	}
-
 	main := &FuncStmt{
-		Name: "$main",
+		Name: "main",
 		Func: Func{
 			Block: &StmtBlock{
-				Stmts: append(ASTs{callInit}, u.Block...),
+				Stmts: u.Block,
 			},
 		},
 	}

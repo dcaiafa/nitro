@@ -87,7 +87,8 @@ boom
  <builtin>  tests.run.func3
  main.n:13  f
  main.n:25  x
- main.n:31  $main
+ main.n:31  main
+ <builtin>  $main
 `)
 
 	RunSubO(t, "catch_error", `
