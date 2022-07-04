@@ -28,12 +28,9 @@ func TestInterrupt(t *testing.T) {
 		while true {
 		}
 `
-	fs := make(MemoryFileLoader)
-	fs["main.n"] = prog
-
 	outBuilder := &strings.Builder{}
 
-	compiler := nitro.NewCompiler(fs)
+	compiler := nitro.NewCompiler()
 
 	compiler.AddNativeFn(
 		"print",
@@ -43,7 +40,10 @@ func TestInterrupt(t *testing.T) {
 			return nil, nil
 		})
 
-	compiled, err := compiler.Compile("main.n", &errlogger.ConsoleErrLogger{})
+	compiled, err := compiler.CompileSimple(
+		"main.n",
+		[]byte(prog),
+		&errlogger.ConsoleErrLogger{})
 	require.NoError(t, err)
 
 	vm := nitro.NewVM(compiled)

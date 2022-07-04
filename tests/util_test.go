@@ -45,7 +45,7 @@ func run(prog string, params map[string]nitro.Value) (output string, err error) 
 
 	outBuilder := &strings.Builder{}
 
-	compiler := nitro.NewCompiler(fs)
+	compiler := nitro.NewCompiler()
 	compiler.SetDiag(true)
 
 	compiler.AddNativeFn(
@@ -72,7 +72,10 @@ func run(prog string, params map[string]nitro.Value) (output string, err error) 
 			return m.Call(callable, args, nRet)
 		})
 
-	compiled, err := compiler.Compile("main.n", &errlogger.ConsoleErrLogger{})
+	compiled, err := compiler.CompileSimple(
+		"main.n",
+		[]byte(prog),
+		&errlogger.ConsoleErrLogger{})
 	if err != nil {
 		return "", err
 	}

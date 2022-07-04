@@ -1,8 +1,8 @@
 package nitro
 
 import (
-	"errors"
-	"io/ioutil"
+	"os"
+	"path/filepath"
 
 	"github.com/dcaiafa/nitro/internal/ast"
 	"github.com/dcaiafa/nitro/internal/errlogger"
@@ -13,32 +13,58 @@ import (
 	"github.com/dcaiafa/nitro/internal/vm"
 )
 
-type FileLoader interface {
-	LoadFile(name string) ([]byte, error)
+type PackageReader interface {
+	Path() string
+	ListUnits() ([]string, error)
+	ReadUnit(unit string) ([]byte, error)
 }
 
-type nativeFileLoader struct{}
-
-func NewNativeFileLoader() FileLoader {
-	return &nativeFileLoader{}
+type NativePackageReader struct {
+	path string
 }
 
-func (fs *nativeFileLoader) LoadFile(name string) ([]byte, error) {
-	return ioutil.ReadFile(name)
+func NewNativePackageReader(path string) *NativePackageReader {
+	return &NativePackageReader{
+		path: path,
+	}
+}
+
+func (r *NativePackageReader) Path() string {
+	return r.path
+}
+
+func (r *NativePackageReader) ListUnits() ([]string, error) {
+	allFiles, err := os.ReadDir(r.path)
+	if err != nil {
+		return nil, err
+	}
+	units := make([]string, 0, len(allFiles))
+	for _, file := range allFiles {
+		if !file.IsDir() && filepath.Ext(file.Name()) == ".n" {
+			units = append(units, filepath.Join(r.path, file.Name()))
+		}
+	}
+	return units, nil
+}
+
+func (r *NativePackageReader) ReadUnit(unit string) ([]byte, error) {
+	unitData, err := os.ReadFile(filepath.Join(r.path, unit))
+	if err != nil {
+		return nil, err
+	}
+	return unitData, nil
 }
 
 type Compiler struct {
-	fileLoader FileLoader
-	moduleReg  *ast.ModuleRegistry
-	diag       bool
-	main       *ast.Root
+	moduleReg *ast.ModuleRegistry
+	diag      bool
+	main      *ast.Root
 }
 
-func NewCompiler(fileLoader FileLoader) *Compiler {
+func NewCompiler() *Compiler {
 	c := &Compiler{
-		fileLoader: fileLoader,
-		moduleReg:  ast.NewModuleRegistry(),
-		main:       &ast.Root{},
+		moduleReg: ast.NewModuleRegistry(),
+		main:      &ast.Root{},
 	}
 	std.Register(c)
 	return c
@@ -58,48 +84,54 @@ func (c *Compiler) RegisterNativeModuleLoader(
 	c.moduleReg.RegisterNativeModuleLoader(name, regFn)
 }
 
-func (c *Compiler) Compile(
+func (c *Compiler) CompileSimple(
 	filename string,
+	scriptData []byte,
 	errLogger errlogger.ErrLogger,
 ) (*vm.Program, error) {
 	errLoggerWrapper := errlogger.NewErrLoggerBase(errLogger)
-
-	data, err := c.fileLoader.LoadFile(filename)
+	unit, err := parser2.ParseUnit(
+		filename, string(scriptData), c.diag, errLoggerWrapper)
 	if err != nil {
-		errLoggerWrapper.Failf(token.Pos{}, "Failed to load %q: %v", filename, err)
+		return nil, err
+	}
+	ast.SimpleScriptToPackage(unit)
+	c.main.AddUnit(unit)
+	return c.compilePackage(errLoggerWrapper)
+}
+
+func (c *Compiler) CompilePackage(
+	packageReader PackageReader,
+	errLogger errlogger.ErrLogger,
+) (*vm.Program, error) {
+	errLoggerWrapper := errlogger.NewErrLoggerBase(errLogger)
+	unitPaths, err := packageReader.ListUnits()
+	if err != nil {
+		errLoggerWrapper.Failf(
+			token.Pos{}, "Failed to load package at %q: %v",
+			packageReader.Path(), err)
 		return nil, errLoggerWrapper.Error()
 	}
-
-	module, err := parser2.ParseUnit(filename, string(data), c.diag, errLoggerWrapper)
-	if err != nil {
-		return nil, err
+	for _, unitPath := range unitPaths {
+		unitData, err := packageReader.ReadUnit(unitPath)
+		if err != nil {
+			errLoggerWrapper.Failf(
+				token.Pos{}, "Failed to load unit %q: %v",
+				unitPath, err)
+		}
+		unit, err := parser2.ParseUnit(
+			unitPath, string(unitData), c.diag, errLoggerWrapper)
+		if err != nil {
+			return nil, err
+		}
+		c.main.AddUnit(unit)
 	}
-
-	return c.compile(module, errLoggerWrapper)
+	return c.compilePackage(errLoggerWrapper)
 }
 
-func (c *Compiler) CompileInline(
-	inline string,
-	errLogger errlogger.ErrLogger,
-) (*vm.Program, error) {
-	errLoggerWrapper := errlogger.NewErrLoggerBase(errLogger)
-
-	unit, err := parser2.ParseUnit("<inline>", inline, c.diag, errLoggerWrapper)
-	if err != nil {
-		return nil, err
-	}
-
-	return c.compile(unit, errLoggerWrapper)
-}
-
-func (c *Compiler) compile(
-	unit *ast.Unit,
+func (c *Compiler) compilePackage(
 	errLoggerWrapper *errlogger.ErrLoggerWrapper,
 ) (*vm.Program, error) {
-	ast.SimpleScriptToPackage(unit)
-
-	c.main.AddUnit(unit)
-
 	ctx := ast.NewContext(c.moduleReg, errLoggerWrapper)
 
 	c.main.RunPass(ctx, ast.Rewrite)
@@ -117,17 +149,7 @@ func (c *Compiler) compile(
 		return nil, errLoggerWrapper.Error()
 	}
 
-	mainFuncRaw := c.main.Package.Scope().GetSymbol("$main")
-	if mainFuncRaw == nil {
-		mainFuncRaw = c.main.Package.Scope().GetSymbol("main")
-	}
-	if mainFuncRaw == nil {
-		return nil, errors.New("program does not have a 'main' function")
-	}
-	mainFunc, ok := mainFuncRaw.(*symbol.FuncSymbol)
-	if !ok {
-		return nil, errors.New("program does not have a 'main' function")
-	}
+	mainFunc := c.main.Package.Scope().GetSymbol("$main").(*symbol.FuncSymbol)
 
 	program := ctx.Emitter().ToProgram()
 	program.Metadata = c.main.Metadata()

@@ -46,12 +46,9 @@ func (fs MemoryFileLoader) LoadFile(name string) ([]byte, error) {
 }
 
 func run(prog string, opts ...RunOption) (output string, err error) {
-	fs := make(MemoryFileLoader)
-	fs["main.n"] = prog
-
 	outBuilder := &strings.Builder{}
 
-	compiler := nitro.NewCompiler(fs)
+	compiler := nitro.NewCompiler()
 	compiler.SetDiag(true)
 
 	for _, opt := range opts {
@@ -62,7 +59,10 @@ func run(prog string, opts ...RunOption) (output string, err error) {
 
 	RegisterAll(compiler)
 
-	compiled, err := compiler.Compile("main.n", nitro.NewConsoleErrLogger())
+	compiled, err := compiler.CompileSimple(
+		"main.n",
+		[]byte(prog),
+		nitro.NewConsoleErrLogger())
 	if err != nil {
 		return "", err
 	}

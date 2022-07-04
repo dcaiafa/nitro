@@ -124,7 +124,7 @@ func main() {
 		printSysUsage(sysFlags)
 	}
 
-	compiler := nitro.NewCompiler(nitro.NewNativeFileLoader())
+	compiler := nitro.NewCompiler()
 	compiler.SetDiag(*flagD.Value.(*bool))
 	compiler.AddNativeFn("emit", emit)
 
@@ -134,23 +134,29 @@ func main() {
 	nitropath.RegisterNativePackage(compiler)
 
 	var progName string
+	var scriptPath string
+	var progData []byte
 	var compiled *nitro.Program
+
 	if *flagN.Value.(*string) != "" {
 		progName = "<inline>"
-		compiled, err = compiler.CompileInline(*flagN.Value.(*string), nitro.NewConsoleErrLogger())
-		if err != nil {
-			// Error was already logged by ConsoleErrLogger.
-			os.Exit(1)
-		}
+		scriptPath = progName
+		progData = []byte(*flagN.Value.(*string))
 	} else {
-		target := args[0]
+		scriptPath = args[0]
 		args = args[1:]
-		progName = filepath.Base(target)
-		compiled, err = compiler.Compile(target, nitro.NewConsoleErrLogger())
+		progName = filepath.Base(scriptPath)
+		progData, err = os.ReadFile(scriptPath)
 		if err != nil {
-			// Error was already logged by ConsoleErrLogger.
-			os.Exit(1)
+			fatal(fmt.Errorf("failed to read %q: %w", scriptPath, err))
 		}
+	}
+
+	compiled, err = compiler.CompileSimple(
+		scriptPath, progData, nitro.NewConsoleErrLogger())
+	if err != nil {
+		// Error was already logged by ConsoleErrLogger.
+		os.Exit(1)
 	}
 
 	progFlags := NewFlags()
