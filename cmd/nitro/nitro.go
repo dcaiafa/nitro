@@ -142,21 +142,44 @@ func main() {
 		progName = "<inline>"
 		scriptPath = progName
 		progData = []byte(*flagN.Value.(*string))
+
+		compiled, err = compiler.CompileSimple(
+			scriptPath, progData, nitro.NewConsoleErrLogger())
+		if err != nil {
+			// Error was already logged by ConsoleErrLogger.
+			os.Exit(1)
+		}
 	} else {
 		scriptPath = args[0]
 		args = args[1:]
-		progName = filepath.Base(scriptPath)
-		progData, err = os.ReadFile(scriptPath)
+
+		scriptFileInfo, err := os.Stat(scriptPath)
 		if err != nil {
 			fatal(fmt.Errorf("failed to read %q: %w", scriptPath, err))
 		}
-	}
 
-	compiled, err = compiler.CompileSimple(
-		scriptPath, progData, nitro.NewConsoleErrLogger())
-	if err != nil {
-		// Error was already logged by ConsoleErrLogger.
-		os.Exit(1)
+		progName = filepath.Base(scriptPath)
+
+		if scriptFileInfo.IsDir() {
+			compiled, err = compiler.CompilePackage(
+				nitro.NewNativePackageReader(scriptPath),
+				nitro.NewConsoleErrLogger())
+			if err != nil {
+				// Error was already logged by ConsoleErrLogger.
+				os.Exit(1)
+			}
+		} else {
+			progData, err = os.ReadFile(scriptPath)
+			if err != nil {
+				fatal(fmt.Errorf("failed to read %q: %w", scriptPath, err))
+			}
+			compiled, err = compiler.CompileSimple(
+				scriptPath, progData, nitro.NewConsoleErrLogger())
+			if err != nil {
+				// Error was already logged by ConsoleErrLogger.
+				os.Exit(1)
+			}
+		}
 	}
 
 	progFlags := NewFlags()

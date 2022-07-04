@@ -48,7 +48,7 @@ func (r *NativePackageReader) ListUnits() ([]string, error) {
 }
 
 func (r *NativePackageReader) ReadUnit(unit string) ([]byte, error) {
-	unitData, err := os.ReadFile(filepath.Join(r.path, unit))
+	unitData, err := os.ReadFile(unit)
 	if err != nil {
 		return nil, err
 	}
