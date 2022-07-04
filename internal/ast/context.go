@@ -111,6 +111,17 @@ func (c *Context) Peek(n int) AST {
 	return c.stack[len(c.stack)-n-1]
 }
 
+func (c *Context) Package() *Package {
+	for i := len(c.stack) - 1; i >= 0; i-- {
+		ast := c.stack[i]
+		if packageAST, ok := ast.(*Package); ok {
+			return packageAST
+		}
+	}
+	return nil
+
+}
+
 func (c *Context) Main() *Root {
 	for i := len(c.stack) - 1; i >= 0; i-- {
 		ast := c.stack[i]

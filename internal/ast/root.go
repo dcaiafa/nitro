@@ -17,7 +17,6 @@ type Root struct {
 	rootScope *symbol.Scope
 	globals   int
 	metadata  *meta.Metadata
-	initSym   *symbol.FuncSymbol
 }
 
 func (m *Root) AddNativeFn(name string, extFn *vm.NativeFn) {
@@ -29,7 +28,7 @@ func (m *Root) AddNativeFn(name string, extFn *vm.NativeFn) {
 		})
 }
 
-func (m *Root) AddGlobalParam(ctx *Context, name string, param *meta.Param, pos token.Pos) symbol.Symbol {
+func (m *Root) AddGlobalParam(ctx *Context, name string, param *meta.Param, pos token.Pos) *symbol.GlobalVarSymbol {
 	g := m.NewGlobal()
 	g.SetName(name)
 	g.SetPos(pos)
@@ -65,36 +64,16 @@ func (m *Root) RunPass(ctx *Context, pass Pass) {
 	case CreateGlobals:
 		m.rootScope = symbol.NewScope()
 		m.metadata = new(meta.Metadata)
-		m.initSym = &symbol.FuncSymbol{}
-		m.initSym.SetReadOnly(true)
-		m.initSym.SetName("$init")
-		m.initSym.SetPos(m.Pos())
-		if !m.rootScope.PutSymbol(ctx, m.initSym) {
-			return
-		}
 
 	case Emit:
 		emitter := ctx.Emitter()
 		emitter.SetGlobalCount(m.globals)
-		m.initSym.IdxFunc = emitter.NewFn(m.initSym.Name())
-		emitter.PushFn(m.initSym.IdxFunc)
-		emitter.SetFuncMinArgs(0)
-		emitter.Emit(m.Pos(), vm.OpInitCallFrame, 0, 0)
-		emitter.PopFn()
 	}
 
 	ctx.Push(m)
 	m.externalFns.RunPass(ctx, pass)
 	m.Package.RunPass(ctx, pass)
 	ctx.Pop()
-
-	switch pass {
-	case Emit:
-		emitter := ctx.Emitter()
-		emitter.PushFn(m.initSym.IdxFunc)
-		emitter.Emit(m.Pos(), vm.OpRet, 0, 0)
-		emitter.PopFn()
-	}
 }
 
 func (m *Root) Metadata() *meta.Metadata {

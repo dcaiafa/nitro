@@ -14,47 +14,66 @@ type MetaParam struct {
 	Default Expr
 	Attribs ASTs
 
-	globalSym symbol.Symbol
+	init *MetaParamInit
+
+	globalSym *symbol.GlobalVarSymbol
 	param     *meta.Param
 }
 
 func (p *MetaParam) RunPass(ctx *Context, pass Pass) {
-	var skip *vm.Label
+	switch pass {
+	case Rewrite:
+		if p.Default != nil {
+			p.init = &MetaParamInit{
+				PosImpl: p.PosImpl,
+				Default: p.Default,
+			}
+			ctx.Package().AddInitStmt(p.init)
+			p.Default = nil
+		}
 
-	if pass == Check {
+	case CreateGlobals:
 		p.param = &meta.Param{
 			Name:   p.Name,
 			IsFlag: p.IsFlag,
 		}
-	}
-
-	if p.Default != nil {
-		if pass == Emit {
-			emitter := ctx.Emitter()
-			emitter.PushFn(ctx.Main().initSym.IdxFunc)
-			defer emitter.PopFn()
-			skip = emitter.NewLabel()
-			emitSymbolPush(p.Pos(), emitter, p.globalSym)
-			emitter.EmitJump(p.Pos(), vm.OpJumpIfTrue, skip, 0)
-			emitSymbolRefPush(p.Pos(), emitter, p.globalSym)
-		}
-
-		ctx.RunPassChild(p, p.Default, pass)
-
-		if pass == Emit {
-			emitter := ctx.Emitter()
-			emitter.Emit(p.Pos(), vm.OpStore, 1, 0)
-			emitter.ResolveLabel(skip)
-		}
-	}
-
-	ctx.RunPassChild(p, p.Attribs, pass)
-
-	if pass == Check {
 		p.globalSym = ctx.Main().AddGlobalParam(ctx, p.Name, p.param, p.Pos())
 		if p.globalSym == nil {
 			return
 		}
+		if p.init != nil {
+			p.init.GlobalSym = p.globalSym
+		}
+	}
+
+	ctx.RunPassChild(p, p.Attribs, pass)
+}
+
+type MetaParamInit struct {
+	PosImpl
+
+	Default Expr
+
+	GlobalSym *symbol.GlobalVarSymbol
+}
+
+func (p *MetaParamInit) RunPass(ctx *Context, pass Pass) {
+	var skip *vm.Label
+
+	if pass == Emit {
+		emitter := ctx.Emitter()
+		skip = emitter.NewLabel()
+		emitSymbolPush(p.Pos(), emitter, p.GlobalSym)
+		emitter.EmitJump(p.Pos(), vm.OpJumpIfTrue, skip, 0)
+		emitSymbolRefPush(p.Pos(), emitter, p.GlobalSym)
+	}
+
+	ctx.RunPassChild(p, p.Default, pass)
+
+	if pass == Emit {
+		emitter := ctx.Emitter()
+		emitter.Emit(p.Pos(), vm.OpStore, 1, 0)
+		emitter.ResolveLabel(skip)
 	}
 }
 
