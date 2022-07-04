@@ -111,9 +111,7 @@ func (a *MetaAttrib) RunPass(ctx *Context, pass Pass) {
 
 type MetaParamInit struct {
 	PosImpl
-
-	Default Expr
-
+	Default   Expr
 	GlobalSym *symbol.GlobalVarSymbol
 }
 

@@ -15,6 +15,17 @@ func (m *Unit) RunPass(ctx *Context, pass Pass) {
 }
 
 func SimpleScriptToPackage(u *Unit) {
+	// If the script has a "main" function, then it is already in package format.
+	for _, s := range u.Block {
+		if funcStmt, ok := s.(*FuncStmt); ok {
+			if funcStmt.Name == "main" {
+				return
+			}
+		}
+	}
+
+	// Script is in simple form. Wrap all statements in a synthesized "main"
+	// function.
 	main := &FuncStmt{
 		Name: "main",
 		Func: Func{
