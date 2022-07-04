@@ -15,7 +15,24 @@ type VarDeclStmt struct {
 }
 
 func (s *VarDeclStmt) RunPass(ctx *Context, pass Pass) {
+	parentFn := ctx.CurrentFunc()
+
 	switch pass {
+	case CreateGlobals:
+		if parentFn == nil {
+			scope := ctx.CurrentScope()
+			s.syms = make([]symbol.Symbol, len(s.Vars))
+			for i, v := range s.Vars {
+				g := ctx.Main().NewGlobal()
+				g.SetName(v.Str)
+				g.SetPos(v.Pos)
+				if !scope.PutSymbol(ctx, g) {
+					return
+				}
+				s.syms[i] = g
+			}
+		}
+
 	case Check:
 		if len(s.InitValues) != 0 {
 			if len(s.Vars) != len(s.InitValues) {
@@ -31,6 +48,11 @@ func (s *VarDeclStmt) RunPass(ctx *Context, pass Pass) {
 
 	case Emit:
 		emitter := ctx.Emitter()
+
+		if parentFn == nil {
+			emitter.PushFn(ctx.Main().initSym.IdxFunc)
+			defer emitter.PopFn()
+		}
 
 		for _, sym := range s.syms {
 			emitVariableInit(ctx, s.Pos(), sym)
@@ -49,11 +71,17 @@ func (s *VarDeclStmt) RunPass(ctx *Context, pass Pass) {
 
 	switch pass {
 	case Check:
-		s.syms = make([]symbol.Symbol, len(s.Vars))
-		for i, v := range s.Vars {
-			s.syms[i] = AddVariable(ctx, v.Str, v.Pos)
-			if s.syms[i] == nil {
-				return
+		if parentFn != nil {
+			scope := ctx.CurrentScope()
+			s.syms = make([]symbol.Symbol, len(s.Vars))
+			for i, v := range s.Vars {
+				l := parentFn.NewLocal()
+				l.SetName(v.Str)
+				l.SetPos(v.Pos)
+				if !scope.PutSymbol(ctx, l) {
+					return
+				}
+				s.syms[i] = l
 			}
 		}
 

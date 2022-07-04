@@ -14,25 +14,33 @@ type FuncStmt struct {
 }
 
 func (s *FuncStmt) RunPass(ctx *Context, pass Pass) {
+	parentFn := ctx.CurrentFunc()
+
 	switch pass {
+	case CreateGlobals:
+		if parentFn == nil {
+			s.sym = &symbol.FuncSymbol{}
+			s.sym.SetReadOnly(true)
+			s.sym.SetName(s.Name)
+			s.sym.SetPos(s.Pos())
+
+			if !ctx.CurrentScope().PutSymbol(ctx, s.sym) {
+				return
+			}
+		}
+
 	case Check:
-		parentFn := ctx.CurrentFunc()
+		s.DebugName = s.Name
 
 		if parentFn != nil {
 			s.sym = parentFn.NewLocal()
-			s.sym.SetLiftable(true)
+			s.sym.SetName(s.Name)
+			s.sym.SetPos(s.Pos())
 			s.IsClosure = true
-		} else {
-			s.sym = &symbol.FuncSymbol{}
-			s.sym.SetReadOnly(true)
-		}
 
-		s.DebugName = s.Name
-		s.sym.SetName(s.Name)
-		s.sym.SetPos(s.Pos())
-
-		if !ctx.CurrentScope().PutSymbol(ctx, s.sym) {
-			return
+			if !ctx.CurrentScope().PutSymbol(ctx, s.sym) {
+				return
+			}
 		}
 
 	case Emit:

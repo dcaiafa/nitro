@@ -10,7 +10,6 @@ type Symbol interface {
 	Pos() token.Pos
 	SetPos(pos token.Pos)
 	Liftable() bool
-	SetLiftable(l bool)
 	Lifted() bool
 	Lift()
 	ReadOnly() bool
@@ -20,8 +19,6 @@ type Symbol interface {
 type baseSymbol struct {
 	name     string
 	pos      token.Pos
-	liftable bool
-	lifted   bool
 	readOnly bool
 }
 
@@ -41,22 +38,6 @@ func (b *baseSymbol) SetPos(pos token.Pos) {
 	b.pos = pos
 }
 
-func (b *baseSymbol) Liftable() bool {
-	return b.liftable
-}
-
-func (b *baseSymbol) SetLiftable(l bool) {
-	b.liftable = l
-}
-
-func (b *baseSymbol) Lifted() bool {
-	return b.lifted
-}
-
-func (b *baseSymbol) Lift() {
-	b.lifted = true
-}
-
 func (b *baseSymbol) ReadOnly() bool {
 	return b.readOnly
 }
@@ -65,19 +46,55 @@ func (b *baseSymbol) SetReadOnly(ro bool) {
 	b.readOnly = ro
 }
 
+type baseLiftable struct {
+	lifted bool
+}
+
+func (b *baseLiftable) Liftable() bool {
+	return true
+}
+
+func (b *baseLiftable) Lifted() bool {
+	return b.lifted
+}
+
+func (b *baseLiftable) Lift() {
+	b.lifted = true
+}
+
+type baseNonLiftable struct {
+}
+
+func (b *baseNonLiftable) Liftable() bool {
+	return false
+}
+
+func (b *baseNonLiftable) Lifted() bool {
+	return false
+}
+
+func (b *baseNonLiftable) Lift() {
+	panic("not reachable")
+}
+
 type FuncSymbol struct {
 	baseSymbol
+	baseNonLiftable
+
 	External bool
 	IdxFunc  int
 }
 
 type GlobalVarSymbol struct {
 	baseSymbol
+	baseNonLiftable
+
 	GlobalNdx int
 }
 
 type CaptureSymbol struct {
 	baseSymbol
+	baseLiftable
 
 	Capture    Symbol
 	CaptureNdx int
@@ -85,16 +102,22 @@ type CaptureSymbol struct {
 
 type ParamSymbol struct {
 	baseSymbol
+	baseLiftable
+
 	ParamNdx int
 }
 
 type LocalVarSymbol struct {
 	baseSymbol
+	baseLiftable
+
 	LocalNdx int
 }
 
 type ModuleRef struct {
 	baseSymbol
+	baseNonLiftable
+
 	Module *Module
 }
 

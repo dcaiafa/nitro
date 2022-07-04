@@ -23,9 +23,13 @@ func (a *ArrayLiteral) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Check:
 		a.scope = symbol.NewScope()
-		ctx.Push(a)
-		a.arr = AddVariable(ctx, "$arr", a.Pos())
-		ctx.Pop()
+		l := ctx.CurrentFunc().NewLocal()
+		l.SetName("$arr")
+		l.SetPos(a.Pos())
+		if !a.scope.PutSymbol(ctx, l) {
+			return
+		}
+		a.arr = l
 
 	case Emit:
 		// For completeness. Nothing can reference the $arr symbol, thus it cannot

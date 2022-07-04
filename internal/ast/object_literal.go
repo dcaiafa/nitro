@@ -23,9 +23,13 @@ func (s *ObjectLiteral) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Check:
 		s.scope = symbol.NewScope()
-		ctx.Push(s)
-		s.obj = AddVariable(ctx, "$obj", s.Pos())
-		ctx.Pop()
+		l := ctx.CurrentFunc().NewLocal()
+		l.SetName("$obj")
+		l.SetPos(s.Pos())
+		if !s.scope.PutSymbol(ctx, l) {
+			return
+		}
+		s.obj = l
 
 	case Emit:
 		// For completeness. Nothing can reference the $arr symbol, thus it cannot

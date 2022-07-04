@@ -18,7 +18,6 @@ type ForStmt struct {
 	end   *vm.Label
 }
 
-func (s *ForStmt) IsLiftableScope()   {}
 func (s *ForStmt) IsRepeatableScope() {}
 
 func (s *ForStmt) Scope() *symbol.Scope {
@@ -28,7 +27,13 @@ func (s *ForStmt) Scope() *symbol.Scope {
 func (s *ForStmt) RunPass(ctx *Context, pass Pass) {
 	if pass == Check {
 		s.scope = symbol.NewScope()
-		s.iter = AddVariableToScope(ctx, s.scope, "$iter", s.IterExpr.Pos())
+		l := ctx.CurrentFunc().NewLocal()
+		l.SetName("$iter")
+		l.SetPos(s.IterExpr.Pos())
+		if !s.scope.PutSymbol(ctx, l) {
+			return
+		}
+		s.iter = l
 	}
 
 	ctx.RunPassChild(s, s.ForVars, pass)
@@ -85,10 +90,13 @@ type ForVar struct {
 func (s *ForVar) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Check:
-		s.sym = AddVariable(ctx, s.VarName.Str, s.VarName.Pos)
-		if s.sym == nil {
+		l := ctx.CurrentFunc().NewLocal()
+		l.SetName(s.VarName.Str)
+		l.SetPos(s.VarName.Pos)
+		if !ctx.CurrentScope().PutSymbol(ctx, l) {
 			return
 		}
+		s.sym = l
 
 	case Emit:
 		emitVariableInit(ctx, s.Pos(), s.sym)

@@ -12,6 +12,7 @@ const (
 	Print Pass = iota
 
 	Rewrite
+	CreateGlobals
 	Check
 	Emit
 )
@@ -84,16 +85,6 @@ func (c *Context) CurrentFunc() *Func {
 		}
 	}
 	return nil
-}
-
-func (c *Context) IsInLiftableScope() bool {
-	for i := len(c.stack) - 1; i >= 0; i-- {
-		ast := c.stack[i]
-		if _, ok := ast.(LiftableScope); ok {
-			return true
-		}
-	}
-	return false
 }
 
 func (c *Context) IsInRepeatableScope() bool {

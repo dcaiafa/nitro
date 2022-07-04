@@ -62,8 +62,7 @@ func (m *Root) Scope() *symbol.Scope {
 
 func (m *Root) RunPass(ctx *Context, pass Pass) {
 	switch pass {
-	case Check:
-		m.Package.SetPos(m.Pos())
+	case CreateGlobals:
 		m.rootScope = symbol.NewScope()
 		m.metadata = new(meta.Metadata)
 		m.initSym = &symbol.FuncSymbol{}

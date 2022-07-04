@@ -15,7 +15,6 @@ type WhileStmt struct {
 	end   *vm.Label
 }
 
-func (s *WhileStmt) IsLiftableScope()   {}
 func (s *WhileStmt) IsRepeatableScope() {}
 
 func (s *WhileStmt) RunPass(ctx *Context, pass Pass) {

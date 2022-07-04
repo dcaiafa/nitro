@@ -138,7 +138,10 @@ func (c *Compiler) compilePackage(
 	if errLoggerWrapper.Error() != nil {
 		return nil, errLoggerWrapper.Error()
 	}
-
+	c.main.RunPass(ctx, ast.CreateGlobals)
+	if errLoggerWrapper.Error() != nil {
+		return nil, errLoggerWrapper.Error()
+	}
 	c.main.RunPass(ctx, ast.Check)
 	if errLoggerWrapper.Error() != nil {
 		return nil, errLoggerWrapper.Error()

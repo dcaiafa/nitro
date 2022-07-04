@@ -58,7 +58,7 @@ func (p *Package) RunPass(ctx *Context, pass Pass) {
 			},
 		}
 
-	case Check:
+	case CreateGlobals:
 		p.scope = symbol.NewScope()
 	}
 

@@ -21,7 +21,6 @@ func (p *FuncParam) RunPass(ctx *Context, pass Pass) {
 		p.sym = parentFn.NewParam()
 		p.sym.SetName(p.Name)
 		p.sym.SetPos(p.Pos())
-		p.sym.SetLiftable(true)
 
 		if !parentFn.Scope().PutSymbol(ctx, p.sym) {
 			return

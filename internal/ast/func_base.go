@@ -25,8 +25,6 @@ func (f *Func) Scope() *symbol.Scope {
 	return f.scope
 }
 
-func (f *Func) IsLiftableScope() {}
-
 func (f *Func) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Check:
@@ -138,7 +136,6 @@ func (f *Func) NewCapture(sym symbol.Symbol) *symbol.CaptureSymbol {
 	}
 	c.SetName(sym.Name())
 	c.SetPos(sym.Pos())
-	c.SetLiftable(true)
 	f.captures = append(f.captures, c)
 	if !f.scope.PutSymbol(nil, c) {
 		// This cannot happen because the caller should have already ensured that

@@ -31,10 +31,6 @@ type Scope interface {
 	Scope() *symbol.Scope
 }
 
-type LiftableScope interface {
-	IsLiftableScope()
-}
-
 type RepeatableScope interface {
 	IsRepeatableScope()
 }

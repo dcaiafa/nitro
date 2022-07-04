@@ -74,10 +74,13 @@ func (b *catchBlock) RunPass(ctx *Context, pass Pass) {
 		b.scope = symbol.NewScope()
 
 		if b.catchVar != nil {
-			b.catchSym = AddVariable(ctx, b.catchVar.Str, b.catchVar.Pos)
-			if b.catchSym == nil {
+			l := ctx.CurrentFunc().NewLocal()
+			l.SetName(b.catchVar.Str)
+			l.SetPos(b.catchVar.Pos)
+			if !b.scope.PutSymbol(ctx, l) {
 				return
 			}
+			b.catchSym = l
 		}
 
 	case Emit:
