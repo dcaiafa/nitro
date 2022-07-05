@@ -2,8 +2,8 @@ package vm
 
 type Instr struct {
 	opc OpCode
-	op1 uint32
 	op2 uint16
+	op1 uint32
 }
 
 type OpCode byte

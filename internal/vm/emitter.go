@@ -92,7 +92,7 @@ func (e *Emitter) curFn() *Fn {
 
 func (e *Emitter) Emit(pos token.Pos, op OpCode, operand1 uint32, operand2 uint16) {
 	curFn := e.curFn()
-	curFn.instrs = append(curFn.instrs, Instr{op, operand1, operand2})
+	curFn.instrs = append(curFn.instrs, Instr{opc: op, op1: operand1, op2: operand2})
 
 	if pos.Filename != e.curFile {
 		e.curFile = pos.Filename

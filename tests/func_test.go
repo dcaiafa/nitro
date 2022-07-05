@@ -190,6 +190,31 @@ func TestFn(t *testing.T) {
     f(1)
 		`, `1 <nil>`)
 
+	RunSubO(t, "main", `
+var x = 5
+func main() {
+	f()
+	print(x)
+}
+func f() {
+	g(x)
+}
+func g(x) {
+	if x <= 0 {
+		return
+	}
+	g(x-1)
+	print(x)
+}
+`, `
+1
+2
+3
+4
+5
+5
+`)
+
 	RunSubErr(t, "err_call_nil", `
 			var a
 			a(2)
