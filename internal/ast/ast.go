@@ -28,10 +28,11 @@ type AST interface {
 }
 
 type Scope interface {
-	Scope() *symbol.Scope
+	Scope() symbol.Scope
 }
 
 type RepeatableScope interface {
+	Scope
 	IsRepeatableScope()
 }
 

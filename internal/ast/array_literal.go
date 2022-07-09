@@ -9,13 +9,15 @@ type ArrayLiteral struct {
 	PosImpl
 	Block *ArrayElementBlock
 
-	scope *symbol.Scope
+	scope symbol.Scope
 	arr   symbol.Symbol
 }
 
+var _ Scope = (*ArrayLiteral)(nil)
+
 func (a *ArrayLiteral) isExpr() {}
 
-func (a *ArrayLiteral) Scope() *symbol.Scope {
+func (a *ArrayLiteral) Scope() symbol.Scope {
 	return a.scope
 }
 
@@ -53,10 +55,12 @@ type ArrayElementBlock struct {
 
 	Elements ASTs
 
-	scope *symbol.Scope
+	scope symbol.Scope
 }
 
-func (b *ArrayElementBlock) Scope() *symbol.Scope {
+var _ Scope = (*ArrayElementBlock)(nil)
+
+func (b *ArrayElementBlock) Scope() symbol.Scope {
 	return b.scope
 }
 

@@ -10,23 +10,15 @@ import (
 type Root struct {
 	PosImpl
 
-	Package Package
+	FuncRegistries []vm.NativeFnRegistry
+	Package        Package
 
-	externalFns ASTs
-
-	rootScope *symbol.Scope
+	rootScope symbol.Scope
 	globals   int
 	metadata  *meta.Metadata
 }
 
-func (m *Root) AddNativeFn(name string, extFn *vm.NativeFn) {
-	m.externalFns = append(
-		m.externalFns,
-		&ExternFn{
-			Name:     name,
-			ExternFn: extFn,
-		})
-}
+var _ Scope = (*Root)(nil)
 
 func (m *Root) AddGlobalParam(ctx *Context, name string, param *meta.Param, pos token.Pos) *symbol.GlobalVarSymbol {
 	g := m.NewGlobal()
@@ -55,14 +47,14 @@ func (m *Root) NewGlobal() *symbol.GlobalVarSymbol {
 	return g
 }
 
-func (m *Root) Scope() *symbol.Scope {
+func (m *Root) Scope() symbol.Scope {
 	return m.rootScope
 }
 
 func (m *Root) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case CreateGlobals:
-		m.rootScope = symbol.NewScope()
+		m.rootScope = NewRootScope(ctx.Emitter(), "", m.FuncRegistries)
 		m.metadata = new(meta.Metadata)
 
 	case Emit:
@@ -70,10 +62,7 @@ func (m *Root) RunPass(ctx *Context, pass Pass) {
 		emitter.SetGlobalCount(m.globals)
 	}
 
-	ctx.Push(m)
-	m.externalFns.RunPass(ctx, pass)
-	m.Package.RunPass(ctx, pass)
-	ctx.Pop()
+	ctx.RunPassChild(m, &m.Package, pass)
 }
 
 func (m *Root) Metadata() *meta.Metadata {

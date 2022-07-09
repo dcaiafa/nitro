@@ -77,7 +77,7 @@ type frame struct {
 
 type VM struct {
 	userData     map[interface{}]interface{}
-	program      *Program
+	program      *CompiledPackage
 	globals      []Value
 	shuttingDown bool
 	sched        *fiber.Scheduler
@@ -91,7 +91,7 @@ type VM struct {
 	injectedErr error
 }
 
-func NewVM(prog *Program) *VM {
+func NewVM(prog *CompiledPackage) *VM {
 	return &VM{
 		program:   prog,
 		globals:   make([]Value, prog.globals),

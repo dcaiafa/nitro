@@ -10,6 +10,7 @@ import (
 	"github.com/dcaiafa/nitro"
 	"github.com/dcaiafa/nitro/internal/errlogger"
 	"github.com/dcaiafa/nitro/internal/vm"
+	"github.com/dcaiafa/nitro/lib"
 )
 
 type MemoryFileLoader map[string]string
@@ -20,6 +21,23 @@ func (fs MemoryFileLoader) LoadFile(name string) ([]byte, error) {
 		return nil, os.ErrNotExist
 	}
 	return []byte(data), nil
+}
+
+type simpleFuncRegistry map[string]func(vm *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error)
+
+func (r simpleFuncRegistry) IsValidPackage(pkg string) bool {
+	return false
+}
+
+func (r simpleFuncRegistry) GetNativeFn(pkg, name string) *vm.NativeFn {
+	if pkg != "" {
+		return nil
+	}
+	f := r[name]
+	if f == nil {
+		return nil
+	}
+	return vm.NewNativeFn(f)
 }
 
 func valuesToInterface(values []nitro.Value) []interface{} {
@@ -45,32 +63,32 @@ func run(prog string, params map[string]nitro.Value) (output string, err error) 
 
 	outBuilder := &strings.Builder{}
 
-	compiler := nitro.NewCompiler()
-	compiler.SetDiag(true)
-
-	compiler.AddNativeFn(
-		"print",
+	funcReg := make(simpleFuncRegistry)
+	funcReg["print"] =
 		func(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 			iargs := valuesToInterface(args)
 			fmt.Fprintln(outBuilder, iargs...)
 			return nil, nil
-		})
+		}
 
-	compiler.AddNativeFn(
-		"printf",
+	funcReg["printf"] =
 		func(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 			msg := args[0].(nitro.String)
 			iargs := valuesToInterface(args[1:])
 			fmt.Fprintf(outBuilder, msg.String()+"\n", iargs...)
 			return nil, nil
-		})
+		}
 
-	compiler.AddNativeFn(
-		"call",
+	funcReg["call"] =
 		func(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 			callable := args[0].(nitro.Callable)
 			return m.Call(callable, args, nRet)
-		})
+		}
+
+	compiler := nitro.NewCompiler()
+	compiler.SetDiag(true)
+	compiler.AddFuncRegistry(funcReg)
+	compiler.AddFuncRegistry(lib.NewFuncRegistry())
 
 	compiled, err := compiler.CompileSimple(
 		"main.n",

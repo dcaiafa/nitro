@@ -1,4 +1,4 @@
-package nitroco
+package lib
 
 import (
 	"github.com/dcaiafa/nitro"

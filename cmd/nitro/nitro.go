@@ -13,31 +13,8 @@ import (
 
 	"github.com/dcaiafa/nitro"
 	"github.com/dcaiafa/nitro/lib"
-	"github.com/dcaiafa/nitro/lib/nitroco"
-	"github.com/dcaiafa/nitro/lib/nitromath"
-	"github.com/dcaiafa/nitro/lib/nitropath"
 	"github.com/fatih/color"
 )
-
-func emit(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	stdout := lib.Stdout(m)
-	if len(args) < 1 {
-		return nil, fmt.Errorf("not enough arguments")
-	}
-	json, err := lib.ToJSON(args[0], "", "  ")
-	if err != nil {
-		return nil, err
-	}
-	_, err = stdout.Write(json)
-	if err != nil {
-		return nil, err
-	}
-	_, err = fmt.Fprintln(stdout, "")
-	if err != nil {
-		return nil, err
-	}
-	return nil, nil
-}
 
 func printSysUsage(flags *Flags) {
 	bold := color.New(color.Bold)
@@ -126,12 +103,7 @@ func main() {
 
 	compiler := nitro.NewCompiler()
 	compiler.SetDiag(*flagD.Value.(*bool))
-	compiler.AddNativeFn("emit", emit)
-
-	lib.RegisterAll(compiler)
-	nitromath.RegisterNativePackage(compiler)
-	nitroco.RegisterNativePackage(compiler)
-	nitropath.RegisterNativePackage(compiler)
+	compiler.AddFuncRegistry(lib.NewFuncRegistry())
 
 	var progName string
 	var scriptPath string
@@ -181,6 +153,13 @@ func main() {
 			}
 		}
 	}
+
+	/*
+		fmt.Println("Symbols:")
+		for symName, sym := range compiled.Symbols {
+			fmt.Printf(" %v: %+v\n", symName, sym)
+		}
+	*/
 
 	progFlags := NewFlags()
 	err = progFlags.AddFlagsFromMetadata(compiled.Metadata)

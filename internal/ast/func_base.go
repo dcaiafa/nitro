@@ -14,14 +14,16 @@ type Func struct {
 	DebugName string
 
 	idxFunc    int
-	scope      *symbol.Scope
+	scope      symbol.Scope
 	paramCount int
 	localCount int
 	captures   []*symbol.CaptureSymbol
 	iterNRet   int
 }
 
-func (f *Func) Scope() *symbol.Scope {
+var _ Scope = (*Func)(nil)
+
+func (f *Func) Scope() symbol.Scope {
 	return f.scope
 }
 

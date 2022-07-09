@@ -7,7 +7,6 @@ import (
 	"github.com/dcaiafa/nitro/internal/ast"
 	"github.com/dcaiafa/nitro/internal/errlogger"
 	"github.com/dcaiafa/nitro/internal/parser2"
-	"github.com/dcaiafa/nitro/internal/std"
 	"github.com/dcaiafa/nitro/internal/symbol"
 	"github.com/dcaiafa/nitro/internal/token"
 	"github.com/dcaiafa/nitro/internal/vm"
@@ -56,39 +55,27 @@ func (r *NativePackageReader) ReadUnit(unit string) ([]byte, error) {
 }
 
 type Compiler struct {
-	moduleReg *ast.ModuleRegistry
-	diag      bool
-	main      *ast.Root
+	diag           bool
+	funcRegistries []vm.NativeFnRegistry
 }
 
 func NewCompiler() *Compiler {
-	c := &Compiler{
-		moduleReg: ast.NewModuleRegistry(),
-		main:      &ast.Root{},
-	}
-	std.Register(c)
-	return c
+	return &Compiler{}
 }
 
 func (c *Compiler) SetDiag(diag bool) {
 	c.diag = diag
 }
 
-func (c *Compiler) AddNativeFn(name string, fn func(m *VM, args []Value, nRet int) ([]Value, error)) {
-	c.main.AddNativeFn(name, vm.NewNativeFn(fn))
-}
-
-func (c *Compiler) RegisterNativeModuleLoader(
-	name string,
-	regFn func(r NativeModuleContext)) {
-	c.moduleReg.RegisterNativeModuleLoader(name, regFn)
+func (c *Compiler) AddFuncRegistry(reg vm.NativeFnRegistry) {
+	c.funcRegistries = append(c.funcRegistries, reg)
 }
 
 func (c *Compiler) CompileSimple(
 	filename string,
 	scriptData []byte,
 	errLogger errlogger.ErrLogger,
-) (*vm.Program, error) {
+) (*vm.CompiledPackage, error) {
 	errLoggerWrapper := errlogger.NewErrLoggerBase(errLogger)
 	unit, err := parser2.ParseUnit(
 		filename, string(scriptData), c.diag, errLoggerWrapper)
@@ -96,14 +83,17 @@ func (c *Compiler) CompileSimple(
 		return nil, err
 	}
 	ast.SimpleScriptToPackage(unit)
-	c.main.AddUnit(unit)
-	return c.compilePackage(errLoggerWrapper)
+	root := &ast.Root{
+		FuncRegistries: c.funcRegistries,
+	}
+	root.AddUnit(unit)
+	return c.compilePackage(root, errLoggerWrapper)
 }
 
 func (c *Compiler) CompilePackage(
 	packageReader PackageReader,
 	errLogger errlogger.ErrLogger,
-) (*vm.Program, error) {
+) (*vm.CompiledPackage, error) {
 	errLoggerWrapper := errlogger.NewErrLoggerBase(errLogger)
 	unitPaths, err := packageReader.ListUnits()
 	if err != nil {
@@ -111,6 +101,9 @@ func (c *Compiler) CompilePackage(
 			token.Pos{}, "Failed to load package at %q: %v",
 			packageReader.Path(), err)
 		return nil, errLoggerWrapper.Error()
+	}
+	root := &ast.Root{
+		FuncRegistries: c.funcRegistries,
 	}
 	for _, unitPath := range unitPaths {
 		unitData, err := packageReader.ReadUnit(unitPath)
@@ -124,39 +117,50 @@ func (c *Compiler) CompilePackage(
 		if err != nil {
 			return nil, err
 		}
-		c.main.AddUnit(unit)
+		root.AddUnit(unit)
 	}
-	return c.compilePackage(errLoggerWrapper)
+	return c.compilePackage(root, errLoggerWrapper)
 }
 
 func (c *Compiler) compilePackage(
+	root *ast.Root,
 	errLoggerWrapper *errlogger.ErrLoggerWrapper,
-) (*vm.Program, error) {
-	ctx := ast.NewContext(c.moduleReg, errLoggerWrapper)
+) (*vm.CompiledPackage, error) {
+	ctx := ast.NewContext(errLoggerWrapper)
 
-	c.main.RunPass(ctx, ast.Rewrite)
+	root.RunPass(ctx, ast.Rewrite)
 	if errLoggerWrapper.Error() != nil {
 		return nil, errLoggerWrapper.Error()
 	}
-	c.main.RunPass(ctx, ast.CreateGlobals)
+	root.RunPass(ctx, ast.CreateGlobals)
 	if errLoggerWrapper.Error() != nil {
 		return nil, errLoggerWrapper.Error()
 	}
-	c.main.RunPass(ctx, ast.Check)
+	root.RunPass(ctx, ast.Check)
+	if errLoggerWrapper.Error() != nil {
+		return nil, errLoggerWrapper.Error()
+	}
+	root.RunPass(ctx, ast.Emit)
 	if errLoggerWrapper.Error() != nil {
 		return nil, errLoggerWrapper.Error()
 	}
 
-	c.main.RunPass(ctx, ast.Emit)
-	if errLoggerWrapper.Error() != nil {
-		return nil, errLoggerWrapper.Error()
-	}
+	pkg := ctx.Emitter().ToCompiledPackage()
+	pkg.Metadata = root.Metadata()
 
-	mainFunc := c.main.Package.Scope().GetSymbol("$main").(*symbol.FuncSymbol)
+	mainFunc := root.Package.Scope().GetSymbol("$main").(*symbol.FuncSymbol)
+	pkg.MainFnNdx = mainFunc.IdxFunc
+	pkg.Symbols = make(map[string]vm.PackageSymbol)
 
-	program := ctx.Emitter().ToProgram()
-	program.Metadata = c.main.Metadata()
-	program.MainFnNdx = mainFunc.IdxFunc
+	root.Package.Scope().(*symbol.SimpleScope).ForEachSymbol(func(sym symbol.Symbol) {
+		switch sym := sym.(type) {
+		case *symbol.FuncSymbol:
+			pkg.Symbols[sym.Name()] = vm.PackageSymbol{
+				Type:  vm.PackageSymbolFunc,
+				Index: uint32(sym.IdxFunc),
+			}
+		}
+	})
 
-	return program, nil
+	return pkg, nil
 }

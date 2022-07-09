@@ -9,13 +9,16 @@ type ObjectLiteral struct {
 	PosImpl
 	FieldBlock *ObjectFieldBlock
 
-	scope *symbol.Scope
+	scope symbol.Scope
 	obj   symbol.Symbol
 }
 
+var _ Scope = (*ObjectLiteral)(nil)
+var _ Expr = (*ObjectLiteral)(nil)
+
 func (s *ObjectLiteral) isExpr() {}
 
-func (s *ObjectLiteral) Scope() *symbol.Scope {
+func (s *ObjectLiteral) Scope() symbol.Scope {
 	return s.scope
 }
 

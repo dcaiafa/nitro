@@ -12,15 +12,17 @@ type ForStmt struct {
 	IterExpr Expr
 	Block    AST
 
-	scope *symbol.Scope
+	scope symbol.Scope
 	iter  symbol.Symbol
 	begin *vm.Label
 	end   *vm.Label
 }
 
+var _ Scope = (*ForStmt)(nil)
+
 func (s *ForStmt) IsRepeatableScope() {}
 
-func (s *ForStmt) Scope() *symbol.Scope {
+func (s *ForStmt) Scope() symbol.Scope {
 	return s.scope
 }
 

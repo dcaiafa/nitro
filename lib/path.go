@@ -1,4 +1,4 @@
-package nitropath
+package lib
 
 import (
 	"path/filepath"
@@ -6,19 +6,6 @@ import (
 	"github.com/bmatcuk/doublestar/v4"
 	"github.com/dcaiafa/nitro"
 )
-
-func RegisterNativePackage(c *nitro.Compiler) {
-	c.RegisterNativeModuleLoader("path", func(r nitro.NativeModuleContext) {
-		r.RegisterNativeFn("base", pathBase)
-		r.RegisterNativeFn("clean", pathClean)
-		r.RegisterNativeFn("dir", pathDir)
-		r.RegisterNativeFn("ext", pathExt)
-		r.RegisterNativeFn("from_slash", pathFromSlash)
-		r.RegisterNativeFn("join", pathJoin)
-		r.RegisterNativeFn("match", pathMatch)
-		r.RegisterNativeFn("to_slash", pathToSlash)
-	})
-}
 
 var errPathBaseUsage = nitro.NewInvalidUsageError("base(string)")
 

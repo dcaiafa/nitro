@@ -21,18 +21,15 @@ type Context struct {
 	Stack
 	*errlogger.ErrLoggerWrapper
 
-	emitter        *vm.Emitter
-	moduleRegistry *ModuleRegistry
+	emitter *vm.Emitter
 }
 
 func NewContext(
-	moduleRegistry *ModuleRegistry,
 	l *errlogger.ErrLoggerWrapper,
 ) *Context {
 	return &Context{
 		ErrLoggerWrapper: l,
 		emitter:          vm.NewEmitter(),
-		moduleRegistry:   moduleRegistry,
 	}
 }
 
@@ -132,7 +129,7 @@ func (c *Context) Main() *Root {
 	return nil
 }
 
-func (c *Context) CurrentScope() *symbol.Scope {
+func (c *Context) CurrentScope() symbol.Scope {
 	for i := len(c.stack) - 1; i >= 0; i-- {
 		ast := c.stack[i]
 		if scopeAST, ok := ast.(Scope); ok {
@@ -144,10 +141,6 @@ func (c *Context) CurrentScope() *symbol.Scope {
 
 func (c *Context) Emitter() *vm.Emitter {
 	return c.emitter
-}
-
-func (c *Context) ModuleRegistry() *ModuleRegistry {
-	return c.moduleRegistry
 }
 
 type PassRunner interface {

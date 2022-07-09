@@ -10,10 +10,12 @@ type ObjectFieldBlock struct {
 
 	Fields ASTs
 
-	scope *symbol.Scope
+	scope symbol.Scope
 }
 
-func (b *ObjectFieldBlock) Scope() *symbol.Scope {
+var _ Scope = (*ObjectFieldBlock)(nil)
+
+func (b *ObjectFieldBlock) Scope() symbol.Scope {
 	return b.scope
 }
 

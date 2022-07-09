@@ -7,10 +7,12 @@ type StmtBlock struct {
 
 	Stmts ASTs
 
-	scope *symbol.Scope
+	scope symbol.Scope
 }
 
-func (b *StmtBlock) Scope() *symbol.Scope {
+var _ Scope = (*StmtBlock)(nil)
+
+func (b *StmtBlock) Scope() symbol.Scope {
 	return b.scope
 }
 

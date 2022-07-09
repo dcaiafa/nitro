@@ -30,7 +30,6 @@ func WithParams(params map[string]nitro.Value) RunOption {
 func WithFn(name string, f func(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error)) RunOption {
 	return RunOption{
 		beforeCompile: func(c *nitro.Compiler) {
-			c.AddNativeFn(name, f)
 		},
 	}
 }
@@ -57,7 +56,7 @@ func run(prog string, opts ...RunOption) (output string, err error) {
 		}
 	}
 
-	RegisterAll(compiler)
+	compiler.AddFuncRegistry(NewFuncRegistry())
 
 	compiled, err := compiler.CompileSimple(
 		"main.n",

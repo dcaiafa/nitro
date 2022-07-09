@@ -1,15 +1,9 @@
-package std
+package lib
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/dcaiafa/nitro/internal/vm"
-)
-
-var (
-	errNotEnoughArgs = errors.New("not enough arguments")
-	errTooManyArgs   = errors.New("too many arguments")
 )
 
 func Len(m *vm.VM, args []vm.Value, nRet int) ([]vm.Value, error) {

@@ -114,21 +114,9 @@ type LocalVarSymbol struct {
 	LocalNdx int
 }
 
-type ModuleRef struct {
+type Package struct {
 	baseSymbol
 	baseNonLiftable
 
-	Module *Module
-}
-
-type Module struct {
-	Name  string
-	Scope *Scope
-}
-
-func NewModule(name string) *Module {
-	return &Module{
-		Name:  name,
-		Scope: NewScope(),
-	}
+	Scope Scope
 }

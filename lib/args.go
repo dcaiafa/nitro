@@ -1,4 +1,4 @@
-package std
+package lib
 
 import "github.com/dcaiafa/nitro/internal/vm"
 

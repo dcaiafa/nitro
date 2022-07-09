@@ -23,11 +23,11 @@ func (a *MemberAccess) RunPass(ctx *Context, pass Pass) {
 	case Check:
 		simpleRef, ok := a.Target.(*SimpleRef)
 		if ok {
-			if simpleRef.ModuleRef != nil {
-				a.ModuleMember = simpleRef.ModuleRef.Module.Scope.GetSymbol(a.Member.Str)
+			if simpleRef.Package != nil {
+				a.ModuleMember = simpleRef.Package.Scope.GetSymbol(a.Member.Str)
 				if a.ModuleMember == nil {
-					ctx.Failf(a.Pos(), "module %v does not have symbol %v",
-						simpleRef.ModuleRef.Module.Name,
+					ctx.Failf(a.Pos(), "%v not declared by package %v",
+						simpleRef.Package.Name(),
 						a.Member.Str)
 					return
 				}

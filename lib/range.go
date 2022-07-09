@@ -1,4 +1,4 @@
-package std
+package lib
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"github.com/dcaiafa/nitro/internal/vm"
 )
 
-func Range(m *vm.VM, args []vm.Value, nRet int) ([]vm.Value, error) {
+func range_(m *vm.VM, args []vm.Value, nRet int) ([]vm.Value, error) {
 	var err error
 	var start int64 = 0
 	var step int64 = 0

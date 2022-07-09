@@ -130,7 +130,7 @@ func (e *Emitter) EmitJump(pos token.Pos, op OpCode, label *Label, operand2 uint
 	}
 }
 
-func (e *Emitter) AddExternalFunc(fn *NativeFn) int {
+func (e *Emitter) AddExternalFunc(pkg, name string, fn *NativeFn) int {
 	e.extFns = append(e.extFns, fn)
 	return len(e.extFns) - 1
 }
@@ -153,8 +153,8 @@ func (e *Emitter) SetGlobalCount(n int) {
 	e.globals = n
 }
 
-func (e *Emitter) ToProgram() *Program {
-	return &Program{
+func (e *Emitter) ToCompiledPackage() *CompiledPackage {
+	return &CompiledPackage{
 		globals:   e.globals,
 		fns:       e.fns,
 		extFns:    e.extFns,

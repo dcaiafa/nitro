@@ -30,16 +30,16 @@ func TestInterrupt(t *testing.T) {
 `
 	outBuilder := &strings.Builder{}
 
-	compiler := nitro.NewCompiler()
-
-	compiler.AddNativeFn(
-		"print",
+	funcReg := make(simpleFuncRegistry)
+	funcReg["print"] =
 		func(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 			iargs := valuesToInterface(args)
 			fmt.Fprintln(outBuilder, iargs...)
 			return nil, nil
-		})
+		}
 
+	compiler := nitro.NewCompiler()
+	compiler.AddFuncRegistry(funcReg)
 	compiled, err := compiler.CompileSimple(
 		"main.n",
 		[]byte(prog),

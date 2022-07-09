@@ -3,7 +3,6 @@ package nitro
 import (
 	"regexp"
 
-	"github.com/dcaiafa/nitro/internal/ast"
 	"github.com/dcaiafa/nitro/internal/errlogger"
 	"github.com/dcaiafa/nitro/internal/meta"
 	"github.com/dcaiafa/nitro/internal/token"
@@ -30,7 +29,7 @@ type (
 	Metadata   = meta.Metadata
 	NativeFn   = vm.NativeFn
 	Object     = vm.Object
-	Program    = vm.Program
+	Program    = vm.CompiledPackage
 	Readable   = vm.Readable
 	Reader     = vm.Reader
 	Regex      = vm.Regex
@@ -38,8 +37,7 @@ type (
 	Value      = vm.Value
 	ValueRef   = vm.ValueRef
 
-	RuntimeError        = vm.RuntimeError
-	NativeModuleContext = ast.NativeModuleContext
+	RuntimeError = vm.RuntimeError
 
 	ErrLogger = errlogger.ErrLogger
 	Pos       = token.Pos

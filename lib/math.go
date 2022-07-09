@@ -1,4 +1,4 @@
-package nitromath
+package lib
 
 import (
 	"math"
@@ -8,7 +8,7 @@ import (
 
 var errTruncUsage error = nitro.NewInvalidUsageError("trunc(float)")
 
-func trunc(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func mathTrunc(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) != 1 {
 		return nil, errTruncUsage
 	}

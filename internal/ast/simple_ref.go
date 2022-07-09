@@ -9,8 +9,9 @@ type SimpleRef struct {
 	PosImpl
 	ID token.Token
 
-	sym       symbol.Symbol
-	ModuleRef *symbol.ModuleRef
+	sym symbol.Symbol
+
+	Package *symbol.Package
 }
 
 func (r *SimpleRef) isExpr() {}
@@ -27,12 +28,12 @@ func (r *SimpleRef) RunPass(ctx *Context, pass Pass) {
 		}
 
 		var ok bool
-		r.ModuleRef, ok = r.sym.(*symbol.ModuleRef)
+		r.Package, ok = r.sym.(*symbol.Package)
 		if ok {
 			if _, ok := ctx.Parent().(*MemberAccess); !ok {
 				ctx.Failf(
 					r.Pos(),
-					"%v is a module reference, and cannot be used as a value",
+					"%v is a package, and cannot be used as a value",
 					r.ID.Str)
 				return
 			}
@@ -50,7 +51,7 @@ func (r *SimpleRef) RunPass(ctx *Context, pass Pass) {
 		}
 
 	case Emit:
-		if r.ModuleRef == nil {
+		if r.Package == nil {
 			emit := emitSymbolPush
 			_, isLValue := ctx.Parent().(*LValue)
 			if isLValue {

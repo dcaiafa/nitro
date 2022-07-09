@@ -10,7 +10,7 @@ type Package struct {
 
 	Units ASTs
 
-	scope *symbol.Scope
+	scope symbol.Scope
 
 	init *FuncStmt
 	main *FuncStmt
@@ -22,7 +22,7 @@ func (p *Package) AddInitStmt(initStmt AST) {
 	p.init.Block.Stmts = append(p.init.Block.Stmts, initStmt)
 }
 
-func (p *Package) Scope() *symbol.Scope {
+func (p *Package) Scope() symbol.Scope {
 	return p.scope
 }
 

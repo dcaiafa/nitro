@@ -1,10 +1,9 @@
-package nitroco
+package lib
 
 import (
 	"context"
 
 	"github.com/dcaiafa/nitro"
-	"github.com/dcaiafa/nitro/lib"
 )
 
 var errRunWithTimeoutUsage = nitro.NewInvalidUsageError("run_with_timeout(callable, dur)")
@@ -14,7 +13,7 @@ func runWithTimeout(vm *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, 
 		return nil, errRunWithTimeoutUsage
 	}
 
-	dur, ok := args[1].(lib.Duration)
+	dur, ok := args[1].(Duration)
 	if !ok {
 		return nil, errRunWithTimeoutUsage
 	}

@@ -60,11 +60,13 @@ type catchBlock struct {
 	catchVar *token.Token
 	stmts    AST
 
-	scope    *symbol.Scope
+	scope    symbol.Scope
 	catchSym symbol.Symbol
 }
 
-func (b *catchBlock) Scope() *symbol.Scope {
+var _ Scope = (*catchBlock)(nil)
+
+func (b *catchBlock) Scope() symbol.Scope {
 	return b.scope
 }
 
