@@ -3,8 +3,10 @@ package nitro
 import (
 	"regexp"
 
+	"github.com/dcaiafa/nitro/internal/compiler"
 	"github.com/dcaiafa/nitro/internal/errlogger"
 	"github.com/dcaiafa/nitro/internal/meta"
+	"github.com/dcaiafa/nitro/internal/mod"
 	"github.com/dcaiafa/nitro/internal/token"
 	"github.com/dcaiafa/nitro/internal/vm"
 )
@@ -12,32 +14,37 @@ import (
 type (
 	VM = vm.VM
 
-	Array      = vm.Array
-	BaseValue  = vm.BaseValue
-	Bool       = vm.Bool
-	Callable   = vm.Callable
-	CloseFn    = vm.CloseFn
-	Closure    = vm.Closure
-	Float      = vm.Float
-	Frame      = vm.FrameInfo
-	FrameCrumb = vm.FrameCrumb
-	Func       = vm.Fn
-	Indexable  = vm.Indexable
-	Int        = vm.Int
-	Iterable   = vm.Iterable
-	Iterator   = vm.Iterator
-	Metadata   = meta.Metadata
-	NativeFn   = vm.NativeFn
-	Object     = vm.Object
-	Program    = vm.CompiledPackage
-	Readable   = vm.Readable
-	Reader     = vm.Reader
-	Regex      = vm.Regex
-	String     = vm.String
-	Value      = vm.Value
-	ValueRef   = vm.ValueRef
-
+	Array        = vm.Array
+	BaseValue    = vm.BaseValue
+	Bool         = vm.Bool
+	Callable     = vm.Callable
+	CloseFn      = vm.CloseFn
+	Closure      = vm.Closure
+	Float        = vm.Float
+	Frame        = vm.FrameInfo
+	FrameCrumb   = vm.FrameCrumb
+	Func         = vm.Fn
+	Indexable    = vm.Indexable
+	Int          = vm.Int
+	Iterable     = vm.Iterable
+	Iterator     = vm.Iterator
+	NativeFn     = vm.NativeFn
+	Object       = vm.Object
+	Program      = vm.CompiledPackage
+	Readable     = vm.Readable
+	Reader       = vm.Reader
+	Regex        = vm.Regex
+	String       = vm.String
+	Value        = vm.Value
+	ValueRef     = vm.ValueRef
 	RuntimeError = vm.RuntimeError
+
+	Metadata = meta.Metadata
+
+	Compiler = compiler.Compiler
+
+	PackagerReader      = mod.PackageReader
+	NativePackageReader = mod.NativePackageReader
 
 	ErrLogger = errlogger.ErrLogger
 	Pos       = token.Pos
@@ -66,6 +73,14 @@ var (
 )
 
 var ErrCannotCallNil = vm.ErrCannotCallNil
+
+func NewCompiler() *Compiler {
+	return compiler.NewCompiler()
+}
+
+func NewNativePackageReader(path string) *NativePackageReader {
+	return mod.NewNativePackageReader(path)
+}
 
 func NewVM(p *Program) *VM {
 	return vm.NewVM(p)

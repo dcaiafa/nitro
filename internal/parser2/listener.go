@@ -287,8 +287,8 @@ func (l *listener) ExitImport_stmt(ctx *parser.Import_stmtContext) {
 	}
 	importName := l.tokenToNitro(ctx.STRING().GetSymbol()).Str
 	l.put(ctx, &ast.Import{
-		Alias:      alias,
-		ModuleName: importName,
+		Alias:   alias,
+		Package: importName,
 	})
 }
 

@@ -3,8 +3,8 @@ package ast
 type Import struct {
 	PosImpl
 
-	Alias      string
-	ModuleName string
+	Alias   string
+	Package string
 }
 
 func (i *Import) RunPass(ctx *Context, pass Pass) {

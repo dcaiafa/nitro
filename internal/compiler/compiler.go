@@ -1,58 +1,14 @@
-package nitro
+package compiler
 
 import (
-	"os"
-	"path/filepath"
-
 	"github.com/dcaiafa/nitro/internal/ast"
 	"github.com/dcaiafa/nitro/internal/errlogger"
+	"github.com/dcaiafa/nitro/internal/mod"
 	"github.com/dcaiafa/nitro/internal/parser2"
 	"github.com/dcaiafa/nitro/internal/symbol"
 	"github.com/dcaiafa/nitro/internal/token"
 	"github.com/dcaiafa/nitro/internal/vm"
 )
-
-type PackageReader interface {
-	Path() string
-	ListUnits() ([]string, error)
-	ReadUnit(unit string) ([]byte, error)
-}
-
-type NativePackageReader struct {
-	path string
-}
-
-func NewNativePackageReader(path string) *NativePackageReader {
-	return &NativePackageReader{
-		path: path,
-	}
-}
-
-func (r *NativePackageReader) Path() string {
-	return r.path
-}
-
-func (r *NativePackageReader) ListUnits() ([]string, error) {
-	allFiles, err := os.ReadDir(r.path)
-	if err != nil {
-		return nil, err
-	}
-	units := make([]string, 0, len(allFiles))
-	for _, file := range allFiles {
-		if !file.IsDir() && filepath.Ext(file.Name()) == ".n" {
-			units = append(units, filepath.Join(r.path, file.Name()))
-		}
-	}
-	return units, nil
-}
-
-func (r *NativePackageReader) ReadUnit(unit string) ([]byte, error) {
-	unitData, err := os.ReadFile(unit)
-	if err != nil {
-		return nil, err
-	}
-	return unitData, nil
-}
 
 type Compiler struct {
 	diag           bool
@@ -91,7 +47,7 @@ func (c *Compiler) CompileSimple(
 }
 
 func (c *Compiler) CompilePackage(
-	packageReader PackageReader,
+	packageReader mod.PackageReader,
 	errLogger errlogger.ErrLogger,
 ) (*vm.CompiledPackage, error) {
 	errLoggerWrapper := errlogger.NewErrLoggerBase(errLogger)
