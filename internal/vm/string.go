@@ -122,6 +122,9 @@ func (s String) Slice(b, e Value) (Value, error) {
 func (s String) EvalOp(op Op, operand Value) (Value, error) {
 	operandStr, ok := operand.(String)
 	if !ok {
+    if op == OpEq {
+      return NewBool(false), nil
+    }
 		return nil, fmt.Errorf(
 			"invalid operation between string and %v",
 			TypeName(operand))

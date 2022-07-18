@@ -20,6 +20,9 @@ func NewArrayWithSlice(s []Value) *Array {
 func (a *Array) Type() string { return "list" }
 
 func (a *Array) EvalOp(op Op, operand Value) (Value, error) {
+  if op == OpEq {
+    return NewBool(a == operand), nil;
+  }
 	return nil, fmt.Errorf("list does not support this operation")
 }
 

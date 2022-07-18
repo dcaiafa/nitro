@@ -60,6 +60,9 @@ func (e *ILIterator) String() string { return "<iterator>" }
 func (e *ILIterator) Type() string   { return "iterator" }
 
 func (e *ILIterator) EvalOp(op Op, operand Value) (Value, error) {
+  if op == OpEq {
+    return NewBool(e == operand), nil;
+  }
 	return nil, fmt.Errorf("iterator does not support this operation")
 }
 
@@ -81,6 +84,9 @@ func (i *NativeIterator) String() string { return "<Iterator>" }
 func (i *NativeIterator) Type() string   { return "Iterator" }
 
 func (i *NativeIterator) EvalOp(op Op, operand Value) (Value, error) {
+  if op == OpEq {
+    return NewBool(i == operand), nil;
+  }
 	return nil, fmt.Errorf("iterator does not support this operation")
 }
 

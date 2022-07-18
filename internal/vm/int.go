@@ -24,9 +24,12 @@ func (i Int) EvalOp(op Op, operand Value) (Value, error) {
 	if !ok {
 		if operandFloat, ok := operand.(Float); ok {
 			return NewFloat(float64(i.v)).EvalOp(op, operandFloat)
+		} else if op == OpEq {
+			return NewBool(false), nil
+		} else {
+			return nil, fmt.Errorf(
+				"invalid operation between int and %v", TypeName(operand))
 		}
-		return nil, fmt.Errorf(
-			"invalid operation between int and %v", TypeName(operand))
 	}
 
 	switch op {

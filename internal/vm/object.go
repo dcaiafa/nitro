@@ -54,6 +54,9 @@ func NewObjectWithCapacity(c int) *Object {
 func (o *Object) Type() string { return "Object" }
 
 func (o *Object) EvalOp(op Op, operand Value) (Value, error) {
+  if op == OpEq {
+    return NewBool(o == operand), nil;
+  }
 	return nil, fmt.Errorf("object does not support this operation")
 }
 
