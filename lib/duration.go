@@ -90,7 +90,7 @@ func (d Duration) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) 
 		}
 	}
 
-  return nil, vm.ErrOperationNotSupported
+	return nil, vm.ErrOperationNotSupported
 }
 
 func (d Duration) Duration() time.Duration {
