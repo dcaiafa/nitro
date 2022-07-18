@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/dcaiafa/nitro"
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
 type avgAccum struct {
@@ -12,12 +13,9 @@ type avgAccum struct {
 	count int
 }
 
-func (a *avgAccum) String() string { return "<avg>" }
-func (a *avgAccum) Type() string   { return "avg" }
-
-func (a *avgAccum) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) {
-	return nil, fmt.Errorf("avg does not support this operation")
-}
+func (a *avgAccum) String() string    { return "<avg>" }
+func (a *avgAccum) Type() string      { return "avg" }
+func (a *avgAccum) Traits() vm.Traits { return vm.TraitNone }
 
 var errAvgUsage = errors.New(
 	"invalid usage. Expected: avg(iter) or avg(accum, int|float?)")
@@ -294,12 +292,9 @@ type countAccum struct {
 	count int
 }
 
-func (a *countAccum) String() string { return "<count>" }
-func (a *countAccum) Type() string   { return "count" }
-
-func (a *countAccum) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) {
-	return nil, fmt.Errorf("avg does not support this operation")
-}
+func (a *countAccum) String() string    { return "<count>" }
+func (a *countAccum) Type() string      { return "count" }
+func (a *countAccum) Traits() vm.Traits { return vm.TraitNone }
 
 var errCountUsage = errors.New(
 	`invalid usage. Expected count(accum, any) or count(iter) or count(any...)`)

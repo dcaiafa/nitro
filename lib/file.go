@@ -13,6 +13,7 @@ import (
 
 	"github.com/bmatcuk/doublestar/v4"
 	"github.com/dcaiafa/nitro"
+	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/lib/core"
 )
 
@@ -25,8 +26,9 @@ var _ /* implements */ nitro.Callable = (*File)(nil)
 var _ /* implements */ core.NativeReader = (*File)(nil)
 var _ /* implements */ core.NativeWriter = (*File)(nil)
 
-func (f *File) String() string { return fmt.Sprintf("File:%v", f.Name()) }
-func (f *File) Type() string   { return "File" }
+func (f *File) String() string    { return fmt.Sprintf("File:%v", f.Name()) }
+func (f *File) Type() string      { return "File" }
+func (f *File) Traits() vm.Traits { return vm.TraitNone }
 
 func (f *File) GetNativeReader() io.Reader {
 	return f.File
@@ -34,10 +36,6 @@ func (f *File) GetNativeReader() io.Reader {
 
 func (f *File) GetNativeWriter() io.Writer {
 	return f.File
-}
-
-func (f *File) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) {
-	return nil, fmt.Errorf("file does not support this operation")
 }
 
 func (f *File) Call(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
@@ -173,12 +171,9 @@ type fileInfo struct {
 	fs.FileInfo
 }
 
-func (i *fileInfo) String() string { return "<fileinfo>" }
-func (i *fileInfo) Type() string   { return "fileinfo" }
-
-func (i *fileInfo) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) {
-	return nil, errors.New("operation not supported")
-}
+func (i *fileInfo) String() string    { return "<fileinfo>" }
+func (i *fileInfo) Type() string      { return "fileinfo" }
+func (i *fileInfo) Traits() vm.Traits { return vm.TraitNone }
 
 func (i *fileInfo) Index(key nitro.Value) (nitro.Value, error) {
 	keyStr, ok := key.(nitro.String)

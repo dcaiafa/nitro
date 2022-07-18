@@ -1,9 +1,8 @@
 package lib
 
 import (
-	"fmt"
-
 	"github.com/dcaiafa/nitro"
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
 type histogramAccum struct {
@@ -16,12 +15,9 @@ func newHistAccum() *histogramAccum {
 	}
 }
 
-func (a *histogramAccum) String() string { return "<histogram>" }
-func (a *histogramAccum) Type() string   { return "histogram" }
-
-func (a *histogramAccum) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) {
-	return nil, fmt.Errorf("histogram does not support this operation")
-}
+func (a *histogramAccum) String() string    { return "<histogram>" }
+func (a *histogramAccum) Type() string      { return "histogram" }
+func (a *histogramAccum) Traits() vm.Traits { return vm.TraitNone }
 
 func (a *histogramAccum) Process(v nitro.Value) {
 	a.hist[v]++

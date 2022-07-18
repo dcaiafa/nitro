@@ -31,10 +31,6 @@ func wrapRuntimeError(m *VM, err *error) *RuntimeError {
 	return rerr
 }
 
-func (e *RuntimeError) EvalOp(op Op, operand Value) (Value, error) {
-	return nil, fmt.Errorf("error does not support this operation")
-}
-
 func (e *RuntimeError) Index(k Value) (Value, error) {
 	k, ok := k.(String)
 	if !ok {
@@ -58,13 +54,9 @@ func (e *RuntimeError) IndexRef(k Value) (ValueRef, error) {
 	return ValueRef{}, fmt.Errorf("RuntimeError is read-only")
 }
 
-func (e *RuntimeError) String() string {
-	return e.Error()
-}
-
-func (e *RuntimeError) Type() string {
-	return "RuntimeError"
-}
+func (e *RuntimeError) String() string { return e.Error() }
+func (e *RuntimeError) Type() string   { return "error" }
+func (e *RuntimeError) Traits() Traits { return TraitNone }
 
 func (e *RuntimeError) Message() string {
 	if e.Err != nil {

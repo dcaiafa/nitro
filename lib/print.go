@@ -8,6 +8,7 @@ import (
 	"text/tabwriter"
 
 	"github.com/dcaiafa/nitro"
+	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/lib/core"
 	fatihcolor "github.com/fatih/color"
 )
@@ -19,12 +20,9 @@ type printMods struct {
 
 type nonlMod struct{}
 
-func (m *nonlMod) String() string { return "<nonl>" }
-func (m *nonlMod) Type() string   { return "nonl" }
-
-func (m *nonlMod) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) {
-	return nil, errors.New("nonl does not support this operation")
-}
+func (m *nonlMod) String() string    { return "<nonl>" }
+func (m *nonlMod) Type() string      { return "nonl" }
+func (m *nonlMod) Traits() vm.Traits { return vm.TraitNone }
 
 func getPrintMods(args []nitro.Value) (printMods, []nitro.Value) {
 	hasMods := false
@@ -74,12 +72,9 @@ type colorMod struct {
 	color *fatihcolor.Color
 }
 
-func (m *colorMod) String() string { return "<color>" }
-func (m *colorMod) Type() string   { return "color" }
-
-func (m *colorMod) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) {
-	return nil, errors.New("color does not support this operation")
-}
+func (m *colorMod) String() string    { return "<color>" }
+func (m *colorMod) Type() string      { return "color" }
+func (m *colorMod) Traits() vm.Traits { return vm.TraitNone }
 
 var errColorUsage = errors.New(
 	`invalid usage. Expected color(string+)`)

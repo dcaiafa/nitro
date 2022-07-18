@@ -6,6 +6,7 @@ import (
 	"io"
 
 	"github.com/dcaiafa/nitro"
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
 type NativeReader interface {
@@ -25,12 +26,9 @@ func NewWriterBase(typ string, w io.Writer) WriterBase {
 	return WriterBase{Writer: w, typ: typ}
 }
 
-func (b *WriterBase) String() string { return "<" + b.Type() + ">" }
-func (b *WriterBase) Type() string   { return b.typ }
-
-func (b *WriterBase) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) {
-	return nil, fmt.Errorf("<writer> does not support this operation")
-}
+func (b *WriterBase) String() string    { return "<" + b.Type() + ">" }
+func (b *WriterBase) Type() string      { return b.typ }
+func (b *WriterBase) Traits() vm.Traits { return vm.TraitNone }
 
 var ErrWriterCallUsage = errors.New(
 	`invalid usage. Expected <writer>(reader)`)

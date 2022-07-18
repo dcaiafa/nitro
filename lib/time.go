@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/dcaiafa/nitro"
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
 type Time struct {
@@ -18,14 +19,18 @@ func NewTime(t time.Time) Time {
 	return Time{time: t}
 }
 
-func (t Time) String() string { return t.time.String() }
-func (t Time) Type() string   { return "time" }
+func (t Time) String() string    { return t.time.String() }
+func (t Time) Type() string      { return "time" }
+func (t Time) Traits() vm.Traits { return vm.TraitEq }
 
 func (t Time) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) {
 	switch op {
 	case nitro.OpEq, nitro.OpSub, nitro.OpLT, nitro.OpLE, nitro.OpGT, nitro.OpGE:
 		operandTime, ok := operand.(Time)
 		if !ok {
+			if op == nitro.OpEq {
+				return nitro.NewBool(false), nil
+			}
 			return nil, fmt.Errorf(
 				"invalid operation between time and %v",
 				nitro.TypeName(operand))

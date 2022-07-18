@@ -1,7 +1,5 @@
 package vm
 
-import "fmt"
-
 type Fn struct {
 	name      int
 	locations []Location
@@ -11,13 +9,7 @@ type Fn struct {
 
 func (f *Fn) Type() string   { return "Func" }
 func (f *Fn) String() string { return "<func>" }
-
-func (f *Fn) EvalOp(op Op, operand Value) (Value, error) {
-	if op == OpEq {
-		return NewBool(f == operand), nil
-	}
-	return nil, fmt.Errorf("func does not support this operation")
-}
+func (f *Fn) Traits() Traits { return TraitNone }
 
 func (f *Fn) Call(m *VM, args []Value, nRet int) ([]Value, error) {
 	// Function calls are handled directly by the VM.

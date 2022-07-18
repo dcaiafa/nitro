@@ -1,31 +1,34 @@
 package vm
 
 import (
+	"errors"
 	"fmt"
 	"io"
 )
 
-type Value interface {
-	fmt.Stringer
+var ErrOperationNotSupported = errors.New("operation not supported")
 
+type Traits uint32
+
+const (
+	TraitNone Traits = 0
+	TraitEq   Traits = 1 << iota
+)
+
+type Value interface {
+	String() string
 	Type() string
+	Traits() Traits
+}
+
+type Operable interface {
+	Value
 	EvalOp(op Op, operand Value) (Value, error)
 }
 
 type Closer interface {
 	Value
 	io.Closer
-}
-
-type BaseValue struct {
-	TypeName string
-}
-
-func (v BaseValue) String() string { return "<" + v.TypeName + ">" }
-func (v BaseValue) Type() string   { return v.TypeName }
-
-func (v BaseValue) EvalOp(op Op, operand Value) (Value, error) {
-	return nil, fmt.Errorf("%v does not support this operation", v.TypeName)
 }
 
 func TypeName(v Value) string {
@@ -56,11 +59,8 @@ func NewValueRef(ref *Value) ValueRef {
 
 func (r ValueRef) String() string { return "&" + (*r.Ref).String() }
 func (r ValueRef) Type() string   { return "&" + TypeName(*r.Ref) }
+func (r ValueRef) Traits() Traits { return TraitNone }
 func (r ValueRef) Refo() *Value   { return r.Ref }
-
-func (r ValueRef) EvalOp(op Op, operand Value) (Value, error) {
-	return nil, fmt.Errorf("ValueRef does not support this operation")
-}
 
 func ToString(v Value) string {
 	if v == nil {
@@ -79,13 +79,15 @@ func CoerceToBool(v Value) bool {
 }
 
 func EvalOp(op Op, operand1, operand2 Value) (Value, error) {
-	if operand1 != nil && (operand2 != nil || op == OpUMinus) {
+	if operand1 != nil &&
+		(operand2 != nil || op == OpUMinus) &&
+		(operand1.Traits()&TraitEq != 0) {
 		opWasNE := false
 		if op == OpNE {
 			opWasNE = true
 			op = OpEq
 		}
-		res, err := operand1.EvalOp(op, operand2)
+		res, err := operand1.(Operable).EvalOp(op, operand2)
 		if err != nil {
 			return nil, err
 		}

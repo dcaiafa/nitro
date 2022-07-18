@@ -2,6 +2,8 @@ package lib
 
 import (
 	"testing"
+
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
 func TestDur(t *testing.T) {
@@ -17,15 +19,15 @@ func TestDur(t *testing.T) {
 	RunSubO(t, "ne1", `print(dur(10, "minute") != dur(600, "second"))`, `false`)
 	RunSubO(t, "ne2", `print(dur(10, "minute") != dur(601, "second"))`, `true`)
 	RunSubO(t, "add", `print(dur(1, "second") + dur(100, "millisecond"))`, `1.1s`)
-	RunSubErr(t, "add_err", `print(dur(1, "second") + 1)`, errInvalidOp)
+	RunSubErr(t, "add_err", `print(dur(1, "second") + 1)`, vm.ErrOperationNotSupported)
 	RunSubO(t, "sub", `print(dur(1, "second") - dur(100, "millisecond"))`, `900ms`)
 	RunSubO(t, "mul", `print(dur(1, "second") * 2)`, `2s`)
-	RunSubErr(t, "mul_err", `print(dur(1, "second") * dur(2, "second"))`, errInvalidOp)
+	RunSubErr(t, "mul_err", `print(dur(1, "second") * dur(2, "second"))`, vm.ErrOperationNotSupported)
 	RunSubO(t, "div_int", `print(dur(1, "second") / 2)`, `500ms`)
 	RunSubO(t, "div_dur", `print(dur(1, "second") / dur(200, "millisecond"))`, `5`)
 	RunSubErr(t, "div_dur0_err", `print(dur(1, "second") / dur(0, "millisecond"))`, errDivByZero)
 	RunSubErr(t, "div_int0_err", `print(dur(1, "second") / 0)`, errDivByZero)
-	RunSubErr(t, "div_err", `print(dur(1, "second") / "hi")`, errInvalidOp)
+	RunSubErr(t, "div_err", `print(dur(1, "second") / "hi")`, vm.ErrOperationNotSupported)
 	RunSubO(t, "mod", `print(dur(250, "millisecond") % dur(200, "millisecond"))`, `50ms`)
 	RunSubErr(t, "mod_div0_err", `print(dur(250, "millisecond") % dur(0, "millisecond"))`, errDivByZero)
 	RunSubO(t, "lt1", `print(dur(250, "millisecond") < dur(200, "millisecond"))`, `false`)

@@ -17,14 +17,8 @@ func NewArrayWithSlice(s []Value) *Array {
 	return &Array{array: s}
 }
 
-func (a *Array) Type() string { return "list" }
-
-func (a *Array) EvalOp(op Op, operand Value) (Value, error) {
-  if op == OpEq {
-    return NewBool(a == operand), nil;
-  }
-	return nil, fmt.Errorf("list does not support this operation")
-}
+func (a *Array) Type() string   { return "list" }
+func (a *Array) Traits() Traits { return TraitNone }
 
 func (a *Array) Add(v Value) {
 	a.array = append(a.array, v)

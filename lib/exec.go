@@ -11,6 +11,7 @@ import (
 
 	"github.com/dcaiafa/nitro"
 	"github.com/dcaiafa/nitro/internal/ioqueue"
+	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/lib/core"
 )
 
@@ -61,12 +62,9 @@ func newProcess(m *nitro.VM, cmd *osexec.Cmd, stdin io.Reader, stderr io.Writer)
 	return p
 }
 
-func (p *process) String() string { return "Process " + p.cmd.Path }
-func (p *process) Type() string   { return "Process" }
-
-func (p *process) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) {
-	return nil, fmt.Errorf("process does not support this operation")
-}
+func (p *process) String() string    { return "Process " + p.cmd.Path }
+func (p *process) Type() string      { return "Process" }
+func (p *process) Traits() vm.Traits { return vm.TraitNone }
 
 func (p *process) Start() error {
 	var err error

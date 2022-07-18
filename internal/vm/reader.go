@@ -47,13 +47,13 @@ type Reader interface {
 	io.Reader
 }
 
-type emptyReaderImpl struct {
-	BaseValue
-}
+type emptyReaderImpl struct{}
 
-var emptyReader = &emptyReaderImpl{
-	BaseValue: BaseValue{TypeName: "reader"},
-}
+var emptyReader = &emptyReaderImpl{}
+
+func (r *emptyReaderImpl) String() string { return "<reader>" }
+func (r *emptyReaderImpl) Type() string   { return "reader" }
+func (r *emptyReaderImpl) Traits() Traits { return TraitNone }
 
 func (r *emptyReaderImpl) MakeReader() (Reader, error) {
 	return r, nil
@@ -64,8 +64,6 @@ func (r *emptyReaderImpl) Read(b []byte) (int, error) {
 }
 
 type iterReader struct {
-	BaseValue
-
 	m   *VM
 	e   Iterator
 	buf bytequeue.ByteQueue
@@ -77,6 +75,10 @@ func newIterReader(vm *VM, iter Iterator) *iterReader {
 		e: iter,
 	}
 }
+
+func (r *iterReader) String() string { return "<reader>" }
+func (r *iterReader) Type() string   { return "reader" }
+func (r *iterReader) Traits() Traits { return TraitNone }
 
 func (r *iterReader) Read(b []byte) (int, error) {
 	if len(b) == 0 {

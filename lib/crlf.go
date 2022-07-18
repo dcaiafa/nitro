@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/dcaiafa/nitro"
+	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/lib/core"
 )
 
@@ -80,18 +81,18 @@ func toCRLF(vm *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
 }
 
 type fromCRLFReaderWriter struct {
-	nitro.BaseValue
-
 	c   io.Closer
 	r   io.Reader
 	w   io.Writer
 	buf *bufio.Reader
 }
 
+func (c *fromCRLFReaderWriter) String() string    { return "<from_crlf>" }
+func (c *fromCRLFReaderWriter) Type() string      { return "from_crlf" }
+func (c *fromCRLFReaderWriter) Traits() vm.Traits { return vm.TraitNone }
+
 func newFromCRLFReader(v nitro.Value) *fromCRLFReaderWriter {
-	c := &fromCRLFReaderWriter{
-		BaseValue: nitro.BaseValue{TypeName: "fromcrlf"},
-	}
+	c := &fromCRLFReaderWriter{}
 
 	var ok bool
 	c.c, _ = v.(io.Closer)
@@ -110,7 +111,7 @@ func newFromCRLFReader(v nitro.Value) *fromCRLFReaderWriter {
 
 func (c *fromCRLFReaderWriter) Read(buf []byte) (int, error) {
 	if c.r == nil {
-		return 0, fmt.Errorf("cannot read from %v", c.TypeName)
+		return 0, fmt.Errorf("value not readable")
 	}
 
 	n := 0
@@ -129,7 +130,7 @@ func (c *fromCRLFReaderWriter) Read(buf []byte) (int, error) {
 
 func (c *fromCRLFReaderWriter) Write(buf []byte) (int, error) {
 	if c.w == nil {
-		return 0, fmt.Errorf("cannot write to %v", c.TypeName)
+		return 0, fmt.Errorf("value not writable")
 	}
 
 	n := 0
@@ -180,8 +181,6 @@ func (c *fromCRLFReaderWriter) Close() error {
 }
 
 type toCRLFReader struct {
-	nitro.BaseValue
-
 	r   io.Reader
 	buf *bufio.Reader
 	cr  bool
@@ -189,8 +188,7 @@ type toCRLFReader struct {
 
 func newToCRLFReader(r io.Reader) *toCRLFReader {
 	c := &toCRLFReader{
-		BaseValue: nitro.BaseValue{TypeName: "tocrlf"},
-		r:         r,
+		r: r,
 	}
 
 	var ok bool
@@ -201,6 +199,10 @@ func newToCRLFReader(r io.Reader) *toCRLFReader {
 
 	return c
 }
+
+func (c *toCRLFReader) String() string    { return "<to_crlf_reader>" }
+func (c *toCRLFReader) Type() string      { return "to_crlf_reader" }
+func (c *toCRLFReader) Traits() vm.Traits { return vm.TraitNone }
 
 func (c *toCRLFReader) Read(buf []byte) (int, error) {
 	n := 0

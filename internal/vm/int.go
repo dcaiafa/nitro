@@ -1,7 +1,6 @@
 package vm
 
 import (
-	"fmt"
 	"strconv"
 )
 
@@ -14,6 +13,7 @@ func NewInt(v int64) Int { return Int{v} }
 func (i Int) Int64() int64   { return i.v }
 func (i Int) String() string { return strconv.FormatInt(i.v, 10) }
 func (i Int) Type() string   { return "Int" }
+func (i Int) Traits() Traits { return TraitEq }
 
 func (i Int) EvalOp(op Op, operand Value) (Value, error) {
 	if op == OpUMinus {
@@ -27,8 +27,7 @@ func (i Int) EvalOp(op Op, operand Value) (Value, error) {
 		} else if op == OpEq {
 			return NewBool(false), nil
 		} else {
-			return nil, fmt.Errorf(
-				"invalid operation between int and %v", TypeName(operand))
+			return nil, ErrOperationNotSupported
 		}
 	}
 
@@ -60,6 +59,6 @@ func (i Int) EvalOp(op Op, operand Value) (Value, error) {
 	case OpEq:
 		return NewBool(i.v == operandInt.Int64()), nil
 	default:
-		return nil, fmt.Errorf("operator not supported by int")
+		return nil, ErrOperationNotSupported
 	}
 }

@@ -6,17 +6,18 @@ import (
 	"time"
 
 	"github.com/dcaiafa/nitro"
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
 var errDivByZero = errors.New("divide by zero")
-var errInvalidOp = errors.New("invalid operation")
 
 type Duration struct {
 	dur time.Duration
 }
 
-func (d Duration) String() string { return d.dur.String() }
-func (d Duration) Type() string   { return "duration" }
+func (d Duration) String() string    { return d.dur.String() }
+func (d Duration) Type() string      { return "duration" }
+func (d Duration) Traits() vm.Traits { return vm.TraitEq }
 
 func (d Duration) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) {
 	if op == nitro.OpUMinus {
@@ -35,9 +36,10 @@ func (d Duration) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) 
 			// Zero is a special case. It is useful to express `dur < 0` without
 			// having to create a duration value for the right side.
 			otherDur = 0
+		} else if op == nitro.OpEq {
+			return nitro.NewBool(false), nil
 		} else {
-			return nil, fmt.Errorf(
-				"%w between duration and %v", errInvalidOp, nitro.TypeName(operand))
+			return nil, vm.ErrOperationNotSupported
 		}
 
 		switch op {
@@ -65,8 +67,7 @@ func (d Duration) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) 
 	case nitro.OpMult:
 		operandInt, ok := operand.(nitro.Int)
 		if !ok {
-			return nil, fmt.Errorf(
-				"%w between duration and %v", errInvalidOp, nitro.TypeName(operandInt))
+			return nil, vm.ErrOperationNotSupported
 		}
 		return Duration{d.dur * time.Duration(operandInt.Int64())}, nil
 
@@ -85,12 +86,11 @@ func (d Duration) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) 
 			return Duration{d.dur / time.Duration(operand.Int64())}, nil
 
 		default:
-			return nil, fmt.Errorf(
-				"%w between duration and %v", errInvalidOp, nitro.TypeName(operand))
+			return nil, vm.ErrOperationNotSupported
 		}
 	}
 
-	return nil, fmt.Errorf("operation not supported by duration")
+  return nil, vm.ErrOperationNotSupported
 }
 
 func (d Duration) Duration() time.Duration {

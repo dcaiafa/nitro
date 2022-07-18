@@ -1,7 +1,6 @@
 package vm
 
 import (
-	"fmt"
 	"strconv"
 )
 
@@ -14,6 +13,7 @@ func NewFloat(v float64) Float { return Float{v} }
 func (f Float) Float64() float64 { return f.v }
 func (f Float) String() string   { return strconv.FormatFloat(f.v, 'g', -1, 64) }
 func (f Float) Type() string     { return "float" }
+func (f Float) Traits() Traits   { return TraitEq }
 
 func (f Float) EvalOp(op Op, operand Value) (Value, error) {
 	if op == OpUMinus {
@@ -25,10 +25,9 @@ func (f Float) EvalOp(op Op, operand Value) (Value, error) {
 		if operandInt, ok := operand.(Int); ok {
 			operandFloat = NewFloat(float64(operandInt.Int64()))
 		} else if op == OpEq {
-      return NewBool(false), nil
-    } else {
-			return nil, fmt.Errorf(
-				"invalid operation between float and %v", TypeName(operand))
+			return NewBool(false), nil
+		} else {
+			return nil, ErrOperationNotSupported
 		}
 	}
 
@@ -55,6 +54,6 @@ func (f Float) EvalOp(op Op, operand Value) (Value, error) {
 	case OpEq:
 		return NewBool(f.v == operandFloat.Float64()), nil
 	default:
-		return nil, fmt.Errorf("operator not supported by float")
+		return nil, ErrOperationNotSupported
 	}
 }

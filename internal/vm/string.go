@@ -22,6 +22,7 @@ func NewString(v string) String { return String{v} }
 
 func (s String) String() string { return s.v }
 func (s String) Type() string   { return "string" }
+func (s String) Traits() Traits { return TraitEq }
 func (s String) Len() int       { return len(s.v) }
 
 func (s String) Index(key Value) (Value, error) {
@@ -122,12 +123,10 @@ func (s String) Slice(b, e Value) (Value, error) {
 func (s String) EvalOp(op Op, operand Value) (Value, error) {
 	operandStr, ok := operand.(String)
 	if !ok {
-    if op == OpEq {
-      return NewBool(false), nil
-    }
-		return nil, fmt.Errorf(
-			"invalid operation between string and %v",
-			TypeName(operand))
+		if op == OpEq {
+			return NewBool(false), nil
+		}
+		return nil, ErrOperationNotSupported
 	}
 
 	switch op {
@@ -144,12 +143,8 @@ func (s String) EvalOp(op Op, operand Value) (Value, error) {
 	case OpEq:
 		return NewBool(s.v == operandStr.String()), nil
 	default:
-		return nil, fmt.Errorf("string does not support this operation")
+		return nil, ErrOperationNotSupported
 	}
-}
-
-func (s String) EvalUnaryMinus() (Value, error) {
-	return nil, fmt.Errorf("string does not support this operation")
 }
 
 func (s String) MakeIterator() Iterator {
@@ -180,15 +175,17 @@ func (i *stringIter) Next(m *VM, args []Value, nret int) ([]Value, error) {
 
 func (s String) MakeReader() Reader {
 	return &stringReader{
-		BaseValue: BaseValue{"stringreader"},
-		Reader:    strings.NewReader(s.v),
+		Reader: strings.NewReader(s.v),
 	}
 }
 
 type stringReader struct {
-	BaseValue
 	io.Reader
 }
+
+func (r *stringReader) String() string { return "<reader>" }
+func (r *stringReader) Type() string   { return "reader" }
+func (r *stringReader) Traits() Traits { return TraitNone }
 
 var errStringFindUsage = errors.New(
 	`invalid usage. Expected <string>.find(string)`)

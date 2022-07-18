@@ -15,7 +15,6 @@ type (
 	VM = vm.VM
 
 	Array        = vm.Array
-	BaseValue    = vm.BaseValue
 	Bool         = vm.Bool
 	Callable     = vm.Callable
 	CloseFn      = vm.CloseFn

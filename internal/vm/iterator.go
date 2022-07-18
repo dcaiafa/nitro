@@ -58,13 +58,7 @@ var _ Iterator = (*ILIterator)(nil)
 func (e *ILIterator) isIterator()    {}
 func (e *ILIterator) String() string { return "<iterator>" }
 func (e *ILIterator) Type() string   { return "iterator" }
-
-func (e *ILIterator) EvalOp(op Op, operand Value) (Value, error) {
-  if op == OpEq {
-    return NewBool(e == operand), nil;
-  }
-	return nil, fmt.Errorf("iterator does not support this operation")
-}
+func (e *ILIterator) Traits() Traits { return TraitNone }
 
 func (i *ILIterator) IterNRet() int { return i.iterNRet }
 
@@ -82,16 +76,9 @@ var _ Iterator = (*NativeIterator)(nil)
 func (i *NativeIterator) isIterator()    {}
 func (i *NativeIterator) String() string { return "<Iterator>" }
 func (i *NativeIterator) Type() string   { return "Iterator" }
-
-func (i *NativeIterator) EvalOp(op Op, operand Value) (Value, error) {
-  if op == OpEq {
-    return NewBool(i == operand), nil;
-  }
-	return nil, fmt.Errorf("iterator does not support this operation")
-}
-
-func (i *NativeIterator) IterNRet() int { return i.iterNRet }
-func (i *NativeIterator) Closed() bool  { return i.closed }
+func (i *NativeIterator) Traits() Traits { return TraitNone }
+func (i *NativeIterator) IterNRet() int  { return i.iterNRet }
+func (i *NativeIterator) Closed() bool   { return i.closed }
 
 func (i *NativeIterator) Close(m *VM) error {
 	if i.closed {

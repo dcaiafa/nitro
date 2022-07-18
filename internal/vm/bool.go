@@ -25,11 +25,13 @@ func NewBool(v bool) Bool {
 func (b Bool) Bool() bool     { return b.v }
 func (b Bool) String() string { return strconv.FormatBool(b.v) }
 func (b Bool) Type() string   { return "Bool" }
+func (b Bool) Traits() Traits { return TraitEq }
 
 func (b Bool) EvalOp(op Op, operand Value) (Value, error) {
-	if op == OpEq {
+	switch op {
+	case OpEq:
 		return NewBool(b == operand), nil
-	} else {
+	default:
 		return nil, fmt.Errorf("bool does not support this operation")
 	}
 }

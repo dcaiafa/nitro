@@ -7,23 +7,24 @@ import (
 	"os"
 
 	"github.com/dcaiafa/nitro"
+	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/lib/core"
 )
 
 type stdinWrapper struct {
-	nitro.BaseValue
 	*os.File
 }
 
-func wrapStdin() nitro.Value {
-	return &stdinWrapper{
-		BaseValue: nitro.BaseValue{TypeName: "stdin"},
-		File:      os.Stdin,
-	}
+func (w *stdinWrapper) String() string    { return "<stdin>" }
+func (w *stdinWrapper) Type() string      { return "stdin" }
+func (w *stdinWrapper) Traits() vm.Traits { return vm.TraitNone }
+
+var Stdin = &stdinWrapper{
+	File: os.Stdin,
 }
 
 func stdin(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	return []nitro.Value{wrapStdin()}, nil
+	return []nitro.Value{Stdin}, nil
 }
 
 func wrapWriter(typ string, w io.Writer) nitro.Value {
