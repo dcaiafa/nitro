@@ -200,6 +200,9 @@ type NitroParserListener interface {
 	// EnterPrimary_expr_member_access is called when entering the primary_expr_member_access production.
 	EnterPrimary_expr_member_access(c *Primary_expr_member_accessContext)
 
+	// EnterPrimary_exec_expr is called when entering the primary_exec_expr production.
+	EnterPrimary_exec_expr(c *Primary_exec_exprContext)
+
 	// EnterPrimary_expr_array is called when entering the primary_expr_array production.
 	EnterPrimary_expr_array(c *Primary_expr_arrayContext)
 
@@ -226,6 +229,15 @@ type NitroParserListener interface {
 
 	// EnterLambda_expr is called when entering the lambda_expr production.
 	EnterLambda_expr(c *Lambda_exprContext)
+
+	// EnterExec_expr is called when entering the exec_expr production.
+	EnterExec_expr(c *Exec_exprContext)
+
+	// EnterExec_arg_literal is called when entering the exec_arg_literal production.
+	EnterExec_arg_literal(c *Exec_arg_literalContext)
+
+	// EnterExec_arg_expr is called when entering the exec_arg_expr production.
+	EnterExec_arg_expr(c *Exec_arg_exprContext)
 
 	// EnterShort_lambda_expr is called when entering the short_lambda_expr production.
 	EnterShort_lambda_expr(c *Short_lambda_exprContext)
@@ -449,6 +461,9 @@ type NitroParserListener interface {
 	// ExitPrimary_expr_member_access is called when exiting the primary_expr_member_access production.
 	ExitPrimary_expr_member_access(c *Primary_expr_member_accessContext)
 
+	// ExitPrimary_exec_expr is called when exiting the primary_exec_expr production.
+	ExitPrimary_exec_expr(c *Primary_exec_exprContext)
+
 	// ExitPrimary_expr_array is called when exiting the primary_expr_array production.
 	ExitPrimary_expr_array(c *Primary_expr_arrayContext)
 
@@ -475,6 +490,15 @@ type NitroParserListener interface {
 
 	// ExitLambda_expr is called when exiting the lambda_expr production.
 	ExitLambda_expr(c *Lambda_exprContext)
+
+	// ExitExec_expr is called when exiting the exec_expr production.
+	ExitExec_expr(c *Exec_exprContext)
+
+	// ExitExec_arg_literal is called when exiting the exec_arg_literal production.
+	ExitExec_arg_literal(c *Exec_arg_literalContext)
+
+	// ExitExec_arg_expr is called when exiting the exec_arg_expr production.
+	ExitExec_arg_expr(c *Exec_arg_exprContext)
 
 	// ExitShort_lambda_expr is called when exiting the short_lambda_expr production.
 	ExitShort_lambda_expr(c *Short_lambda_exprContext)

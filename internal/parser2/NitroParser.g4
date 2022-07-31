@@ -14,11 +14,11 @@ meta_directive: meta_info
               | meta_param
               | meta_flag;
 
-meta_info: M_INFO ('{' meta_attribs '}')? ';';
-meta_param: M_PARAM ID ('=' expr)? ('{' meta_attribs '}')? ';';
-meta_flag: M_FLAG ID ('=' expr)? ('{' meta_attribs '}')? ';';
-meta_attribs: meta_attrib ((','|';') meta_attrib)* (','|';')?;
-meta_attrib: id_or_keyword (':' meta_literal)?;
+meta_info: M_INFO (OCURLY meta_attribs CCURLY)? ';';
+meta_param: M_PARAM ID ('=' expr)? (OCURLY meta_attribs CCURLY)? ';';
+meta_flag: M_FLAG ID ('=' expr)? (OCURLY meta_attribs CCURLY)? ';';
+meta_attribs: meta_attrib ((COMMA|';') meta_attrib)* (COMMA|';')?;
+meta_attrib: id_or_keyword (COLON meta_literal)?;
 meta_literal: val=(STRING | NUMBER | CHAR | TRUE | FALSE | NIL);
 
 // Statements
@@ -48,29 +48,29 @@ stmt: assignment_stmt      # stmt_assignment
     ;
 
 assignment_stmt: assignment_lvalues '=' rvalues;
-assignment_lvalues: lvalue_expr (',' lvalue_expr)*;
-rvalues: expr (',' expr)*;
+assignment_lvalues: lvalue_expr (COMMA lvalue_expr)*;
+rvalues: expr (COMMA expr)*;
 
 assignment_op_stmt: lvalue_expr op=('+='|'-='|'*='|'/='|'%=') expr;
 
 var_decl_stmt: VAR var_decl_vars ('=' rvalues)?;
-var_decl_vars: ID (',' ID)*;
+var_decl_vars: ID (COMMA ID)*;
 
-for_stmt: FOR for_vars ID expr '{' stmts '}';
-for_vars: ID (',' ID)*;
+for_stmt: FOR for_vars ID expr OCURLY stmts CCURLY;
+for_vars: ID (COMMA ID)*;
 
-while_stmt: WHILE expr '{' stmts '}';
+while_stmt: WHILE expr OCURLY stmts CCURLY;
 
-if_stmt: IF expr '{' stmts '}' if_elif* if_else?;
-if_elif: ELSE IF expr '{' stmts '}';
-if_else: ELSE '{' stmts '}';
+if_stmt: IF expr OCURLY stmts CCURLY if_elif* if_else?;
+if_elif: ELSE IF expr OCURLY stmts CCURLY;
+if_else: ELSE OCURLY stmts CCURLY;
 
-func_stmt: FUNC ID '(' param_list? ')' '{' stmts '}';
-param_list: ID (',' ID)*;
+func_stmt: FUNC ID OPAREN param_list? CPAREN OCURLY stmts CCURLY;
+param_list: ID (COMMA ID)*;
 
 return_stmt: RETURN rvalues?;
 
-try_catch_stmt: TRY '{' stmts '}' CATCH ID? '{' stmts '}';
+try_catch_stmt: TRY OCURLY stmts CCURLY CATCH ID? OCURLY stmts CCURLY;
 
 throw_stmt: THROW expr;
 
@@ -86,7 +86,7 @@ inc_dec_stmt: lvalue_expr op=('++'|'--');
 
 // Expressions
 
-expr: expr '|' expr
+expr: expr PIPE expr
     | expr2
     ;
 
@@ -94,60 +94,67 @@ expr2: short_lambda_expr
      | expr3
      ;
 
-expr3: <assoc=right> expr3 '?' expr3 ':' expr3
+expr3: <assoc=right> expr3 QUESTION_MARK expr3 COLON expr3
      | binary_expr
      ;
 
 binary_expr: unary_expr
-           | binary_expr op=('*'|'/'|'%') binary_expr
-           | binary_expr op=('+'|'-') binary_expr
-           | binary_expr op=('<'|'<='|'>'|'>='|'=='|'!=') binary_expr
+           | binary_expr op=(MUL|DIV|MOD) binary_expr
+           | binary_expr op=(ADD|SUB) binary_expr
+           | binary_expr op=(LT|LE|GT|GE|EQ|NE) binary_expr
            | binary_expr op=AND binary_expr
            | binary_expr op=OR binary_expr
            ;
 
 unary_expr: op=NOT primary_expr
-          | op='+' primary_expr
-          | op='-' primary_expr
+          | op=ADD primary_expr
+          | op=SUB primary_expr
           | primary_expr
           ;
 
-primary_expr: ID                                         # primary_expr_simple_ref
-            | primary_expr '.' ID                        # primary_expr_member_access
-            | primary_expr '[' expr ']'                  # primary_expr_index
-            | primary_expr '[' b=expr? ':' e=expr? ']'   # primary_expr_slice
-            | primary_expr '(' (arg_list '...'? )? ')'   # primary_expr_call
-            | lambda_expr                                # primary_expr_lambda
-            | object_literal                             # primary_expr_object
-            | array_literal                              # primary_expr_array
-            | simple_literal                             # primary_expr_literal
-            | REGEX                                      # primary_expr_regex
-            | '(' expr ')'                               # primary_expr_parenthesis
+primary_expr: ID                                                    # primary_expr_simple_ref
+            | primary_expr PERIOD ID                                # primary_expr_member_access
+            | primary_expr OBRACKET expr CBRACKET                   # primary_expr_index
+            | primary_expr OBRACKET b=expr? COLON e=expr? CBRACKET  # primary_expr_slice
+            | primary_expr OPAREN (arg_list EXPAND? )? CPAREN       # primary_expr_call
+            | lambda_expr                                           # primary_expr_lambda
+            | exec_expr                                             # primary_exec_expr
+            | object_literal                                        # primary_expr_object
+            | array_literal                                         # primary_expr_array
+            | simple_literal                                        # primary_expr_literal
+            | REGEX                                                 # primary_expr_regex
+            | OPAREN expr CPAREN                                    # primary_expr_parenthesis
             ;
 
 simple_literal: val=(STRING | NUMBER | CHAR | TRUE | FALSE | NIL);
 
-arg_list: expr (',' expr)* (','|';')?;
+arg_list: expr (COMMA expr)* (COMMA|';')?;
 
-lvalue_expr: ID                          # lvalue_expr_simple_ref
-           | primary_expr '.' ID         # lvalue_expr_member_access
-           | primary_expr '[' expr ']'   # lvalue_expr_index
+lvalue_expr: ID                                   # lvalue_expr_simple_ref
+           | primary_expr PERIOD ID               # lvalue_expr_member_access
+           | primary_expr OBRACKET expr CBRACKET  # lvalue_expr_index
            ;
 
-lambda_expr: FUNC '(' param_list? ')' '{' stmts '}';
+lambda_expr: FUNC OPAREN param_list? CPAREN OCURLY stmts CCURLY;
 
-short_lambda_expr: '&' param_list? '->' expr3;
+exec_expr: EXEC_PREFIX (exec_arg_literal | exec_arg_expr)+ EXEC_SUFFIX;
+exec_arg_literal: EXEC_LITERAL
+                | EXEC_DQUOTE_LITERAL
+                | EXEC_SQUOTE_LITERAL;
+exec_arg_expr: EXEC_EXPR_PREFIX expr EXEC_EXPR_SUFFIX;
 
-object_literal: '{' object_fields '}';
-object_fields: (object_field ((','|';') object_field)* (','|';')?)?;
+short_lambda_expr: LAMBDA param_list? ARROW expr3;
 
-object_field: id_or_keyword ':' expr     # object_field_id_key
-            | '[' expr ']' ':' expr      # object_field_expr_key
-            | primary_expr '...'         # object_field_expansion
+object_literal: OCURLY object_fields CCURLY;
+object_fields: (object_field ((COMMA|';') object_field)* (COMMA|';')?)?;
+
+object_field: id_or_keyword COLON expr           # object_field_id_key
+            | OBRACKET expr CBRACKET COLON expr  # object_field_expr_key
+            | primary_expr EXPAND                # object_field_expansion
             ;
 
-array_literal: '[' array_elems ']';
-array_elems: ( array_elem ((','|';') array_elem)* (','|';')* )?;
+array_literal: OBRACKET array_elems CBRACKET;
+array_elems: ( array_elem ((COMMA|';') array_elem)* (COMMA|';')* )?;
 array_elem: expr;
 
 id_or_keyword: 

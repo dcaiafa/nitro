@@ -409,6 +409,12 @@ func (s *BaseNitroParserListener) EnterPrimary_expr_member_access(ctx *Primary_e
 func (s *BaseNitroParserListener) ExitPrimary_expr_member_access(ctx *Primary_expr_member_accessContext) {
 }
 
+// EnterPrimary_exec_expr is called when production primary_exec_expr is entered.
+func (s *BaseNitroParserListener) EnterPrimary_exec_expr(ctx *Primary_exec_exprContext) {}
+
+// ExitPrimary_exec_expr is called when production primary_exec_expr is exited.
+func (s *BaseNitroParserListener) ExitPrimary_exec_expr(ctx *Primary_exec_exprContext) {}
+
 // EnterPrimary_expr_array is called when production primary_expr_array is entered.
 func (s *BaseNitroParserListener) EnterPrimary_expr_array(ctx *Primary_expr_arrayContext) {}
 
@@ -464,6 +470,24 @@ func (s *BaseNitroParserListener) EnterLambda_expr(ctx *Lambda_exprContext) {}
 
 // ExitLambda_expr is called when production lambda_expr is exited.
 func (s *BaseNitroParserListener) ExitLambda_expr(ctx *Lambda_exprContext) {}
+
+// EnterExec_expr is called when production exec_expr is entered.
+func (s *BaseNitroParserListener) EnterExec_expr(ctx *Exec_exprContext) {}
+
+// ExitExec_expr is called when production exec_expr is exited.
+func (s *BaseNitroParserListener) ExitExec_expr(ctx *Exec_exprContext) {}
+
+// EnterExec_arg_literal is called when production exec_arg_literal is entered.
+func (s *BaseNitroParserListener) EnterExec_arg_literal(ctx *Exec_arg_literalContext) {}
+
+// ExitExec_arg_literal is called when production exec_arg_literal is exited.
+func (s *BaseNitroParserListener) ExitExec_arg_literal(ctx *Exec_arg_literalContext) {}
+
+// EnterExec_arg_expr is called when production exec_arg_expr is entered.
+func (s *BaseNitroParserListener) EnterExec_arg_expr(ctx *Exec_arg_exprContext) {}
+
+// ExitExec_arg_expr is called when production exec_arg_expr is exited.
+func (s *BaseNitroParserListener) ExitExec_arg_expr(ctx *Exec_arg_exprContext) {}
 
 // EnterShort_lambda_expr is called when production short_lambda_expr is entered.
 func (s *BaseNitroParserListener) EnterShort_lambda_expr(ctx *Short_lambda_exprContext) {}

@@ -826,6 +826,15 @@ func (l *listener) ExitPrimary_expr_member_access(ctx *parser.Primary_expr_membe
 	})
 }
 
+func (l *listener) ExitPrimary_exec_expr(ctx *parser.Primary_exec_exprContext) {
+  l.put(ctx, &ast.LiteralExpr{
+    Val: token.Token{
+      Str: "Expr",
+      Type: token.String,
+    },
+  })
+}
+
 func (l *listener) ExitPrimary_expr_index(ctx *parser.Primary_expr_indexContext) {
 	l.put(ctx, &ast.IndexExpr{
 		Target: l.takeExpr(ctx.Primary_expr()),
