@@ -22,6 +22,8 @@ func expandEscapeSequences(s string) (string, error) {
 			return "\t"
 		case '"':
 			return "\""
+		case '\'':
+			return "'"
 		case '\\':
 			return "\\"
 		case 'x':

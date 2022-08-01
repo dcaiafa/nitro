@@ -137,13 +137,13 @@ lvalue_expr: ID                                   # lvalue_expr_simple_ref
 
 lambda_expr: FUNC OPAREN param_list? CPAREN OCURLY stmts CCURLY;
 
-exec_expr: EXEC_PREFIX (exec_arg_literal | exec_arg_expr)+ EXEC_SUFFIX;
-exec_arg_literal: EXEC_LITERAL
-                | EXEC_DQUOTE_LITERAL
-                | EXEC_SQUOTE_LITERAL;
-exec_arg_expr: EXEC_EXPR_PREFIX expr EXEC_EXPR_SUFFIX;
-
 short_lambda_expr: LAMBDA param_list? ARROW expr3;
+
+exec_expr: EXEC_PREFIX exec_expr_arg+ EXEC_SUFFIX;
+exec_expr_arg: EXEC_LITERAL
+             | EXEC_DQUOTE_LITERAL
+             | EXEC_SQUOTE_LITERAL
+             | OCURLY expr CCURLY; 
 
 object_literal: OCURLY object_fields CCURLY;
 object_fields: (object_field ((COMMA|';') object_field)* (COMMA|';')?)?;

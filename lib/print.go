@@ -252,7 +252,7 @@ func basePrint(out io.Writer, m *nitro.VM, args []nitro.Value, nRet int) ([]nitr
 				return nil, err
 			}
 			if !mods.NoNL {
-				fmt.Println("")
+				fmt.Fprintln(out, "")
 			}
 
 			return nil, nil

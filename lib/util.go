@@ -47,6 +47,19 @@ func getStringArg(args []vm.Value, ndx int) (string, error) {
 	return v.String(), nil
 }
 
+func getListArg(args []vm.Value, ndx int) (*nitro.Array, error) {
+	if ndx >= len(args) {
+		return nil, errNotEnoughArgs
+	}
+	v, ok := args[ndx].(*vm.Array)
+	if !ok {
+		return nil, fmt.Errorf(
+			"expected argument %d to be list, but it is %v",
+			ndx+1, nitro.TypeName(args[ndx]))
+	}
+	return v, nil
+}
+
 func getObjectArg(args []vm.Value, ndx int) (*nitro.Object, error) {
 	if ndx >= len(args) {
 		return nil, errNotEnoughArgs
@@ -83,4 +96,16 @@ func getWriterArg(args []vm.Value, ndx int) (io.Writer, error) {
 	default:
 		return nil, fmt.Errorf("argument %v is not writable", nitro.TypeName(v))
 	}
+}
+
+func getReaderArg(vmArg *vm.VM, args []vm.Value, ndx int) (vm.Reader, error) {
+	if ndx >= len(args) {
+		return nil, errNotEnoughArgs
+	}
+  v := args[ndx]
+  reader, err := vm.MakeReader(vmArg, v)
+  if err != nil {
+		return nil, fmt.Errorf("argument #%v %v is not readable", ndx+1, nitro.TypeName(v))
+  }
+  return reader, nil
 }

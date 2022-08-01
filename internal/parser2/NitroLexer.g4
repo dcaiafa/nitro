@@ -93,12 +93,12 @@ EXEC_PREFIX: 'e`' -> pushMode(EXEC);
 
 mode EXEC;
 
+EXEC_WS_: [ \t\r\n]+ -> skip;
 EXEC_SUFFIX: '`' -> popMode;
-EXEC_LITERAL: [a-zA-Z0-9-+_]+;
+EXEC_LITERAL: ~[ \t\r\n{"'`] ~[ \t\r\n`]*;
 EXEC_DQUOTE_: '"' -> more, pushMode(EXEC_DQUOTE);
 EXEC_SQUOTE_: '\'' -> more, pushMode(EXEC_SQUOTE);
-EXEC_WS_: [ \t]+ -> skip;
-EXEC_EXPR_PREFIX: '{' -> pushMode(EXEC_EXPR);
+EXEC_EXPR_PREFIX_: '{' -> type(OCURLY), pushMode(EXEC_EXPR);
 
 mode EXEC_DQUOTE;
 
@@ -114,7 +114,7 @@ EXEC_SQUOTE_LITERAL: '\'' -> popMode;
 
 mode EXEC_EXPR;
 
-EXEC_EXPR_SUFFIX: '}' -> popMode;
+EXEC_EXPR_SUFFIX_: '}' -> type(CCURLY), popMode;
 EXEC_EXPR_EXEC_SUFFIX_: 'e`' -> type(EXEC_PREFIX), pushMode(EXEC);
 
 EXEC_EXPR_AND_: 'and' -> type(AND);

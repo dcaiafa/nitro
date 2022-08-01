@@ -471,29 +471,23 @@ func (s *BaseNitroParserListener) EnterLambda_expr(ctx *Lambda_exprContext) {}
 // ExitLambda_expr is called when production lambda_expr is exited.
 func (s *BaseNitroParserListener) ExitLambda_expr(ctx *Lambda_exprContext) {}
 
+// EnterShort_lambda_expr is called when production short_lambda_expr is entered.
+func (s *BaseNitroParserListener) EnterShort_lambda_expr(ctx *Short_lambda_exprContext) {}
+
+// ExitShort_lambda_expr is called when production short_lambda_expr is exited.
+func (s *BaseNitroParserListener) ExitShort_lambda_expr(ctx *Short_lambda_exprContext) {}
+
 // EnterExec_expr is called when production exec_expr is entered.
 func (s *BaseNitroParserListener) EnterExec_expr(ctx *Exec_exprContext) {}
 
 // ExitExec_expr is called when production exec_expr is exited.
 func (s *BaseNitroParserListener) ExitExec_expr(ctx *Exec_exprContext) {}
 
-// EnterExec_arg_literal is called when production exec_arg_literal is entered.
-func (s *BaseNitroParserListener) EnterExec_arg_literal(ctx *Exec_arg_literalContext) {}
+// EnterExec_expr_arg is called when production exec_expr_arg is entered.
+func (s *BaseNitroParserListener) EnterExec_expr_arg(ctx *Exec_expr_argContext) {}
 
-// ExitExec_arg_literal is called when production exec_arg_literal is exited.
-func (s *BaseNitroParserListener) ExitExec_arg_literal(ctx *Exec_arg_literalContext) {}
-
-// EnterExec_arg_expr is called when production exec_arg_expr is entered.
-func (s *BaseNitroParserListener) EnterExec_arg_expr(ctx *Exec_arg_exprContext) {}
-
-// ExitExec_arg_expr is called when production exec_arg_expr is exited.
-func (s *BaseNitroParserListener) ExitExec_arg_expr(ctx *Exec_arg_exprContext) {}
-
-// EnterShort_lambda_expr is called when production short_lambda_expr is entered.
-func (s *BaseNitroParserListener) EnterShort_lambda_expr(ctx *Short_lambda_exprContext) {}
-
-// ExitShort_lambda_expr is called when production short_lambda_expr is exited.
-func (s *BaseNitroParserListener) ExitShort_lambda_expr(ctx *Short_lambda_exprContext) {}
+// ExitExec_expr_arg is called when production exec_expr_arg is exited.
+func (s *BaseNitroParserListener) ExitExec_expr_arg(ctx *Exec_expr_argContext) {}
 
 // EnterObject_literal is called when production object_literal is entered.
 func (s *BaseNitroParserListener) EnterObject_literal(ctx *Object_literalContext) {}

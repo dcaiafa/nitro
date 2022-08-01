@@ -48,12 +48,11 @@ type process struct {
 
 var _ io.Reader = (*process)(nil)
 
-func newProcess(m *nitro.VM, cmd *osexec.Cmd, stdin io.Reader, stderr io.Writer) *process {
+func newProcess(m *nitro.VM, cmd *osexec.Cmd, stdin io.Reader) *process {
 	p := &process{
 		vm:          m,
 		cmd:         cmd,
 		stdin:       stdin,
-		stderr:      stderr,
 		stdinQueue:  ioqueue.New(),
 		stdoutQueue: ioqueue.New(),
 		stderrQueue: ioqueue.New(),
@@ -66,8 +65,13 @@ func (p *process) String() string    { return "Process " + p.cmd.Path }
 func (p *process) Type() string      { return "Process" }
 func (p *process) Traits() vm.Traits { return vm.TraitNone }
 
-func (p *process) Start() error {
+func (p *process) start() error {
 	var err error
+
+	if p.started {
+		panic("already started")
+	}
+	p.started = true
 
 	if p.stdin != nil {
 		if nativeReader, ok := p.stdin.(core.NativeReader); ok {
@@ -216,6 +220,11 @@ func (p *process) Close() error {
 	}
 
 	p.closed = true
+
+	if !p.started {
+		return nil
+	}
+
 	if p.vm.ShuttingDown() {
 		fmt.Fprintf(
 			Stderr(p.vm),
@@ -267,6 +276,13 @@ func (p *process) Read(b []byte) (written int, err error) {
 		}
 		err = p.getError()
 	}()
+
+	if !p.started {
+		err = p.start()
+		if err != nil {
+			return 0, err
+		}
+	}
 
 	// There could be stdout left overs to be processed - a block of data received
 	// from outputLoop that was not fully consumed by the previous Read call.
@@ -383,98 +399,46 @@ func (p *process) Read(b []byte) (written int, err error) {
 	return written, nil
 }
 
-type execOptions struct {
-	Cmd    []string    `nitro:"cmd"`
-	Env    []string    `nitro:"env"`
-	Dir    string      `nitro:"string"`
-	Stderr nitro.Value `nitro:"stderr"`
-}
-
-var execOptionsConv core.Value2Structer
-
-var errExecUsage = errors.New(
-	`invalid usage. Expected exec((string|reader|iter)?, object) or ` +
-		`exec((string|reader|iter)?, string, string...)`)
-
 func exec(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	var err error
 	var stdin io.Reader
-	var opt execOptions
 	var cmd *osexec.Cmd
 
-	if len(args) < 1 {
-		return nil, errExecUsage
+	if len(args) > 2 {
+		return nil, errTooManyArgs
 	}
 
-	switch arg := args[0].(type) {
-	case nitro.String, *nitro.Object:
-		// Only use the first string or map argument as "stdin" if it was
-		// provided via pipeline. Otherwise, this is probably the command argument
-		// in concise form, or the options map.
-		if m.IsPipeline() {
-			stdin, err = nitro.MakeReader(m, arg)
-			if err != nil {
-				return nil, err
-			}
-			args = args[1:]
-		}
-
-	default:
-		if nitro.IsReadable(args[0]) {
-			stdin, err = nitro.MakeReader(m, args[0])
-			if err != nil {
-				return nil, err
-			}
-			args = args[1:]
-		}
-	}
-
-	if len(args) < 1 {
-		return nil, errExecUsage
-	}
-
-	optv, ok := args[0].(*nitro.Object)
-	if ok {
-		err = execOptionsConv.Convert(optv, &opt)
+	cmdArgsIndex := 0
+	if len(args) == 2 {
+		stdin, err = getReaderArg(m, args, 0)
 		if err != nil {
 			return nil, err
 		}
-	} else {
-		for _, arg := range args {
-			argStr, ok := arg.(nitro.String)
-			if !ok {
-				return nil, errExecUsage
-			}
-			opt.Cmd = append(opt.Cmd, argStr.String())
-		}
+		cmdArgsIndex = 1
 	}
 
-	if len(opt.Cmd) == 0 {
-		return nil, fmt.Errorf(`option "cmd" cannot be empty`)
-	}
-
-	var stderr io.Writer
-	if opt.Stderr != nil {
-		stderr, ok = opt.Stderr.(io.Writer)
-		if !ok {
-			return nil, fmt.Errorf(
-				"option stderr %q is not a writer", nitro.TypeName(opt.Stderr))
-		}
-	}
-
-	cmd = osexec.Command(opt.Cmd[0], opt.Cmd[1:]...)
-
-	if opt.Env != nil {
-		cmd.Env = opt.Env
-	}
-
-	p := newProcess(m, cmd, stdin, stderr)
-
-	err = p.Start()
+	cmdArgsList, err := getListArg(args, cmdArgsIndex)
 	if err != nil {
 		return nil, err
 	}
 
+	cmdArgs := make([]string, 0, cmdArgsList.Len())
+
+	for i := 0; i < cmdArgsList.Len(); i++ {
+		v := cmdArgsList.Get(i)
+		switch v.(type) {
+		case vm.Int, vm.Float, vm.String:
+			cmdArgs = append(cmdArgs, v.String())
+		default:
+			return nil, fmt.Errorf(
+				"command argument allowed types are string, int and float; but argument #%v is %v",
+				i+1, vm.TypeName(v))
+		}
+	}
+
+	cmd = osexec.Command(cmdArgs[0], cmdArgs[1:]...)
+
+	p := newProcess(m, cmd, stdin)
 	p.crumb = m.GetFrameCrumb(1)
 	m.RegisterCloser(p)
 

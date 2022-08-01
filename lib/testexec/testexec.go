@@ -19,6 +19,13 @@ func main() {
 		flagExitCode     = flag.Int("exit-code", 0, "")
 	)
 
+	if len(os.Args) > 1 && os.Args[1] == "-print-args" {
+		for _, arg := range os.Args[2:] {
+			fmt.Println("[" + arg + "]")
+		}
+		return
+	}
+
 	flag.Parse()
 
 	if *flagEchoToStdout {

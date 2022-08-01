@@ -37,7 +37,9 @@ func (l *listener) tokenToNitro(at antlr.Token) token.Token {
 	switch at.GetTokenType() {
 	case parser.NitroLexerNIL:
 		t.Type = token.Nil
-	case parser.NitroLexerSTRING:
+	case parser.NitroLexerSTRING,
+		parser.NitroLexerEXEC_DQUOTE_LITERAL,
+		parser.NitroLexerEXEC_SQUOTE_LITERAL:
 		s := at.GetText()
 		s = s[1 : len(s)-1] // remove quotes
 		t.Type = token.String
@@ -660,7 +662,7 @@ func (l *listener) ExitInc_dec_stmt(ctx *parser.Inc_dec_stmtContext) {
 	})
 }
 
-// expr: expr ('|' expr)
+// expr: expr2 '|' expr
 //     | expr2
 //     ;
 func (l *listener) ExitExpr(ctx *parser.ExprContext) {
@@ -807,6 +809,7 @@ func (l *listener) ExitUnary_expr(ctx *parser.Unary_exprContext) {
 //             | primary_expr '[' expr? ':' expr? ']'     # primary_expr_slice
 //             | primary_expr '(' arg_list? ')'           # primary_expr_call
 //             | lambda_expr                              # primary_expr_lambda
+//             | exec_expr                                # primary_exec_expr
 //             | object_literal                           # primary_expr_object
 //             | array_literal                            # primary_expr_array
 //             | simple_literal                           # primary_expr_literal
@@ -827,12 +830,7 @@ func (l *listener) ExitPrimary_expr_member_access(ctx *parser.Primary_expr_membe
 }
 
 func (l *listener) ExitPrimary_exec_expr(ctx *parser.Primary_exec_exprContext) {
-  l.put(ctx, &ast.LiteralExpr{
-    Val: token.Token{
-      Str: "Expr",
-      Type: token.String,
-    },
-  })
+	l.put(ctx, l.takeExpr(ctx.Exec_expr()))
 }
 
 func (l *listener) ExitPrimary_expr_index(ctx *parser.Primary_expr_indexContext) {
@@ -947,6 +945,68 @@ func (l *listener) ExitShort_lambda_expr(ctx *parser.Short_lambda_exprContext) {
 		},
 	}
 	l.put(ctx, lambda)
+}
+
+// exec_expr: EXEC_PREFIX exec_expr_arg+ EXEC_SUFFIX;
+func (l *listener) ExitExec_expr(ctx *parser.Exec_exprContext) {
+	// TODO: set position.
+	exprArgs := &ast.ArrayLiteral{
+		Block: &ast.ArrayElementBlock{
+			Elements: make(ast.ASTs, len(ctx.AllExec_expr_arg())),
+		},
+	}
+	for i, argCtx := range ctx.AllExec_expr_arg() {
+		exprArgs.Block.Elements[i] = &ast.ArrayElement{
+			Val: l.takeExpr(argCtx),
+		}
+	}
+
+	l.put(ctx, &ast.FuncCallExpr{
+		Target: &ast.SimpleRef{
+			ID: token.Token{
+				Str:  "$exec",
+				Type: token.String,
+			},
+		},
+		Args: ast.Exprs{exprArgs},
+		RetN: 1,
+	})
+}
+
+// exec_expr_arg: EXEC_LITERAL
+//              | EXEC_DQUOTE_LITERAL
+//              | EXEC_SQUOTE_LITERAL
+//              | EXEC_EXPR_PREFIX expr EXEC_EXPR_SUFFIX;
+func (l *listener) ExitExec_expr_arg(ctx *parser.Exec_expr_argContext) {
+	if expr := ctx.Expr(); expr != nil {
+		l.put(ctx, l.takeExpr(expr))
+		return
+	}
+
+	t := ctx.EXEC_LITERAL()
+	if t == nil {
+		t = ctx.EXEC_DQUOTE_LITERAL()
+	}
+	if t == nil {
+		t = ctx.EXEC_SQUOTE_LITERAL()
+	}
+	if t == nil {
+		t = ctx.EXEC_SQUOTE_LITERAL()
+	}
+
+	if t == nil {
+		// The parser is probably in error recovery.
+		l.put(ctx, &ast.LiteralExpr{
+			Val: token.Token{
+				Type: token.Nil,
+			},
+		})
+		return
+	}
+
+	l.put(ctx, &ast.LiteralExpr{
+		Val: l.tokenToNitro(t.GetSymbol()),
+	})
 }
 
 // object_literal: '{' object_fields? '}';
