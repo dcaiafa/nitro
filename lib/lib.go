@@ -21,7 +21,7 @@ type fnInfo struct {
 }
 
 var allFuncs = []fnInfo{
-	{"", "$exec", exec},
+	{"", "$exec", execExec},
 	{"", "args", args},
 	{"", "avg", avg},
 	{"", "batch", batch},
@@ -111,7 +111,8 @@ var allFuncs = []fnInfo{
 	{"", "write_file", writeFile},
 	{"co", "run_with_timeout", runWithTimeout},
 	{"co", "start", start},
-	{"exec", "exec", exec},
+	{"exec", "exec", execExec},
+	{"exec", "with_stderr", execWithStderr},
 	{"math", "trunc", mathTrunc},
 	{"path", "base", pathBase},
 	{"path", "clean", pathClean},

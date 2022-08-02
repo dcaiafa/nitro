@@ -19,7 +19,7 @@ func TestExec(t *testing.T) {
     { name: "Deedee", alive: false },
     { name: "Ollie", alive: true },
   ]
-` + "e`go run ./testexec/testexec.go -print-args {1} {[\"hello\", \"world\"] | join(\" \")} {pets | filter(&p->p.alive) | first | &p->p.name}` |\n"+`
+`+"e`go run ./testexec/testexec.go -print-args {1} {[\"hello\", \"world\"] | join(\" \")} {pets | filter(&p->p.alive) | first | &p->p.name}` |\n"+`
 			stdout
 	`, `
 [1]
@@ -63,29 +63,16 @@ func TestExec(t *testing.T) {
 			print()
 	`, `5000050000`)
 
-	/*
-		RunSubO(t, `capture_stderr`, `
+	RunSubO(t, `capture_stderr`, `
 			var err_buf = buf()
 			var out = range(2049) |
 				map(to_string) |
-				exec.exec({
-					cmd: ["go", "run", "./testexec/testexec.go", "-echo-to-stderr", "-range", "11", "-range-stdout"]
-					stderr: err_buf
-				})
+				exec.exec(["go", "run", "./testexec/testexec.go", "-echo-to-stderr", "-range", "11", "-range-stdout"]) |
+        exec.with_stderr(err_buf)
 	    var out_sum = out | lines() | map(&l -> parse_int(l)) | reduce(sum)
 			var err_sum = err_buf | lines() | map(&l -> parse_int(l)) | reduce(sum)
 			print(out_sum, err_sum)
 		`, `55 2098176`)
-	*/
-
-	/*
-		RunSubO(t, `redirect_stderr`, `
-			"hello world" |
-				exec.exec("go", "run", "./testexec/testexec.go", "-echo-to-stdout") |
-				read() |
-				print()
-		`, `hello world`)
-	*/
 
 	RunSubO(t, `process_returns_non_zero`, `
 		try {
@@ -125,21 +112,20 @@ exit status 128
 			print
 `, `100000`)
 
-	/*
-	   	RunSubO(t, `stderr_is_file`, `
-	   		var tmp = create_temp()
-	   		defer remove_file(tmp)
-	   		range(100000) |
-	   			map(to_string) |
-	   			exec.exec({ cmd: ["go", "run", "./testexec/testexec.go", "-echo-to-stderr"], stderr: tmp }) |
-	   			discard
-	   		seek(tmp, 0)
-	   		read(tmp) |
-	   			lines() |
-	   			count() |
-	   			print()
-	   `, `100000`)
-	*/
+	RunSubO(t, `stderr_is_file`, `
+      var tmp = create_temp()
+      defer remove_file(tmp)
+      range(100000) |
+        map(to_string) |
+        exec.exec(["go", "run", "./testexec/testexec.go", "-echo-to-stderr"]) |
+        exec.with_stderr(tmp) |
+        discard
+      seek(tmp, 0)
+      read(tmp) |
+        lines() |
+        count() |
+        print()
+   `, `100000`)
 
 	RunSubO(t, `executable_not_found`, `
 	try {

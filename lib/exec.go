@@ -16,6 +16,7 @@ import (
 )
 
 var ErrAborted = errors.New("aborted")
+var ErrProcessAlreadyStarted = errors.New("process already started")
 
 const minOutBufferReady = 0
 const minInBufferReady = 0
@@ -64,6 +65,14 @@ func newProcess(m *nitro.VM, cmd *osexec.Cmd, stdin io.Reader) *process {
 func (p *process) String() string    { return "Process " + p.cmd.Path }
 func (p *process) Type() string      { return "Process" }
 func (p *process) Traits() vm.Traits { return vm.TraitNone }
+
+func (p *process) SetStderr(w io.Writer) error {
+  if p.started {
+    return ErrProcessAlreadyStarted
+  }
+  p.stderr = w
+  return nil
+}
 
 func (p *process) start() error {
 	var err error
@@ -399,7 +408,7 @@ func (p *process) Read(b []byte) (written int, err error) {
 	return written, nil
 }
 
-func exec(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func execExec(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	var err error
 	var stdin io.Reader
 	var cmd *osexec.Cmd
@@ -443,4 +452,27 @@ func exec(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	m.RegisterCloser(p)
 
 	return []nitro.Value{p}, nil
+}
+
+func execWithStderr(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) { 
+  if len(args) > 2 {
+    return nil, errTooManyArgs
+  }
+
+  p, err := getProcessArg(args, 0)
+  if err != nil {
+    return nil, err
+  }
+
+  w, err := getWriterArg(args, 1)
+  if err != nil {
+    return nil, err
+  }
+
+  err = p.SetStderr(w)
+  if err != nil {
+    return nil, err
+  }
+
+  return []nitro.Value{p}, nil
 }

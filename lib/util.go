@@ -86,6 +86,19 @@ func getRegexArg(args []vm.Value, ndx int) (*nitro.Regex, error) {
 	return v, nil
 }
 
+func getProcessArg(args []vm.Value, ndx int) (*process, error) {
+	if ndx >= len(args) {
+		return nil, errNotEnoughArgs
+	}
+	v, ok := args[ndx].(*process)
+	if !ok {
+		return nil, fmt.Errorf(
+			"expected argument %d to be process, but it is %v",
+			ndx+1, nitro.TypeName(args[ndx]))
+	}
+	return v, nil
+}
+
 func getWriterArg(args []vm.Value, ndx int) (io.Writer, error) {
 	if ndx >= len(args) {
 		return nil, errNotEnoughArgs
@@ -102,10 +115,10 @@ func getReaderArg(vmArg *vm.VM, args []vm.Value, ndx int) (vm.Reader, error) {
 	if ndx >= len(args) {
 		return nil, errNotEnoughArgs
 	}
-  v := args[ndx]
-  reader, err := vm.MakeReader(vmArg, v)
-  if err != nil {
+	v := args[ndx]
+	reader, err := vm.MakeReader(vmArg, v)
+	if err != nil {
 		return nil, fmt.Errorf("argument #%v %v is not readable", ndx+1, nitro.TypeName(v))
-  }
-  return reader, nil
+	}
+	return reader, nil
 }
