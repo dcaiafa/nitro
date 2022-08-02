@@ -35,6 +35,7 @@ var allFuncs = []fnInfo{
 	{"", "first", first},
 	{"", "flatten", flatten},
 	{"", "from_crlf", fromCRLF},
+	{"", "get", get},
 	{"", "group", group},
 	{"", "has", has},
 	{"", "hist", hist},

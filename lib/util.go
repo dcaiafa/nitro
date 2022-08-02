@@ -142,9 +142,16 @@ func getCallableArg(args []nitro.Value, ndx int) (nitro.Callable, error) {
 	return callable, nil
 }
 
+func errExpectedArg(ndx int, expected, actual nitro.Value) error {
+	return fmt.Errorf(
+		"expected argument #%v to be %v, but it was %v",
+		ndx+1, nitro.TypeName(expected),
+		nitro.TypeName(actual))
+}
+
 func errExpectedArg2(ndx int, expected1, expected2, actual nitro.Value) error {
 	return fmt.Errorf(
 		"expected argument #%v to be %v or %v, but it was %v",
-		ndx + 1, nitro.TypeName(expected1), nitro.TypeName(expected2),
+		ndx+1, nitro.TypeName(expected1), nitro.TypeName(expected2),
 		nitro.TypeName(actual))
 }
