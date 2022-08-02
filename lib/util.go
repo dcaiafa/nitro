@@ -1,11 +1,18 @@
 package lib
 
 import (
+	"errors"
 	"fmt"
 	"io"
 
 	"github.com/dcaiafa/nitro"
 	"github.com/dcaiafa/nitro/internal/vm"
+)
+
+var (
+	errNotEnoughArgs       = errors.New("not enough arguments")
+	errTooManyArgs         = errors.New("too many arguments")
+	errInvalidNumberOfArgs = errors.New("invalid number of arguments")
 )
 
 func getIntArg(args []vm.Value, ndx int) (int64, error) {
@@ -121,4 +128,23 @@ func getReaderArg(vmArg *vm.VM, args []vm.Value, ndx int) (vm.Reader, error) {
 		return nil, fmt.Errorf("argument #%v %v is not readable", ndx+1, nitro.TypeName(v))
 	}
 	return reader, nil
+}
+
+func getCallableArg(args []nitro.Value, ndx int) (nitro.Callable, error) {
+	if ndx >= len(args) {
+		return nil, errNotEnoughArgs
+	}
+	v := args[ndx]
+	callable, ok := args[ndx].(nitro.Callable)
+	if !ok {
+		return nil, fmt.Errorf("argument #%v %v is not callable", ndx+1, nitro.TypeName(v))
+	}
+	return callable, nil
+}
+
+func errExpectedArg2(ndx int, expected1, expected2, actual nitro.Value) error {
+	return fmt.Errorf(
+		"expected argument #%v to be %v or %v, but it was %v",
+		ndx + 1, nitro.TypeName(expected1), nitro.TypeName(expected2),
+		nitro.TypeName(actual))
 }

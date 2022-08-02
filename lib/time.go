@@ -150,21 +150,21 @@ func (t Time) format(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, 
 
 func (t Time) unix(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) != 0 {
-		return nil, errTakesNoArgs
+		return nil, errInvalidNumberOfArgs
 	}
 	return []nitro.Value{nitro.NewInt(t.time.Unix())}, nil
 }
 
 func (t Time) unixnano(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) != 0 {
-		return nil, errTakesNoArgs
+		return nil, errInvalidNumberOfArgs
 	}
 	return []nitro.Value{nitro.NewInt(t.time.UnixNano())}, nil
 }
 
 func now(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) != 0 {
-		return nil, errTakesNoArgs
+		return nil, errInvalidNumberOfArgs
 	}
 	return []nitro.Value{Time{time.Now()}}, nil
 }

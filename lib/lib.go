@@ -1,17 +1,10 @@
 package lib
 
 import (
-	"errors"
 	gosort "sort"
 
 	"github.com/dcaiafa/nitro"
 	"github.com/dcaiafa/nitro/internal/vm"
-)
-
-var (
-	errNotEnoughArgs = errors.New("not enough arguments")
-	errTooManyArgs   = errors.New("too many arguments")
-	errTakesNoArgs   = errors.New("function does not take arguments")
 )
 
 type fnInfo struct {
@@ -122,6 +115,23 @@ var allFuncs = []fnInfo{
 	{"path", "join", pathJoin},
 	{"path", "match", pathMatch},
 	{"path", "to_slash", pathToSlash},
+  {"str", "fields", strFields},
+  {"str", "find", strFind},
+  {"str", "find_last", strFindLast},
+  {"str", "has_prefix", strHasPrefix},
+  {"str", "has_suffix", strHasSuffix},
+  {"str", "match", strMatch},
+  {"str", "match_all", strMatchAll},
+  {"str", "repeat", strRepeat},
+  {"str", "replace", strReplace},
+  {"str", "split", strSplit},
+  {"str", "to_lower", strToUpper},
+  {"str", "to_upper", strToUpper},
+  {"str", "trim", strTrim},
+  {"str", "trim_left", strTrimLeft},
+  {"str", "trim_prefix", strTrimPrefix},
+  {"str", "trim_right", strTrimRight},
+  {"str", "trim_suffix", strTrimSuffix},
 }
 
 type funcRegistry struct {
