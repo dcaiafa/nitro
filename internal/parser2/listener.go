@@ -662,39 +662,10 @@ func (l *listener) ExitInc_dec_stmt(ctx *parser.Inc_dec_stmtContext) {
 	})
 }
 
-// expr: expr2 '|' expr
-//     | expr2
+// expr: short_lambda_expr
+//     | expr3
 //     ;
 func (l *listener) ExitExpr(ctx *parser.ExprContext) {
-	allExpr := ctx.AllExpr()
-	if len(allExpr) != 0 {
-		left := l.takeExpr(allExpr[0])
-		right := l.takeExpr(allExpr[1])
-
-		switch fn := right.(type) {
-		case *ast.FuncCallExpr:
-			fn.Args = append(ast.Exprs{left}, fn.Args...)
-			fn.Pipeline = true
-			l.put(ctx, fn)
-
-		default:
-			fnCall := &ast.FuncCallExpr{
-				Target: fn,
-				Args:   ast.Exprs{left},
-				RetN:   1,
-			}
-			fnCall.Pipeline = true
-			l.put(ctx, fnCall)
-		}
-	} else {
-		l.put(ctx, l.takeExpr(ctx.Expr2()))
-	}
-}
-
-// expr2: short_lambda_expr
-//      | expr3
-//      ;
-func (l *listener) ExitExpr2(ctx *parser.Expr2Context) {
 	if ctx.Short_lambda_expr() != nil {
 		l.put(ctx, l.takeExpr(ctx.Short_lambda_expr()))
 	} else {
@@ -720,13 +691,13 @@ func (l *listener) ExitExpr3(ctx *parser.Expr3Context) {
 }
 
 // binary_expr: unary_expr
-//            | short_lambda_expr
-//            | binary_expr op=('*'|'/'|'%') binary_expr
-//            | binary_expr op=('+'|'-') binary_expr
-//            | binary_expr op=('<'|'<='|'>'|'>='|'=='|'!=') binary_expr
-//            | binary_expr op=AND binary_expr
-//            | binary_expr op=OR binary_expr
-//            ;
+// | binary_expr op=PIPE binary_expr
+// | binary_expr op=(MUL|DIV|MOD) binary_expr
+// | binary_expr op=(ADD|SUB) binary_expr
+// | binary_expr op=(LT|LE|GT|GE|EQ|NE) binary_expr
+// | binary_expr op=AND binary_expr
+// | binary_expr op=OR binary_expr
+// ;
 func (l *listener) ExitBinary_expr(ctx *parser.Binary_exprContext) {
 	if ctx.Unary_expr() != nil {
 		l.put(ctx, l.takeExpr(ctx.Unary_expr()))
@@ -741,6 +712,23 @@ func (l *listener) ExitBinary_expr(ctx *parser.Binary_exprContext) {
 	}
 
 	switch ctx.GetOp().GetTokenType() {
+	case parser.NitroLexerPIPE:
+		switch fn := right.(type) {
+		case *ast.FuncCallExpr:
+			fn.Args = append(ast.Exprs{left}, fn.Args...)
+			fn.Pipeline = true
+			l.put(ctx, fn)
+
+		default:
+			fnCall := &ast.FuncCallExpr{
+				Target: fn,
+				Args:   ast.Exprs{left},
+				RetN:   1,
+			}
+			fnCall.Pipeline = true
+			l.put(ctx, fnCall)
+		}
+
 	case parser.NitroLexerMUL:
 		simpleBinExp(ast.BinOpMult)
 	case parser.NitroLexerDIV:

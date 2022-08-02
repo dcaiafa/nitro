@@ -86,19 +86,16 @@ inc_dec_stmt: lvalue_expr op=('++'|'--');
 
 // Expressions
 
-expr: expr PIPE expr
-    | expr2
+expr: short_lambda_expr
+    | expr3
     ;
-
-expr2: short_lambda_expr
-     | expr3
-     ;
 
 expr3: <assoc=right> expr3 QUESTION_MARK expr3 COLON expr3
      | binary_expr
      ;
 
 binary_expr: unary_expr
+           | binary_expr op=PIPE binary_expr
            | binary_expr op=(MUL|DIV|MOD) binary_expr
            | binary_expr op=(ADD|SUB) binary_expr
            | binary_expr op=(LT|LE|GT|GE|EQ|NE) binary_expr

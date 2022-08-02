@@ -19,7 +19,7 @@ func TestExec(t *testing.T) {
     { name: "Deedee", alive: false },
     { name: "Ollie", alive: true },
   ]
-`+"e`go run ./testexec/testexec.go -print-args {1} {[\"hello\", \"world\"] | join(\" \")} {pets | filter(&p->p.alive) | first | &p->p.name}` |\n"+`
+`+"e`go run ./testexec/testexec.go -print-args {1} {[\"hello\", \"world\"] | join(\" \")} {pets | filter(&p->p.alive) | first | (&p->p.name)}` |\n"+`
 			stdout
 	`, `
 [1]

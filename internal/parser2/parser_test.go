@@ -52,7 +52,7 @@ for i in range(10) {
 print(1); print2;;
 
 # This is cool.
-print(in() | fromjson() | &d -> d.id)
+print(in() | fromjson() | (&d -> d.id))
 
 c(b(a)) # and so is this
 

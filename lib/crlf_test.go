@@ -7,7 +7,7 @@ import (
 
 func TestFromCRLF(t *testing.T) {
 	run := func(name, input, output string) {
-		RunSubO(t, name+"-s", `"`+input+`" | from_crlf | &r->"["+r+"]" | print`, "["+output+"]")
+		RunSubO(t, name+"-s", `"`+input+`" | from_crlf | (&r->"["+r+"]") | print`, "["+output+"]")
 		RunSubO(t, name+"-r", strings.ReplaceAll(`
 	var b = buf()
 	$input$ | b
@@ -31,7 +31,7 @@ func TestFromCRLF(t *testing.T) {
 
 func TestToCRLF(t *testing.T) {
 	run := func(name, input, output string) {
-		RunSubO(t, name, `"`+input+`" | to_crlf(true) | &r->"["+r+"]" | print`, "["+output+"]")
+		RunSubO(t, name, `"`+input+`" | to_crlf(true) | (&r->"["+r+"]") | print`, "["+output+"]")
 	}
 
 	run("crlf", `abc\r\ndef\r\n`, "abc\r\ndef\r\n")

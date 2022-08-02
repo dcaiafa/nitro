@@ -164,9 +164,6 @@ type NitroParserListener interface {
 	// EnterExpr is called when entering the expr production.
 	EnterExpr(c *ExprContext)
 
-	// EnterExpr2 is called when entering the expr2 production.
-	EnterExpr2(c *Expr2Context)
-
 	// EnterExpr3 is called when entering the expr3 production.
 	EnterExpr3(c *Expr3Context)
 
@@ -421,9 +418,6 @@ type NitroParserListener interface {
 
 	// ExitExpr is called when exiting the expr production.
 	ExitExpr(c *ExprContext)
-
-	// ExitExpr2 is called when exiting the expr2 production.
-	ExitExpr2(c *Expr2Context)
 
 	// ExitExpr3 is called when exiting the expr3 production.
 	ExitExpr3(c *Expr3Context)

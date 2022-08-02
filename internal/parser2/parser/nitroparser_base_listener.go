@@ -333,12 +333,6 @@ func (s *BaseNitroParserListener) EnterExpr(ctx *ExprContext) {}
 // ExitExpr is called when production expr is exited.
 func (s *BaseNitroParserListener) ExitExpr(ctx *ExprContext) {}
 
-// EnterExpr2 is called when production expr2 is entered.
-func (s *BaseNitroParserListener) EnterExpr2(ctx *Expr2Context) {}
-
-// ExitExpr2 is called when production expr2 is exited.
-func (s *BaseNitroParserListener) ExitExpr2(ctx *Expr2Context) {}
-
 // EnterExpr3 is called when production expr3 is entered.
 func (s *BaseNitroParserListener) EnterExpr3(ctx *Expr3Context) {}
 
