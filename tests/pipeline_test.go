@@ -7,6 +7,6 @@ func TestPipeline(t *testing.T) {
 		func add(x, y) {
 			return x + y
 		}
-		1 + 2 | add(10) | (&x->x-1)() | print("yeah")
+		(1 + 2) | add(10) | (&x->x-1) | print("yeah")
 	`, `12 yeah`)
 }
