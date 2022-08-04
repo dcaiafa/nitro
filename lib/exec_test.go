@@ -27,6 +27,37 @@ func TestExec(t *testing.T) {
 [Ollie]
   `)
 
+	RunSubO(t, `expr_nil`, `
+`+"e`go run ./testexec/testexec.go -print-args a {nil} b` |\n"+`
+			stdout
+	`, `
+[a]
+[b]
+  `)
+
+	RunSubO(t, `expr_iterator`, `
+`+"e`go run ./testexec/testexec.go -print-args a {range(5) | filter(&n->n%2==0)} b` |\n"+`
+			stdout
+	`, `
+[a]
+[0]
+[2]
+[4]
+[b]
+  `)
+
+	RunSubO(t, `expr_iterable`, `
+  var l = ["hi", 123, nil, 3.1415]
+`+"e`go run ./testexec/testexec.go -print-args a {l} b` |\n"+`
+			stdout
+	`, `
+[a]
+[hi]
+[123]
+[3.1415]
+[b]
+  `)
+
 	RunSubO(t, `no_input`, `
 		exec.exec(["go", "run", "./testexec/testexec.go", "-range", "1024", "-range-stdout"]) |
 			lines() |

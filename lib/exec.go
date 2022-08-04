@@ -67,11 +67,11 @@ func (p *process) Type() string      { return "Process" }
 func (p *process) Traits() vm.Traits { return vm.TraitNone }
 
 func (p *process) SetStderr(w io.Writer) error {
-  if p.started {
-    return ErrProcessAlreadyStarted
-  }
-  p.stderr = w
-  return nil
+	if p.started {
+		return ErrProcessAlreadyStarted
+	}
+	p.stderr = w
+	return nil
 }
 
 func (p *process) start() error {
@@ -435,13 +435,48 @@ func execExec(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) 
 
 	for i := 0; i < cmdArgsList.Len(); i++ {
 		v := cmdArgsList.Get(i)
-		switch v.(type) {
+		if v == nil {
+			continue
+		}
+		switch v := v.(type) {
 		case vm.Int, vm.Float, vm.String:
 			cmdArgs = append(cmdArgs, v.String())
+    case vm.Iterable, vm.Iterator:
+      iter, err := vm.MakeIterator(m, v)
+      if err != nil {
+        return nil, err
+      }
+      j := 0
+      for {
+        j++
+        e, err := m.IterNext(iter, 1)
+        if err != nil {
+          return nil, err
+        } else if e == nil {
+          // End of iterator.
+          break
+        } else if e[0] == nil {
+          // Element is nil, skip it.
+          continue
+        }
+        switch e[0].(type) {
+        case vm.Int, vm.Float, vm.String:
+          cmdArgs = append(cmdArgs, e[0].String())
+        default:
+          return nil, fmt.Errorf(
+            "command argument #%v: iterator element #%v: "+
+            "allowed types are string, int, float; "+
+            "but element %v",
+            i+1, j, vm.TypeName(v))
+        }
+      }
 		default:
-			return nil, fmt.Errorf(
-				"command argument allowed types are string, int and float; but argument #%v is %v",
-				i+1, vm.TypeName(v))
+			if !vm.IsIterable(v) {
+				return nil, fmt.Errorf(
+					"command argument allowed types are string, int, float and iterable; "+
+          "but argument #%v is %v",
+					i+1, vm.TypeName(v))
+			}
 		}
 	}
 
@@ -454,25 +489,25 @@ func execExec(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) 
 	return []nitro.Value{p}, nil
 }
 
-func execWithStderr(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) { 
-  if len(args) > 2 {
-    return nil, errTooManyArgs
-  }
+func execWithStderr(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	if len(args) > 2 {
+		return nil, errTooManyArgs
+	}
 
-  p, err := getProcessArg(args, 0)
-  if err != nil {
-    return nil, err
-  }
+	p, err := getProcessArg(args, 0)
+	if err != nil {
+		return nil, err
+	}
 
-  w, err := getWriterArg(args, 1)
-  if err != nil {
-    return nil, err
-  }
+	w, err := getWriterArg(args, 1)
+	if err != nil {
+		return nil, err
+	}
 
-  err = p.SetStderr(w)
-  if err != nil {
-    return nil, err
-  }
+	err = p.SetStderr(w)
+	if err != nil {
+		return nil, err
+	}
 
-  return []nitro.Value{p}, nil
+	return []nitro.Value{p}, nil
 }
