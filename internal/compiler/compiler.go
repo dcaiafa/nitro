@@ -12,7 +12,7 @@ import (
 
 type Compiler struct {
 	diag           bool
-	funcRegistries []vm.NativeFnRegistry
+	funcRegistries []vm.ExportRegistry
 }
 
 func NewCompiler() *Compiler {
@@ -23,7 +23,7 @@ func (c *Compiler) SetDiag(diag bool) {
 	c.diag = diag
 }
 
-func (c *Compiler) AddFuncRegistry(reg vm.NativeFnRegistry) {
+func (c *Compiler) AddFuncRegistry(reg vm.ExportRegistry) {
 	c.funcRegistries = append(c.funcRegistries, reg)
 }
 

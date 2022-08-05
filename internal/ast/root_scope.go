@@ -9,11 +9,11 @@ import (
 type RootScope struct {
 	emitter        *vm.Emitter
 	packageName    string
-	funcRegistries []vm.NativeFnRegistry
+	funcRegistries []vm.ExportRegistry
 	scope          symbol.Scope
 }
 
-func NewRootScope(emitter *vm.Emitter, packageName string, funcRegistries []vm.NativeFnRegistry) *RootScope {
+func NewRootScope(emitter *vm.Emitter, packageName string, funcRegistries []vm.ExportRegistry) *RootScope {
 	return &RootScope{
 		emitter:        emitter,
 		packageName:    packageName,
@@ -44,15 +44,27 @@ func (s *RootScope) GetSymbol(name string) symbol.Symbol {
 			return pkgSym
 		}
 
-		if fn := reg.GetNativeFn(s.packageName, name); fn != nil {
-			fnSym := &symbol.FuncSymbol{
-				External: true,
-				IdxFunc:  s.emitter.AddExternalFunc(s.packageName, name, fn),
-			}
-			fnSym.SetName(name)
-			fnSym.SetReadOnly(true)
-			s.scope.PutSymbol(nil, fnSym)
-			return fnSym
+		if v := reg.GetExport(s.packageName, name); v != nil {
+      switch v := v.(type) {
+      case *vm.NativeFn:
+        fnSym := &symbol.FuncSymbol{
+          External: true,
+          IdxFunc:  s.emitter.AddExternalFunc(s.packageName, name, v),
+        }
+        fnSym.SetName(name)
+        fnSym.SetReadOnly(true)
+        s.scope.PutSymbol(nil, fnSym)
+        return fnSym
+      case vm.String, vm.Int, vm.Float:
+        constSym := &symbol.ConstSymbol{
+          LiteralNdx: s.emitter.AddLiteral(v),
+        }
+        constSym.SetName(name)
+        constSym.SetReadOnly(true)
+        s.scope.PutSymbol(nil, constSym)
+      default:
+        panic("invalid const type")
+      }
 		}
 	}
 	return nil

@@ -7,12 +7,12 @@ import (
 )
 
 func TestFuncRegistry(t *testing.T) {
-	r := NewFuncRegistry()
-	for _, f := range allFuncs {
-		nativeFn := r.GetNativeFn(f.Package, f.Name)
+	r := NewExportRegistry()
+	for _, f := range allExports {
+		nativeFn := r.GetExport(f.P, f.N)
 		require.True(t, nativeFn != nil)
 	}
-	require.True(t, r.GetNativeFn("path", "map") == nil)
+	require.True(t, r.GetExport("path", "map") == nil)
 	require.True(t, r.IsValidPackage("path"))
 	require.False(t, r.IsValidPackage("patho"))
 }

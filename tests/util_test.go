@@ -29,7 +29,7 @@ func (r simpleFuncRegistry) IsValidPackage(pkg string) bool {
 	return false
 }
 
-func (r simpleFuncRegistry) GetNativeFn(pkg, name string) *vm.NativeFn {
+func (r simpleFuncRegistry) GetExport(pkg, name string) nitro.Value {
 	if pkg != "" {
 		return nil
 	}
@@ -88,7 +88,7 @@ func run(prog string, params map[string]nitro.Value) (output string, err error) 
 	compiler := nitro.NewCompiler()
 	compiler.SetDiag(true)
 	compiler.AddFuncRegistry(funcReg)
-	compiler.AddFuncRegistry(lib.NewFuncRegistry())
+	compiler.AddFuncRegistry(lib.NewExportRegistry())
 
 	compiled, err := compiler.CompileSimple(
 		"main.n",

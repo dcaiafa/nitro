@@ -103,7 +103,7 @@ func main() {
 
 	compiler := nitro.NewCompiler()
 	compiler.SetDiag(*flagD.Value.(*bool))
-	compiler.AddFuncRegistry(lib.NewFuncRegistry())
+	compiler.AddFuncRegistry(lib.NewExportRegistry())
 
 	var progName string
 	var scriptPath string

@@ -31,7 +31,7 @@ type CompiledPackage struct {
 	Symbols map[string]PackageSymbol
 }
 
-type NativeFnRegistry interface {
+type ExportRegistry interface {
 	IsValidPackage(pkg string) bool
-	GetNativeFn(pkg, name string) *NativeFn
+	GetExport(pkg, name string) Value
 }

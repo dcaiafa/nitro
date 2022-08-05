@@ -10,7 +10,7 @@ import (
 type Root struct {
 	PosImpl
 
-	FuncRegistries []vm.NativeFnRegistry
+	FuncRegistries []vm.ExportRegistry
 	Package        Package
 
 	rootScope symbol.Scope

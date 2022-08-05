@@ -61,6 +61,9 @@ func emitSymbolPush(pos token.Pos, emitter *vm.Emitter, sym symbol.Symbol) {
 			emitter.Emit(pos, vm.OpLoadFn, uint32(sym.IdxFunc), 0)
 		}
 
+	case *symbol.ConstSymbol:
+		emitter.Emit(pos, vm.OpLoadLiteral, uint32(sym.LiteralNdx), 0)
+
 	default:
 		panic("not implemented")
 	}

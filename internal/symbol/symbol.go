@@ -114,6 +114,13 @@ type LocalVarSymbol struct {
 	LocalNdx int
 }
 
+type ConstSymbol struct {
+  baseSymbol
+  baseNonLiftable
+
+  LiteralNdx int
+}
+
 type Package struct {
 	baseSymbol
 	baseNonLiftable

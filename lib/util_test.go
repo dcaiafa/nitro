@@ -56,7 +56,7 @@ func run(prog string, opts ...RunOption) (output string, err error) {
 		}
 	}
 
-	compiler.AddFuncRegistry(NewFuncRegistry())
+	compiler.AddFuncRegistry(NewExportRegistry())
 
 	compiled, err := compiler.CompileSimple(
 		"main.n",
