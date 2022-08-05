@@ -39,7 +39,7 @@ func (a *MemberAccess) RunPass(ctx *Context, pass Pass) {
 		if a.ModuleMember == nil {
 			emitter.Emit(
 				a.Pos(), vm.OpLoadLiteral,
-				uint32(emitter.AddString(a.Member.Str)), 0)
+				uint32(emitter.AddLiteral(vm.NewString(a.Member.Str))), 0)
 			if _, isLValue := ctx.Parent().(*LValue); isLValue {
 				emitter.Emit(a.Pos(), vm.OpObjectGetRef, 0, 0)
 			} else {

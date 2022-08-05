@@ -36,7 +36,7 @@ func (e *LiteralExpr) RunPass(ctx *Context, pass Pass) {
 			emitter.Emit(e.Pos(), vm.OpLoadLiteral, uint32(literal), 0)
 
 		case token.String:
-			str := emitter.AddString(e.Val.Str)
+			str := emitter.AddLiteral(vm.NewString(e.Val.Str))
 			emitter.Emit(e.Pos(), vm.OpLoadLiteral, uint32(str), 0)
 
 		case token.Bool:

@@ -28,12 +28,12 @@ func (s *RootScope) GetSymbol(name string) symbol.Symbol {
 		return sym
 	}
 	for _, reg := range s.funcRegistries {
-		// Lazy create package symbol here.
+		// Lazily create package symbol here.
 		// TODO: do this only for simple scripts.
-		// Notice that RootScope is also used as the scope for the Package. This
-		// means this instance could be a package scope. Since native packages can
-		// only be one level deep, and IsValidPackage starts from root, only lazy
-		// create package if this is root (i.e. packageName == "").
+    // Notice that RootScope is also used as the scope for the Package. This
+    // means this instance could be a package scope. Since native packages can
+    // only be one level deep, and IsValidPackage starts from root, only create
+    // package if this is root (i.e. packageName == "").
 		if s.packageName == "" && reg.IsValidPackage(name) {
 			pkgSym := &symbol.Package{
 				Scope: NewRootScope(s.emitter, name, s.funcRegistries),

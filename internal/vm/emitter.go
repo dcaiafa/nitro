@@ -49,7 +49,7 @@ func (e *Emitter) AddGlobalParam(
 }
 
 func (e *Emitter) NewFn(name string) int {
-	idxName := e.AddString(name)
+	idxName := e.AddLiteral(NewString(name))
 	e.fns = append(e.fns, Fn{name: idxName})
 	return len(e.fns) - 1
 }
@@ -96,7 +96,7 @@ func (e *Emitter) Emit(pos token.Pos, op OpCode, operand1 uint32, operand2 uint1
 
 	if pos.Filename != e.curFile {
 		e.curFile = pos.Filename
-		e.curFileID = e.AddString(pos.Filename)
+		e.curFileID = e.AddLiteral(NewString(pos.Filename))
 	}
 
 	var lastLoc *Location
@@ -135,16 +135,19 @@ func (e *Emitter) AddExternalFunc(pkg, name string, fn *NativeFn) int {
 	return len(e.extFns) - 1
 }
 
-func (e *Emitter) AddString(s string) int {
-	n, ok := e.stringMap[s]
-	if !ok {
-		n = e.AddLiteral(NewString(s))
-		e.stringMap[s] = n
+func (e *Emitter) AddLiteral(v Value) int {
+	if s, ok := v.(String); ok {
+		n, ok := e.stringMap[s.String()]
+		if !ok {
+			n = e.addLiteral(s)
+			e.stringMap[s.String()] = n
+		}
+		return n
 	}
-	return n
+	return e.addLiteral(v)
 }
 
-func (e *Emitter) AddLiteral(v Value) int {
+func (e *Emitter) addLiteral(v Value) int {
 	e.literals = append(e.literals, v)
 	return len(e.literals) - 1
 }
