@@ -22,13 +22,13 @@ func TestArrayLiteral(t *testing.T) {
 
 	RunSubO(t, "add", `
 		var a = ["foo"]
-		a.add("bar")
+		a | list.append("bar")
 		print(a)
 	`, `[foo bar]`)
 
 	RunSubO(t, "additer_list", `
 		var a = ["foo"]
-		a.add_iter(["bar", "baz"])
+		a | list.append_iter(["bar", "baz"])
 		print(a)
 	`, `[foo bar baz]`)
 

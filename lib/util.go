@@ -15,6 +15,13 @@ var (
 	errInvalidNumberOfArgs = errors.New("invalid number of arguments")
 )
 
+func getValueArg(args []vm.Value, ndx int) (nitro.Value, error) {
+	if ndx >= len(args) {
+		return nil, errNotEnoughArgs
+	}
+	return args[ndx], nil
+}
+
 func getIntArg(args []vm.Value, ndx int) (int64, error) {
 	if ndx >= len(args) {
 		return 0, errNotEnoughArgs
@@ -106,6 +113,19 @@ func getProcessArg(args []vm.Value, ndx int) (*process, error) {
 	return v, nil
 }
 
+func getArg(args []vm.Value, ndx int) (*process, error) {
+	if ndx >= len(args) {
+		return nil, errNotEnoughArgs
+	}
+	v, ok := args[ndx].(*process)
+	if !ok {
+		return nil, fmt.Errorf(
+			"expected argument %d to be process, but it is %v",
+			ndx+1, nitro.TypeName(args[ndx]))
+	}
+	return v, nil
+}
+
 func getWriterArg(args []vm.Value, ndx int) (io.Writer, error) {
 	if ndx >= len(args) {
 		return nil, errNotEnoughArgs
@@ -116,6 +136,19 @@ func getWriterArg(args []vm.Value, ndx int) (io.Writer, error) {
 	default:
 		return nil, fmt.Errorf("argument %v is not writable", nitro.TypeName(v))
 	}
+}
+
+func getIterArg(m *nitro.VM, args []vm.Value, ndx int) (nitro.Iterator, error) {
+	if ndx >= len(args) {
+		return nil, errNotEnoughArgs
+	}
+	v := args[ndx]
+	it, err := nitro.MakeIterator(m, v)
+	if err != nil {
+		return nil, fmt.Errorf(
+			"argument #%v %v is not iterable", ndx+1, nitro.TypeName(v))
+	}
+	return it, nil
 }
 
 func getReaderArg(vmArg *vm.VM, args []vm.Value, ndx int) (vm.Reader, error) {

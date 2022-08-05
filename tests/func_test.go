@@ -88,7 +88,7 @@ func TestFn(t *testing.T) {
 				a = a + 1
 				return a
 			}
-			inc.add(f)
+			inc | list.append(f)
 		}
 		print(inc[0](), inc[1](), inc[0](), inc[1]())
 `, `1 1 2 2`)
@@ -102,7 +102,7 @@ func TestFn(t *testing.T) {
 					a = a + 1
 					return a
 				}
-				inc.add(f)
+				inc | list.append(f)
 			}
 			print(inc[0](), inc[1](), inc[0](), inc[1]())
 		}

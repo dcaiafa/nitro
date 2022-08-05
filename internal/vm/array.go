@@ -24,13 +24,6 @@ func (a *Array) Add(v Value) {
 	a.array = append(a.array, v)
 }
 
-func (a *Array) Back() Value {
-	if len(a.array) == 0 {
-		return nil
-	}
-	return a.array[len(a.array)-1]
-}
-
 func (a *Array) Get(index int) Value {
 	if index >= len(a.array) {
 		return nil
@@ -42,22 +35,17 @@ func (a *Array) Put(index int, v Value) {
 	a.array[index] = v
 }
 
+func (a *Array) Find(v Value) int {
+	for i, entry := range a.array {
+		if entry == v {
+			return i
+		}
+	}
+	return -1
+}
+
 func (a *Array) Index(key Value) (Value, error) {
 	switch key := key.(type) {
-	case String:
-		switch key.String() {
-		case "add":
-			return NewNativeFn(a.add), nil
-		case "add_iter":
-			return NewNativeFn(a.add_iter), nil
-		case "len":
-			return NewNativeFn(a.len), nil
-		case "find":
-			return NewNativeFn(a.find), nil
-		default:
-			return nil, fmt.Errorf("list does not have method %q", key.String())
-		}
-
 	case Int:
 		idx := int(key.Int64())
 		if idx < 0 {
@@ -179,65 +167,4 @@ func (a *Array) add(m *VM, args []Value, nRet int) ([]Value, error) {
 	} else {
 		return nil, nil
 	}
-}
-
-var errListAddIterUsage error = NewInvalidUsageError("<list>.additer(iter)")
-
-func (a *Array) add_iter(m *VM, args []Value, nret int) ([]Value, error) {
-	if len(args) != 1 {
-		return nil, errListAddIterUsage
-	}
-
-	switch arg := args[0].(type) {
-	case *Array:
-		a.array = append(a.array, arg.array...)
-	case Iterator, Iterable:
-		iter, err := MakeIterator(m, arg)
-		if err != nil {
-			return nil, err
-		}
-		for {
-			v, err := m.IterNext(iter, 1)
-			if err != nil {
-				return nil, err
-			}
-			if v == nil {
-				break
-			}
-			a.array = append(a.array, v[0])
-		}
-	}
-
-	if nret == 1 {
-		return []Value{a}, nil
-	} else {
-		return nil, nil
-	}
-}
-
-var errListLenUsage error = NewInvalidUsageError("<list>.len()")
-
-func (a *Array) len(m *VM, args []Value, nRet int) ([]Value, error) {
-	if len(args) != 0 {
-		return nil, errListLenUsage
-	}
-
-	res := len(a.array)
-
-	return []Value{NewInt(int64(res))}, nil
-}
-
-var errListContainsUsage error = NewInvalidUsageError("<list>.contains(any)")
-
-func (a *Array) find(m *VM, args []Value, nRet int) ([]Value, error) {
-	if len(args) != 1 {
-		return nil, errListContainsUsage
-	}
-	v := args[0]
-	for i, entry := range a.array {
-		if entry == v {
-			return []Value{NewInt(int64(i))}, nil
-		}
-	}
-	return []Value{nil}, nil
 }
