@@ -27,8 +27,8 @@ func (a *MemberAccess) RunPass(ctx *Context, pass Pass) {
 				a.ModuleMember = simpleRef.Package.Scope.GetSymbol(a.Member.Str)
 				if a.ModuleMember == nil {
 					ctx.Failf(a.Pos(), "%v not declared by package %v",
-						simpleRef.Package.Name(),
-						a.Member.Str)
+						a.Member.Str,
+						simpleRef.Package.Name())
 					return
 				}
 			}

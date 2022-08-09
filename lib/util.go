@@ -87,6 +87,19 @@ func getObjectArg(args []vm.Value, ndx int) (*nitro.Object, error) {
 	return v, nil
 }
 
+func getTimeArg(args []vm.Value, ndx int) (Time, error) {
+	if ndx >= len(args) {
+		return Time{}, errNotEnoughArgs
+	}
+	v, ok := args[ndx].(Time)
+	if !ok {
+		return Time{}, fmt.Errorf(
+			"expected argument %d to be time, but it is %v",
+			ndx+1, nitro.TypeName(args[ndx]))
+	}
+	return v, nil
+}
+
 func getRegexArg(args []vm.Value, ndx int) (*nitro.Regex, error) {
 	if ndx >= len(args) {
 		return nil, errNotEnoughArgs

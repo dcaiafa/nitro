@@ -253,9 +253,9 @@ func nitroparserParserInit() {
 		2, 383, 385, 1, 0, 0, 0, 384, 378, 1, 0, 0, 0, 385, 388, 1, 0, 0, 0, 386,
 		384, 1, 0, 0, 0, 386, 387, 1, 0, 0, 0, 387, 75, 1, 0, 0, 0, 388, 386, 1,
 		0, 0, 0, 389, 390, 6, 38, -1, 0, 390, 391, 3, 78, 39, 0, 391, 412, 1, 0,
-		0, 0, 392, 393, 10, 6, 0, 0, 393, 394, 5, 57, 0, 0, 394, 411, 3, 76, 38,
-		7, 395, 396, 10, 5, 0, 0, 396, 397, 7, 4, 0, 0, 397, 411, 3, 76, 38, 6,
-		398, 399, 10, 4, 0, 0, 399, 400, 7, 5, 0, 0, 400, 411, 3, 76, 38, 5, 401,
+		0, 0, 392, 393, 10, 6, 0, 0, 393, 394, 7, 4, 0, 0, 394, 411, 3, 76, 38,
+		7, 395, 396, 10, 5, 0, 0, 396, 397, 7, 5, 0, 0, 397, 411, 3, 76, 38, 6,
+		398, 399, 10, 4, 0, 0, 399, 400, 5, 57, 0, 0, 400, 411, 3, 76, 38, 5, 401,
 		402, 10, 3, 0, 0, 402, 403, 7, 6, 0, 0, 403, 411, 3, 76, 38, 4, 404, 405,
 		10, 2, 0, 0, 405, 406, 5, 4, 0, 0, 406, 411, 3, 76, 38, 3, 407, 408, 10,
 		1, 0, 0, 408, 409, 5, 17, 0, 0, 409, 411, 3, 76, 38, 2, 410, 392, 1, 0,
@@ -7114,10 +7114,6 @@ func (s *Binary_exprContext) Binary_expr(i int) IBinary_exprContext {
 	return t.(IBinary_exprContext)
 }
 
-func (s *Binary_exprContext) PIPE() antlr.TerminalNode {
-	return s.GetToken(NitroParserPIPE, 0)
-}
-
 func (s *Binary_exprContext) MUL() antlr.TerminalNode {
 	return s.GetToken(NitroParserMUL, 0)
 }
@@ -7136,6 +7132,10 @@ func (s *Binary_exprContext) ADD() antlr.TerminalNode {
 
 func (s *Binary_exprContext) SUB() antlr.TerminalNode {
 	return s.GetToken(NitroParserSUB, 0)
+}
+
+func (s *Binary_exprContext) PIPE() antlr.TerminalNode {
+	return s.GetToken(NitroParserPIPE, 0)
 }
 
 func (s *Binary_exprContext) LT() antlr.TerminalNode {
@@ -7256,9 +7256,20 @@ func (p *NitroParser) binary_expr(_p int) (localctx IBinary_exprContext) {
 				{
 					p.SetState(393)
 
-					var _m = p.Match(NitroParserPIPE)
+					var _lt = p.GetTokenStream().LT(1)
 
-					localctx.(*Binary_exprContext).op = _m
+					localctx.(*Binary_exprContext).op = _lt
+
+					_la = p.GetTokenStream().LA(1)
+
+					if !(((_la-39)&-(0x1f+1)) == 0 && ((1<<uint((_la-39)))&((1<<(NitroParserMUL-39))|(1<<(NitroParserDIV-39))|(1<<(NitroParserMOD-39)))) != 0) {
+						var _ri = p.GetErrorHandler().RecoverInline(p)
+
+						localctx.(*Binary_exprContext).op = _ri
+					} else {
+						p.GetErrorHandler().ReportMatch(p)
+						p.Consume()
+					}
 				}
 				{
 					p.SetState(394)
@@ -7282,7 +7293,7 @@ func (p *NitroParser) binary_expr(_p int) (localctx IBinary_exprContext) {
 
 					_la = p.GetTokenStream().LA(1)
 
-					if !(((_la-39)&-(0x1f+1)) == 0 && ((1<<uint((_la-39)))&((1<<(NitroParserMUL-39))|(1<<(NitroParserDIV-39))|(1<<(NitroParserMOD-39)))) != 0) {
+					if !(_la == NitroParserADD || _la == NitroParserSUB) {
 						var _ri = p.GetErrorHandler().RecoverInline(p)
 
 						localctx.(*Binary_exprContext).op = _ri
@@ -7307,20 +7318,9 @@ func (p *NitroParser) binary_expr(_p int) (localctx IBinary_exprContext) {
 				{
 					p.SetState(399)
 
-					var _lt = p.GetTokenStream().LT(1)
+					var _m = p.Match(NitroParserPIPE)
 
-					localctx.(*Binary_exprContext).op = _lt
-
-					_la = p.GetTokenStream().LA(1)
-
-					if !(_la == NitroParserADD || _la == NitroParserSUB) {
-						var _ri = p.GetErrorHandler().RecoverInline(p)
-
-						localctx.(*Binary_exprContext).op = _ri
-					} else {
-						p.GetErrorHandler().ReportMatch(p)
-						p.Consume()
-					}
+					localctx.(*Binary_exprContext).op = _m
 				}
 				{
 					p.SetState(400)

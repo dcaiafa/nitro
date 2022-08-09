@@ -15,6 +15,10 @@ type Duration struct {
 	dur time.Duration
 }
 
+func NewDuration(dur time.Duration) Duration {
+	return Duration{dur: dur}
+}
+
 func (d Duration) String() string    { return d.dur.String() }
 func (d Duration) Type() string      { return "duration" }
 func (d Duration) Traits() vm.Traits { return vm.TraitEq }

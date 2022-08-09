@@ -2,6 +2,7 @@ package lib
 
 import (
 	gosort "sort"
+	"time"
 
 	"github.com/dcaiafa/nitro"
 	"github.com/dcaiafa/nitro/internal/vm"
@@ -14,6 +15,7 @@ const (
 	exportString
 	exportInt
 	exportFloat
+	exportCustom
 )
 
 type export struct {
@@ -24,6 +26,7 @@ type export struct {
 	S  string
 	I  int64
 	Fl float64
+	C  func(e *export) nitro.Value
 }
 
 var allExports = []export{
@@ -68,14 +71,12 @@ var allExports = []export{
 	{P: "", N: "move_file", T: exportFunc, F: moveFile},
 	{P: "", N: "narg", T: exportFunc, F: narg},
 	{P: "", N: "nonl", T: exportFunc, F: nonl},
-	{P: "", N: "now", T: exportFunc, F: now},
 	{P: "", N: "open", T: exportFunc, F: open},
 	{P: "", N: "parse_base64", T: exportFunc, F: parseBase64},
 	{P: "", N: "parse_csv", T: exportFunc, F: parseCSV},
 	{P: "", N: "parse_float", T: exportFunc, F: parseFloat},
 	{P: "", N: "parse_int", T: exportFunc, F: parseInt},
 	{P: "", N: "parse_json", T: exportFunc, F: parseJSON},
-	{P: "", N: "parse_time", T: exportFunc, F: parseTime},
 	{P: "", N: "pop_stdout", T: exportFunc, F: popStdout},
 	{P: "", N: "print", T: exportFunc, F: print},
 	{P: "", N: "print_table", T: exportFunc, F: printTable},
@@ -142,13 +143,28 @@ var allExports = []export{
 	{P: "str", N: "repeat", T: exportFunc, F: strRepeat},
 	{P: "str", N: "replace", T: exportFunc, F: strReplace},
 	{P: "str", N: "split", T: exportFunc, F: strSplit},
-	{P: "str", N: "to_lower", T: exportFunc, F: strToUpper},
+	{P: "str", N: "to_lower", T: exportFunc, F: strToLower},
 	{P: "str", N: "to_upper", T: exportFunc, F: strToUpper},
 	{P: "str", N: "trim", T: exportFunc, F: strTrim},
 	{P: "str", N: "trim_left", T: exportFunc, F: strTrimLeft},
 	{P: "str", N: "trim_prefix", T: exportFunc, F: strTrimPrefix},
 	{P: "str", N: "trim_right", T: exportFunc, F: strTrimRight},
 	{P: "str", N: "trim_suffix", T: exportFunc, F: strTrimSuffix},
+	{P: "time", N: "format", T: exportFunc, F: timeFormat},
+	{P: "time", N: "from_unix", T: exportFunc, F: timeFromUnix},
+	{P: "time", N: "hour", T: exportCustom, I: int64(time.Hour), C: exportDurationConst},
+	{P: "time", N: "local", T: exportFunc, F: timeLocal},
+	{P: "time", N: "microsecond", T: exportCustom, I: int64(time.Microsecond), C: exportDurationConst},
+	{P: "time", N: "millisecond", T: exportCustom, I: int64(time.Millisecond), C: exportDurationConst},
+	{P: "time", N: "minute", T: exportCustom, I: int64(time.Minute), C: exportDurationConst},
+	{P: "time", N: "nanosecond", T: exportCustom, I: int64(time.Nanosecond), C: exportDurationConst},
+	{P: "time", N: "now", T: exportFunc, F: timeNow},
+	{P: "time", N: "parse", T: exportFunc, F: timeParse},
+	{P: "time", N: "second", T: exportCustom, I: int64(time.Second), C: exportDurationConst},
+	{P: "time", N: "to_map", T: exportFunc, F: timeToMap},
+	{P: "time", N: "unix", T: exportFunc, F: timeUnix},
+	{P: "time", N: "unix_nano", T: exportFunc, F: timeUnixNano},
+	{P: "time", N: "utc", T: exportFunc, F: timeUTC},
 }
 
 type exportRegistry struct {
@@ -189,7 +205,13 @@ func (r *exportRegistry) GetExport(pkg, name string) vm.Value {
 		return vm.NewInt(allExports[i].I)
 	case exportFloat:
 		return vm.NewFloat(allExports[i].Fl)
+	case exportCustom:
+		return allExports[i].C(&allExports[i])
 	default:
 		panic("not reached")
 	}
+}
+
+func exportDurationConst(e *export) nitro.Value {
+	return NewDuration(time.Duration(e.I))
 }
