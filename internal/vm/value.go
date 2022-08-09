@@ -23,7 +23,12 @@ type Value interface {
 
 type Operable interface {
 	Value
-	EvalOp(op Op, operand Value) (Value, error)
+	EvalOp(op Op, right Value) (Value, error)
+}
+
+type FallbackEvaluator interface {
+  Operable
+  FallbackEvalOp(op Op, left Value) (Value, error)
 }
 
 type Closer interface {
@@ -89,7 +94,12 @@ func EvalOp(op Op, operand1, operand2 Value) (Value, error) {
 		}
 		res, err := operand1.(Operable).EvalOp(op, operand2)
 		if err != nil {
-			return nil, err
+      if fallback, ok := operand2.(FallbackEvaluator); ok {
+        res, err = fallback.EvalOp(op, operand1)
+      }
+			if err != nil {
+				return nil, err
+			}
 		}
 		if opWasNE {
 			resb, ok := res.(Bool)

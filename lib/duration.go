@@ -97,6 +97,15 @@ func (d Duration) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) 
 	return nil, vm.ErrOperationNotSupported
 }
 
+func (d Duration) FallbackEvalOp(op nitro.Op, left nitro.Value) (nitro.Value, error) {
+	if op == nitro.OpMult {
+		if left, ok := left.(nitro.Int); ok {
+			return NewDuration(time.Duration(left.Int64()) * d.dur), nil
+		}
+	}
+	return nil, vm.ErrOperationNotSupported
+}
+
 func (d Duration) Duration() time.Duration {
 	return d.dur
 }
