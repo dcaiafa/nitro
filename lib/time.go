@@ -216,3 +216,121 @@ func timeToMap(vm *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error
 
 	return []nitro.Value{m}, nil
 }
+
+type Duration struct {
+	dur time.Duration
+}
+
+func NewDuration(dur time.Duration) Duration {
+	return Duration{dur: dur}
+}
+
+func (d Duration) String() string    { return d.dur.String() }
+func (d Duration) Type() string      { return "duration" }
+func (d Duration) Traits() vm.Traits { return vm.TraitEq }
+
+func (d Duration) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) {
+	if op == nitro.OpUMinus {
+		return Duration{d.dur * -1}, nil
+	}
+
+	switch op {
+	case nitro.OpAdd, nitro.OpSub, nitro.OpLT, nitro.OpLE,
+		nitro.OpGT, nitro.OpGE, nitro.OpEq, nitro.OpMod:
+
+		otherDur := time.Duration(0)
+		operandDur, ok := operand.(Duration)
+		if ok {
+			otherDur = operandDur.dur
+		} else if operandInt, ok := operand.(nitro.Int); ok && operandInt.Int64() == 0 {
+			// Zero is a special case. It is useful to express `dur < 0` without
+			// having to create a duration value for the right side.
+			otherDur = 0
+		} else if op == nitro.OpEq {
+			return nitro.NewBool(false), nil
+		} else {
+			return nil, vm.ErrOperationNotSupported
+		}
+
+		switch op {
+		case nitro.OpAdd:
+			return Duration{d.dur + otherDur}, nil
+		case nitro.OpSub:
+			return Duration{d.dur - otherDur}, nil
+		case nitro.OpLT:
+			return nitro.NewBool(d.dur < otherDur), nil
+		case nitro.OpLE:
+			return nitro.NewBool(d.dur <= otherDur), nil
+		case nitro.OpGT:
+			return nitro.NewBool(d.dur > otherDur), nil
+		case nitro.OpGE:
+			return nitro.NewBool(d.dur >= otherDur), nil
+		case nitro.OpEq:
+			return nitro.NewBool(d == operand), nil
+		case nitro.OpMod:
+			if otherDur == 0 {
+				return nil, vm.ErrDivByZero
+			}
+			return Duration{d.dur % otherDur}, nil
+		}
+
+	case nitro.OpMult:
+		operandInt, ok := operand.(nitro.Int)
+		if !ok {
+			return nil, vm.ErrOperationNotSupported
+		}
+		return Duration{d.dur * time.Duration(operandInt.Int64())}, nil
+
+	case nitro.OpDiv:
+		switch operand := operand.(type) {
+		case Duration:
+			if operand.dur == 0 {
+				return nil, vm.ErrDivByZero
+			}
+			return nitro.NewInt(int64(d.dur / operand.dur)), nil
+
+		case nitro.Int:
+			if operand.Int64() == 0 {
+				return nil, vm.ErrDivByZero
+			}
+			return Duration{d.dur / time.Duration(operand.Int64())}, nil
+
+		default:
+			return nil, vm.ErrOperationNotSupported
+		}
+	}
+
+	return nil, vm.ErrOperationNotSupported
+}
+
+func (d Duration) FallbackEvalOp(op nitro.Op, left nitro.Value) (nitro.Value, error) {
+	if op == nitro.OpMult {
+		if left, ok := left.(nitro.Int); ok {
+			return NewDuration(time.Duration(left.Int64()) * d.dur), nil
+		}
+	}
+	return nil, vm.ErrOperationNotSupported
+}
+
+func (d Duration) Duration() time.Duration {
+	return d.dur
+}
+
+func timeTruncate(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	if len(args) > 2 {
+		return nil, errTooManyArgs
+	}
+
+  dur, err := getDurationArg(args, 0)
+  if err != nil {
+    return nil, err
+  }
+
+  mult, err := getDurationArg(args, 1)
+  if err != nil {
+    return nil, err
+  }
+
+	truncDur := dur.dur.Truncate(mult.dur)
+	return []nitro.Value{NewDuration(truncDur)}, nil
+}

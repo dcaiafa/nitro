@@ -27,8 +27,8 @@ type Operable interface {
 }
 
 type FallbackEvaluator interface {
-  Operable
-  FallbackEvalOp(op Op, left Value) (Value, error)
+	Operable
+	FallbackEvalOp(op Op, left Value) (Value, error)
 }
 
 type Closer interface {
@@ -94,9 +94,11 @@ func EvalOp(op Op, operand1, operand2 Value) (Value, error) {
 		}
 		res, err := operand1.(Operable).EvalOp(op, operand2)
 		if err != nil {
-      if fallback, ok := operand2.(FallbackEvaluator); ok {
-        res, err = fallback.EvalOp(op, operand1)
-      }
+			if errors.Is(err, ErrOperationNotSupported) {
+				if fallback, ok := operand2.(FallbackEvaluator); ok {
+					res, err = fallback.EvalOp(op, operand1)
+				}
+			}
 			if err != nil {
 				return nil, err
 			}

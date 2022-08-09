@@ -1,8 +1,11 @@
 package vm
 
 import (
+	"errors"
 	"strconv"
 )
+
+var ErrDivByZero = errors.New("divide by zero")
 
 type Int struct {
 	v int64

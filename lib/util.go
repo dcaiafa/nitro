@@ -113,6 +113,19 @@ func getRegexArg(args []vm.Value, ndx int) (*nitro.Regex, error) {
 	return v, nil
 }
 
+func getDurationArg(args []vm.Value, ndx int) (Duration, error) {
+	if ndx >= len(args) {
+		return Duration{}, errNotEnoughArgs
+	}
+	v, ok := args[ndx].(Duration)
+	if !ok {
+		return Duration{}, fmt.Errorf(
+			"expected argument %d to be duration, but it is %v",
+			ndx+1, nitro.TypeName(args[ndx]))
+	}
+	return v, nil
+}
+
 func getProcessArg(args []vm.Value, ndx int) (*process, error) {
 	if ndx >= len(args) {
 		return nil, errNotEnoughArgs
