@@ -143,8 +143,39 @@ func prompt(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 		}
 
 		return []nitro.Value{
-			nitro.NewString(opt.Options[selIndex]),
 			nitro.NewInt(int64(selIndex))}, nil
+
+	case "multi-select":
+		if len(opt.Options) == 0 {
+			return nil, fmt.Errorf("options cannot be nil or an empty list")
+		}
+
+		if opt.Default == "" {
+			opt.Default = opt.Options[0]
+		}
+
+		p = &survey.MultiSelect{
+			Message:       opt.Message,
+			Options:       opt.Options,
+			Default:       opt.Default,
+			Help:          opt.Help,
+			PageSize:      opt.PageSize,
+			FilterMessage: opt.FilterMessage,
+			VimMode:       opt.VimMode,
+		}
+
+		var sels []int
+		err := survey.AskOne(p, &sels, askOptions...)
+		if err != nil {
+			return nil, err
+		}
+
+		res := make([]nitro.Value, len(sels))
+		for i, sel := range sels {
+			res[i] = nitro.NewInt(int64(sel))
+		}
+
+		return []nitro.Value{nitro.NewArrayFromSlice(res)}, nil
 
 	default:
 		return nil, fmt.Errorf("invalid type %q", opt.Type)
