@@ -103,17 +103,16 @@ func TestObjectOther(t *testing.T) {
 		var a = {
 			x: 1, y: 2, z: 3
 		}
-		delete(a, "x")
-		delete(a, "x")
+		map.delete(a, "x")
+		map.delete(a, "x")
 		print(a, len(a))
 		a.x = 4
 		print(a, len(a))
-		delete(a, "x")
-		delete(a, "y")
-		delete(a, "z")
+		map.delete(a, "x")
+		map.delete(a, "y")
+		map.delete(a, "z")
 		print(a, len(a))
 		a.w = 5
-		delete(a.b, "nope")
 		print(a, len(a))
 	`, `
 {y: 2, z: 3} 2

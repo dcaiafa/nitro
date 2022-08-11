@@ -23,4 +23,13 @@ func TestMap(t *testing.T) {
 true
 {a: 1, b: 20, c: 30}
 `)
+  RunSubO(t, "delete", `
+    var m = { a: 1, b: 2, c: 3, d: 4 }
+    var r = map.delete(m, "b", "d")
+    print(m == r)
+    print(m)
+`, `
+true
+{a: 1, c: 3}
+`)
 }
