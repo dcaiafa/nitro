@@ -6,7 +6,7 @@ import (
 
 var errMapUsage = nitro.NewInvalidUsageError("map(iter, callable)")
 
-func mapp(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func imap(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	inIter, err := nitro.MakeIterator(m, args[0])
 	if err != nil {
 		return nil, errMapUsage

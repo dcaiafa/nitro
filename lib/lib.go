@@ -62,7 +62,7 @@ var allExports = []export{
 	{P: "", N: "log", T: exportFunc, F: log},
 	{P: "", N: "logf", T: exportFunc, F: logf},
 	{P: "", N: "ls", T: exportFunc, F: ls},
-	{P: "", N: "map", T: exportFunc, F: mapp},
+	{P: "", N: "imap", T: exportFunc, F: imap},
 	{P: "", N: "mapreduce", T: exportFunc, F: mapreduce},
 	{P: "", N: "max", T: exportFunc, F: max},
 	{P: "", N: "min", T: exportFunc, F: min},
