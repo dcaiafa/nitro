@@ -80,6 +80,15 @@ func (o *Object) Put(k, v Value) {
 	n.value = v
 }
 
+func (o *Object) Clone() *Object {
+	r := NewObjectWithCapacity(o.Len())
+	o.ForEach(func(k, v Value) bool {
+		r.Put(k, v)
+		return true
+	})
+	return r
+}
+
 func (o *Object) Index(k Value) (Value, error) {
 	n := o.data[k]
 	if n == nil {
