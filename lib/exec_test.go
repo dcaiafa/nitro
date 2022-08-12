@@ -129,12 +129,12 @@ exit status 128
 	`, `45`)
 
 	RunSubO(t, `stdin_is_file`, `
-		var tmp = create_temp()
-		defer remove_file(tmp)
+		var tmp = file.create_temp()
+		defer file.remove(tmp)
 		range(100000) | 
 			imap(to_string) |
 			tmp
-		seek(tmp, 0)
+		file.seek(tmp, 0)
 		tmp |
 			exec.exec(["go", "run", "./testexec/testexec.go", "-echo-to-stdout"]) |
 		  read |
@@ -144,14 +144,14 @@ exit status 128
 `, `100000`)
 
 	RunSubO(t, `stderr_is_file`, `
-      var tmp = create_temp()
-      defer remove_file(tmp)
+      var tmp = file.create_temp()
+      defer file.remove(tmp)
       range(100000) |
         imap(to_string) |
         exec.exec(["go", "run", "./testexec/testexec.go", "-echo-to-stderr"]) |
         exec.with_stderr(tmp) |
         discard
-      seek(tmp, 0)
+      file.seek(tmp, 0)
       read(tmp) |
         lines() |
         count() |

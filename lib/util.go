@@ -139,6 +139,19 @@ func getProcessArg(args []vm.Value, ndx int) (*process, error) {
 	return v, nil
 }
 
+func getFileArg(args []vm.Value, ndx int) (*File, error) {
+	if ndx >= len(args) {
+		return nil, errNotEnoughArgs
+	}
+	v, ok := args[ndx].(*File)
+	if !ok {
+		return nil, fmt.Errorf(
+			"expected argument %d to be file, but it is %v",
+			ndx+1, nitro.TypeName(args[ndx]))
+	}
+	return v, nil
+}
+
 func getArg(args []vm.Value, ndx int) (*process, error) {
 	if ndx >= len(args) {
 		return nil, errNotEnoughArgs
@@ -208,9 +221,9 @@ func errExpectedArg(ndx int, expected, actual nitro.Value) error {
 		nitro.TypeName(actual))
 }
 
-func errExpectedArg2(ndx int, expected1, expected2, actual nitro.Value) error {
+func errExpectedArg2(ndx int, expected1, expected2 string, actual nitro.Value) error {
 	return fmt.Errorf(
 		"expected argument #%v to be %v or %v, but it was %v",
-		ndx+1, nitro.TypeName(expected1), nitro.TypeName(expected2),
+		ndx+1, expected1, expected2,
 		nitro.TypeName(actual))
 }
