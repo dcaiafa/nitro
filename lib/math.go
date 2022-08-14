@@ -6,16 +6,14 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-var errTruncUsage error = nitro.NewInvalidUsageError("trunc(float)")
-
 func mathTrunc(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) != 1 {
-		return nil, errTruncUsage
+	if err := expectArgCount(args, 1, 1); err != nil {
+		return nil, err
 	}
-	v, ok := args[0].(nitro.Float)
-	if !ok {
-		return nil, errTruncUsage
+	v, err := getFloatArg(args, 0)
+	if err != nil {
+		return nil, err
 	}
-	res := math.Trunc(v.Float64())
+	res := math.Trunc(v)
 	return []nitro.Value{nitro.NewFloat(res)}, nil
 }

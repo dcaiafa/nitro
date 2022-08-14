@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/dcaiafa/nitro"
 	"github.com/dcaiafa/nitro/internal/vm"
@@ -14,6 +15,17 @@ var (
 	errTooManyArgs         = errors.New("too many arguments")
 	errInvalidNumberOfArgs = errors.New("invalid number of arguments")
 )
+
+func expectArgCount(args []vm.Value, min, max int) error {
+  switch {
+  case len(args) < min:
+    return errNotEnoughArgs
+  case len(args) > max:
+    return errTooManyArgs
+  default:
+    return nil
+  }
+}
 
 func getValueArg(args []vm.Value, ndx int) (nitro.Value, error) {
 	if ndx >= len(args) {
@@ -33,6 +45,19 @@ func getIntArg(args []vm.Value, ndx int) (int64, error) {
 			ndx+1, nitro.TypeName(args[ndx]))
 	}
 	return v.Int64(), nil
+}
+
+func getFloatArg(args []vm.Value, ndx int) (float64, error) {
+	if ndx >= len(args) {
+		return 0, errNotEnoughArgs
+	}
+	if v, ok := args[ndx].(vm.Float); ok {
+    return v.Float64(), nil
+  } else if v, ok := args[ndx].(vm.Int); ok {
+    return float64(v.Int64()), nil
+  } else {
+    return 0, errExpectedArg(ndx, args[ndx], "float", "int")
+  }
 }
 
 func getBoolArg(args []vm.Value, ndx int) (bool, error) {
@@ -214,16 +239,9 @@ func getCallableArg(args []nitro.Value, ndx int) (nitro.Callable, error) {
 	return callable, nil
 }
 
-func errExpectedArg(ndx int, expected, actual nitro.Value) error {
+func errExpectedArg(ndx int, actual nitro.Value, expected ...string) error {
 	return fmt.Errorf(
 		"expected argument #%v to be %v, but it was %v",
-		ndx+1, nitro.TypeName(expected),
-		nitro.TypeName(actual))
-}
-
-func errExpectedArg2(ndx int, expected1, expected2 string, actual nitro.Value) error {
-	return fmt.Errorf(
-		"expected argument #%v to be %v or %v, but it was %v",
-		ndx+1, expected1, expected2,
+		ndx+1, strings.Join(expected, " or "),
 		nitro.TypeName(actual))
 }

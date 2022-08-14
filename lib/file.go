@@ -269,7 +269,7 @@ func fileRead(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) 
 			return nil, err
 		}
 	default:
-		return nil, errExpectedArg2(0, "str", "reader", args[0])
+		return nil, errExpectedArg(0, args[0], "str", "reader")
 	}
 
 	return []nitro.Value{nitro.NewString(string(data))}, nil
@@ -324,7 +324,7 @@ func fileRemove(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error
 		err = os.Remove(arg.Name())
 
 	default:
-		return nil, errExpectedArg2(0, "str", "file", arg)
+		return nil, errExpectedArg(0, arg, "str", "file")
 	}
 
 	if err != nil {

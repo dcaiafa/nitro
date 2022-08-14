@@ -6,11 +6,9 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-var errToIntUsage = nitro.NewInvalidUsageError("to_int(string|float|int)")
-
 func toInt(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) != 1 {
-		return nil, errToIntUsage
+	if err := expectArgCount(args, 1, 1); err != nil {
+		return nil, err
 	}
 
 	var res nitro.Int
@@ -29,7 +27,7 @@ func toInt(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 		res = arg
 
 	default:
-		return nil, errToIntUsage
+		return nil, errExpectedArg(0, args[0], "str", "float", "int")
 	}
 
 	return []nitro.Value{res}, nil

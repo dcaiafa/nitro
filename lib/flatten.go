@@ -2,12 +2,14 @@ package lib
 
 import "github.com/dcaiafa/nitro"
 
-var errFlattenUsage = nitro.NewInvalidUsageError("flatten(iter)")
-
 func flatten(vm *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
-	inIter, err := nitro.MakeIterator(vm, args[0])
+	if len(args) > 1 {
+		return nil, errTooManyArgs
+	}
+
+	inIter, err := getIterArg(vm, args, 0)
 	if err != nil {
-		return nil, errFlattenUsage
+		return nil, err
 	}
 
 	flattenIter := &flattenIter{

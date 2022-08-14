@@ -31,12 +31,11 @@ func (a *histogramAccum) ToResult() *nitro.Object {
 	return r
 }
 
-var errHistogramUsage = nitro.NewInvalidUsageError(
-	"histogram(iter) or histogram(accum, any)")
-
 func hist(vm *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
-	if len(args) == 0 {
-		return nil, errHistogramUsage
+	if len(args) > 2 {
+		return nil, errTooManyArgs
+	} else if len(args) < 1 {
+		return nil, errNotEnoughArgs
 	}
 
 	if len(args) == 2 {
@@ -47,9 +46,10 @@ func hist(vm *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
 			var ok bool
 			accum, ok = args[0].(*histogramAccum)
 			if !ok {
-				return nil, errHistogramUsage
+				return nil, errExpectedArg(0, args[0], "hist")
 			}
 		}
+
 		if args[1] == nil {
 			return []nitro.Value{accum.ToResult()}, nil
 		}
@@ -58,9 +58,9 @@ func hist(vm *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
 		return []nitro.Value{accum}, nil
 	}
 
-	iter, err := nitro.MakeIterator(vm, args[0])
+	iter, err := getIterArg(vm, args, 0)
 	if err != nil {
-		return nil, errHistogramUsage
+		return nil, err
 	}
 
 	accum := newHistAccum()

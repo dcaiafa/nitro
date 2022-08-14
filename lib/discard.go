@@ -8,11 +8,11 @@ import (
 	"github.com/dcaiafa/nitro/lib/core"
 )
 
-var errDiscardUsage = nitro.NewInvalidUsageError("discard(iter|reader)")
-
 func discard(vm *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
-	if len(args) != 1 {
-		return nil, errDiscardUsage
+	if len(args) < 1 {
+		return nil, errNotEnoughArgs
+	} else if len(args) > 1 {
+		return nil, errTooManyArgs
 	}
 
 	if reader, ok := args[0].(io.Reader); ok {
@@ -32,7 +32,7 @@ func discard(vm *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) 
 			}
 		}
 	} else {
-		return nil, errDiscardUsage
+		return nil, errExpectedArg(0, args[0], "reader", "iter")
 	}
 
 	return nil, nil

@@ -7,137 +7,106 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-var errPathBaseUsage = nitro.NewInvalidUsageError("base(string)")
-
 func pathBase(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) != 1 {
-		return nil, errPathBaseUsage
+	if err := expectArgCount(args, 1, 1); err != nil {
+		return nil, err
 	}
-
-	path, ok := args[0].(nitro.String)
-	if !ok {
-		return nil, errPathBaseUsage
+	path, err := getStringArg(args, 0)
+	if err != nil {
+		return nil, err
 	}
-
-	base := filepath.Base(path.String())
-
+	base := filepath.Base(path)
 	return []nitro.Value{nitro.NewString(base)}, nil
 }
 
-var errPathCleanUsage = nitro.NewInvalidUsageError("clean(string)")
-
 func pathClean(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) != 1 {
-		return nil, errPathCleanUsage
+	if err := expectArgCount(args, 1, 1); err != nil {
+		return nil, err
 	}
-
-	path, ok := args[0].(nitro.String)
-	if !ok {
-		return nil, errPathCleanUsage
+	path, err := getStringArg(args, 0)
+	if err != nil {
+		return nil, err
 	}
-
-	cleanPath := filepath.Clean(path.String())
+	cleanPath := filepath.Clean(path)
 	return []nitro.Value{nitro.NewString(cleanPath)}, nil
 }
 
-var errPathDirUsage = nitro.NewInvalidUsageError("dir(string)")
-
 func pathDir(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) != 1 {
-		return nil, errPathDirUsage
+	if err := expectArgCount(args, 1, 1); err != nil {
+		return nil, err
 	}
-
-	path, ok := args[0].(nitro.String)
-	if !ok {
-		return nil, errPathDirUsage
+	path, err := getStringArg(args, 0)
+	if err != nil {
+		return nil, err
 	}
-
-	dir := filepath.Dir(path.String())
+	dir := filepath.Dir(path)
 	return []nitro.Value{nitro.NewString(dir)}, nil
 }
 
-var errPathExtUsage = nitro.NewInvalidUsageError("ext(string)")
-
 func pathExt(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) != 1 {
-		return nil, errPathExtUsage
+	if err := expectArgCount(args, 1, 1); err != nil {
+		return nil, err
 	}
-
-	path, ok := args[0].(nitro.String)
-	if !ok {
-		return nil, errPathExtUsage
+	path, err := getStringArg(args, 0)
+	if err != nil {
+		return nil, err
 	}
-
-	ext := filepath.Ext(path.String())
+	ext := filepath.Ext(path)
 	return []nitro.Value{nitro.NewString(ext)}, nil
 }
 
-var errPathFromSlashUsage = nitro.NewInvalidUsageError("from_slash(string)")
-
 func pathFromSlash(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) != 1 {
-		return nil, errPathFromSlashUsage
+	if err := expectArgCount(args, 1, 1); err != nil {
+		return nil, err
 	}
-
-	path, ok := args[0].(nitro.String)
-	if !ok {
-		return nil, errPathFromSlashUsage
+	path, err := getStringArg(args, 0)
+	if err != nil {
+		return nil, err
 	}
-
-	fromSlash := filepath.FromSlash(path.String())
+	fromSlash := filepath.FromSlash(path)
 	return []nitro.Value{nitro.NewString(fromSlash)}, nil
 }
 
-var errPathToSlashUsage = nitro.NewInvalidUsageError("to_slash(string)")
-
 func pathToSlash(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) != 1 {
-		return nil, errPathToSlashUsage
+	if err := expectArgCount(args, 1, 1); err != nil {
+		return nil, err
 	}
-	path, ok := args[0].(nitro.String)
-	if !ok {
-		return nil, errPathToSlashUsage
+	path, err := getStringArg(args, 0)
+	if err != nil {
+		return nil, err
 	}
-
-	p := filepath.ToSlash(path.String())
+	p := filepath.ToSlash(path)
 	return []nitro.Value{nitro.NewString(p)}, nil
 }
 
-var errPathJoin = nitro.NewInvalidUsageError("join(string*)")
-
 func pathJoin(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	var err error
 	paths := make([]string, len(args))
-
 	for i := 0; i < len(args); i++ {
-		path, ok := args[i].(nitro.String)
-		if !ok {
-			return nil, errPathJoin
+		paths[i], err = getStringArg(args, i)
+		if err != nil {
+			return nil, err
 		}
-		paths[i] = path.String()
 	}
-
 	path := filepath.Join(paths...)
 	return []nitro.Value{nitro.NewString(path)}, nil
 }
 
-var errPathMatchUsage = nitro.NewInvalidUsageError(`match(string, string)`)
-
 func pathMatch(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) != 2 {
-		return nil, errPathMatchUsage
+	if err := expectArgCount(args, 2, 2); err != nil {
+		return nil, err
 	}
 
-	pattern, ok := args[0].(nitro.String)
-	if !ok {
-		return nil, errPathMatchUsage
+	pattern, err := getStringArg(args, 0)
+	if err != nil {
+		return nil, err
+	}
+	path, err := getStringArg(args, 0)
+	if err != nil {
+		return nil, err
 	}
 
-	path, ok := args[1].(nitro.String)
-	if !ok {
-		return nil, errPathMatchUsage
-	}
-
-	res, err := doublestar.PathMatch(pattern.String(), path.String())
+	res, err := doublestar.PathMatch(pattern, path)
 	if err != nil {
 		return nil, err
 	}

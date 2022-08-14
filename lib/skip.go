@@ -4,22 +4,22 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-var errSkipUsage = nitro.NewInvalidUsageError("skip(iter, int)")
-
 func skip(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) != 2 {
-		return nil, errSkipUsage
-	}
-	inIter, err := nitro.MakeIterator(m, args[0])
-	if err != nil {
-		return nil, errSkipUsage
-	}
-	skip, ok := args[1].(nitro.Int)
-	if !ok {
-		return nil, errSkipUsage
+	if err := expectArgCount(args, 2, 2); err != nil {
+		return nil, err
 	}
 
-	skipIter := &skipIter{inIter: inIter, skip: int(skip.Int64())}
+	inIter, err := getIterArg(m, args, 0)
+	if err != nil {
+		return nil, err
+	}
+
+	skip, err := getIntArg(args, 1)
+	if err != nil {
+		return nil, err
+	}
+
+	skipIter := &skipIter{inIter: inIter, skip: int(skip)}
 
 	return []nitro.Value{nitro.NewIterator(skipIter.Next, skipIter.Close, inIter.IterNRet())}, nil
 }

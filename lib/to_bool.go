@@ -2,11 +2,9 @@ package lib
 
 import "github.com/dcaiafa/nitro"
 
-var errToBoolUsage = nitro.NewInvalidUsageError("to_bool(value)")
-
 func toBool(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) != 1 {
-		return nil, errToBoolUsage
+	if err := expectArgCount(args, 1, 1); err != nil {
+		return nil, err
 	}
 
 	res := nitro.CoerceToBool(args[0])

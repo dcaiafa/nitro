@@ -208,7 +208,7 @@ func strSplit(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) 
 	case *nitro.Regex:
 		parts = sep.Split(s, int(n))
 	default:
-		return nil, errExpectedArg2(1, "str", "regex", args[1])
+		return nil, errExpectedArg(1, args[1], "str", "regex")
 	}
 
 	a := vm.NewArrayWithSlice(make([]nitro.Value, 0, len(parts)))

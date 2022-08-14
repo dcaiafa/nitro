@@ -4,16 +4,14 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-var errUniqueUsage = nitro.NewInvalidUsageError("unique(iter, path_expr?)")
-
 func unique(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) != 1 && len(args) != 2 {
-		return nil, errUniqueUsage
+	if err := expectArgCount(args, 1, 2); err != nil {
+		return nil, err
 	}
 
-	e, err := nitro.MakeIterator(m, args[0])
+	e, err := getIterArg(m, args, 0)
 	if err != nil {
-		return nil, errUniqueUsage
+		return nil, err
 	}
 
 	var keyFn *PathExpr

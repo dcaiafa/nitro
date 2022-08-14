@@ -1,28 +1,29 @@
 package lib
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/dcaiafa/nitro"
 )
 
-var errJoinUsage = nitro.NewInvalidUsageError("join(iter, string)")
-
 func join(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) != 2 {
-		return nil, errJoinUsage
+	if err := expectArgCount(args, 2, 2); err != nil {
+		return nil, err
 	}
 
-	list, err := ToArray(m, args[0])
+	iter, err := getIterArg(m, args, 0)
 	if err != nil {
-		return nil, fmt.Errorf(
-			"%w: argument 1 is not an array or iterable", errJoinUsage)
+		return nil, err
 	}
 
-	sep, ok := args[1].(nitro.String)
-	if !ok {
-		return nil, errJoinUsage
+	list, err := ToArray(m, iter)
+	if err != nil {
+		return nil, err
+	}
+
+	sep, err := getStringArg(args, 1)
+	if err != nil {
+		return nil, err
 	}
 
 	elems := make([]string, list.Len())
@@ -30,7 +31,6 @@ func join(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 		elems[i] = list.Get(i).String()
 	}
 
-	res := strings.Join(elems, sep.String())
-
+	res := strings.Join(elems, sep)
 	return []nitro.Value{nitro.NewString(res)}, nil
 }

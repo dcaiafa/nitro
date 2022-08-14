@@ -150,21 +150,3 @@ func (i *arrayIter) Next(m *VM, args []Value, nret int) ([]Value, error) {
 
 	return []Value{v, NewInt(int64(idx))}, nil
 }
-
-var errListAddUsage error = NewInvalidUsageError("<list>.add(any+)")
-
-func (a *Array) add(m *VM, args []Value, nRet int) ([]Value, error) {
-	if len(args) == 0 {
-		return nil, errListAddUsage
-	}
-
-	for _, arg := range args {
-		a.Add(arg)
-	}
-
-	if nRet == 1 {
-		return []Value{a}, nil
-	} else {
-		return nil, nil
-	}
-}

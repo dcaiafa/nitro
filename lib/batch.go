@@ -2,26 +2,24 @@ package lib
 
 import "github.com/dcaiafa/nitro"
 
-var errBatchUsage = nitro.NewInvalidUsageError("batch(iter, int)")
-
 func batch(vm *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
-	if len(args) != 2 {
-		return nil, errBatchUsage
+	if len(args) > 2 {
+		return nil, errTooManyArgs
 	}
 
-	inIter, err := nitro.MakeIterator(vm, args[0])
+	inIter, err := getIterArg(vm, args, 0)
 	if err != nil {
-		return nil, errBatchUsage
+		return nil, err
 	}
 
-	n, ok := args[1].(nitro.Int)
-	if !ok {
-		return nil, errBatchUsage
+	n, err := getIntArg(args, 1)
+	if err != nil {
+		return nil, err
 	}
 
 	batchIter := &batchIter{
 		inIter: inIter,
-		n:      int(n.Int64()),
+		n:      int(n),
 	}
 
 	outIter := nitro.NewIterator(

@@ -4,25 +4,22 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-var errTakeUsage = nitro.NewInvalidUsageError("take(iter, int)")
-
 func take(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) != 2 {
-		return nil, errTakeUsage
+	if err := expectArgCount(args, 2, 2); err != nil {
+		return nil, err
 	}
 
-	inIter, err := nitro.MakeIterator(m, args[0])
+	inIter, err := getIterArg(m, args, 0)
 	if err != nil {
-		return nil, errTakeUsage
+		return nil, err
 	}
 
-	count, ok := args[1].(nitro.Int)
-	if !ok {
-		return nil, errTakeUsage
+	count, err := getIntArg(args, 1)
+	if err != nil {
+		return nil, err
 	}
 
-	takeIter := &takeIter{inIter: inIter, count: int(count.Int64())}
-
+	takeIter := &takeIter{inIter: inIter, count: int(count)}
 	return []nitro.Value{nitro.NewIterator(takeIter.Next, takeIter.Close, inIter.IterNRet())}, nil
 }
 

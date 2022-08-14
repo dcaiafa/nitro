@@ -13,11 +13,11 @@ import (
 	"github.com/dcaiafa/nitro/lib/core"
 )
 
-var errFromCRLFUsage = nitro.NewInvalidUsageError("from_crlf(string|reader)")
-
 func fromCRLF(vm *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) != 1 {
-		return nil, errFromCRLFUsage
+	if len(args) > 1 {
+		return nil, errTooManyArgs
+	} else if len(args) < 1 {
+		return nil, errNotEnoughArgs
 	}
 
 	switch source := args[0].(type) {
@@ -34,24 +34,25 @@ func fromCRLF(vm *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error)
 		return []nitro.Value{converter}, nil
 
 	default:
-		return nil, errFromCRLFUsage
+		return nil, errExpectedArg(0, args[0], "str", "reader", "writer")
 	}
 }
 
-var errToCRLFUsage = nitro.NewInvalidUsageError("to_crlf(string|reader, bool?)")
-
 func toCRLF(vm *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
-	if len(args) != 1 && len(args) != 2 {
-		return nil, errToCRLFUsage
+	var err error
+
+	if len(args) < 1 {
+		return nil, errNotEnoughArgs
+	} else if len(args) > 2 {
+		return nil, errTooManyArgs
 	}
 
 	convert := runtime.GOOS == "windows"
 	if len(args) == 2 {
-		convertArg, ok := args[1].(nitro.Bool)
-		if !ok {
-			return nil, errToCRLFUsage
+		convert, err = getBoolArg(args, 1)
+		if err != nil {
+			return nil, err
 		}
-		convert = convertArg.Bool()
 	}
 
 	switch source := args[0].(type) {
@@ -76,7 +77,7 @@ func toCRLF(vm *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
 		return []nitro.Value{converter}, nil
 
 	default:
-		return nil, errToCRLFUsage
+		return nil, errExpectedArg(0, args[0], "str", "reader")
 	}
 }
 

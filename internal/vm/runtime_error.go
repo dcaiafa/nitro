@@ -14,7 +14,7 @@ type RuntimeError struct {
 
 var _ error = (*RuntimeError)(nil)
 
-func wrapRuntimeError(m *VM, err *error) *RuntimeError {
+func wrapRuntimeError(vm *VM, err *error) *RuntimeError {
 	if *err == nil {
 		return nil
 	}
@@ -25,7 +25,7 @@ func wrapRuntimeError(m *VM, err *error) *RuntimeError {
 		}
 	}
 	if rerr.Stack == nil {
-		rerr.Stack = m.GetStackInfo()
+		rerr.Stack = vm.GetStackInfo()
 	}
 	*err = rerr
 	return rerr
@@ -88,14 +88,3 @@ var ErrIsNotIterable = errors.New("is not iterable")
 var ErrIsNotReadable = errors.New("is not readable")
 var ErrDivideByZero = errors.New("divide by zero")
 
-type InvalidUsageError struct {
-	expected string
-}
-
-func NewInvalidUsageError(expected string) *InvalidUsageError {
-	return &InvalidUsageError{expected: expected}
-}
-
-func (e *InvalidUsageError) Error() string {
-	return "invalid usage. Expected " + e.expected
-}

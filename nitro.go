@@ -109,10 +109,6 @@ func EvalOp(op Op, operand1, operand2 Value) (Value, error) {
 	return vm.EvalOp(op, operand1, operand2)
 }
 
-func NewInvalidUsageError(expected string) error {
-	return vm.NewInvalidUsageError(expected)
-}
-
 func TypeName(v Value) string            { return vm.TypeName(v) }
 func NewString(v string) String          { return vm.NewString(v) }
 func NewInt(v int64) Int                 { return vm.NewInt(v) }
