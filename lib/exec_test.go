@@ -160,7 +160,7 @@ exit status 128
 
 	RunSubO(t, `executable_not_found`, `
 	try {
-		exec.exec("./foo_bar_doesnt_exist") | read()
+		exec.exec(["./foo_bar_doesnt_exist"]) | read()
 	} catch {
   	print("failed as expected")
 	}

@@ -6,15 +6,32 @@ import (
 	"strings"
 )
 
+type NonRecoverableError struct {
+  wrapped error
+}
+
+func (e *NonRecoverableError) Error() string {
+  return e.wrapped.Error()
+}
+
+func (e *NonRecoverableError) Unwrap() error {
+  return e.wrapped
+}
+
+func MakeNonRecoverableError(err error) error {
+  return &NonRecoverableError{ wrapped: err }
+}
+
 type RuntimeError struct {
 	Err      error
 	ErrValue Value
 	Stack    []FrameInfo
+  Recoverable bool
 }
 
 var _ error = (*RuntimeError)(nil)
 
-func wrapRuntimeError(vm *VM, err *error) *RuntimeError {
+func wrapRuntimeError(vm *VM, err *error, recoverable bool) *RuntimeError {
 	if *err == nil {
 		return nil
 	}
@@ -22,7 +39,13 @@ func wrapRuntimeError(vm *VM, err *error) *RuntimeError {
 	if !errors.As(*err, &rerr) {
 		rerr = &RuntimeError{
 			Err: *err,
+      Recoverable: recoverable,
 		}
+    // A base NonRecoverableError error overrides `recoverable`.
+    var nre *NonRecoverableError
+    if errors.As(*err, &nre) {
+      rerr.Recoverable = false
+    }
 	}
 	if rerr.Stack == nil {
 		rerr.Stack = vm.GetStackInfo()

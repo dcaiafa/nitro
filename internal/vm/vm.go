@@ -247,7 +247,7 @@ func (m *VM) callExtFn(
 
 	rets, err := extFn.Call(m, args, nret)
 	if err != nil {
-		wrapRuntimeError(m, &err)
+		wrapRuntimeError(m, &err, true /* recoverable */)
 		m.co.PopFrame()
 		return err
 	}
@@ -256,7 +256,7 @@ func (m *VM) callExtFn(
 		err = fmt.Errorf(
 			"external function was expected to return at least %v values, "+
 				"but it returned only %v values", nret, len(rets))
-		wrapRuntimeError(m, &err)
+		wrapRuntimeError(m, &err, false /* recoverable */)
 		m.co.PopFrame()
 		return err
 	}
@@ -386,7 +386,7 @@ func (m *VM) iterNext(iter Iterator, nret int) (bool, error) {
 
 		rets, err := iter.extFn.Call(m, nil, nret)
 		if err != nil {
-			wrapRuntimeError(m, &err)
+			wrapRuntimeError(m, &err, true /* recoverable */)
 			m.co.PopFrame()
 			iter.Close(m)
 			return false, err
@@ -402,7 +402,7 @@ func (m *VM) iterNext(iter Iterator, nret int) (bool, error) {
 				"native iterator was expected to return at least %v values, "+
 					"but it returned only %v values", nret, len(rets))
 			iter.Close(m)
-			wrapRuntimeError(m, &err)
+			wrapRuntimeError(m, &err, false /* recoverable */)
 			m.co.PopFrame()
 			return false, err
 		}
@@ -477,16 +477,18 @@ func (m *VM) resume() (err error) {
 		// Update the current frame's ip so that the stack trace created by
 		// wrapRuntimeError will reflect the current position.
 		m.co.frame.ip = m.co.ip
-		rerr := wrapRuntimeError(m, &err)
+		rerr := wrapRuntimeError(m, &err, false /* recoverable */)
 		err = rerr
 
-		if len(m.co.frame.tryCatches) == 0 {
-			derr := m.runDefers()
-			if derr != nil {
-				err = fmt.Errorf(
-					"defer threw error:\n%v\n"+
-						"while handling error:\n%w",
-					derr, err)
+		if !rerr.Recoverable || len(m.co.frame.tryCatches) == 0 {
+			if rerr.Recoverable {
+				derr := m.runDefers()
+				if derr != nil {
+					err = fmt.Errorf(
+						"defer threw error:\n%v\n"+
+							"while handling error:\n%w",
+						derr, err)
+				}
 			}
 			m.co.PopFrame()
 			return err
@@ -914,7 +916,10 @@ func (m *VM) resumeWithoutRecovery() (err error) {
 			m.co.sp--
 			err, ok := errVal.(*RuntimeError)
 			if !ok {
-				err = &RuntimeError{ErrValue: errVal}
+				err = &RuntimeError{
+					ErrValue:    errVal,
+					Recoverable: true,
+				}
 			}
 			return err
 
@@ -1032,10 +1037,8 @@ func (m *VM) SignalError(err error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	m.injectedErr = err
-
+	m.injectedErr = wrapRuntimeError(m, &err, true /* recoverable */)
 	atomic.StoreInt32(&m.interrupt, 1)
-
 	m.sched.CancelBlocked()
 }
 

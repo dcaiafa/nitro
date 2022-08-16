@@ -11,20 +11,20 @@ import (
 )
 
 var (
-	errNotEnoughArgs       = errors.New("not enough arguments")
-	errTooManyArgs         = errors.New("too many arguments")
-	errInvalidNumberOfArgs = errors.New("invalid number of arguments")
+	errNotEnoughArgs       = vm.MakeNonRecoverableError(errors.New("not enough arguments"))
+	errTooManyArgs         = vm.MakeNonRecoverableError(errors.New("too many arguments"))
+	errInvalidNumberOfArgs = vm.MakeNonRecoverableError(errors.New("invalid number of arguments"))
 )
 
 func expectArgCount(args []vm.Value, min, max int) error {
-  switch {
-  case len(args) < min:
-    return errNotEnoughArgs
-  case len(args) > max:
-    return errTooManyArgs
-  default:
-    return nil
-  }
+	switch {
+	case len(args) < min:
+		return errNotEnoughArgs
+	case len(args) > max:
+		return errTooManyArgs
+	default:
+		return nil
+	}
 }
 
 func getValueArg(args []vm.Value, ndx int) (nitro.Value, error) {
@@ -40,9 +40,7 @@ func getIntArg(args []vm.Value, ndx int) (int64, error) {
 	}
 	v, ok := args[ndx].(vm.Int)
 	if !ok {
-		return 0, fmt.Errorf(
-			"expected argument %d to be Int, but it is %v",
-			ndx+1, nitro.TypeName(args[ndx]))
+		return 0, errExpectedArg(ndx, args[ndx], "int")
 	}
 	return v.Int64(), nil
 }
@@ -52,12 +50,12 @@ func getFloatArg(args []vm.Value, ndx int) (float64, error) {
 		return 0, errNotEnoughArgs
 	}
 	if v, ok := args[ndx].(vm.Float); ok {
-    return v.Float64(), nil
-  } else if v, ok := args[ndx].(vm.Int); ok {
-    return float64(v.Int64()), nil
-  } else {
-    return 0, errExpectedArg(ndx, args[ndx], "float", "int")
-  }
+		return v.Float64(), nil
+	} else if v, ok := args[ndx].(vm.Int); ok {
+		return float64(v.Int64()), nil
+	} else {
+		return 0, errExpectedArg(ndx, args[ndx], "float", "int")
+	}
 }
 
 func getBoolArg(args []vm.Value, ndx int) (bool, error) {
@@ -66,9 +64,7 @@ func getBoolArg(args []vm.Value, ndx int) (bool, error) {
 	}
 	v, ok := args[ndx].(vm.Bool)
 	if !ok {
-		return false, fmt.Errorf(
-			"expected argument %d to be Bool, but it is %v",
-			ndx+1, nitro.TypeName(args[ndx]))
+		return false, errExpectedArg(ndx, args[ndx], "bool")
 	}
 	return v.Bool(), nil
 }
@@ -79,9 +75,7 @@ func getStringArg(args []vm.Value, ndx int) (string, error) {
 	}
 	v, ok := args[ndx].(vm.String)
 	if !ok {
-		return "", fmt.Errorf(
-			"expected argument %d to be String, but it is %v",
-			ndx+1, nitro.TypeName(args[ndx]))
+		return "", errExpectedArg(ndx, args[ndx], "str")
 	}
 	return v.String(), nil
 }
@@ -92,9 +86,7 @@ func getListArg(args []vm.Value, ndx int) (*nitro.Array, error) {
 	}
 	v, ok := args[ndx].(*vm.Array)
 	if !ok {
-		return nil, fmt.Errorf(
-			"expected argument %d to be list, but it is %v",
-			ndx+1, nitro.TypeName(args[ndx]))
+		return nil, errExpectedArg(ndx, args[ndx], "list")
 	}
 	return v, nil
 }
@@ -105,9 +97,7 @@ func getObjectArg(args []vm.Value, ndx int) (*nitro.Object, error) {
 	}
 	v, ok := args[ndx].(*vm.Object)
 	if !ok {
-		return nil, fmt.Errorf(
-			"expected argument %d to be Object, but it is %v",
-			ndx+1, nitro.TypeName(args[ndx]))
+		return nil, errExpectedArg(ndx, args[ndx], "map")
 	}
 	return v, nil
 }
@@ -118,9 +108,7 @@ func getTimeArg(args []vm.Value, ndx int) (Time, error) {
 	}
 	v, ok := args[ndx].(Time)
 	if !ok {
-		return Time{}, fmt.Errorf(
-			"expected argument %d to be time, but it is %v",
-			ndx+1, nitro.TypeName(args[ndx]))
+		return Time{}, errExpectedArg(ndx, args[ndx], "time")
 	}
 	return v, nil
 }
@@ -131,9 +119,7 @@ func getRegexArg(args []vm.Value, ndx int) (*nitro.Regex, error) {
 	}
 	v, ok := args[ndx].(*vm.Regex)
 	if !ok {
-		return nil, fmt.Errorf(
-			"expected argument %d to be Regex, but it is %v",
-			ndx+1, nitro.TypeName(args[ndx]))
+		return nil, errExpectedArg(ndx, args[ndx], "regex")
 	}
 	return v, nil
 }
@@ -144,9 +130,7 @@ func getDurationArg(args []vm.Value, ndx int) (Duration, error) {
 	}
 	v, ok := args[ndx].(Duration)
 	if !ok {
-		return Duration{}, fmt.Errorf(
-			"expected argument %d to be duration, but it is %v",
-			ndx+1, nitro.TypeName(args[ndx]))
+		return Duration{}, errExpectedArg(ndx, args[ndx], "duration")
 	}
 	return v, nil
 }
@@ -157,9 +141,7 @@ func getProcessArg(args []vm.Value, ndx int) (*process, error) {
 	}
 	v, ok := args[ndx].(*process)
 	if !ok {
-		return nil, fmt.Errorf(
-			"expected argument %d to be process, but it is %v",
-			ndx+1, nitro.TypeName(args[ndx]))
+		return nil, errExpectedArg(ndx, args[ndx], "process")
 	}
 	return v, nil
 }
@@ -170,22 +152,7 @@ func getFileArg(args []vm.Value, ndx int) (*File, error) {
 	}
 	v, ok := args[ndx].(*File)
 	if !ok {
-		return nil, fmt.Errorf(
-			"expected argument %d to be file, but it is %v",
-			ndx+1, nitro.TypeName(args[ndx]))
-	}
-	return v, nil
-}
-
-func getArg(args []vm.Value, ndx int) (*process, error) {
-	if ndx >= len(args) {
-		return nil, errNotEnoughArgs
-	}
-	v, ok := args[ndx].(*process)
-	if !ok {
-		return nil, fmt.Errorf(
-			"expected argument %d to be process, but it is %v",
-			ndx+1, nitro.TypeName(args[ndx]))
+		return nil, errExpectedArg(ndx, args[ndx], "file")
 	}
 	return v, nil
 }
@@ -198,7 +165,7 @@ func getWriterArg(args []vm.Value, ndx int) (io.Writer, error) {
 	case io.Writer:
 		return v, nil
 	default:
-		return nil, fmt.Errorf("argument %v is not writable", nitro.TypeName(v))
+		return nil, errExpectedArg(ndx, args[ndx], "writer")
 	}
 }
 
@@ -209,8 +176,7 @@ func getIterArg(m *nitro.VM, args []vm.Value, ndx int) (nitro.Iterator, error) {
 	v := args[ndx]
 	it, err := nitro.MakeIterator(m, v)
 	if err != nil {
-		return nil, fmt.Errorf(
-			"argument #%v %v is not iterable", ndx+1, nitro.TypeName(v))
+		return nil, errExpectedArg(ndx, args[ndx], "iter")
 	}
 	return it, nil
 }
@@ -222,7 +188,7 @@ func getReaderArg(vmArg *vm.VM, args []vm.Value, ndx int) (vm.Reader, error) {
 	v := args[ndx]
 	reader, err := vm.MakeReader(vmArg, v)
 	if err != nil {
-		return nil, fmt.Errorf("argument #%v %v is not readable", ndx+1, nitro.TypeName(v))
+		return nil, errExpectedArg(ndx, args[ndx], "reader")
 	}
 	return reader, nil
 }
@@ -231,17 +197,16 @@ func getCallableArg(args []nitro.Value, ndx int) (nitro.Callable, error) {
 	if ndx >= len(args) {
 		return nil, errNotEnoughArgs
 	}
-	v := args[ndx]
 	callable, ok := args[ndx].(nitro.Callable)
 	if !ok {
-		return nil, fmt.Errorf("argument #%v %v is not callable", ndx+1, nitro.TypeName(v))
+		return nil, errExpectedArg(ndx, args[ndx], "callable")
 	}
 	return callable, nil
 }
 
 func errExpectedArg(ndx int, actual nitro.Value, expected ...string) error {
-	return fmt.Errorf(
+	return vm.MakeNonRecoverableError(fmt.Errorf(
 		"expected argument #%v to be %v, but it was %v",
 		ndx+1, strings.Join(expected, " or "),
-		nitro.TypeName(actual))
+		nitro.TypeName(actual)))
 }
