@@ -14,7 +14,7 @@ func TestMap(t *testing.T) {
 {a: 10, b: 2}
 {a: 1, b: 2, c: 30}
 `)
-  RunSubO(t, "update", `
+	RunSubO(t, "update", `
     var m = { a: 1, b: 2 }
     var r = map.update(m, { b: 20, c: 30 })
     print(m == r)
@@ -23,7 +23,16 @@ func TestMap(t *testing.T) {
 true
 {a: 1, b: 20, c: 30}
 `)
-  RunSubO(t, "delete", `
+	RunSubO(t, "update_func", `
+    var m = { a: 1, b: 2 }
+    var r = map.update(m, &x -> { a: x.a + 1, c: x.a + x.b })
+    print(m == r)
+    print(m)
+`, `
+true
+{a: 2, b: 2, c: 3}
+`)
+	RunSubO(t, "delete", `
     var m = { a: 1, b: 2, c: 3, d: 4 }
     var r = map.delete(m, "b", "d")
     print(m == r)
