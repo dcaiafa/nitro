@@ -148,17 +148,15 @@ func filepathRel(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, erro
 	if err := expectArgCount(args, 2, 2); err != nil {
 		return nil, err
 	}
-
-	basePath, err := getStringArg(args, 0)
+	path, err := getStringArg(args, 0)
 	if err != nil {
 		return nil, err
 	}
-	targPath, err := getStringArg(args, 1)
+	basePath, err := getStringArg(args, 1)
 	if err != nil {
 		return nil, err
 	}
-
-	res, err := filepath.Rel(basePath, targPath)
+	res, err := filepath.Rel(basePath, path)
 	if err != nil {
 		return nil, err
 	}
