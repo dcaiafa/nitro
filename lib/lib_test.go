@@ -12,7 +12,7 @@ func TestFuncRegistry(t *testing.T) {
 		nativeFn := r.GetExport(f.P, f.N)
 		require.True(t, nativeFn != nil, f.P+"."+f.N)
 	}
-	require.True(t, r.GetExport("path", "map") == nil)
-	require.True(t, r.IsValidPackage("path"))
-	require.False(t, r.IsValidPackage("patho"))
+	require.True(t, r.GetExport("filepath", "map") == nil)
+	require.True(t, r.IsValidPackage("filepath"))
+	require.False(t, r.IsValidPackage("filepatho"))
 }

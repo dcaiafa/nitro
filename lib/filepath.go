@@ -7,7 +7,22 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-func pathBase(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func filepathAbs(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	if err := expectArgCount(args, 1, 1); err != nil {
+		return nil, err
+	}
+	path, err := getStringArg(args, 0)
+	if err != nil {
+		return nil, err
+	}
+	abs, err := filepath.Abs(path)
+	if err != nil {
+		return nil, err
+	}
+	return []nitro.Value{nitro.NewString(abs)}, nil
+}
+
+func filepathBase(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if err := expectArgCount(args, 1, 1); err != nil {
 		return nil, err
 	}
@@ -19,7 +34,7 @@ func pathBase(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) 
 	return []nitro.Value{nitro.NewString(base)}, nil
 }
 
-func pathClean(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func filepathClean(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if err := expectArgCount(args, 1, 1); err != nil {
 		return nil, err
 	}
@@ -31,7 +46,7 @@ func pathClean(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error)
 	return []nitro.Value{nitro.NewString(cleanPath)}, nil
 }
 
-func pathDir(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func filepathDir(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if err := expectArgCount(args, 1, 1); err != nil {
 		return nil, err
 	}
@@ -43,7 +58,22 @@ func pathDir(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	return []nitro.Value{nitro.NewString(dir)}, nil
 }
 
-func pathExt(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func filepathEvalSymlinks(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	if err := expectArgCount(args, 1, 1); err != nil {
+		return nil, err
+	}
+	path, err := getStringArg(args, 0)
+	if err != nil {
+		return nil, err
+	}
+	res, err := filepath.EvalSymlinks(path)
+	if err != nil {
+		return nil, err
+	}
+	return []nitro.Value{nitro.NewString(res)}, nil
+}
+
+func filepathExt(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if err := expectArgCount(args, 1, 1); err != nil {
 		return nil, err
 	}
@@ -55,7 +85,7 @@ func pathExt(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	return []nitro.Value{nitro.NewString(ext)}, nil
 }
 
-func pathFromSlash(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func filepathFromSlash(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if err := expectArgCount(args, 1, 1); err != nil {
 		return nil, err
 	}
@@ -67,7 +97,7 @@ func pathFromSlash(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, er
 	return []nitro.Value{nitro.NewString(fromSlash)}, nil
 }
 
-func pathToSlash(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func filepathIsAbs(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if err := expectArgCount(args, 1, 1); err != nil {
 		return nil, err
 	}
@@ -75,11 +105,11 @@ func pathToSlash(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, erro
 	if err != nil {
 		return nil, err
 	}
-	p := filepath.ToSlash(path)
-	return []nitro.Value{nitro.NewString(p)}, nil
+	res := filepath.IsAbs(path)
+	return []nitro.Value{nitro.NewBool(res)}, nil
 }
 
-func pathJoin(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func filepathJoin(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	var err error
 	paths := make([]string, len(args))
 	for i := 0; i < len(args); i++ {
@@ -92,7 +122,7 @@ func pathJoin(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) 
 	return []nitro.Value{nitro.NewString(path)}, nil
 }
 
-func pathMatch(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func filepathMatch(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if err := expectArgCount(args, 2, 2); err != nil {
 		return nil, err
 	}
@@ -101,7 +131,7 @@ func pathMatch(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error)
 	if err != nil {
 		return nil, err
 	}
-	path, err := getStringArg(args, 0)
+	path, err := getStringArg(args, 1)
 	if err != nil {
 		return nil, err
 	}
@@ -112,4 +142,66 @@ func pathMatch(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error)
 	}
 
 	return []nitro.Value{nitro.NewBool(res)}, nil
+}
+
+func filepathRel(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	if err := expectArgCount(args, 2, 2); err != nil {
+		return nil, err
+	}
+
+	basePath, err := getStringArg(args, 0)
+	if err != nil {
+		return nil, err
+	}
+	targPath, err := getStringArg(args, 1)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := filepath.Rel(basePath, targPath)
+	if err != nil {
+		return nil, err
+	}
+
+	return []nitro.Value{nitro.NewString(res)}, nil
+}
+
+func filepathSplit(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	if err := expectArgCount(args, 1, 1); err != nil {
+		return nil, err
+	}
+	path, err := getStringArg(args, 0)
+	if err != nil {
+		return nil, err
+	}
+	list := filepath.SplitList(path)
+	res := make([]nitro.Value, len(list))
+	for i, part := range list {
+		res[i] = nitro.NewString(part)
+	}
+	return []nitro.Value{nitro.NewArrayFromSlice(res)}, nil
+}
+
+func filepathToSlash(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	if err := expectArgCount(args, 1, 1); err != nil {
+		return nil, err
+	}
+	path, err := getStringArg(args, 0)
+	if err != nil {
+		return nil, err
+	}
+	p := filepath.ToSlash(path)
+	return []nitro.Value{nitro.NewString(p)}, nil
+}
+
+func filepathVolumeName(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	if err := expectArgCount(args, 1, 1); err != nil {
+		return nil, err
+	}
+	path, err := getStringArg(args, 0)
+	if err != nil {
+		return nil, err
+	}
+	res := filepath.VolumeName(path)
+	return []nitro.Value{nitro.NewString(res)}, nil
 }
