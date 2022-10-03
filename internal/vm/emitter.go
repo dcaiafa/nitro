@@ -19,7 +19,6 @@ type Emitter struct {
 	stringMap map[string]int
 
 	globals   int
-	fns       []Fn
 	literals  []Value
 	params    map[string]*Param
 	reqParamN int
@@ -49,12 +48,11 @@ func (e *Emitter) AddGlobalParam(
 
 func (e *Emitter) NewFn(name string) int {
 	idxName := e.AddLiteral(NewString(name))
-	e.fns = append(e.fns, Fn{name: idxName})
-	return len(e.fns) - 1
+  return e.AddLiteral(&Fn{name: idxName})
 }
 
 func (e *Emitter) PushFn(fn int) {
-	e.fnStack = append(e.fnStack, &e.fns[fn])
+	e.fnStack = append(e.fnStack, e.literals[fn].(*Fn))
 }
 
 func (e *Emitter) PopFn() {
@@ -153,7 +151,6 @@ func (e *Emitter) SetGlobalCount(n int) {
 func (e *Emitter) ToCompiledPackage() *CompiledPackage {
 	return &CompiledPackage{
 		globals:   e.globals,
-		fns:       e.fns,
 		literals:  e.literals,
 		params:    e.params,
 		reqParamN: e.reqParamN,

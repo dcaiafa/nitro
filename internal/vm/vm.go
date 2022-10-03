@@ -126,7 +126,7 @@ func (m *VM) Run(args []Value) error {
 	co.sp = len(args)
 
 	f := co.NewFrame()
-	f.fn = &m.program.fns[m.program.MainFnNdx]
+	f.fn = m.program.literals[m.program.MainFnNdx].(*Fn)
 	f.nArg = len(args)
 	f.bp = len(args)
 
@@ -637,7 +637,7 @@ func (m *VM) resumeWithoutRecovery() (err error) {
 			}
 
 			closure := &Closure{
-				fn:   &m.program.fns[fn],
+				fn:   m.program.literals[fn].(*Fn),
 				caps: caps,
 			}
 			m.co.stack[m.co.sp] = closure
@@ -658,7 +658,7 @@ func (m *VM) resumeWithoutRecovery() (err error) {
 			}
 
 			iter := &ILIterator{
-				fn:       &m.program.fns[fn],
+				fn:       m.program.literals[fn].(*Fn),
 				captures: caps,
 				iterNRet: iterNRet,
 			}
@@ -763,10 +763,6 @@ func (m *VM) resumeWithoutRecovery() (err error) {
 
 		case OpLoadCaptureRef:
 			m.co.stack[m.co.sp] = m.co.frame.caps[int(instr.op1)]
-			m.co.sp++
-
-		case OpLoadFn:
-			m.co.stack[m.co.sp] = &m.program.fns[int(instr.op1)]
 			m.co.sp++
 
 		case OpLoadLiteral:

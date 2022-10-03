@@ -22,7 +22,6 @@ type CompiledPackage struct {
 	MainFnNdx int
 
 	globals   int
-	fns       []Fn
 	literals  []Value
 	params    map[string]*Param
 	reqParamN int
