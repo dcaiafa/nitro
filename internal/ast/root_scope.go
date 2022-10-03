@@ -49,7 +49,7 @@ func (s *RootScope) GetSymbol(name string) symbol.Symbol {
 			case *vm.NativeFn:
 				fnSym := &symbol.FuncSymbol{
 					External: true,
-					IdxFunc:  s.emitter.AddExternalFunc(s.packageName, name, v),
+					IdxFunc:  s.emitter.AddLiteral(v),
 				}
 				fnSym.SetName(name)
 				fnSym.SetReadOnly(true)
@@ -62,7 +62,7 @@ func (s *RootScope) GetSymbol(name string) symbol.Symbol {
 				constSym.SetName(name)
 				constSym.SetReadOnly(true)
 				s.scope.PutSymbol(nil, constSym)
-        return constSym
+				return constSym
 			}
 		}
 	}

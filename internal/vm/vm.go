@@ -769,10 +769,6 @@ func (m *VM) resumeWithoutRecovery() (err error) {
 			m.co.stack[m.co.sp] = &m.program.fns[int(instr.op1)]
 			m.co.sp++
 
-		case OpLoadNativeFn:
-			m.co.stack[m.co.sp] = m.program.extFns[int(instr.op1)]
-			m.co.sp++
-
 		case OpLoadLiteral:
 			m.co.stack[m.co.sp] = m.program.literals[int(instr.op1)]
 			m.co.sp++

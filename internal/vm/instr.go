@@ -36,7 +36,6 @@ const (
 	OpLoadCapture
 	OpLoadCaptureRef
 	OpLoadFn
-	OpLoadNativeFn
 	OpLoadLiteral
 	OpEvalBinOp
 	OpNot

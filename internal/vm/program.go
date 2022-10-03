@@ -23,7 +23,6 @@ type CompiledPackage struct {
 
 	globals   int
 	fns       []Fn
-	extFns    []*NativeFn
 	literals  []Value
 	params    map[string]*Param
 	reqParamN int
