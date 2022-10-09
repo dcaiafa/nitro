@@ -15,6 +15,7 @@ import (
 type listener struct {
 	parser.BaseNitroParserListener
 
+  Prologue *Prologue
 	Unit *ast.Unit
 
 	filename    string
@@ -174,6 +175,7 @@ func (l *listener) ExitPrologue(ctx *parser.PrologueContext) {
 		p.Imports = append(p.Imports, l.takeAST(imp))
 	}
 	l.put(ctx, p)
+  l.Prologue = p
 }
 
 // unit: prologue stmts;

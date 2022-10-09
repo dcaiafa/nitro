@@ -46,3 +46,29 @@ func ParseUnit(filename string, input string, diagMode bool, errLogger errlogger
 	}
 	return listener.Unit, nil
 }
+
+func ParsePrologue(filename string, input string, diagMode bool, errLogger errlogger.ErrLogger) (*Prologue, error) {
+	lexer := lexerPool.Get().(*augmentedLexer)
+	lexer.SetInputStream(antlr.NewInputStream(string(input)))
+
+	nitroParser := parserPool.Get().(*parser.NitroParser)
+	nitroParser.SetInputStream(antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel))
+
+	nitroParser.RemoveErrorListeners()
+	errListener := newErrorListener(filename, errLogger)
+	nitroParser.AddErrorListener(errListener)
+	if diagMode {
+		nitroParser.GetInterpreter().SetPredictionMode(antlr.PredictionModeLLExactAmbigDetection)
+		nitroParser.AddErrorListener(antlr.NewDiagnosticErrorListener(true))
+	}
+	listener := newListener(filename, errListener)
+	parseTree := nitroParser.Prologue()
+
+	parserPool.Put(nitroParser)
+	lexerPool.Put(lexer)
+	antlr.ParseTreeWalkerDefault.Walk(listener, parseTree)
+	if errListener.Error() != nil {
+		return nil, errListener.Error()
+	}
+	return listener.Prologue, nil
+}

@@ -7,8 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestHelloWorld(t *testing.T) {
-	prog := `
+const prog = `
 !param disable_drm = false {type:"any", required, desc:"Disable DRM"}
 !flag has_cc = true
 !flag multi_line {
@@ -121,9 +120,31 @@ emit(
 	foo: x ? y : bar
 	bar: 1
 }
-		`
+`
 
-	module, err := ParseUnit("test.nitro", prog, true, &errlogger.ConsoleErrLogger{})
+func TestHelloWorld(t *testing.T) {
+	unit, err := ParseUnit("test.nitro", prog, true, &errlogger.ConsoleErrLogger{})
 	require.NoError(t, err)
-	require.NotNil(t, module)
+	require.NotNil(t, unit)
+
+	prologue, err := ParsePrologue("test.nitro", prog, true, &errlogger.ConsoleErrLogger{})
+	require.NoError(t, err)
+	require.NotNil(t, prologue)
+	require.Len(t, prologue.Imports, 2)
+}
+
+func BenchmarkUnit(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		unit, err := ParseUnit("test.nitro", prog, true, &errlogger.ConsoleErrLogger{})
+		require.NoError(b, err)
+		require.NotNil(b, unit)
+	}
+}
+
+func BenchmarkPrologue(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		prologue, err := ParsePrologue("test.nitro", prog, true, &errlogger.ConsoleErrLogger{})
+		require.NoError(b, err)
+		require.NotNil(b, prologue)
+	}
 }

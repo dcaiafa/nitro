@@ -43,7 +43,7 @@ func (c *Compiler) CompileSimple(
 		FuncRegistries: c.funcRegistries,
 	}
 	root.AddUnit(unit)
-	return c.compilePackage(root, errLoggerWrapper)
+	return c.compile(root, errLoggerWrapper)
 }
 
 func (c *Compiler) CompilePackage(
@@ -67,6 +67,7 @@ func (c *Compiler) CompilePackage(
 			errLoggerWrapper.Failf(
 				token.Pos{}, "Failed to load unit %q: %v",
 				unitPath, err)
+      return nil, err
 		}
 		unit, err := parser2.ParseUnit(
 			unitPath, string(unitData), c.diag, errLoggerWrapper)
@@ -75,10 +76,10 @@ func (c *Compiler) CompilePackage(
 		}
 		root.AddUnit(unit)
 	}
-	return c.compilePackage(root, errLoggerWrapper)
+	return c.compile(root, errLoggerWrapper)
 }
 
-func (c *Compiler) compilePackage(
+func (c *Compiler) compile(
 	root *ast.Root,
 	errLoggerWrapper *errlogger.ErrLoggerWrapper,
 ) (*vm.CompiledPackage, error) {
@@ -119,4 +120,37 @@ func (c *Compiler) compilePackage(
 	})
 
 	return pkg, nil
+}
+
+func (c *Compiler) parseImportsPackage(
+	packageReader mod.PackageReader,
+	errLogger errlogger.ErrLogger,
+) (map[string]bool, error) {
+  imports := make(map[string]bool)
+	errLoggerWrapper := errlogger.NewErrLoggerBase(errLogger)
+	unitPaths, err := packageReader.ListUnits()
+	if err != nil {
+		errLoggerWrapper.Failf(
+			token.Pos{}, "Failed to load package at %q: %v",
+			packageReader.Path(), err)
+		return nil, errLoggerWrapper.Error()
+	}
+	for _, unitPath := range unitPaths {
+		unitData, err := packageReader.ReadUnit(unitPath)
+		if err != nil {
+			errLoggerWrapper.Failf(
+				token.Pos{}, "Failed to load unit %q: %v",
+				unitPath, err)
+      return nil, err
+		}
+		prologue, err := parser2.ParsePrologue(
+			unitPath, string(unitData), c.diag, errLoggerWrapper)
+		if err != nil {
+			return nil, err
+		}
+    for _, imp := range prologue.Imports {
+      imports[imp.(*ast.Import).Package] = true
+    }
+	}
+  return imports, nil
 }
