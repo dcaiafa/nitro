@@ -95,7 +95,7 @@ func TestExec(t *testing.T) {
 	`, `5000050000`)
 
 	RunSubO(t, `capture_stderr`, `
-			var err_buf = buf()
+			var err_buf = buf.new()
 			var out = range(2049) |
 				imap(to_string) |
 				exec.exec(["go", "run", "./testexec/testexec.go", "-echo-to-stderr", "-range", "11", "-range-stdout"]) |
