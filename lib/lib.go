@@ -111,6 +111,7 @@ var allExports = []export{
 	{P: "co", N: "start", T: exportFunc, F: start},
 	{P: "exec", N: "exec", T: exportFunc, F: execExec},
 	{P: "exec", N: "with_stderr", T: exportFunc, F: execWithStderr},
+	{P: "file", N: "close", T: exportFunc, F: closep},
 	{P: "file", N: "create", T: exportFunc, F: fileCreate},
 	{P: "file", N: "create_temp", T: exportFunc, F: fileCreateTemp},
 	{P: "file", N: "exists", T: exportFunc, F: fileExists},
