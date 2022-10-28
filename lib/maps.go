@@ -6,7 +6,7 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-func mapClone(vm *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
+func mapsClone(vm *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
 	if len(args) > 1 {
 		return nil, errTooManyArgs
 	}
@@ -18,7 +18,7 @@ func mapClone(vm *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error)
 	return []nitro.Value{r}, nil
 }
 
-func mapUpdate(vm *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
+func mapsUpdate(vm *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
 	if err := expectArgCount(args, 2, 2); err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func mapUpdate(vm *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error
 	return []nitro.Value{m}, nil
 }
 
-func mapDelete(vm *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
+func mapsDelete(vm *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
 	m, err := getObjectArg(args, 0)
 	if err != nil {
 		return nil, err
