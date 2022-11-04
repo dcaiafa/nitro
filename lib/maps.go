@@ -65,3 +65,61 @@ func mapsDelete(vm *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, erro
 	}
 	return []nitro.Value{m}, nil
 }
+
+func mapsInto(m *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
+	if err := expectArgCount(args, 1, 2); err != nil {
+		return nil, err
+	}
+
+	iter, err := getIterArg(m, args, 0)
+	if err != nil {
+		return nil, err
+	}
+
+	mapv := nitro.NewObject()
+	if len(args) == 2 {
+		fn, err := getCallableArg(args, 1)
+		if err != nil {
+			return nil, err
+		}
+		for {
+			v, err := m.IterNext(iter, iter.IterNRet())
+			if err != nil {
+				return nil, err
+			}
+			if v == nil {
+				break
+			}
+			res, err := m.Call(fn, v, 1)
+			if err != nil {
+				return nil, err
+			}
+			larg, ok := res[0].(*nitro.Array)
+			if !ok {
+				return nil, fmt.Errorf(
+					"conversion func must return a list; instead it returned %v",
+					nitro.TypeName(res[0]))
+			}
+			if larg.Len() != 2 {
+				return nil, fmt.Errorf(
+					"conversion func must return a list with 2 elements (key and value); "+
+						"instead it returned a list with %v elements",
+					larg.Len())
+			}
+			mapv.Put(larg.Get(0), larg.Get(1))
+		}
+	} else {
+		for {
+			v, err := m.IterNext(iter, 1)
+			if err != nil {
+				return nil, err
+			}
+			if v == nil {
+				break
+			}
+			mapv.Put(v[0], nitro.True)
+		}
+	}
+
+	return []nitro.Value{mapv}, nil
+}
