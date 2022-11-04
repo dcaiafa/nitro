@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"runtime/pprof"
 	"sync"
+	"syscall"
 	"time"
 
 	"github.com/dcaiafa/nitro"
@@ -197,7 +198,7 @@ func main() {
 	stopCh := make(chan struct{})
 	defer close(stopCh)
 
-	signal.Notify(signalCh, os.Interrupt)
+	signal.Notify(signalCh, os.Interrupt, syscall.SIGTERM)
 
 	wg.Add(1)
 	go func() {

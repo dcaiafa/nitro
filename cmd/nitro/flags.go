@@ -136,9 +136,9 @@ func (f *Flags) AddFlagsFromMetadata(md *nitro.Metadata) error {
 		switch param.Type {
 		case "bool":
 			flag.Value = new(bool)
-		case "", "string":
+		case "", "str":
 			flag.Value = new(string)
-		case "[]string":
+		case "[]str":
 			flag.IsList = true
 			flag.Value = new([]string)
 		case "int":
