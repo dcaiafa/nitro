@@ -93,9 +93,9 @@ EXEC_PREFIX: 'e`' -> pushMode(EXEC);
 
 mode EXEC;
 
-EXEC_WS_: [ \t\r\n]+ -> skip;
+EXEC_WS: [ \t\r\n]+;
 EXEC_SUFFIX: '`' -> popMode;
-EXEC_LITERAL: ~[ \t\r\n{"'`] ~[ \t\r\n`]*;
+EXEC_LITERAL: ~[ \t\r\n{"'`]+;
 EXEC_DQUOTE_: '"' -> more, pushMode(EXEC_DQUOTE);
 EXEC_SQUOTE_: '\'' -> more, pushMode(EXEC_SQUOTE);
 EXEC_EXPR_PREFIX_: '{' -> type(OCURLY), pushMode(EXEC_EXPR);

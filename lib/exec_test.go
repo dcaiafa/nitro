@@ -3,14 +3,22 @@ package lib
 import "testing"
 
 func TestExec(t *testing.T) {
+	RunSubO(t, `super-simple`,
+		"e`go run ./testexec/testexec.go -print-args single-{\"arg\"}-yeah last` |"+`
+			stdout
+	`, `
+[single-arg-yeah]
+[last]
+  `)
+
 	RunSubO(t, `literals`,
-		"e`go run ./testexec/testexec.go -print-args ./some/path    \\other\\path 123 ~!@#$%^&*()[]{}| ` |\n"+`
+		"e`go run ./testexec/testexec.go -print-args ./some/path   \\other\\path 123 ~!@#$%^&*()[]| ` |\n"+`
 			stdout
 	`, `
 [./some/path]
 [\other\path]
 [123]
-[~!@#$%^&*()[]{}|]
+[~!@#$%^&*()[]|]
   `)
 
 	RunSubO(t, `exprs`, `

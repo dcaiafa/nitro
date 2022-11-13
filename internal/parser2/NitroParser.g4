@@ -140,6 +140,7 @@ exec_expr: EXEC_PREFIX exec_expr_arg+ EXEC_SUFFIX;
 exec_expr_arg: EXEC_LITERAL
              | EXEC_DQUOTE_LITERAL
              | EXEC_SQUOTE_LITERAL
+             | EXEC_WS
              | OCURLY expr CCURLY; 
 
 object_literal: OCURLY object_fields CCURLY;

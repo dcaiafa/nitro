@@ -15,8 +15,8 @@ import (
 type listener struct {
 	parser.BaseNitroParserListener
 
-  Prologue *Prologue
-	Unit *ast.Unit
+	Prologue *Prologue
+	Unit     *ast.Unit
 
 	filename    string
 	errListener *errorListener
@@ -175,7 +175,7 @@ func (l *listener) ExitPrologue(ctx *parser.PrologueContext) {
 		p.Imports = append(p.Imports, l.takeAST(imp))
 	}
 	l.put(ctx, p)
-  l.Prologue = p
+	l.Prologue = p
 }
 
 // unit: prologue stmts;
@@ -665,8 +665,9 @@ func (l *listener) ExitInc_dec_stmt(ctx *parser.Inc_dec_stmtContext) {
 }
 
 // expr: short_lambda_expr
-//     | expr3
-//     ;
+//
+//	| expr3
+//	;
 func (l *listener) ExitExpr(ctx *parser.ExprContext) {
 	if ctx.Short_lambda_expr() != nil {
 		l.put(ctx, l.takeExpr(ctx.Short_lambda_expr()))
@@ -676,8 +677,9 @@ func (l *listener) ExitExpr(ctx *parser.ExprContext) {
 }
 
 // expr3: <assoc=right> expr3 '?' expr3 ':' expr3
-//      | binary_expr
-//      ;
+//
+//	| binary_expr
+//	;
 func (l *listener) ExitExpr3(ctx *parser.Expr3Context) {
 	allExpr := ctx.AllExpr3()
 	if len(allExpr) != 0 {
@@ -763,10 +765,11 @@ func (l *listener) ExitBinary_expr(ctx *parser.Binary_exprContext) {
 }
 
 // unary_expr: op=NOT unary_expr
-//           | op='+' unary_expr
-//           | op='-' unary_expr
-//           | primary_expr
-//           ;
+//
+//	| op='+' unary_expr
+//	| op='-' unary_expr
+//	| primary_expr
+//	;
 func (l *listener) ExitUnary_expr(ctx *parser.Unary_exprContext) {
 	if ctx.GetOp() == nil {
 		l.put(ctx, l.takeExpr(ctx.Primary_expr()))
@@ -940,16 +943,13 @@ func (l *listener) ExitShort_lambda_expr(ctx *parser.Short_lambda_exprContext) {
 // exec_expr: EXEC_PREFIX exec_expr_arg+ EXEC_SUFFIX;
 func (l *listener) ExitExec_expr(ctx *parser.Exec_exprContext) {
 	// TODO: set position.
-	exprArgs := &ast.ArrayLiteral{
-		Block: &ast.ArrayElementBlock{
-			Elements: make(ast.ASTs, len(ctx.AllExec_expr_arg())),
-		},
+
+	var argT execArgMaker
+	argT.Reserve(len(ctx.AllExec_expr_arg()))
+	for _, argCtx := range ctx.AllExec_expr_arg() {
+		argT.AddArg(l.takeExpr(argCtx))
 	}
-	for i, argCtx := range ctx.AllExec_expr_arg() {
-		exprArgs.Block.Elements[i] = &ast.ArrayElement{
-			Val: l.takeExpr(argCtx),
-		}
-	}
+	argT.AddArg(nil)
 
 	l.put(ctx, &ast.FuncCallExpr{
 		Target: &ast.SimpleRef{
@@ -958,18 +958,25 @@ func (l *listener) ExitExec_expr(ctx *parser.Exec_exprContext) {
 				Type: token.String,
 			},
 		},
-		Args: ast.Exprs{exprArgs},
+		Args: ast.Exprs{argT.ArrayLiteral()},
 		RetN: 1,
 	})
 }
 
 // exec_expr_arg: EXEC_LITERAL
-//              | EXEC_DQUOTE_LITERAL
-//              | EXEC_SQUOTE_LITERAL
-//              | EXEC_EXPR_PREFIX expr EXEC_EXPR_SUFFIX;
+//
+//	| EXEC_DQUOTE_LITERAL
+//	| EXEC_SQUOTE_LITERAL
+//	| OCURLY expr CCURLY;
 func (l *listener) ExitExec_expr_arg(ctx *parser.Exec_expr_argContext) {
 	if expr := ctx.Expr(); expr != nil {
 		l.put(ctx, l.takeExpr(expr))
+		return
+	}
+
+	ws := ctx.EXEC_WS()
+	if ws != nil {
+		l.put(ctx, &ast.ExecWS{})
 		return
 	}
 
