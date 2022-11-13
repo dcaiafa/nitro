@@ -43,6 +43,7 @@ const (
 	OpObjectGet
 	OpObjectGetRef
 	OpArrayAppendNoPop
+	OpArrayExpandElemNoPop
 	OpRet
 	OpStore
 	OpInitCallFrame

@@ -20,6 +20,12 @@ func TestArrayLiteral(t *testing.T) {
 		print(f(10))
 	`, `[10 11 12]`)
 
+	RunSubO(t, "expand", `
+    var a = [ 3, 4, 5 ]
+    var b = [ 1, 2, a..., 6, 7 ]
+    print(b)
+  `, `[1 2 3 4 5 6 7]`)
+
 	RunSubO(t, "add", `
 		var a = ["foo"]
 		a | list.append("bar")

@@ -141,7 +141,7 @@ exec_expr_arg: EXEC_LITERAL
              | EXEC_DQUOTE_LITERAL
              | EXEC_SQUOTE_LITERAL
              | EXEC_WS
-             | OCURLY expr CCURLY; 
+             | OCURLY expr EXPAND? CCURLY; 
 
 object_literal: OCURLY object_fields CCURLY;
 object_fields: (object_field ((COMMA|';') object_field)* (COMMA|';')?)?;
@@ -153,7 +153,7 @@ object_field: id_or_keyword COLON expr           # object_field_id_key
 
 array_literal: OBRACKET array_elems CBRACKET;
 array_elems: ( array_elem ((COMMA|';') array_elem)* (COMMA|';')* )?;
-array_elem: expr;
+array_elem: expr EXPAND?;
 
 id_or_keyword: 
     t=(

@@ -1065,14 +1065,12 @@ func (l *listener) ExitArray_elems(ctx *parser.Array_elemsContext) {
 	l.put(ctx, block)
 }
 
-// array_elem: expr;
+// array_elem: expr EXPAND?;
 func (l *listener) ExitArray_elem(ctx *parser.Array_elemContext) {
-	switch {
-	case ctx.Expr() != nil:
-		l.put(ctx, &ast.ArrayElement{Val: l.takeExpr(ctx.Expr())})
-	default:
-		panic("unreachable")
-	}
+  l.put(ctx, &ast.ArrayElement{
+    Val: l.takeExpr(ctx.Expr()),
+    Expand: ctx.EXPAND() != nil,
+  })
 }
 
 func (l *listener) ExitId_or_keyword(ctx *parser.Id_or_keywordContext) {

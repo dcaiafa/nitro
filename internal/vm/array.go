@@ -117,6 +117,19 @@ func (a *Array) Slice(b, e Value) (Value, error) {
 	return NewArrayWithSlice(a.array[begin:end]), nil
 }
 
+func (a *Array) AddIter(vm *VM, iter Iterator) error {
+  for {
+    v, err := vm.IterNext(iter, 1)
+    if err != nil {
+      return err
+    } else if v == nil {
+      break
+    }
+    a.Add(v[0])
+  }
+  return nil
+}
+
 func (a *Array) Len() int {
 	return len(a.array)
 }

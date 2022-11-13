@@ -4,7 +4,8 @@ import "github.com/dcaiafa/nitro/internal/vm"
 
 type ArrayElement struct {
 	PosImpl
-	Val Expr
+	Val    Expr
+	Expand bool
 }
 
 func (e *ArrayElement) RunPass(ctx *Context, pass Pass) {
@@ -12,6 +13,10 @@ func (e *ArrayElement) RunPass(ctx *Context, pass Pass) {
 
 	switch pass {
 	case Emit:
-		ctx.Emitter().Emit(e.Pos(), vm.OpArrayAppendNoPop, 0, 0)
+    if e.Expand {
+      ctx.Emitter().Emit(e.Pos(), vm.OpArrayExpandElemNoPop, 0, 0)
+    } else {
+      ctx.Emitter().Emit(e.Pos(), vm.OpArrayAppendNoPop, 0, 0)
+    }
 	}
 }
