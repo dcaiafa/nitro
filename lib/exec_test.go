@@ -3,13 +3,18 @@ package lib
 import "testing"
 
 func TestExec(t *testing.T) {
-	RunSubO(t, `super-simple`,
+	RunSubO(t, `complex-arg`,
 		"e`go run ./testexec/testexec.go -print-args single-{\"arg\"}-yeah last` |"+`
 			stdout
 	`, `
 [single-arg-yeah]
 [last]
   `)
+
+	RunSubErr(t, `complex-arg-expand-err`,
+		"e`go run ./testexec/testexec.go -print-args single-{[1,2]...}-yeah last` |"+`
+			stdout
+	`, nil)
 
 	RunSubO(t, `literals`,
 		"e`go run ./testexec/testexec.go -print-args ./some/path   \\other\\path 123 ~!@#$%^&*()[]| ` |\n"+`
@@ -27,7 +32,7 @@ func TestExec(t *testing.T) {
     { name: "Deedee", alive: false },
     { name: "Ollie", alive: true },
   ]
-`+"e`go run ./testexec/testexec.go -print-args {1} {[\"hello\", \"world\"] | join(\" \")} {pets | filter(&p->not p.alive) | map(&p->p.name)}` |\n"+`
+`+"e`go run ./testexec/testexec.go -print-args {1} {[\"hello\", \"world\"] | join(\" \")} {pets | filter(&p->not p.alive) | map(&p->p.name)...}` |\n"+`
 			stdout
 	`, `
 [1]
@@ -45,7 +50,7 @@ func TestExec(t *testing.T) {
   `)
 
 	RunSubO(t, `expr_iterator`, `
-`+"e`go run ./testexec/testexec.go -print-args a {range(5) | filter(&n->n%2==0)} b` |\n"+`
+`+"e`go run ./testexec/testexec.go -print-args a {range(5) | filter(&n->n%2==0)...} b` |\n"+`
 			stdout
 	`, `
 [a]
@@ -57,7 +62,7 @@ func TestExec(t *testing.T) {
 
 	RunSubO(t, `expr_iterable`, `
   var l = ["hi", 123, nil, 3.1415]
-`+"e`go run ./testexec/testexec.go -print-args a {l} b` |\n"+`
+`+"e`go run ./testexec/testexec.go -print-args a {l...} b` |\n"+`
 			stdout
 	`, `
 [a]

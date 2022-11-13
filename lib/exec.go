@@ -441,42 +441,11 @@ func execExec(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) 
 		switch v := v.(type) {
 		case vm.Int, vm.Float, vm.String:
 			cmdArgs = append(cmdArgs, v.String())
-    case vm.Iterable, vm.Iterator:
-      iter, err := vm.MakeIterator(m, v)
-      if err != nil {
-        return nil, err
-      }
-      j := 0
-      for {
-        j++
-        e, err := m.IterNext(iter, 1)
-        if err != nil {
-          return nil, err
-        } else if e == nil {
-          // End of iterator.
-          break
-        } else if e[0] == nil {
-          // Element is nil, skip it.
-          continue
-        }
-        switch e[0].(type) {
-        case vm.Int, vm.Float, vm.String:
-          cmdArgs = append(cmdArgs, e[0].String())
-        default:
-          return nil, fmt.Errorf(
-            "command argument #%v: iterator element #%v: "+
-            "allowed types are string, int, float; "+
-            "but element %v",
-            i+1, j, vm.TypeName(v))
-        }
-      }
 		default:
-			if !vm.IsIterable(v) {
-				return nil, fmt.Errorf(
-					"command argument allowed types are string, int, float and iterable; "+
-          "but argument #%v is %v",
-					i+1, vm.TypeName(v))
-			}
+			return nil, fmt.Errorf(
+				"command argument allowed types are string, int and float, "+
+					"but argument #%v is %v",
+				i+1, vm.TypeName(v))
 		}
 	}
 

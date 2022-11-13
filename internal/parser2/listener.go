@@ -944,12 +944,24 @@ func (l *listener) ExitShort_lambda_expr(ctx *parser.Short_lambda_exprContext) {
 func (l *listener) ExitExec_expr(ctx *parser.Exec_exprContext) {
 	// TODO: set position.
 
-	var argT execArgMaker
-	argT.Reserve(len(ctx.AllExec_expr_arg()))
+	var argm execArgMaker
+	argm.Reserve(len(ctx.AllExec_expr_arg()))
 	for _, argCtx := range ctx.AllExec_expr_arg() {
-		argT.AddArg(l.takeExpr(argCtx))
+		err := argm.AddArg(l.takeExpr(argCtx))
+		if err != nil {
+			l.errListener.LogError(
+				ctx.GetStart().GetLine(),
+				ctx.GetStart().GetColumn(),
+				err.Error())
+		}
 	}
-	argT.AddArg(nil)
+	err := argm.AddArg(nil)
+	if err != nil {
+		l.errListener.LogError(
+			ctx.GetStart().GetLine(),
+			ctx.GetStart().GetColumn(),
+			err.Error())
+	}
 
 	l.put(ctx, &ast.FuncCallExpr{
 		Target: &ast.SimpleRef{
@@ -958,7 +970,7 @@ func (l *listener) ExitExec_expr(ctx *parser.Exec_exprContext) {
 				Type: token.String,
 			},
 		},
-		Args: ast.Exprs{argT.ArrayLiteral()},
+		Args: ast.Exprs{argm.ArrayLiteral()},
 		RetN: 1,
 	})
 }
@@ -967,10 +979,14 @@ func (l *listener) ExitExec_expr(ctx *parser.Exec_exprContext) {
 //
 //	| EXEC_DQUOTE_LITERAL
 //	| EXEC_SQUOTE_LITERAL
-//	| OCURLY expr CCURLY;
+//	| OCURLY expr EXPAND? CCURLY;
 func (l *listener) ExitExec_expr_arg(ctx *parser.Exec_expr_argContext) {
 	if expr := ctx.Expr(); expr != nil {
-		l.put(ctx, l.takeExpr(expr))
+		e := l.takeExpr(expr)
+		if ctx.EXPAND() != nil {
+			e = &ast.ExecExpand{Expr: e}
+		}
+		l.put(ctx, e)
 		return
 	}
 
@@ -1067,10 +1083,10 @@ func (l *listener) ExitArray_elems(ctx *parser.Array_elemsContext) {
 
 // array_elem: expr EXPAND?;
 func (l *listener) ExitArray_elem(ctx *parser.Array_elemContext) {
-  l.put(ctx, &ast.ArrayElement{
-    Val: l.takeExpr(ctx.Expr()),
-    Expand: ctx.EXPAND() != nil,
-  })
+	l.put(ctx, &ast.ArrayElement{
+		Val:    l.takeExpr(ctx.Expr()),
+		Expand: ctx.EXPAND() != nil,
+	})
 }
 
 func (l *listener) ExitId_or_keyword(ctx *parser.Id_or_keywordContext) {
