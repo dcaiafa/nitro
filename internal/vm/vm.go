@@ -843,19 +843,19 @@ func (m *VM) resumeWithoutRecovery() (err error) {
 			array.Add(value)
 			m.co.sp--
 
-    case OpArrayExpandElemNoPop:
-      array := m.co.stack[m.co.sp-2].(*Array)
+		case OpArrayExpandElemNoPop:
+			array := m.co.stack[m.co.sp-2].(*Array)
 			iterValue := m.co.stack[m.co.sp-1]
 			m.co.sp--
 
-      iter, err := MakeIterator(m, iterValue)
-      if err != nil {
-        return err
-      }
-      err = array.AddIter(m, iter)
-      if err != nil {
-        return err
-      }
+			iter, err := MakeIterator(m, iterValue)
+			if err != nil {
+				return err
+			}
+			err = array.AddIter(m, iter)
+			if err != nil {
+				return err
+			}
 
 		case OpRet:
 			nret := m.co.sp - (m.co.frame.bp + m.co.frame.nLocals)

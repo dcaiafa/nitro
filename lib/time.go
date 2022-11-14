@@ -71,7 +71,7 @@ func (t Time) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) {
 }
 
 func (t Time) Index(key nitro.Value) (nitro.Value, error) {
-  return nil, vm.ErrOperationNotSupported
+	return nil, vm.ErrOperationNotSupported
 }
 
 func (t Time) IndexRef(key nitro.Value) (nitro.ValueRef, error) {
@@ -321,15 +321,15 @@ func timeTruncate(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, err
 		return nil, errTooManyArgs
 	}
 
-  dur, err := getDurationArg(args, 0)
-  if err != nil {
-    return nil, err
-  }
+	dur, err := getDurationArg(args, 0)
+	if err != nil {
+		return nil, err
+	}
 
-  mult, err := getDurationArg(args, 1)
-  if err != nil {
-    return nil, err
-  }
+	mult, err := getDurationArg(args, 1)
+	if err != nil {
+		return nil, err
+	}
 
 	truncDur := dur.dur.Truncate(mult.dur)
 	return []nitro.Value{NewDuration(truncDur)}, nil

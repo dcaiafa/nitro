@@ -115,10 +115,10 @@ type LocalVarSymbol struct {
 }
 
 type ConstSymbol struct {
-  baseSymbol
-  baseNonLiftable
+	baseSymbol
+	baseNonLiftable
 
-  LiteralNdx int
+	LiteralNdx int
 }
 
 type Package struct {

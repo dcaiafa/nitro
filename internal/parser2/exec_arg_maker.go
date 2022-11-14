@@ -42,8 +42,8 @@ func (t *execArgMaker) AddArg(arg ast.Expr) error {
 		}
 	} else if t.partial != nil {
 		elem := &ast.ArrayElement{
-			Val: t.partial,
-      Expand: t.expand,
+			Val:    t.partial,
+			Expand: t.expand,
 		}
 		t.args = append(t.args, elem)
 		t.partial = nil

@@ -13,10 +13,10 @@ func (e *ArrayElement) RunPass(ctx *Context, pass Pass) {
 
 	switch pass {
 	case Emit:
-    if e.Expand {
-      ctx.Emitter().Emit(e.Pos(), vm.OpArrayExpandElemNoPop, 0, 0)
-    } else {
-      ctx.Emitter().Emit(e.Pos(), vm.OpArrayAppendNoPop, 0, 0)
-    }
+		if e.Expand {
+			ctx.Emitter().Emit(e.Pos(), vm.OpArrayExpandElemNoPop, 0, 0)
+		} else {
+			ctx.Emitter().Emit(e.Pos(), vm.OpArrayAppendNoPop, 0, 0)
+		}
 	}
 }

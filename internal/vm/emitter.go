@@ -48,7 +48,7 @@ func (e *Emitter) AddGlobalParam(
 
 func (e *Emitter) NewFn(name string) int {
 	idxName := e.AddLiteral(NewString(name))
-  return e.AddLiteral(&Fn{name: idxName})
+	return e.AddLiteral(&Fn{name: idxName})
 }
 
 func (e *Emitter) PushFn(fn int) {

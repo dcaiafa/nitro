@@ -57,6 +57,7 @@ func ParsePrologue(filename string, input string, diagMode bool, errLogger errlo
 	nitroParser.RemoveErrorListeners()
 	errListener := newErrorListener(filename, errLogger)
 	nitroParser.AddErrorListener(errListener)
+	nitroParser.GetInterpreter().SetPredictionMode(antlr.PredictionModeSLL)
 	if diagMode {
 		nitroParser.GetInterpreter().SetPredictionMode(antlr.PredictionModeLLExactAmbigDetection)
 		nitroParser.AddErrorListener(antlr.NewDiagnosticErrorListener(true))

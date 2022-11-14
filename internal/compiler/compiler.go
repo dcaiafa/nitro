@@ -67,7 +67,7 @@ func (c *Compiler) CompilePackage(
 			errLoggerWrapper.Failf(
 				token.Pos{}, "Failed to load unit %q: %v",
 				unitPath, err)
-      return nil, err
+			return nil, err
 		}
 		unit, err := parser2.ParseUnit(
 			unitPath, string(unitData), c.diag, errLoggerWrapper)
@@ -126,7 +126,7 @@ func (c *Compiler) parseImportsPackage(
 	packageReader mod.PackageReader,
 	errLogger errlogger.ErrLogger,
 ) (map[string]bool, error) {
-  imports := make(map[string]bool)
+	imports := make(map[string]bool)
 	errLoggerWrapper := errlogger.NewErrLoggerBase(errLogger)
 	unitPaths, err := packageReader.ListUnits()
 	if err != nil {
@@ -141,16 +141,16 @@ func (c *Compiler) parseImportsPackage(
 			errLoggerWrapper.Failf(
 				token.Pos{}, "Failed to load unit %q: %v",
 				unitPath, err)
-      return nil, err
+			return nil, err
 		}
 		prologue, err := parser2.ParsePrologue(
 			unitPath, string(unitData), c.diag, errLoggerWrapper)
 		if err != nil {
 			return nil, err
 		}
-    for _, imp := range prologue.Imports {
-      imports[imp.(*ast.Import).Package] = true
-    }
+		for _, imp := range prologue.Imports {
+			imports[imp.(*ast.Import).Package] = true
+		}
 	}
-  return imports, nil
+	return imports, nil
 }

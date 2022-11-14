@@ -7,26 +7,26 @@ import (
 )
 
 type NonRecoverableError struct {
-  wrapped error
+	wrapped error
 }
 
 func (e *NonRecoverableError) Error() string {
-  return e.wrapped.Error()
+	return e.wrapped.Error()
 }
 
 func (e *NonRecoverableError) Unwrap() error {
-  return e.wrapped
+	return e.wrapped
 }
 
 func MakeNonRecoverableError(err error) error {
-  return &NonRecoverableError{ wrapped: err }
+	return &NonRecoverableError{wrapped: err}
 }
 
 type RuntimeError struct {
-	Err      error
-	ErrValue Value
-	Stack    []FrameInfo
-  Recoverable bool
+	Err         error
+	ErrValue    Value
+	Stack       []FrameInfo
+	Recoverable bool
 }
 
 var _ error = (*RuntimeError)(nil)
@@ -38,14 +38,14 @@ func wrapRuntimeError(vm *VM, err *error, recoverable bool) *RuntimeError {
 	var rerr *RuntimeError
 	if !errors.As(*err, &rerr) {
 		rerr = &RuntimeError{
-			Err: *err,
-      Recoverable: recoverable,
+			Err:         *err,
+			Recoverable: recoverable,
 		}
-    // A base NonRecoverableError error overrides `recoverable`.
-    var nre *NonRecoverableError
-    if errors.As(*err, &nre) {
-      rerr.Recoverable = false
-    }
+		// A base NonRecoverableError error overrides `recoverable`.
+		var nre *NonRecoverableError
+		if errors.As(*err, &nre) {
+			rerr.Recoverable = false
+		}
 	}
 	if rerr.Stack == nil {
 		rerr.Stack = vm.GetStackInfo()
@@ -110,4 +110,3 @@ var ErrCannotCallNil = errors.New("cannot evaluate function call because target 
 var ErrIsNotIterable = errors.New("is not iterable")
 var ErrIsNotReadable = errors.New("is not readable")
 var ErrDivideByZero = errors.New("divide by zero")
-

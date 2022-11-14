@@ -18,7 +18,7 @@ func (b *Buffer) Read(buf []byte) (int, error) {
 }
 
 func (b *Buffer) Len() int {
-  return b.buf.Len()
+	return b.buf.Len()
 }
 
 func (b *Buffer) String() string {
@@ -87,7 +87,7 @@ func bufReadByte(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, erro
 		}
 	}
 
-  return []nitro.Value{nitro.NewInt(int64(b))}, nil
+	return []nitro.Value{nitro.NewInt(int64(b))}, nil
 }
 
 func bufReadRune(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
@@ -107,7 +107,7 @@ func bufReadRune(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, erro
 		}
 	}
 
-  return []nitro.Value{nitro.NewInt(int64(r)), nitro.NewInt(int64(l))}, nil
+	return []nitro.Value{nitro.NewInt(int64(r)), nitro.NewInt(int64(l))}, nil
 }
 
 func bufReadFrom(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
@@ -120,17 +120,17 @@ func bufReadFrom(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, erro
 		return nil, err
 	}
 
-  r, err := getReaderArg(m, args, 1)
-  if err != nil {
-    return nil, err
-  }
+	r, err := getReaderArg(m, args, 1)
+	if err != nil {
+		return nil, err
+	}
 
-  _, err = buf.buf.ReadFrom(r)
-  if err != nil {
-    return nil, err
-  }
+	_, err = buf.buf.ReadFrom(r)
+	if err != nil {
+		return nil, err
+	}
 
-  return nil, nil
+	return nil, nil
 }
 
 func bufLen(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
@@ -143,9 +143,9 @@ func bufLen(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 		return nil, err
 	}
 
-  l := buf.Len()
+	l := buf.Len()
 
-  return []nitro.Value{nitro.NewInt(int64(l))}, nil
+	return []nitro.Value{nitro.NewInt(int64(l))}, nil
 }
 
 func bufCap(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
@@ -158,9 +158,9 @@ func bufCap(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 		return nil, err
 	}
 
-  c := buf.buf.Cap()
+	c := buf.buf.Cap()
 
-  return []nitro.Value{nitro.NewInt(int64(c))}, nil
+	return []nitro.Value{nitro.NewInt(int64(c))}, nil
 }
 
 func bufUnreadByte(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
@@ -173,10 +173,10 @@ func bufUnreadByte(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, er
 		return nil, err
 	}
 
-  err = buf.buf.UnreadByte()
-  if err != nil {
-    return nil, err
-  }
+	err = buf.buf.UnreadByte()
+	if err != nil {
+		return nil, err
+	}
 
-  return nil, nil
+	return nil, nil
 }

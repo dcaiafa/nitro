@@ -18,21 +18,21 @@ func get(m *vm.VM, args []vm.Value, nRet int) ([]vm.Value, error) {
 		return []vm.Value{nil}, nil
 	}
 
-  switch t := args[0].(type) {
-  case *nitro.Object:
-    v, _ := t.Get(args[1])
-    return []nitro.Value{v}, nil
+	switch t := args[0].(type) {
+	case *nitro.Object:
+		v, _ := t.Get(args[1])
+		return []nitro.Value{v}, nil
 
-  case *nitro.Array:
-    i, err := getIntArg(args, 1)
-    if err != nil {
-      return nil, err
-    }
-    v := t.Get(int(i))
-    return []nitro.Value{v}, nil
+	case *nitro.Array:
+		i, err := getIntArg(args, 1)
+		if err != nil {
+			return nil, err
+		}
+		v := t.Get(int(i))
+		return []nitro.Value{v}, nil
 
-  default:
-    return nil, fmt.Errorf(
-      "cannot get from argument #1 %q", nitro.TypeName(args[0]))
-  }
+	default:
+		return nil, fmt.Errorf(
+			"cannot get from argument #1 %q", nitro.TypeName(args[0]))
+	}
 }
