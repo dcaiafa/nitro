@@ -215,6 +215,15 @@ func g(x) {
 5
 `)
 
+	RunSubErr(t, "no_statements_outside_func", `
+var x = 5
+if x > 3 {
+  print("hi")
+}
+func main() {
+}
+`, nil)
+
 	RunSubErr(t, "err_call_nil", `
 			var a
 			a(2)
