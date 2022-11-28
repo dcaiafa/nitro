@@ -77,8 +77,7 @@ type frame struct {
 
 type VM struct {
 	userData     map[interface{}]interface{}
-	program      *CompiledPackage
-	globals      []Value
+	prog         *Program
 	shuttingDown bool
 	sched        *fiber.Scheduler
 	co           *coroutine
@@ -91,15 +90,18 @@ type VM struct {
 	injectedErr error
 }
 
-func NewVM(prog *CompiledPackage) *VM {
-	return &VM{
-		program:   prog,
-		globals:   make([]Value, prog.globals),
+func NewVM(prog *Program) *VM {
+	vm := &VM{
+		prog:      prog,
 		userData:  make(map[interface{}]interface{}),
 		sched:     fiber.NewScheduler(),
 		closers:   make(map[Closer]struct{}),
 		errLogger: func(err error) { fmt.Fprintln(os.Stderr, err) },
 	}
+	for _, pkg := range prog.Packages {
+		pkg.globals = make([]Value, pkg.numGlobals)
+	}
+	return vm
 }
 
 func (m *VM) SetUserData(key, value interface{}) {
@@ -111,22 +113,25 @@ func (m *VM) GetUserData(key interface{}) interface{} {
 }
 
 func (m *VM) SetParam(n string, v Value) error {
-	param := m.program.params[n]
+	mainPkg := m.prog.Packages[0]
+	param := mainPkg.params[n]
 	if param == nil {
 		return fmt.Errorf("invalid parameter: %s", n)
 	}
-	m.globals[param.global] = v
+	mainPkg.globals[param.global] = v
 	return nil
 }
 
 func (m *VM) Run(args []Value) error {
+	mainPkg := m.prog.Packages[0]
+
 	co := m.newCoroutine()
 	co.PushContext(context.Background())
 	copy(co.stack, args)
 	co.sp = len(args)
 
 	f := co.NewFrame()
-	f.fn = m.program.literals[m.program.MainFnNdx].(*Fn)
+	f.fn = mainPkg.literals[mainPkg.MainFnNdx].(*Fn)
 	f.nArg = len(args)
 	f.bp = len(args)
 
@@ -637,7 +642,7 @@ func (m *VM) resumeWithoutRecovery() (err error) {
 			}
 
 			closure := &Closure{
-				fn:   m.program.literals[fn].(*Fn),
+				fn:   m.co.literals[fn].(*Fn),
 				caps: caps,
 			}
 			m.co.stack[m.co.sp] = closure
@@ -658,7 +663,7 @@ func (m *VM) resumeWithoutRecovery() (err error) {
 			}
 
 			iter := &ILIterator{
-				fn:       m.program.literals[fn].(*Fn),
+				fn:       m.co.literals[fn].(*Fn),
 				captures: caps,
 				iterNRet: iterNRet,
 			}
@@ -684,15 +689,15 @@ func (m *VM) resumeWithoutRecovery() (err error) {
 			m.co.sp++
 
 		case OpLoadGlobal:
-			m.co.stack[m.co.sp] = m.globals[int(instr.op1)]
+			m.co.stack[m.co.sp] = m.co.globals[int(instr.op1)]
 			m.co.sp++
 
 		case OpLoadGlobalRef:
-			m.co.stack[m.co.sp] = ValueRef{&m.globals[int(instr.op1)]}
+			m.co.stack[m.co.sp] = ValueRef{&m.co.globals[int(instr.op1)]}
 			m.co.sp++
 
 		case OpLoadGlobalDeref:
-			m.co.stack[m.co.sp] = *m.globals[int(instr.op1)].(ValueRef).Ref
+			m.co.stack[m.co.sp] = *m.co.globals[int(instr.op1)].(ValueRef).Ref
 			m.co.sp++
 
 		case OpLoadLocal:
@@ -766,7 +771,7 @@ func (m *VM) resumeWithoutRecovery() (err error) {
 			m.co.sp++
 
 		case OpLoadLiteral:
-			m.co.stack[m.co.sp] = m.program.literals[int(instr.op1)]
+			m.co.stack[m.co.sp] = m.co.literals[int(instr.op1)]
 			m.co.sp++
 
 		case OpEvalBinOp:
@@ -1026,10 +1031,10 @@ func (m *VM) resumeWithoutRecovery() (err error) {
 			m.co.stack[m.co.frame.bp+int(instr.op1)] = ValueRef{new(Value)}
 
 		case OpInitGlobal:
-			m.globals[int(instr.op1)] = nil
+			m.co.globals[int(instr.op1)] = nil
 
 		case OpInitLiftedGlobal:
-			m.globals[int(instr.op1)] = ValueRef{new(Value)}
+			m.co.globals[int(instr.op1)] = ValueRef{new(Value)}
 
 		default:
 			panic("invalid instruction")
@@ -1108,10 +1113,11 @@ func (m *VM) GetFrameInfo(crumb FrameCrumb) FrameInfo {
 				Func:     "???",
 			}
 		}
+    pkg := crumb.fn.pkg
 		return FrameInfo{
-			Filename: m.program.literals[loc.filename].(String).String(),
+			Filename: pkg.literals[loc.filename].(String).String(),
 			Line:     loc.lineNum,
-			Func:     m.program.literals[loc.fn].(String).String(),
+			Func:     pkg.literals[loc.fn].(String).String(),
 		}
 	}
 	if nativeFn, ok := crumb.extFn.(*NativeFn); ok {

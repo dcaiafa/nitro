@@ -29,7 +29,7 @@ type (
 	Iterator     = vm.Iterator
 	NativeFn     = vm.NativeFn
 	Object       = vm.Object
-	Program      = vm.CompiledPackage
+	Program      = vm.Program
 	Readable     = vm.Readable
 	Reader       = vm.Reader
 	Regex        = vm.Regex

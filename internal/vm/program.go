@@ -12,6 +12,15 @@ const (
 	PackageSymbolConst
 )
 
+type Program struct {
+	Packages []*CompiledPackage
+}
+
+type DepPackage struct {
+	Name        string
+	ResolvedNdx int
+}
+
 type PackageSymbol struct {
 	Type  PackageSymbolType
 	Index uint32
@@ -21,12 +30,14 @@ type CompiledPackage struct {
 	Metadata  *meta.Metadata
 	MainFnNdx int
 
-	globals   int
-	literals  []Value
-	params    map[string]*Param
-	reqParamN int
+	numGlobals int
+	globals    []Value
+	literals   []Value
+	params     map[string]*Param
+	reqParamN  int
 
-	Symbols map[string]PackageSymbol
+	Symbols     map[string]PackageSymbol
+	DepPackages []DepPackage
 }
 
 type ExportRegistry interface {

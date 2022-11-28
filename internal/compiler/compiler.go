@@ -31,7 +31,7 @@ func (c *Compiler) CompileSimple(
 	filename string,
 	scriptData []byte,
 	errLogger errlogger.ErrLogger,
-) (*vm.CompiledPackage, error) {
+) (*vm.Program, error) {
 	errLoggerWrapper := errlogger.NewErrLoggerBase(errLogger)
 	unit, err := parser2.ParseUnit(
 		filename, string(scriptData), c.diag, errLoggerWrapper)
@@ -43,13 +43,20 @@ func (c *Compiler) CompileSimple(
 		FuncRegistries: c.funcRegistries,
 	}
 	root.AddUnit(unit)
-	return c.compile(root, errLoggerWrapper)
+  pkg, err := c.compile(root, errLoggerWrapper)
+  if err != nil {
+    return nil, err
+  }
+  prog := &vm.Program{
+    Packages: []*vm.CompiledPackage{pkg},
+  }
+  return prog, nil
 }
 
 func (c *Compiler) CompilePackage(
 	packageReader mod.PackageReader,
 	errLogger errlogger.ErrLogger,
-) (*vm.CompiledPackage, error) {
+) (*vm.Program, error) {
 	errLoggerWrapper := errlogger.NewErrLoggerBase(errLogger)
 	unitPaths, err := packageReader.ListUnits()
 	if err != nil {
@@ -76,7 +83,14 @@ func (c *Compiler) CompilePackage(
 		}
 		root.AddUnit(unit)
 	}
-	return c.compile(root, errLoggerWrapper)
+  pkg, err := c.compile(root, errLoggerWrapper)
+  if err != nil {
+    return nil, err
+  }
+  prog := &vm.Program{
+    Packages: []*vm.CompiledPackage{pkg},
+  }
+  return prog, nil
 }
 
 func (c *Compiler) compile(

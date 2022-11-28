@@ -17,11 +17,8 @@ type Param struct {
 type Emitter struct {
 	fnStack   []*Fn
 	stringMap map[string]int
+	pkg       *CompiledPackage
 
-	globals   int
-	literals  []Value
-	params    map[string]*Param
-	reqParamN int
 	curFile   string
 	curFileID int
 }
@@ -29,7 +26,9 @@ type Emitter struct {
 func NewEmitter() *Emitter {
 	return &Emitter{
 		stringMap: make(map[string]int),
-		params:    make(map[string]*Param),
+		pkg: &CompiledPackage{
+			params: make(map[string]*Param),
+		},
 	}
 }
 
@@ -37,10 +36,10 @@ func (e *Emitter) AddGlobalParam(
 	name string,
 	global int,
 ) bool {
-	if e.params[name] != nil {
+	if e.pkg.params[name] != nil {
 		return false
 	}
-	e.params[name] = &Param{
+	e.pkg.params[name] = &Param{
 		global: global,
 	}
 	return true
@@ -48,11 +47,15 @@ func (e *Emitter) AddGlobalParam(
 
 func (e *Emitter) NewFn(name string) int {
 	idxName := e.AddLiteral(NewString(name))
-	return e.AddLiteral(&Fn{name: idxName})
+	return e.AddLiteral(
+		&Fn{
+			pkg:  e.pkg,
+			name: idxName,
+		})
 }
 
 func (e *Emitter) PushFn(fn int) {
-	e.fnStack = append(e.fnStack, e.literals[fn].(*Fn))
+	e.fnStack = append(e.fnStack, e.pkg.literals[fn].(*Fn))
 }
 
 func (e *Emitter) PopFn() {
@@ -140,19 +143,14 @@ func (e *Emitter) AddLiteral(v Value) int {
 }
 
 func (e *Emitter) addLiteral(v Value) int {
-	e.literals = append(e.literals, v)
-	return len(e.literals) - 1
+	e.pkg.literals = append(e.pkg.literals, v)
+	return len(e.pkg.literals) - 1
 }
 
 func (e *Emitter) SetGlobalCount(n int) {
-	e.globals = n
+	e.pkg.numGlobals = n
 }
 
 func (e *Emitter) ToCompiledPackage() *CompiledPackage {
-	return &CompiledPackage{
-		globals:   e.globals,
-		literals:  e.literals,
-		params:    e.params,
-		reqParamN: e.reqParamN,
-	}
+	return e.pkg
 }
