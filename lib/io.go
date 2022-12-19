@@ -15,9 +15,10 @@ type stdinWrapper struct {
 	*os.File
 }
 
-func (w *stdinWrapper) String() string    { return "<stdin>" }
-func (w *stdinWrapper) Type() string      { return "stdin" }
-func (w *stdinWrapper) Traits() vm.Traits { return vm.TraitNone }
+func (w *stdinWrapper) String() string             { return "<stdin>" }
+func (w *stdinWrapper) Type() string               { return "stdin" }
+func (w *stdinWrapper) Traits() vm.Traits          { return vm.TraitNone }
+func (w *stdinWrapper) GetNativeReader() io.Reader { return w.File }
 
 var Stdin = &stdinWrapper{
 	File: os.Stdin,

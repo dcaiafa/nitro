@@ -2,10 +2,8 @@ package parser2
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/dcaiafa/nitro/internal/ast"
-	"github.com/dcaiafa/nitro/internal/token"
 )
 
 type execArgMaker struct {
@@ -57,18 +55,4 @@ func (t *execArgMaker) ArrayLiteral() *ast.ArrayLiteral {
 			Elements: t.args,
 		},
 	}
-}
-
-func (t *execArgMaker) fix(arg ast.Expr) (isFinal bool) {
-	if lit, ok := arg.(*ast.LiteralExpr); ok {
-		if lit.Val.Type != token.String {
-			panic("exec arg literal is not string")
-		}
-		fixed := strings.TrimSpace(lit.Val.Str)
-		if len(fixed) != len(lit.Val.Str) {
-			isFinal = true
-			lit.Val.Str = fixed
-		}
-	}
-	return isFinal
 }
