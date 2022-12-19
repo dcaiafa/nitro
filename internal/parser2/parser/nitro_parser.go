@@ -39,7 +39,7 @@ func nitroparserParserInit() {
 		"'='", "'+='", "'-='", "'*='", "'/='", "'%='", "", "", "", "", "", "",
 		"", "", "", "", "", "'++'", "'--'", "", "';'", "", "", "", "", "", "",
 		"", "'{'", "", "", "", "", "", "", "", "", "", "", "", "", "", "'e`'",
-		"", "'`'",
+		"", "'~'", "'`'",
 	}
 	staticData.symbolicNames = []string{
 		"", "M_INFO", "M_PARAM", "M_FLAG", "AND", "BREAK", "CATCH", "CONTINUE",
@@ -50,7 +50,7 @@ func nitroparserParserInit() {
 		"INC", "DEC", "QUESTION_MARK", "SEMICOLON", "COMMA", "COLON", "PERIOD",
 		"OPAREN", "CPAREN", "OBRACKET", "CBRACKET", "OCURLY", "CCURLY", "ARROW",
 		"LAMBDA", "PIPE", "EXPAND", "NUMBER", "ID", "REGEX", "NEWLINE", "CHAR",
-		"COMMENT", "WS", "STRING", "EXEC_PREFIX", "EXEC_WS", "EXEC_SUFFIX",
+		"COMMENT", "WS", "STRING", "EXEC_PREFIX", "EXEC_WS", "EXEC_HOME", "EXEC_SUFFIX",
 		"EXEC_LITERAL", "EXEC_DQUOTE_LITERAL", "EXEC_SQUOTE_LITERAL", "EXEC_EXPR_WS_",
 		"DQUOTE_", "EXEC_SQUOTE_",
 	}
@@ -69,7 +69,7 @@ func nitroparserParserInit() {
 	}
 	staticData.predictionContextCache = antlr.NewPredictionContextCache()
 	staticData.serializedATN = []int32{
-		4, 1, 75, 592, 2, 0, 7, 0, 2, 1, 7, 1, 2, 2, 7, 2, 2, 3, 7, 3, 2, 4, 7,
+		4, 1, 76, 593, 2, 0, 7, 0, 2, 1, 7, 1, 2, 2, 7, 2, 2, 3, 7, 3, 2, 4, 7,
 		4, 2, 5, 7, 5, 2, 6, 7, 6, 2, 7, 7, 7, 2, 8, 7, 8, 2, 9, 7, 9, 2, 10, 7,
 		10, 2, 11, 7, 11, 2, 12, 7, 12, 2, 13, 7, 13, 2, 14, 7, 14, 2, 15, 7, 15,
 		2, 16, 7, 16, 2, 17, 7, 17, 2, 18, 7, 18, 2, 19, 7, 19, 2, 20, 7, 20, 2,
@@ -123,24 +123,24 @@ func nitroparserParserInit() {
 		8, 43, 1, 44, 1, 44, 1, 44, 3, 44, 499, 8, 44, 1, 44, 1, 44, 1, 44, 1,
 		44, 1, 44, 1, 45, 1, 45, 3, 45, 508, 8, 45, 1, 45, 1, 45, 1, 45, 1, 46,
 		1, 46, 4, 46, 515, 8, 46, 11, 46, 12, 46, 516, 1, 46, 1, 46, 1, 47, 1,
-		47, 1, 47, 1, 47, 1, 47, 1, 47, 1, 47, 3, 47, 528, 8, 47, 1, 47, 1, 47,
-		3, 47, 532, 8, 47, 1, 48, 1, 48, 1, 48, 1, 48, 1, 49, 1, 49, 1, 49, 5,
-		49, 541, 8, 49, 10, 49, 12, 49, 544, 9, 49, 1, 49, 3, 49, 547, 8, 49, 3,
-		49, 549, 8, 49, 1, 50, 1, 50, 1, 50, 1, 50, 1, 50, 1, 50, 1, 50, 1, 50,
-		1, 50, 1, 50, 1, 50, 1, 50, 1, 50, 3, 50, 564, 8, 50, 1, 51, 1, 51, 1,
-		51, 1, 51, 1, 52, 1, 52, 1, 52, 5, 52, 573, 8, 52, 10, 52, 12, 52, 576,
-		9, 52, 1, 52, 5, 52, 579, 8, 52, 10, 52, 12, 52, 582, 9, 52, 3, 52, 584,
-		8, 52, 1, 53, 1, 53, 3, 53, 588, 8, 53, 1, 54, 1, 54, 1, 54, 0, 3, 74,
-		76, 80, 55, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30,
-		32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64, 66,
-		68, 70, 72, 74, 76, 78, 80, 82, 84, 86, 88, 90, 92, 94, 96, 98, 100, 102,
-		104, 106, 108, 0, 8, 1, 0, 45, 46, 6, 0, 10, 10, 15, 15, 20, 20, 59, 59,
-		63, 63, 66, 66, 1, 0, 26, 30, 1, 0, 42, 43, 1, 0, 39, 41, 1, 0, 37, 38,
-		1, 0, 31, 36, 2, 0, 4, 24, 60, 60, 626, 0, 110, 1, 0, 0, 0, 2, 113, 1,
-		0, 0, 0, 4, 119, 1, 0, 0, 0, 6, 131, 1, 0, 0, 0, 8, 133, 1, 0, 0, 0, 10,
-		142, 1, 0, 0, 0, 12, 156, 1, 0, 0, 0, 14, 170, 1, 0, 0, 0, 16, 181, 1,
-		0, 0, 0, 18, 186, 1, 0, 0, 0, 20, 188, 1, 0, 0, 0, 22, 196, 1, 0, 0, 0,
-		24, 204, 1, 0, 0, 0, 26, 232, 1, 0, 0, 0, 28, 234, 1, 0, 0, 0, 30, 238,
+		47, 1, 47, 1, 47, 1, 47, 1, 47, 1, 47, 1, 47, 3, 47, 529, 8, 47, 1, 47,
+		1, 47, 3, 47, 533, 8, 47, 1, 48, 1, 48, 1, 48, 1, 48, 1, 49, 1, 49, 1,
+		49, 5, 49, 542, 8, 49, 10, 49, 12, 49, 545, 9, 49, 1, 49, 3, 49, 548, 8,
+		49, 3, 49, 550, 8, 49, 1, 50, 1, 50, 1, 50, 1, 50, 1, 50, 1, 50, 1, 50,
+		1, 50, 1, 50, 1, 50, 1, 50, 1, 50, 1, 50, 3, 50, 565, 8, 50, 1, 51, 1,
+		51, 1, 51, 1, 51, 1, 52, 1, 52, 1, 52, 5, 52, 574, 8, 52, 10, 52, 12, 52,
+		577, 9, 52, 1, 52, 5, 52, 580, 8, 52, 10, 52, 12, 52, 583, 9, 52, 3, 52,
+		585, 8, 52, 1, 53, 1, 53, 3, 53, 589, 8, 53, 1, 54, 1, 54, 1, 54, 0, 3,
+		74, 76, 80, 55, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28,
+		30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64,
+		66, 68, 70, 72, 74, 76, 78, 80, 82, 84, 86, 88, 90, 92, 94, 96, 98, 100,
+		102, 104, 106, 108, 0, 8, 1, 0, 45, 46, 6, 0, 10, 10, 15, 15, 20, 20, 59,
+		59, 63, 63, 66, 66, 1, 0, 26, 30, 1, 0, 42, 43, 1, 0, 39, 41, 1, 0, 37,
+		38, 1, 0, 31, 36, 2, 0, 4, 24, 60, 60, 628, 0, 110, 1, 0, 0, 0, 2, 113,
+		1, 0, 0, 0, 4, 119, 1, 0, 0, 0, 6, 131, 1, 0, 0, 0, 8, 133, 1, 0, 0, 0,
+		10, 142, 1, 0, 0, 0, 12, 156, 1, 0, 0, 0, 14, 170, 1, 0, 0, 0, 16, 181,
+		1, 0, 0, 0, 18, 186, 1, 0, 0, 0, 20, 188, 1, 0, 0, 0, 22, 196, 1, 0, 0,
+		0, 24, 204, 1, 0, 0, 0, 26, 232, 1, 0, 0, 0, 28, 234, 1, 0, 0, 0, 30, 238,
 		1, 0, 0, 0, 32, 246, 1, 0, 0, 0, 34, 254, 1, 0, 0, 0, 36, 258, 1, 0, 0,
 		0, 38, 264, 1, 0, 0, 0, 40, 272, 1, 0, 0, 0, 42, 280, 1, 0, 0, 0, 44, 288,
 		1, 0, 0, 0, 46, 294, 1, 0, 0, 0, 48, 308, 1, 0, 0, 0, 50, 315, 1, 0, 0,
@@ -150,9 +150,9 @@ func nitroparserParserInit() {
 		1, 0, 0, 0, 74, 375, 1, 0, 0, 0, 76, 389, 1, 0, 0, 0, 78, 422, 1, 0, 0,
 		0, 80, 436, 1, 0, 0, 0, 82, 470, 1, 0, 0, 0, 84, 472, 1, 0, 0, 0, 86, 493,
 		1, 0, 0, 0, 88, 495, 1, 0, 0, 0, 90, 505, 1, 0, 0, 0, 92, 512, 1, 0, 0,
-		0, 94, 531, 1, 0, 0, 0, 96, 533, 1, 0, 0, 0, 98, 548, 1, 0, 0, 0, 100,
-		563, 1, 0, 0, 0, 102, 565, 1, 0, 0, 0, 104, 583, 1, 0, 0, 0, 106, 585,
-		1, 0, 0, 0, 108, 589, 1, 0, 0, 0, 110, 111, 3, 2, 1, 0, 111, 112, 5, 0,
+		0, 94, 532, 1, 0, 0, 0, 96, 534, 1, 0, 0, 0, 98, 549, 1, 0, 0, 0, 100,
+		564, 1, 0, 0, 0, 102, 566, 1, 0, 0, 0, 104, 584, 1, 0, 0, 0, 106, 586,
+		1, 0, 0, 0, 108, 590, 1, 0, 0, 0, 110, 111, 3, 2, 1, 0, 111, 112, 5, 0,
 		0, 1, 112, 1, 1, 0, 0, 0, 113, 114, 3, 4, 2, 0, 114, 115, 3, 22, 11, 0,
 		115, 3, 1, 0, 0, 0, 116, 118, 3, 6, 3, 0, 117, 116, 1, 0, 0, 0, 118, 121,
 		1, 0, 0, 0, 119, 117, 1, 0, 0, 0, 119, 120, 1, 0, 0, 0, 120, 125, 1, 0,
@@ -302,38 +302,39 @@ func nitroparserParserInit() {
 		0, 0, 507, 508, 1, 0, 0, 0, 508, 509, 1, 0, 0, 0, 509, 510, 5, 55, 0, 0,
 		510, 511, 3, 74, 37, 0, 511, 91, 1, 0, 0, 0, 512, 514, 5, 67, 0, 0, 513,
 		515, 3, 94, 47, 0, 514, 513, 1, 0, 0, 0, 515, 516, 1, 0, 0, 0, 516, 514,
-		1, 0, 0, 0, 516, 517, 1, 0, 0, 0, 517, 518, 1, 0, 0, 0, 518, 519, 5, 69,
-		0, 0, 519, 93, 1, 0, 0, 0, 520, 532, 5, 70, 0, 0, 521, 532, 5, 71, 0, 0,
-		522, 532, 5, 72, 0, 0, 523, 532, 5, 68, 0, 0, 524, 525, 5, 53, 0, 0, 525,
-		527, 3, 72, 36, 0, 526, 528, 5, 58, 0, 0, 527, 526, 1, 0, 0, 0, 527, 528,
-		1, 0, 0, 0, 528, 529, 1, 0, 0, 0, 529, 530, 5, 54, 0, 0, 530, 532, 1, 0,
-		0, 0, 531, 520, 1, 0, 0, 0, 531, 521, 1, 0, 0, 0, 531, 522, 1, 0, 0, 0,
-		531, 523, 1, 0, 0, 0, 531, 524, 1, 0, 0, 0, 532, 95, 1, 0, 0, 0, 533, 534,
-		5, 53, 0, 0, 534, 535, 3, 98, 49, 0, 535, 536, 5, 54, 0, 0, 536, 97, 1,
-		0, 0, 0, 537, 542, 3, 100, 50, 0, 538, 539, 7, 0, 0, 0, 539, 541, 3, 100,
-		50, 0, 540, 538, 1, 0, 0, 0, 541, 544, 1, 0, 0, 0, 542, 540, 1, 0, 0, 0,
-		542, 543, 1, 0, 0, 0, 543, 546, 1, 0, 0, 0, 544, 542, 1, 0, 0, 0, 545,
-		547, 7, 0, 0, 0, 546, 545, 1, 0, 0, 0, 546, 547, 1, 0, 0, 0, 547, 549,
-		1, 0, 0, 0, 548, 537, 1, 0, 0, 0, 548, 549, 1, 0, 0, 0, 549, 99, 1, 0,
-		0, 0, 550, 551, 3, 108, 54, 0, 551, 552, 5, 47, 0, 0, 552, 553, 3, 72,
-		36, 0, 553, 564, 1, 0, 0, 0, 554, 555, 5, 51, 0, 0, 555, 556, 3, 72, 36,
-		0, 556, 557, 5, 52, 0, 0, 557, 558, 5, 47, 0, 0, 558, 559, 3, 72, 36, 0,
-		559, 564, 1, 0, 0, 0, 560, 561, 3, 80, 40, 0, 561, 562, 5, 58, 0, 0, 562,
-		564, 1, 0, 0, 0, 563, 550, 1, 0, 0, 0, 563, 554, 1, 0, 0, 0, 563, 560,
-		1, 0, 0, 0, 564, 101, 1, 0, 0, 0, 565, 566, 5, 51, 0, 0, 566, 567, 3, 104,
-		52, 0, 567, 568, 5, 52, 0, 0, 568, 103, 1, 0, 0, 0, 569, 574, 3, 106, 53,
-		0, 570, 571, 7, 0, 0, 0, 571, 573, 3, 106, 53, 0, 572, 570, 1, 0, 0, 0,
-		573, 576, 1, 0, 0, 0, 574, 572, 1, 0, 0, 0, 574, 575, 1, 0, 0, 0, 575,
-		580, 1, 0, 0, 0, 576, 574, 1, 0, 0, 0, 577, 579, 7, 0, 0, 0, 578, 577,
-		1, 0, 0, 0, 579, 582, 1, 0, 0, 0, 580, 578, 1, 0, 0, 0, 580, 581, 1, 0,
-		0, 0, 581, 584, 1, 0, 0, 0, 582, 580, 1, 0, 0, 0, 583, 569, 1, 0, 0, 0,
-		583, 584, 1, 0, 0, 0, 584, 105, 1, 0, 0, 0, 585, 587, 3, 72, 36, 0, 586,
-		588, 5, 58, 0, 0, 587, 586, 1, 0, 0, 0, 587, 588, 1, 0, 0, 0, 588, 107,
-		1, 0, 0, 0, 589, 590, 7, 7, 0, 0, 590, 109, 1, 0, 0, 0, 56, 119, 125, 131,
-		138, 146, 152, 160, 166, 175, 179, 184, 190, 196, 201, 208, 213, 232, 243,
-		251, 262, 269, 285, 302, 306, 324, 336, 341, 349, 373, 386, 410, 412, 422,
-		436, 449, 453, 460, 462, 465, 467, 477, 481, 493, 498, 507, 516, 527, 531,
-		542, 546, 548, 563, 574, 580, 583, 587,
+		1, 0, 0, 0, 516, 517, 1, 0, 0, 0, 517, 518, 1, 0, 0, 0, 518, 519, 5, 70,
+		0, 0, 519, 93, 1, 0, 0, 0, 520, 533, 5, 71, 0, 0, 521, 533, 5, 72, 0, 0,
+		522, 533, 5, 73, 0, 0, 523, 533, 5, 68, 0, 0, 524, 533, 5, 69, 0, 0, 525,
+		526, 5, 53, 0, 0, 526, 528, 3, 72, 36, 0, 527, 529, 5, 58, 0, 0, 528, 527,
+		1, 0, 0, 0, 528, 529, 1, 0, 0, 0, 529, 530, 1, 0, 0, 0, 530, 531, 5, 54,
+		0, 0, 531, 533, 1, 0, 0, 0, 532, 520, 1, 0, 0, 0, 532, 521, 1, 0, 0, 0,
+		532, 522, 1, 0, 0, 0, 532, 523, 1, 0, 0, 0, 532, 524, 1, 0, 0, 0, 532,
+		525, 1, 0, 0, 0, 533, 95, 1, 0, 0, 0, 534, 535, 5, 53, 0, 0, 535, 536,
+		3, 98, 49, 0, 536, 537, 5, 54, 0, 0, 537, 97, 1, 0, 0, 0, 538, 543, 3,
+		100, 50, 0, 539, 540, 7, 0, 0, 0, 540, 542, 3, 100, 50, 0, 541, 539, 1,
+		0, 0, 0, 542, 545, 1, 0, 0, 0, 543, 541, 1, 0, 0, 0, 543, 544, 1, 0, 0,
+		0, 544, 547, 1, 0, 0, 0, 545, 543, 1, 0, 0, 0, 546, 548, 7, 0, 0, 0, 547,
+		546, 1, 0, 0, 0, 547, 548, 1, 0, 0, 0, 548, 550, 1, 0, 0, 0, 549, 538,
+		1, 0, 0, 0, 549, 550, 1, 0, 0, 0, 550, 99, 1, 0, 0, 0, 551, 552, 3, 108,
+		54, 0, 552, 553, 5, 47, 0, 0, 553, 554, 3, 72, 36, 0, 554, 565, 1, 0, 0,
+		0, 555, 556, 5, 51, 0, 0, 556, 557, 3, 72, 36, 0, 557, 558, 5, 52, 0, 0,
+		558, 559, 5, 47, 0, 0, 559, 560, 3, 72, 36, 0, 560, 565, 1, 0, 0, 0, 561,
+		562, 3, 80, 40, 0, 562, 563, 5, 58, 0, 0, 563, 565, 1, 0, 0, 0, 564, 551,
+		1, 0, 0, 0, 564, 555, 1, 0, 0, 0, 564, 561, 1, 0, 0, 0, 565, 101, 1, 0,
+		0, 0, 566, 567, 5, 51, 0, 0, 567, 568, 3, 104, 52, 0, 568, 569, 5, 52,
+		0, 0, 569, 103, 1, 0, 0, 0, 570, 575, 3, 106, 53, 0, 571, 572, 7, 0, 0,
+		0, 572, 574, 3, 106, 53, 0, 573, 571, 1, 0, 0, 0, 574, 577, 1, 0, 0, 0,
+		575, 573, 1, 0, 0, 0, 575, 576, 1, 0, 0, 0, 576, 581, 1, 0, 0, 0, 577,
+		575, 1, 0, 0, 0, 578, 580, 7, 0, 0, 0, 579, 578, 1, 0, 0, 0, 580, 583,
+		1, 0, 0, 0, 581, 579, 1, 0, 0, 0, 581, 582, 1, 0, 0, 0, 582, 585, 1, 0,
+		0, 0, 583, 581, 1, 0, 0, 0, 584, 570, 1, 0, 0, 0, 584, 585, 1, 0, 0, 0,
+		585, 105, 1, 0, 0, 0, 586, 588, 3, 72, 36, 0, 587, 589, 5, 58, 0, 0, 588,
+		587, 1, 0, 0, 0, 588, 589, 1, 0, 0, 0, 589, 107, 1, 0, 0, 0, 590, 591,
+		7, 7, 0, 0, 591, 109, 1, 0, 0, 0, 56, 119, 125, 131, 138, 146, 152, 160,
+		166, 175, 179, 184, 190, 196, 201, 208, 213, 232, 243, 251, 262, 269, 285,
+		302, 306, 324, 336, 341, 349, 373, 386, 410, 412, 422, 436, 449, 453, 460,
+		462, 465, 467, 477, 481, 493, 498, 507, 516, 528, 532, 543, 547, 549, 564,
+		575, 581, 584, 588,
 	}
 	deserializer := antlr.NewATNDeserializer(nil)
 	staticData.atn = deserializer.Deserialize(staticData.serializedATN)
@@ -440,13 +441,14 @@ const (
 	NitroParserSTRING              = 66
 	NitroParserEXEC_PREFIX         = 67
 	NitroParserEXEC_WS             = 68
-	NitroParserEXEC_SUFFIX         = 69
-	NitroParserEXEC_LITERAL        = 70
-	NitroParserEXEC_DQUOTE_LITERAL = 71
-	NitroParserEXEC_SQUOTE_LITERAL = 72
-	NitroParserEXEC_EXPR_WS_       = 73
-	NitroParserDQUOTE_             = 74
-	NitroParserEXEC_SQUOTE_        = 75
+	NitroParserEXEC_HOME           = 69
+	NitroParserEXEC_SUFFIX         = 70
+	NitroParserEXEC_LITERAL        = 71
+	NitroParserEXEC_DQUOTE_LITERAL = 72
+	NitroParserEXEC_SQUOTE_LITERAL = 73
+	NitroParserEXEC_EXPR_WS_       = 74
+	NitroParserDQUOTE_             = 75
+	NitroParserEXEC_SQUOTE_        = 76
 )
 
 // NitroParser rules.
@@ -9648,7 +9650,7 @@ func (p *NitroParser) Exec_expr() (localctx IExec_exprContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	for ok := true; ok; ok = (((_la-53)&-(0x1f+1)) == 0 && ((1<<uint((_la-53)))&((1<<(NitroParserOCURLY-53))|(1<<(NitroParserEXEC_WS-53))|(1<<(NitroParserEXEC_LITERAL-53))|(1<<(NitroParserEXEC_DQUOTE_LITERAL-53))|(1<<(NitroParserEXEC_SQUOTE_LITERAL-53)))) != 0) {
+	for ok := true; ok; ok = (((_la-53)&-(0x1f+1)) == 0 && ((1<<uint((_la-53)))&((1<<(NitroParserOCURLY-53))|(1<<(NitroParserEXEC_WS-53))|(1<<(NitroParserEXEC_HOME-53))|(1<<(NitroParserEXEC_LITERAL-53))|(1<<(NitroParserEXEC_DQUOTE_LITERAL-53))|(1<<(NitroParserEXEC_SQUOTE_LITERAL-53)))) != 0) {
 		{
 			p.SetState(513)
 			p.Exec_expr_arg()
@@ -9718,6 +9720,10 @@ func (s *Exec_expr_argContext) EXEC_SQUOTE_LITERAL() antlr.TerminalNode {
 
 func (s *Exec_expr_argContext) EXEC_WS() antlr.TerminalNode {
 	return s.GetToken(NitroParserEXEC_WS, 0)
+}
+
+func (s *Exec_expr_argContext) EXEC_HOME() antlr.TerminalNode {
+	return s.GetToken(NitroParserEXEC_HOME, 0)
 }
 
 func (s *Exec_expr_argContext) OCURLY() antlr.TerminalNode {
@@ -9792,7 +9798,7 @@ func (p *NitroParser) Exec_expr_arg() (localctx IExec_expr_argContext) {
 		}
 	}()
 
-	p.SetState(531)
+	p.SetState(532)
 	p.GetErrorHandler().Sync(p)
 
 	switch p.GetTokenStream().LA(1) {
@@ -9824,29 +9830,36 @@ func (p *NitroParser) Exec_expr_arg() (localctx IExec_expr_argContext) {
 			p.Match(NitroParserEXEC_WS)
 		}
 
-	case NitroParserOCURLY:
+	case NitroParserEXEC_HOME:
 		p.EnterOuterAlt(localctx, 5)
 		{
 			p.SetState(524)
+			p.Match(NitroParserEXEC_HOME)
+		}
+
+	case NitroParserOCURLY:
+		p.EnterOuterAlt(localctx, 6)
+		{
+			p.SetState(525)
 			p.Match(NitroParserOCURLY)
 		}
 		{
-			p.SetState(525)
+			p.SetState(526)
 			p.Expr()
 		}
-		p.SetState(527)
+		p.SetState(528)
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
 		if _la == NitroParserEXPAND {
 			{
-				p.SetState(526)
+				p.SetState(527)
 				p.Match(NitroParserEXPAND)
 			}
 
 		}
 		{
-			p.SetState(529)
+			p.SetState(530)
 			p.Match(NitroParserCCURLY)
 		}
 
@@ -9964,15 +9977,15 @@ func (p *NitroParser) Object_literal() (localctx IObject_literalContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(533)
+		p.SetState(534)
 		p.Match(NitroParserOCURLY)
 	}
 	{
-		p.SetState(534)
+		p.SetState(535)
 		p.Object_fields()
 	}
 	{
-		p.SetState(535)
+		p.SetState(536)
 		p.Match(NitroParserCCURLY)
 	}
 
@@ -10121,23 +10134,23 @@ func (p *NitroParser) Object_fields() (localctx IObject_fieldsContext) {
 	var _alt int
 
 	p.EnterOuterAlt(localctx, 1)
-	p.SetState(548)
+	p.SetState(549)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
 	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserAND)|(1<<NitroParserBREAK)|(1<<NitroParserCATCH)|(1<<NitroParserCONTINUE)|(1<<NitroParserDEFER)|(1<<NitroParserELSE)|(1<<NitroParserFALSE)|(1<<NitroParserFOR)|(1<<NitroParserFUNC)|(1<<NitroParserIF)|(1<<NitroParserIMPORT)|(1<<NitroParserNIL)|(1<<NitroParserNOT)|(1<<NitroParserOR)|(1<<NitroParserRETURN)|(1<<NitroParserTHROW)|(1<<NitroParserTRUE)|(1<<NitroParserTRY)|(1<<NitroParserVAR)|(1<<NitroParserWHILE)|(1<<NitroParserYIELD))) != 0) || (((_la-49)&-(0x1f+1)) == 0 && ((1<<uint((_la-49)))&((1<<(NitroParserOPAREN-49))|(1<<(NitroParserOBRACKET-49))|(1<<(NitroParserOCURLY-49))|(1<<(NitroParserNUMBER-49))|(1<<(NitroParserID-49))|(1<<(NitroParserREGEX-49))|(1<<(NitroParserCHAR-49))|(1<<(NitroParserSTRING-49))|(1<<(NitroParserEXEC_PREFIX-49)))) != 0) {
 		{
-			p.SetState(537)
+			p.SetState(538)
 			p.Object_field()
 		}
-		p.SetState(542)
+		p.SetState(543)
 		p.GetErrorHandler().Sync(p)
 		_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 48, p.GetParserRuleContext())
 
 		for _alt != 2 && _alt != antlr.ATNInvalidAltNumber {
 			if _alt == 1 {
 				{
-					p.SetState(538)
+					p.SetState(539)
 					_la = p.GetTokenStream().LA(1)
 
 					if !(_la == NitroParserSEMICOLON || _la == NitroParserCOMMA) {
@@ -10148,22 +10161,22 @@ func (p *NitroParser) Object_fields() (localctx IObject_fieldsContext) {
 					}
 				}
 				{
-					p.SetState(539)
+					p.SetState(540)
 					p.Object_field()
 				}
 
 			}
-			p.SetState(544)
+			p.SetState(545)
 			p.GetErrorHandler().Sync(p)
 			_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 48, p.GetParserRuleContext())
 		}
-		p.SetState(546)
+		p.SetState(547)
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
 		if _la == NitroParserSEMICOLON || _la == NitroParserCOMMA {
 			{
-				p.SetState(545)
+				p.SetState(546)
 				_la = p.GetTokenStream().LA(1)
 
 				if !(_la == NitroParserSEMICOLON || _la == NitroParserCOMMA) {
@@ -10453,22 +10466,22 @@ func (p *NitroParser) Object_field() (localctx IObject_fieldContext) {
 		}
 	}()
 
-	p.SetState(563)
+	p.SetState(564)
 	p.GetErrorHandler().Sync(p)
 	switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 51, p.GetParserRuleContext()) {
 	case 1:
 		localctx = NewObject_field_id_keyContext(p, localctx)
 		p.EnterOuterAlt(localctx, 1)
 		{
-			p.SetState(550)
+			p.SetState(551)
 			p.Id_or_keyword()
 		}
 		{
-			p.SetState(551)
+			p.SetState(552)
 			p.Match(NitroParserCOLON)
 		}
 		{
-			p.SetState(552)
+			p.SetState(553)
 			p.Expr()
 		}
 
@@ -10476,23 +10489,23 @@ func (p *NitroParser) Object_field() (localctx IObject_fieldContext) {
 		localctx = NewObject_field_expr_keyContext(p, localctx)
 		p.EnterOuterAlt(localctx, 2)
 		{
-			p.SetState(554)
+			p.SetState(555)
 			p.Match(NitroParserOBRACKET)
 		}
 		{
-			p.SetState(555)
+			p.SetState(556)
 			p.Expr()
 		}
 		{
-			p.SetState(556)
+			p.SetState(557)
 			p.Match(NitroParserCBRACKET)
 		}
 		{
-			p.SetState(557)
+			p.SetState(558)
 			p.Match(NitroParserCOLON)
 		}
 		{
-			p.SetState(558)
+			p.SetState(559)
 			p.Expr()
 		}
 
@@ -10500,11 +10513,11 @@ func (p *NitroParser) Object_field() (localctx IObject_fieldContext) {
 		localctx = NewObject_field_expansionContext(p, localctx)
 		p.EnterOuterAlt(localctx, 3)
 		{
-			p.SetState(560)
+			p.SetState(561)
 			p.primary_expr(0)
 		}
 		{
-			p.SetState(561)
+			p.SetState(562)
 			p.Match(NitroParserEXPAND)
 		}
 
@@ -10620,15 +10633,15 @@ func (p *NitroParser) Array_literal() (localctx IArray_literalContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(565)
+		p.SetState(566)
 		p.Match(NitroParserOBRACKET)
 	}
 	{
-		p.SetState(566)
+		p.SetState(567)
 		p.Array_elems()
 	}
 	{
-		p.SetState(567)
+		p.SetState(568)
 		p.Match(NitroParserCBRACKET)
 	}
 
@@ -10777,23 +10790,23 @@ func (p *NitroParser) Array_elems() (localctx IArray_elemsContext) {
 	var _alt int
 
 	p.EnterOuterAlt(localctx, 1)
-	p.SetState(583)
+	p.SetState(584)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
 	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NitroParserFALSE)|(1<<NitroParserFUNC)|(1<<NitroParserNIL)|(1<<NitroParserNOT)|(1<<NitroParserTRUE))) != 0) || (((_la-37)&-(0x1f+1)) == 0 && ((1<<uint((_la-37)))&((1<<(NitroParserADD-37))|(1<<(NitroParserSUB-37))|(1<<(NitroParserOPAREN-37))|(1<<(NitroParserOBRACKET-37))|(1<<(NitroParserOCURLY-37))|(1<<(NitroParserLAMBDA-37))|(1<<(NitroParserNUMBER-37))|(1<<(NitroParserID-37))|(1<<(NitroParserREGEX-37))|(1<<(NitroParserCHAR-37))|(1<<(NitroParserSTRING-37))|(1<<(NitroParserEXEC_PREFIX-37)))) != 0) {
 		{
-			p.SetState(569)
+			p.SetState(570)
 			p.Array_elem()
 		}
-		p.SetState(574)
+		p.SetState(575)
 		p.GetErrorHandler().Sync(p)
 		_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 52, p.GetParserRuleContext())
 
 		for _alt != 2 && _alt != antlr.ATNInvalidAltNumber {
 			if _alt == 1 {
 				{
-					p.SetState(570)
+					p.SetState(571)
 					_la = p.GetTokenStream().LA(1)
 
 					if !(_la == NitroParserSEMICOLON || _la == NitroParserCOMMA) {
@@ -10804,22 +10817,22 @@ func (p *NitroParser) Array_elems() (localctx IArray_elemsContext) {
 					}
 				}
 				{
-					p.SetState(571)
+					p.SetState(572)
 					p.Array_elem()
 				}
 
 			}
-			p.SetState(576)
+			p.SetState(577)
 			p.GetErrorHandler().Sync(p)
 			_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 52, p.GetParserRuleContext())
 		}
-		p.SetState(580)
+		p.SetState(581)
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
 		for _la == NitroParserSEMICOLON || _la == NitroParserCOMMA {
 			{
-				p.SetState(577)
+				p.SetState(578)
 				_la = p.GetTokenStream().LA(1)
 
 				if !(_la == NitroParserSEMICOLON || _la == NitroParserCOMMA) {
@@ -10830,7 +10843,7 @@ func (p *NitroParser) Array_elems() (localctx IArray_elemsContext) {
 				}
 			}
 
-			p.SetState(582)
+			p.SetState(583)
 			p.GetErrorHandler().Sync(p)
 			_la = p.GetTokenStream().LA(1)
 		}
@@ -10944,16 +10957,16 @@ func (p *NitroParser) Array_elem() (localctx IArray_elemContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(585)
+		p.SetState(586)
 		p.Expr()
 	}
-	p.SetState(587)
+	p.SetState(588)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
 	if _la == NitroParserEXPAND {
 		{
-			p.SetState(586)
+			p.SetState(587)
 			p.Match(NitroParserEXPAND)
 		}
 
@@ -11145,7 +11158,7 @@ func (p *NitroParser) Id_or_keyword() (localctx IId_or_keywordContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(589)
+		p.SetState(590)
 
 		var _lt = p.GetTokenStream().LT(1)
 

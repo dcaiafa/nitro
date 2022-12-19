@@ -1,6 +1,10 @@
 package lib
 
-import "testing"
+import (
+	"fmt"
+	"os"
+	"testing"
+)
 
 func TestExec(t *testing.T) {
 	RunSubO(t, `complex-arg`,
@@ -17,13 +21,13 @@ func TestExec(t *testing.T) {
 	`, nil)
 
 	RunSubO(t, `literals`,
-		"e`go run ./testexec/testexec.go -print-args ./some/path   \\other\\path 123 ~!@#$%^&*()[]| ` |\n"+`
+		"e`go run ./testexec/testexec.go -print-args ./some/path   \\other\\path 123 !@#$%^&*()[]| ` |\n"+`
 			stdout
 	`, `
 [./some/path]
 [\other\path]
 [123]
-[~!@#$%^&*()[]|]
+[!@#$%^&*()[]|]
   `)
 
 	RunSubO(t, `exprs`, `
@@ -40,6 +44,14 @@ func TestExec(t *testing.T) {
 [Chewie]
 [Deedee]
   `)
+
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		t.Fatal(err)
+	}
+	RunSubO(t, `expr_home`,
+		"e`go run ./testexec/testexec.go -print-args ~ a=~ b=~/foo` | stdout",
+		fmt.Sprintf("[%v]\n[a=%v]\n[b=%v/foo]", homeDir, homeDir, homeDir))
 
 	RunSubO(t, `expr_nil`, `
 `+"e`go run ./testexec/testexec.go -print-args a {nil} b` |\n"+`

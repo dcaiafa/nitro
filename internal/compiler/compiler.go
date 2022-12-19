@@ -43,14 +43,14 @@ func (c *Compiler) CompileSimple(
 		FuncRegistries: c.funcRegistries,
 	}
 	root.AddUnit(unit)
-  pkg, err := c.compile(root, errLoggerWrapper)
-  if err != nil {
-    return nil, err
-  }
-  prog := &vm.Program{
-    Packages: []*vm.CompiledPackage{pkg},
-  }
-  return prog, nil
+	pkg, err := c.compile(root, errLoggerWrapper)
+	if err != nil {
+		return nil, err
+	}
+	prog := &vm.Program{
+		Packages: []*vm.CompiledPackage{pkg},
+	}
+	return prog, nil
 }
 
 func (c *Compiler) CompilePackage(
@@ -83,14 +83,14 @@ func (c *Compiler) CompilePackage(
 		}
 		root.AddUnit(unit)
 	}
-  pkg, err := c.compile(root, errLoggerWrapper)
-  if err != nil {
-    return nil, err
-  }
-  prog := &vm.Program{
-    Packages: []*vm.CompiledPackage{pkg},
-  }
-  return prog, nil
+	pkg, err := c.compile(root, errLoggerWrapper)
+	if err != nil {
+		return nil, err
+	}
+	prog := &vm.Program{
+		Packages: []*vm.CompiledPackage{pkg},
+	}
+	return prog, nil
 }
 
 func (c *Compiler) compile(

@@ -977,9 +977,11 @@ func (l *listener) ExitExec_expr(ctx *parser.Exec_exprContext) {
 
 // exec_expr_arg: EXEC_LITERAL
 //
-//	| EXEC_DQUOTE_LITERAL
-//	| EXEC_SQUOTE_LITERAL
-//	| OCURLY expr EXPAND? CCURLY;
+//		| EXEC_DQUOTE_LITERAL
+//		| EXEC_SQUOTE_LITERAL
+//	 | EXEC_WS
+//	 | EXEC_HOME
+//		| OCURLY expr EXPAND? CCURLY;
 func (l *listener) ExitExec_expr_arg(ctx *parser.Exec_expr_argContext) {
 	if expr := ctx.Expr(); expr != nil {
 		e := l.takeExpr(expr)
@@ -990,9 +992,13 @@ func (l *listener) ExitExec_expr_arg(ctx *parser.Exec_expr_argContext) {
 		return
 	}
 
-	ws := ctx.EXEC_WS()
-	if ws != nil {
+	if ws := ctx.EXEC_WS(); ws != nil {
 		l.put(ctx, &ast.ExecWS{})
+		return
+	}
+
+	if home := ctx.EXEC_HOME(); home != nil {
+		l.put(ctx, &ast.ExecHome{})
 		return
 	}
 

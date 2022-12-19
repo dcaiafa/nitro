@@ -1,7 +1,7 @@
 package vm
 
 type Fn struct {
-  pkg       *CompiledPackage
+	pkg       *CompiledPackage
 	name      int
 	locations []Location
 	instrs    []Instr

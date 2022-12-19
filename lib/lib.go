@@ -31,6 +31,7 @@ type export struct {
 
 var allExports = []export{
 	{P: "", N: "$exec", T: exportFunc, F: execExec},
+	{P: "", N: "$home", T: exportFunc, F: osUserHomeDir},
 	{P: "", N: "args", T: exportFunc, F: args},
 	{P: "", N: "avg", T: exportFunc, F: avg},
 	{P: "", N: "batch", T: exportFunc, F: batch},

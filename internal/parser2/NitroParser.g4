@@ -141,6 +141,7 @@ exec_expr_arg: EXEC_LITERAL
              | EXEC_DQUOTE_LITERAL
              | EXEC_SQUOTE_LITERAL
              | EXEC_WS
+             | EXEC_HOME
              | OCURLY expr EXPAND? CCURLY; 
 
 object_literal: OCURLY object_fields CCURLY;

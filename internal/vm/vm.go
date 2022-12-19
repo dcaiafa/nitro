@@ -1113,7 +1113,7 @@ func (m *VM) GetFrameInfo(crumb FrameCrumb) FrameInfo {
 				Func:     "???",
 			}
 		}
-    pkg := crumb.fn.pkg
+		pkg := crumb.fn.pkg
 		return FrameInfo{
 			Filename: pkg.literals[loc.filename].(String).String(),
 			Line:     loc.lineNum,
