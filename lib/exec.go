@@ -230,10 +230,6 @@ func (p *process) Close() error {
 
 	p.closed = true
 
-	if !p.started {
-		return nil
-	}
-
 	if p.vm.ShuttingDown() {
 		fmt.Fprintf(
 			Stderr(p.vm),

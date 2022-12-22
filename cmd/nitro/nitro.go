@@ -134,7 +134,7 @@ func main() {
 		progName = filepath.Base(scriptPath)
 
 		if scriptFileInfo.IsDir() {
-			compiled, err = compiler.CompilePackage(
+			compiled, err = compiler.Compile(
 				nitro.NewNativePackageReader(scriptPath),
 				nitro.NewConsoleErrLogger())
 			if err != nil {

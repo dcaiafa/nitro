@@ -53,7 +53,7 @@ func (c *Compiler) CompileSimple(
 	return prog, nil
 }
 
-func (c *Compiler) CompilePackage(
+func (c *Compiler) Compile(
 	packageReader mod.PackageReader,
 	errLogger errlogger.ErrLogger,
 ) (*vm.Program, error) {
