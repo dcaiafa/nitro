@@ -150,7 +150,7 @@ var allExports = []export{
 	{P: "list", N: "find", T: exportFunc, F: listFind},
 	{P: "maps", N: "clone", T: exportFunc, F: mapsClone},
 	{P: "maps", N: "delete", T: exportFunc, F: mapsDelete},
-	{P: "maps", N: "into", T: exportFunc, F: mapsInto},
+	{P: "maps", N: "make", T: exportFunc, F: mapsMake},
 	{P: "maps", N: "update", T: exportFunc, F: mapsUpdate},
 	{P: "math", N: "trunc", T: exportFunc, F: mathTrunc},
 	{P: "os", N: "user_home_dir", T: exportFunc, F: osUserHomeDir},

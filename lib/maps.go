@@ -66,7 +66,7 @@ func mapsDelete(vm *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, erro
 	return []nitro.Value{m}, nil
 }
 
-func mapsInto(m *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
+func mapsMake(m *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
 	if err := expectArgCount(args, 1, 2); err != nil {
 		return nil, err
 	}
