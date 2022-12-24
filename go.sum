@@ -4,8 +4,6 @@ github.com/Netflix/go-expect v0.0.0-20220104043353-73e0943537d2 h1:+vx7roKuyA63n
 github.com/Netflix/go-expect v0.0.0-20220104043353-73e0943537d2/go.mod h1:HBCaDeC1lPdgDeDbhX8XFpy1jqjK0IBG8W5K+xYqA0w=
 github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20220415214452-44d87bc1d130 h1:ZK7suI5cPJcdPeuB0ifv9hJ67qBjSwXGXfyFcJvQX64=
 github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20220415214452-44d87bc1d130/go.mod h1:F7bn7fEU90QkQ3tnmaTx3LTKLEDqnwWODIYppRQ5hnY=
-github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20220626175859-9abda183db8e h1:bt6SW1eSSvdmmsG0KqyxYXorcTnFBTX7hfVR1+68+jg=
-github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20220626175859-9abda183db8e/go.mod h1:F7bn7fEU90QkQ3tnmaTx3LTKLEDqnwWODIYppRQ5hnY=
 github.com/bmatcuk/doublestar/v4 v4.0.2 h1:X0krlUVAVmtr2cRoTqR8aDMrDqnB36ht8wpWTiQ3jsA=
 github.com/bmatcuk/doublestar/v4 v4.0.2/go.mod h1:xBQ8jztBU6kakFMg+8WGxn0c6z1fTSPVIjEY1Wr7jzc=
 github.com/creack/pty v1.1.17 h1:QeVUsEDNrLBW4tMgZHvxy18sKtr6VI492kBhUfhDJNI=

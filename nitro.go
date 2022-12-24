@@ -42,9 +42,6 @@ type (
 
 	Compiler = compiler.Compiler
 
-	PackagerReader      = mod.PackageReader
-	NativePackageReader = mod.NativePackageReader
-
 	ErrLogger = errlogger.ErrLogger
 	Pos       = token.Pos
 )
