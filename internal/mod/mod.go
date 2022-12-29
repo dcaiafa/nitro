@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 
 	"gopkg.in/yaml.v3"
 )
@@ -24,6 +26,30 @@ type Requirement struct {
 
 type ModuleManifest struct {
 	Module string `yaml:"module"`
+}
+
+func FindModuleRoot(from string) (string, error) {
+	exists := func(p string) bool {
+		_, err := os.Stat(p)
+		if err == nil {
+			return true
+		}
+	}
+
+	root, err := filepath.Abs(root)
+	if err != nil {
+		return "", err
+	}
+
+	for {
+		manifestPath := filepath.Join(root, ModuleManifestFilename)
+		_, err := os.Stat(manifestPath)
+		if err == nil {
+			return root, nil
+		} else if !errors.Is(err, os.ErrNotExist) {
+			return "", err
+		}
+	}
 }
 
 func ParseModuleManifest(buf []byte) (*ModuleManifest, error) {

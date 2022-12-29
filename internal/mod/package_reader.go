@@ -1,6 +1,7 @@
 package mod
 
 import (
+	"errors"
 	"fmt"
 	"io/fs"
 	"path"
@@ -8,69 +9,106 @@ import (
 	"strings"
 )
 
-type ModuleReader struct {
-	rootFS        fs.FS
-	rootPath      string
-	moduleName    string
-	packagePrefix string
+var ErrPackageNotFound = errors.New("package not found")
+
+type FS struct {
+	fs.FS
+	Path string
 }
 
-func NewModuleReader(rootFS fs.FS, rootPath string) (*ModuleReader, error) {
-	manifestData, err := fs.ReadFile(rootFS, ModuleManifestFilename)
+func (f *FS) ExpandPath(path string) string {
+	return filepath.Clean(
+		filepath.Join(f.Path, filepath.FromSlash(path)))
+}
+
+func (f *FS) Sub(path string) *FS {
+	subFS, err := fs.Sub(f.FS, path)
+	if err != nil {
+		panic(err)
+	}
+	return &FS{
+		FS:   subFS,
+		Path: filepath.Join(f.Path, path),
+	}
+}
+
+type module struct {
+	fs           *FS
+	moduleName   string
+	modulePrefix string
+}
+
+type PackageResolver struct {
+	modules []*module
+}
+
+func NewPackageResolver() *PackageResolver {
+	return &PackageResolver{}
+}
+
+func (d *PackageResolver) RegisterModule(moduleFS *FS, moduleName string) {
+	d.modules = append(d.modules, &module{
+		fs:           moduleFS,
+		moduleName:   moduleName,
+		modulePrefix: moduleName + "/",
+	})
+}
+
+func (d *PackageResolver) GetPackage(packageName string) (*PackageReader, error) {
+	mod, err := d.getModuleForPackage(packageName)
 	if err != nil {
 		return nil, err
 	}
-	manifest, err := ParseModuleManifest(manifestData)
+
+	packagePath := packageName[len(mod.modulePrefix):]
+
+	fi, err := fs.Stat(mod.fs, packagePath)
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO: validate manifest.
-	mr := &ModuleReader{
-		rootFS:        rootFS,
-		rootPath:      rootPath,
-		moduleName:    manifest.Module,
-		packagePrefix: manifest.Module + "/",
+	if fi.IsDir() {
+		return &PackageReader{
+			FS:          mod.fs.Sub(packagePath),
+			module:      mod.moduleName,
+			packageName: packageName,
+			packagePath: path.Base(packagePath),
+			isDir:       true,
+		}, nil
+	} else {
+		return &PackageReader{
+			FS:          mod.fs.Sub(path.Dir(packagePath)),
+			module:      mod.moduleName,
+			packageName: packageName,
+			packagePath: path.Base(packagePath),
+			isDir:       false,
+		}, nil
 	}
-
-	return mr, nil
 }
 
-func (mr *ModuleReader) GetPackage(packageName string) (*PackageReader, error) {
-	if !strings.HasPrefix(packageName, mr.packagePrefix) {
-		return nil, fmt.Errorf(
-			"package %s does not belong to module %s",
-			packageName, mr.moduleName)
+func (d *PackageResolver) getModuleForPackage(packageName string) (*module, error) {
+	for _, mod := range d.modules {
+		if strings.HasPrefix(packageName, mod.modulePrefix) {
+			return mod, nil
+		}
 	}
-	packagePath := packageName[len(mr.packagePrefix):]
-	if packagePath == "" {
-		return nil, fmt.Errorf(
-			"package path without module prefix is empty")
-	}
-	fi, err := fs.Stat(mr.rootFS, packagePath)
-	if err != nil {
-		return nil, err
-	}
-	if !fi.IsDir() {
-		return nil, fmt.Errorf("package %s is not a directory", packageName)
-	}
-	return &PackageReader{
-		rootFS:      mr.rootFS,
-		packagePath: packagePath,
-	}, nil
-}
-
-func (mr *ModuleReader) ToLocalPath(path string) string {
-	return filepath.Join(mr.rootPath, filepath.FromSlash(path))
+	return nil, fmt.Errorf("%w: %v", ErrPackageNotFound, packageName)
 }
 
 type PackageReader struct {
-	rootFS      fs.FS
+	*FS
+	module      string
+	packageName string
 	packagePath string
+	isDir       bool
 }
 
 func (r *PackageReader) ListUnits() ([]string, error) {
-	allFiles, err := fs.ReadDir(r.rootFS, r.packagePath)
+	if !r.isDir {
+		return []string{r.packagePath}, nil
+	}
+
+	allFiles, err := fs.ReadDir(r, r.packagePath)
 	if err != nil {
 		return nil, err
 	}
@@ -81,12 +119,4 @@ func (r *PackageReader) ListUnits() ([]string, error) {
 		}
 	}
 	return units, nil
-}
-
-func (r *PackageReader) ReadUnit(unitPath string) ([]byte, error) {
-	unitData, err := fs.ReadFile(r.rootFS, unitPath)
-	if err != nil {
-		return nil, err
-	}
-	return unitData, nil
 }
