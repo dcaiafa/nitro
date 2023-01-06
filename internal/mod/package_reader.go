@@ -103,6 +103,10 @@ type PackageReader struct {
 	isDir       bool
 }
 
+func (r *PackageReader) Module() string {
+	return r.module
+}
+
 func (r *PackageReader) ListUnits() ([]string, error) {
 	if !r.isDir {
 		return []string{r.packagePath}, nil

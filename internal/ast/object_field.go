@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"github.com/dcaiafa/nitro/internal/symbol"
+	"github.com/dcaiafa/nitro/internal/scope"
 	"github.com/dcaiafa/nitro/internal/vm"
 )
 
@@ -10,19 +10,19 @@ type ObjectFieldBlock struct {
 
 	Fields ASTs
 
-	scope symbol.Scope
+	scope scope.Scope
 }
 
 var _ Scope = (*ObjectFieldBlock)(nil)
 
-func (b *ObjectFieldBlock) Scope() symbol.Scope {
+func (b *ObjectFieldBlock) Scope() scope.Scope {
 	return b.scope
 }
 
 func (b *ObjectFieldBlock) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Check:
-		b.scope = symbol.NewScope()
+		b.scope = scope.NewScope(scope.Block)
 
 	case Emit:
 		obj := ctx.FindSymbol("$obj")

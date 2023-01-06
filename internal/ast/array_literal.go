@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"github.com/dcaiafa/nitro/internal/scope"
 	"github.com/dcaiafa/nitro/internal/symbol"
 	"github.com/dcaiafa/nitro/internal/vm"
 )
@@ -9,7 +10,7 @@ type ArrayLiteral struct {
 	PosImpl
 	Block *ArrayElementBlock
 
-	scope symbol.Scope
+	scope scope.Scope
 	arr   symbol.Symbol
 }
 
@@ -17,14 +18,14 @@ var _ Scope = (*ArrayLiteral)(nil)
 
 func (a *ArrayLiteral) isExpr() {}
 
-func (a *ArrayLiteral) Scope() symbol.Scope {
+func (a *ArrayLiteral) Scope() scope.Scope {
 	return a.scope
 }
 
 func (a *ArrayLiteral) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Check:
-		a.scope = symbol.NewScope()
+		a.scope = scope.NewScope(scope.Block)
 		l := ctx.CurrentFunc().NewLocal()
 		l.SetName("$arr")
 		l.SetPos(a.Pos())
@@ -55,19 +56,19 @@ type ArrayElementBlock struct {
 
 	Elements ASTs
 
-	scope symbol.Scope
+	scope scope.Scope
 }
 
 var _ Scope = (*ArrayElementBlock)(nil)
 
-func (b *ArrayElementBlock) Scope() symbol.Scope {
+func (b *ArrayElementBlock) Scope() scope.Scope {
 	return b.scope
 }
 
 func (b *ArrayElementBlock) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Check:
-		b.scope = symbol.NewScope()
+		b.scope = scope.NewScope(scope.Block)
 
 	case Emit:
 		obj := ctx.FindSymbol("$arr")

@@ -2,6 +2,7 @@ package ast
 
 import (
 	"github.com/dcaiafa/nitro/internal/errlogger"
+	"github.com/dcaiafa/nitro/internal/scope"
 	"github.com/dcaiafa/nitro/internal/symbol"
 	"github.com/dcaiafa/nitro/internal/vm"
 )
@@ -129,11 +130,14 @@ func (c *Context) Main() *Root {
 	return nil
 }
 
-func (c *Context) CurrentScope() symbol.Scope {
+func (c *Context) GetScope(typeMask scope.Type) scope.Scope {
 	for i := len(c.stack) - 1; i >= 0; i-- {
 		ast := c.stack[i]
 		if scopeAST, ok := ast.(Scope); ok {
-			return scopeAST.Scope()
+			scope := scopeAST.Scope()
+			if (scope.Type() & typeMask) != 0 {
+				return scope
+			}
 		}
 	}
 	return nil

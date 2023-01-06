@@ -1,6 +1,8 @@
 package ast
 
 import (
+	"github.com/dcaiafa/nitro/internal/meta"
+	"github.com/dcaiafa/nitro/internal/scope"
 	"github.com/dcaiafa/nitro/internal/symbol"
 	"github.com/dcaiafa/nitro/internal/token"
 )
@@ -10,10 +12,11 @@ type Package struct {
 
 	Units ASTs
 
-	scope symbol.Scope
-
-	init *FuncStmt
-	main *FuncStmt
+	scope    *scope.SimpleScope
+	init     *FuncStmt
+	main     *FuncStmt
+	globals  int
+	metadata *meta.Metadata
 }
 
 var _ Scope = (*Package)(nil)
@@ -22,7 +25,7 @@ func (p *Package) AddInitStmt(initStmt AST) {
 	p.init.Block.Stmts = append(p.init.Block.Stmts, initStmt)
 }
 
-func (p *Package) Scope() symbol.Scope {
+func (p *Package) Scope() scope.Scope {
 	return p.scope
 }
 
@@ -33,7 +36,14 @@ func (p *Package) RunPass(ctx *Context, pass Pass) {
 		p.synthesizeMain()
 
 	case CreateGlobals:
-		p.scope = symbol.NewScope()
+		p.scope = scope.NewScope(scope.Package)
+		p.scope.SetMissHandler(p.autoImport)
+
+		p.metadata = new(meta.Metadata)
+
+	case Emit:
+		emitter := ctx.Emitter()
+		emitter.SetGlobalCount(p.globals)
 	}
 
 	ctx.RunPassChild(p, p.Units, pass)
@@ -95,4 +105,34 @@ func (p *Package) GetImports() []string {
 		}
 	}
 	return imports
+}
+
+func (m *Package) NewGlobal() *symbol.GlobalVarSymbol {
+	g := &symbol.GlobalVarSymbol{}
+	g.GlobalNdx = m.globals
+	m.globals++
+	return g
+}
+
+func (m *Package) AddGlobalParam(ctx *Context, name string, param *meta.Param, pos token.Pos) *symbol.GlobalVarSymbol {
+	g := m.NewGlobal()
+	g.SetName(name)
+	g.SetPos(pos)
+
+	if !ctx.GetScope(scope.Package).PutSymbol(ctx, g) {
+		return nil
+	}
+	if !ctx.Emitter().AddGlobalParam(param.Name, g.GlobalNdx) {
+		ctx.Failf(pos, "there is already a parameter named %q", name)
+		return nil
+	}
+	m.metadata.Params = append(m.metadata.Params, param)
+	return g
+}
+
+func (m *Package) Metadata() *meta.Metadata {
+	return m.metadata
+}
+
+func (p *Package) autoImport(name string) symbol.Symbol {
 }

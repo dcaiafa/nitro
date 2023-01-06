@@ -120,10 +120,3 @@ type ConstSymbol struct {
 
 	LiteralNdx int
 }
-
-type Package struct {
-	baseSymbol
-	baseNonLiftable
-
-	Scope Scope
-}

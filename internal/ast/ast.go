@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"github.com/dcaiafa/nitro/internal/symbol"
+	"github.com/dcaiafa/nitro/internal/scope"
 	"github.com/dcaiafa/nitro/internal/token"
 	"github.com/dcaiafa/nitro/internal/vm"
 )
@@ -28,7 +28,7 @@ type AST interface {
 }
 
 type Scope interface {
-	Scope() symbol.Scope
+	Scope() scope.Scope
 }
 
 type RepeatableScope interface {

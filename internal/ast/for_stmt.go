@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"github.com/dcaiafa/nitro/internal/scope"
 	"github.com/dcaiafa/nitro/internal/symbol"
 	"github.com/dcaiafa/nitro/internal/token"
 	"github.com/dcaiafa/nitro/internal/vm"
@@ -12,7 +13,7 @@ type ForStmt struct {
 	IterExpr Expr
 	Block    AST
 
-	scope symbol.Scope
+	scope scope.Scope
 	iter  symbol.Symbol
 	begin *vm.Label
 	end   *vm.Label
@@ -22,13 +23,13 @@ var _ Scope = (*ForStmt)(nil)
 
 func (s *ForStmt) IsRepeatableScope() {}
 
-func (s *ForStmt) Scope() symbol.Scope {
+func (s *ForStmt) Scope() scope.Scope {
 	return s.scope
 }
 
 func (s *ForStmt) RunPass(ctx *Context, pass Pass) {
 	if pass == Check {
-		s.scope = symbol.NewScope()
+		s.scope = scope.NewScope(scope.Block)
 		l := ctx.CurrentFunc().NewLocal()
 		l.SetName("$iter")
 		l.SetPos(s.IterExpr.Pos())
@@ -95,7 +96,7 @@ func (s *ForVar) RunPass(ctx *Context, pass Pass) {
 		l := ctx.CurrentFunc().NewLocal()
 		l.SetName(s.VarName.Str)
 		l.SetPos(s.VarName.Pos)
-		if !ctx.CurrentScope().PutSymbol(ctx, l) {
+		if !ctx.GetScope(scope.Block).PutSymbol(ctx, l) {
 			return
 		}
 		s.sym = l

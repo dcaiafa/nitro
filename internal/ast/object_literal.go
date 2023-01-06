@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"github.com/dcaiafa/nitro/internal/scope"
 	"github.com/dcaiafa/nitro/internal/symbol"
 	"github.com/dcaiafa/nitro/internal/vm"
 )
@@ -9,7 +10,7 @@ type ObjectLiteral struct {
 	PosImpl
 	FieldBlock *ObjectFieldBlock
 
-	scope symbol.Scope
+	scope scope.Scope
 	obj   symbol.Symbol
 }
 
@@ -18,14 +19,14 @@ var _ Expr = (*ObjectLiteral)(nil)
 
 func (s *ObjectLiteral) isExpr() {}
 
-func (s *ObjectLiteral) Scope() symbol.Scope {
+func (s *ObjectLiteral) Scope() scope.Scope {
 	return s.scope
 }
 
 func (s *ObjectLiteral) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Check:
-		s.scope = symbol.NewScope()
+		s.scope = scope.NewScope(scope.Block)
 		l := ctx.CurrentFunc().NewLocal()
 		l.SetName("$obj")
 		l.SetPos(s.Pos())
