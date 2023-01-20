@@ -31,7 +31,7 @@ type export struct {
 
 var allExports = []export{
 	{P: "", N: "$exec", T: exportFunc, F: execExec},
-	{P: "", N: "$home", T: exportFunc, F: osUserHomeDir},
+	{P: "", N: "$home", T: exportFunc, F: osHome},
 	{P: "", N: "args", T: exportFunc, F: args},
 	{P: "", N: "avg", T: exportFunc, F: avg},
 	{P: "", N: "batch", T: exportFunc, F: batch},
@@ -153,7 +153,7 @@ var allExports = []export{
 	{P: "maps", N: "make", T: exportFunc, F: mapsMake},
 	{P: "maps", N: "update", T: exportFunc, F: mapsUpdate},
 	{P: "math", N: "trunc", T: exportFunc, F: mathTrunc},
-	{P: "os", N: "user_home_dir", T: exportFunc, F: osUserHomeDir},
+	{P: "os", N: "home", T: exportFunc, F: osHome},
 	{P: "os", N: "wd", T: exportFunc, F: osWD},
 	{P: "str", N: "fields", T: exportFunc, F: strFields},
 	{P: "str", N: "find", T: exportFunc, F: strFind},
