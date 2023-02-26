@@ -1,11 +1,13 @@
 package mod
 
 import (
+	"errors"
 	"fmt"
 	"regexp"
 	"strconv"
 	"testing"
 
+	"github.com/dcaiafa/nitro/internal/fs"
 	"github.com/stretchr/testify/require"
 )
 
@@ -93,4 +95,31 @@ func TestConstructBuildList(t *testing.T) {
 		"C1.2",
 		"D1.4",
 		"E1.2")
+}
+
+func TestRoot(t *testing.T) {
+	m := fs.NewMem()
+	m.PutCombined(`
+--- other/stuff.bg ---
+print("just a script")
+--- hello_world/bagl.mod ---
+module: hello.world
+--- hello_world/main.bg ---
+import "//util"
+func main() {
+	util.greet()
+}
+--- hello_world/util/util.bg ---
+func greet() {
+	print("Hello World!")
+}
+`)
+
+	root, manifest, err := Root(m, "hello_world/util")
+	require.NoError(t, err)
+	require.Equal(t, "hello_world", root)
+	require.Equal(t, "hello.world", manifest.Module)
+
+	_, _, err = Root(m, "other")
+	require.True(t, errors.Is(err, ErrModuleRootNotFound))
 }

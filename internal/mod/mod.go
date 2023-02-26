@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"os"
 	"path/filepath"
 
 	"github.com/dcaiafa/nitro/internal/fs"
@@ -36,10 +35,7 @@ func Root(f fs.FS, path string) (root string, manifest *Manifest, err error) {
 		return err == nil && !fi.IsDir
 	}
 
-	root, err = filepath.Abs(path)
-	if err != nil {
-		return
-	}
+	root = filepath.Clean(path)
 
 	var manPath string
 
@@ -58,7 +54,7 @@ func Root(f fs.FS, path string) (root string, manifest *Manifest, err error) {
 		root = newRoot
 	}
 
-	manifestData, err := os.ReadFile(manPath)
+	manifestData, err := f.Read(manPath)
 	if err != nil {
 		return
 	}
