@@ -7,12 +7,14 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/dcaiafa/nitro/internal/fs"
 	"gopkg.in/yaml.v3"
 )
 
 const ModuleManifestFilename = "bagl.mod"
 
 var ErrInvalidManifest = errors.New("invalid manifest")
+var ErrModuleRootNotFound = fmt.Errorf("not a in module: %v not in the current directory on in any parent directory", ModuleManifestFilename)
 
 type VersionedModule struct {
 	ModuleID string
@@ -24,39 +26,56 @@ type Requirement struct {
 	Version  Version
 }
 
-type ModuleManifest struct {
+type Manifest struct {
 	Module string `yaml:"module"`
 }
 
-func FindModuleRoot(from string) (string, error) {
-	exists := func(p string) bool {
-		_, err := os.Stat(p)
-		if err == nil {
-			return true
-		}
+func Root(f fs.FS, path string) (root string, manifest *Manifest, err error) {
+	fileExists := func(p string) bool {
+		fi, err := f.Stat(p)
+		return err == nil && !fi.IsDir
 	}
 
-	root, err := filepath.Abs(root)
+	root, err = filepath.Abs(path)
 	if err != nil {
-		return "", err
+		return
 	}
+
+	var manPath string
 
 	for {
-		manifestPath := filepath.Join(root, ModuleManifestFilename)
-		_, err := os.Stat(manifestPath)
-		if err == nil {
-			return root, nil
-		} else if !errors.Is(err, os.ErrNotExist) {
-			return "", err
+		manPath = filepath.Join(root, ModuleManifestFilename)
+		if fileExists(manPath) {
+			break
 		}
+
+		newRoot := filepath.Dir(root)
+		if newRoot == root {
+			err = ErrModuleRootNotFound
+			return
+		}
+
+		root = newRoot
 	}
+
+	manifestData, err := os.ReadFile(manPath)
+	if err != nil {
+		return
+	}
+
+	manifest, err = ParseManifest(manifestData)
+	if err != nil {
+		return
+	}
+
+	return root, manifest, nil
 }
 
-func ParseModuleManifest(buf []byte) (*ModuleManifest, error) {
+func ParseManifest(buf []byte) (*Manifest, error) {
 	d := yaml.NewDecoder(bytes.NewReader(buf))
 	d.KnownFields(true)
 
-	m := new(ModuleManifest)
+	m := new(Manifest)
 	err := d.Decode(m)
 	if err != nil {
 		return nil, err
