@@ -120,6 +120,10 @@ func greet() {
 	require.Equal(t, "hello_world", root)
 	require.Equal(t, "hello.world", manifest.Module)
 
+	root, _, err = Root(m, "hello_world/bagl.mod")
+	require.NoError(t, err)
+	require.Equal(t, "hello_world", root)
+
 	_, _, err = Root(m, "other")
 	require.True(t, errors.Is(err, ErrModuleRootNotFound))
 }
