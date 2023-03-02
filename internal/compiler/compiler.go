@@ -30,8 +30,15 @@ func New() (*Compiler, error) {
 	return c, nil
 }
 
-func (c *Compiler) Compile(packagePath string) (*vm.Program, error) {
-	_, err := c.compilePackage(packagePath)
+func (c *Compiler) RegisterBuiltins(pkgName string, exports export.Exports) {
+	if _, ok := c.builtins[pkgName]; ok {
+		panic("package already registered")
+	}
+	c.builtins[pkgName] = exports
+}
+
+func (c *Compiler) Compile(pkgPath string) (*vm.Program, error) {
+	_, err := c.compilePackage(pkgPath)
 	if err != nil {
 		return nil, err
 	}
@@ -41,15 +48,15 @@ func (c *Compiler) Compile(packagePath string) (*vm.Program, error) {
 	return prog, nil
 }
 
-func (c *Compiler) compilePackage(packagePath string) (*vm.CompiledPackage, error) {
-	root, modManifest, err := mod.Root(c.fs, packagePath)
+func (c *Compiler) compilePackage(pkgPath string) (*vm.CompiledPackage, int, error) {
+	root, modManifest, err := mod.Root(c.fs, pkgPath)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
-	packageName, err := filepath.Rel(root, packagePath)
+	packageName, err := filepath.Rel(root, pkgPath)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	packageName = filepath.ToSlash(packageName)
 	packageName = path.Join(modManifest.Module, packageName)
@@ -71,23 +78,23 @@ func (c *Compiler) compilePackage(packagePath string) (*vm.CompiledPackage, erro
 		})
 
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	c.pkgs[index] = pkg
 
-	return pkg, nil
+	return pkg, index, nil
 }
 
-func (c *Compiler) getPackage(packageName string) (*vm.CompiledPackage, error) {
+func (c *Compiler) getPackage(packageName string) (*vm.CompiledPackage, int, error) {
 	// Have we compiled this package already?
 	pkgIndex, ok := c.pkgMap[packageName]
 	if ok {
 		pkg := c.pkgs[pkgIndex]
 		if pkg == nil {
-			return nil, fmt.Errorf("%w: %v", ErrCircularDependency, packageName)
+			return nil, 0, fmt.Errorf("%w: %v", ErrCircularDependency, packageName)
 		}
-		return pkg, nil
+		return pkg, pkgIndex, nil
 	}
 
 	// Is this a builtin package?
@@ -101,25 +108,26 @@ func (c *Compiler) getPackage(packageName string) (*vm.CompiledPackage, error) {
 			pkg.Symbols[export.N] = i
 		}
 		c.pkgs = append(c.pkgs, pkg)
-		c.pkgMap[packageName] = len(c.pkgs) - 1
-		return pkg, nil
+		pkgIndex := len(c.pkgs) - 1
+		c.pkgMap[packageName] = pkgIndex
+		return pkg, pkgIndex, nil
 	}
 
-	// This must be a regular Bagl package.
+	// Just a plain, run-of-the-mill Bagl package.
 	// Compile and cache it.
-	packagePath := filepath.Join(
+	pkgPath := filepath.Join(
 		c.packageRoot, filepath.FromSlash(packageName))
 
-	return c.compilePackage(packagePath)
+	return c.compilePackage(pkgPath)
 }
 
 /*
-func Compile(packagePath string, opts ...Option) (*vm.Program, error) {
+func Compile(pkgPath string, opts ...Option) (*vm.Program, error) {
 	compiler, err := newCompiler(opts...)
 	if err != nil {
 		return nil, err
 	}
-	return compiler.Compile(packagePath)
+	return compiler.Compile(pkgPath)
 }
 
 func CompileSimple(filePath string) (*vm.Program, error) {
