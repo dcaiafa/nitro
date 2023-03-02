@@ -10,12 +10,10 @@ type Program struct {
 	Packages []*CompiledPackage
 }
 
-type DepPackage struct {
-	Name        string
-	ResolvedNdx int
-}
-
 type CompiledPackage struct {
+	// Index is the index of the CompiledPackage in the list of program packages.
+	Index int
+
 	Metadata  *meta.Metadata
 	MainFnNdx int
 
@@ -25,6 +23,6 @@ type CompiledPackage struct {
 	params     map[string]*Param
 	reqParamN  int
 
-	Symbols     map[string]int
-	DepPackages []DepPackage
+	Deps    map[string]*CompiledPackage // key is packageName
+	Symbols map[string]int              // symbolName => LiteralsIndex
 }

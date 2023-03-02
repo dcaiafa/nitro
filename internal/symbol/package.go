@@ -4,70 +4,43 @@ import (
 	"github.com/dcaiafa/nitro/internal/vm"
 )
 
-type Package interface {
-	Symbol
-
-	GetSymbol(name string) Symbol
-}
-
-type PackageAlias struct {
+type Import struct {
 	baseSymbol
-	baseNonLiftable
 
-	Package Package
+	Package *vm.CompiledPackage
+
+	index   int
+	symbols map[string]*GlobalVarSymbol
 }
 
-var _ Package = (*PackageAlias)(nil)
-
-func (a *PackageAlias) GetSymbol(name string) Symbol {
-	return a.Package.GetSymbol(name)
-}
-
-type RegularPackage struct {
-	baseSymbol
-	baseNonLiftable
-
-	compiledPackage *vm.CompiledPackage
-	symbols         map[string]Symbol
-}
-
-var _ Package = (*RegularPackage)(nil)
-
-func NewRegularPackage(name string, compiledPackage *vm.CompiledPackage) *RegularPackage {
-	p := &RegularPackage{
-		compiledPackage: compiledPackage,
-		symbols:         make(map[string]Symbol, len(compiledPackage.Symbols)),
+func NewImport(pkg *vm.CompiledPackage, pkgIndex int) *Import {
+	i := &Import{
+		Package: pkg,
+		index:   pkgIndex,
+		symbols: make(map[string]*GlobalVarSymbol, len(pkg.Symbols)),
 	}
-	p.SetName(name)
-	p.SetReadOnly(true)
-	return p
+	i.SetReadOnly(true)
+	return i
 }
 
-func (p *RegularPackage) GetSymbol(name string) Symbol {
-	sym := p.symbols[name]
-	if sym == nil {
-		psym, ok := p.compiledPackage.Symbols[name]
-		if ok {
-			switch psym.Type {
-			case vm.PackageSymbolFunc:
-				fsym := new(FuncSymbol)
-				fsym.IdxFunc = int(psym.Index)
-				fsym.SetName(name)
-				fsym.SetReadOnly(true)
-				sym = fsym
-
-			case vm.PackageSymbolConst:
-				csym := new(ConstSymbol)
-				csym.LiteralNdx = int(psym.Index)
-				sym = csym
-
-			default:
-				panic("not reached")
-			}
-			// TODO: do we need to set position for these symbols?
-			p.symbols[name] = sym
-		}
+func (i *Import) GetSymbol(name string) Symbol {
+	sym := i.symbols[name]
+	if sym != nil {
+		return sym
 	}
+
+	ndx, ok := i.Package.Symbols[name]
+	if !ok {
+		return nil
+	}
+
+	sym = new(GlobalVarSymbol)
+	sym.SetName(name)
+	sym.SetReadOnly(true)
+	sym.PackageNdx = i.index
+	sym.GlobalNdx = ndx
+
+	i.symbols[name] = sym
 
 	return sym
 }

@@ -77,19 +77,13 @@ func (b *baseNonLiftable) Lift() {
 	panic("not reachable")
 }
 
-type FuncSymbol struct {
-	baseSymbol
-	baseNonLiftable
-
-	External bool
-	IdxFunc  int
-}
-
 type GlobalVarSymbol struct {
 	baseSymbol
 	baseNonLiftable
 
-	GlobalNdx int
+	PackageNdx int
+	GlobalNdx  int
+	Export     bool
 }
 
 type CaptureSymbol struct {
@@ -112,11 +106,4 @@ type LocalVarSymbol struct {
 	baseLiftable
 
 	LocalNdx int
-}
-
-type ConstSymbol struct {
-	baseSymbol
-	baseNonLiftable
-
-	LiteralNdx int
 }

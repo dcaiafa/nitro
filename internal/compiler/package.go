@@ -18,7 +18,6 @@ type packageGetter interface {
 }
 
 type packageCompiler struct {
-	Module        string
 	ModuleRoot    string
 	ModuleName    string
 	PackageName   string
@@ -27,8 +26,8 @@ type packageCompiler struct {
 	ErrLogger     *errlogger.ErrLoggerWrapper
 	FS            fs.FS
 
-	packageAST  *ast.Package
-	packageDeps []vm.DepPackage
+	packageAST *ast.Package
+	deps       map[string]*vm.CompiledPackage
 }
 
 func (c *packageCompiler) parse() error {
@@ -61,33 +60,25 @@ func (c *packageCompiler) parse() error {
 }
 
 func (c *packageCompiler) processImports() error {
-	deps := make(map[string]int)
+	c.deps = make(map[string]*vm.CompiledPackage)
 	for _, unit := range c.packageAST.Units {
 		unit := unit.(*ast.Unit)
 		for _, imp := range unit.Imports {
 			imp := imp.(*ast.Import)
 			if strings.HasPrefix(imp.Package, "//") {
-				imp.ExpandedPackage = c.Module + "/" + imp.Package[2:]
+				imp.ExpandedPackage = c.ModuleName + "/" + imp.Package[2:]
 			} else {
 				imp.ExpandedPackage = imp.Package
 			}
-			if _, ok := deps[imp.ExpandedPackage]; ok {
+			if _, ok := c.deps[imp.ExpandedPackage]; ok {
 				continue
 			}
-			_, pkgNdx, err := c.PackageGetter.getPackage(imp.ExpandedPackage)
+			pkg, _, err := c.PackageGetter.getPackage(imp.ExpandedPackage)
 			if err != nil {
 				return err
 			}
-			deps[imp.ExpandedPackage] = pkgNdx
+			c.deps[imp.ExpandedPackage] = pkg
 		}
-	}
-
-	c.packageDeps = make([]vm.DepPackage, 0, len(deps))
-	for pkgName, ndx := range deps {
-		c.packageDeps = append(c.packageDeps, vm.DepPackage{
-			Name:        pkgName,
-			ResolvedNdx: ndx,
-		})
 	}
 
 	return nil
@@ -111,7 +102,7 @@ func (c *packageCompiler) Compile() (*vm.CompiledPackage, error) {
 		return nil, err
 	}
 
-	ctx := ast.NewContext(c.ErrLogger)
+	ctx := ast.NewContext(c.ErrLogger, c.deps)
 
 	for _, pass := range passes {
 		c.packageAST.RunPass(ctx, pass)
@@ -125,17 +116,18 @@ func (c *packageCompiler) Compile() (*vm.CompiledPackage, error) {
 	pkg := ctx.Emitter().ToCompiledPackage()
 	pkg.Metadata = c.packageAST.Metadata()
 
-	mainFunc := c.packageAST.Scope().GetSymbol("$main").(*symbol.FuncSymbol)
-	pkg.MainFnNdx = mainFunc.IdxFunc
-	pkg.DepPackages = c.packageDeps
+	mainFunc := c.packageAST.Scope().GetSymbol("$main").(*symbol.GlobalVarSymbol)
+	pkg.MainFnNdx = mainFunc.GlobalNdx
+	pkg.Deps = c.deps
 
 	// TODO: ugly
 	pkg.Symbols = make(map[string]int)
 	c.packageAST.Scope().(*scope.SimpleScope).ForEachSymbol(func(sym symbol.Symbol) {
-		switch sym := sym.(type) {
-		case *symbol.FuncSymbol:
-			pkg.Symbols[sym.Name()] = sym.IdxFunc
+		global, ok := sym.(*symbol.GlobalVarSymbol)
+		if !ok || !global.Export {
+			return
 		}
+		pkg.Symbols[global.Name()] = global.GlobalNdx
 	})
 
 	return pkg, nil

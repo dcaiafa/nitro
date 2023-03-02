@@ -6,6 +6,7 @@ import (
 	"path"
 	"path/filepath"
 
+	"github.com/dcaiafa/nitro/internal/errlogger"
 	"github.com/dcaiafa/nitro/internal/export"
 	"github.com/dcaiafa/nitro/internal/fs"
 	"github.com/dcaiafa/nitro/internal/mod"
@@ -20,6 +21,7 @@ type Compiler struct {
 	builtins    map[string]export.Exports
 	fs          fs.FS
 	packageRoot string
+	errLogger   *errlogger.ErrLoggerWrapper
 }
 
 func New() (*Compiler, error) {
@@ -27,6 +29,8 @@ func New() (*Compiler, error) {
 		pkgMap: make(map[string]int),
 		fs:     fs.NewNative(),
 	}
+	c.errLogger = errlogger.NewErrLoggerBase(
+		&errlogger.ConsoleErrLogger{})
 	return c, nil
 }
 
@@ -38,7 +42,7 @@ func (c *Compiler) RegisterBuiltins(pkgName string, exports export.Exports) {
 }
 
 func (c *Compiler) Compile(pkgPath string) (*vm.Program, error) {
-	_, err := c.compilePackage(pkgPath)
+	_, _, err := c.compilePackage(pkgPath)
 	if err != nil {
 		return nil, err
 	}
@@ -69,14 +73,17 @@ func (c *Compiler) compilePackage(pkgPath string) (*vm.CompiledPackage, int, err
 	index := len(c.pkgs) - 1
 	c.pkgMap[packageName] = index
 
-	pkg, err := compilePackage(
-		&compilePackageOptions{
-			Module:           modManifest.Module,
-			ModuleRoot:       root,
-			PackageName:      packageName,
-			PackageDirectory: c,
-		})
+	pkgCompiler := packageCompiler{
+		ModuleRoot:    root,
+		ModuleName:    modManifest.Module,
+		PackageName:   packageName,
+		PackageGetter: c,
+		PackagePath:   pkgPath,
+		ErrLogger:     c.errLogger,
+		FS:            c.fs,
+	}
 
+	pkg, err := pkgCompiler.Compile()
 	if err != nil {
 		return nil, 0, err
 	}

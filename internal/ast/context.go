@@ -23,14 +23,17 @@ type Context struct {
 	*errlogger.ErrLoggerWrapper
 
 	emitter *vm.Emitter
+	depMap  map[string]*vm.CompiledPackage
 }
 
 func NewContext(
 	l *errlogger.ErrLoggerWrapper,
+	depMap map[string]*vm.CompiledPackage,
 ) *Context {
 	return &Context{
 		ErrLoggerWrapper: l,
 		emitter:          vm.NewEmitter(),
+		depMap:           depMap,
 	}
 }
 
