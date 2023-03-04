@@ -11,6 +11,8 @@ type Program struct {
 }
 
 type CompiledPackage struct {
+	Name string
+
 	// Index is the index of the CompiledPackage in the list of program packages.
 	Index int
 
@@ -23,6 +25,6 @@ type CompiledPackage struct {
 	params     map[string]*Param
 	reqParamN  int
 
-	Deps    map[string]*CompiledPackage // key is packageName
-	Symbols map[string]int              // symbolName => LiteralsIndex
+	Deps    []*CompiledPackage
+	Symbols map[string]int // symbolName => LiteralsIndex
 }

@@ -11,8 +11,6 @@ func emitVariableInit(ctx *Context, pos token.Pos, sym symbol.Symbol) {
 		switch sym := sym.(type) {
 		case *symbol.LocalVarSymbol:
 			ctx.Emitter().Emit(pos, vm.OpInitLiftedLocal, uint32(sym.LocalNdx), 0)
-		case *symbol.GlobalVarSymbol:
-			ctx.Emitter().Emit(pos, vm.OpInitLiftedGlobal, uint32(sym.GlobalNdx), 0)
 		default:
 			panic("unreachable")
 		}
@@ -21,7 +19,7 @@ func emitVariableInit(ctx *Context, pos token.Pos, sym symbol.Symbol) {
 		case *symbol.LocalVarSymbol:
 			ctx.Emitter().Emit(pos, vm.OpInitLocal, uint32(sym.LocalNdx), 0)
 		case *symbol.GlobalVarSymbol:
-			ctx.Emitter().Emit(pos, vm.OpInitGlobal, uint32(sym.GlobalNdx), 0)
+			ctx.Emitter().Emit(pos, vm.OpInitGlobal, uint32(sym.GlobalNdx), uint16(sym.PackageNdx))
 		default:
 			panic("unreachable")
 		}
@@ -31,11 +29,7 @@ func emitVariableInit(ctx *Context, pos token.Pos, sym symbol.Symbol) {
 func emitSymbolPush(pos token.Pos, emitter *vm.Emitter, sym symbol.Symbol) {
 	switch sym := sym.(type) {
 	case *symbol.GlobalVarSymbol:
-		if sym.Lifted() {
-			emitter.Emit(pos, vm.OpLoadGlobalDeref, uint32(sym.GlobalNdx), 0)
-		} else {
-			emitter.Emit(pos, vm.OpLoadGlobal, uint32(sym.GlobalNdx), 0)
-		}
+		emitter.Emit(pos, vm.OpLoadGlobal, uint32(sym.GlobalNdx), uint16(sym.PackageNdx))
 
 	case *symbol.LocalVarSymbol:
 		if sym.Lifted() {
@@ -54,12 +48,6 @@ func emitSymbolPush(pos token.Pos, emitter *vm.Emitter, sym symbol.Symbol) {
 			emitter.Emit(pos, vm.OpLoadArg, uint32(sym.ParamNdx), 0)
 		}
 
-	case *symbol.FuncSymbol:
-		emitter.Emit(pos, vm.OpLoadLiteral, uint32(sym.IdxFunc), 0)
-
-	case *symbol.ConstSymbol:
-		emitter.Emit(pos, vm.OpLoadLiteral, uint32(sym.LiteralNdx), 0)
-
 	default:
 		panic("not implemented")
 	}
@@ -68,11 +56,7 @@ func emitSymbolPush(pos token.Pos, emitter *vm.Emitter, sym symbol.Symbol) {
 func emitSymbolRefPush(pos token.Pos, emitter *vm.Emitter, sym symbol.Symbol) {
 	switch sym := sym.(type) {
 	case *symbol.GlobalVarSymbol:
-		if sym.Lifted() {
-			emitter.Emit(pos, vm.OpLoadGlobal, uint32(sym.GlobalNdx), 0)
-		} else {
-			emitter.Emit(pos, vm.OpLoadGlobalRef, uint32(sym.GlobalNdx), 0)
-		}
+		emitter.Emit(pos, vm.OpLoadGlobalRef, uint32(sym.GlobalNdx), uint16(sym.PackageNdx))
 
 	case *symbol.LocalVarSymbol:
 		if sym.Lifted() {

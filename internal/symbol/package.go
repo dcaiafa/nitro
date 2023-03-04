@@ -6,6 +6,7 @@ import (
 
 type Import struct {
 	baseSymbol
+	baseNonLiftable
 
 	Package *vm.CompiledPackage
 
@@ -13,14 +14,14 @@ type Import struct {
 	symbols map[string]*GlobalVarSymbol
 }
 
+var _ Symbol = (*Import)(nil)
+
 func NewImport(pkg *vm.CompiledPackage, pkgIndex int) *Import {
-	i := &Import{
+	return &Import{
 		Package: pkg,
 		index:   pkgIndex,
 		symbols: make(map[string]*GlobalVarSymbol, len(pkg.Symbols)),
 	}
-	i.SetReadOnly(true)
-	return i
 }
 
 func (i *Import) GetSymbol(name string) Symbol {

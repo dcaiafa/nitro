@@ -45,7 +45,7 @@ func (p *MetaParam) RunPass(ctx *Context, pass Pass) {
 
 	switch pass {
 	case CreateGlobals:
-		p.globalSym = ctx.Main().AddGlobalParam(ctx, p.Name, p.param, p.Pos())
+		p.globalSym = ctx.Package().AddGlobalParam(ctx, p.Name, p.param, p.Pos())
 		if p.globalSym == nil {
 			return
 		}

@@ -55,7 +55,7 @@ func (e *Emitter) NewFn(name string) int {
 }
 
 func (e *Emitter) PushFn(fn int) {
-	e.fnStack = append(e.fnStack, e.pkg.literals[fn].(*Fn))
+	e.fnStack = append(e.fnStack, e.pkg.Literals[fn].(*Fn))
 }
 
 func (e *Emitter) PopFn() {
@@ -143,8 +143,8 @@ func (e *Emitter) AddLiteral(v Value) int {
 }
 
 func (e *Emitter) addLiteral(v Value) int {
-	e.pkg.literals = append(e.pkg.literals, v)
-	return len(e.pkg.literals) - 1
+	e.pkg.Literals = append(e.pkg.Literals, v)
+	return len(e.pkg.Literals) - 1
 }
 
 func (e *Emitter) SetGlobalCount(n int) {

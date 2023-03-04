@@ -25,6 +25,7 @@ type SimpleScope struct {
 	onMiss  func(name string) symbol.Symbol
 }
 
+// TODO: rename => New or NewSimple
 func NewScope(typ Type) *SimpleScope {
 	return &SimpleScope{
 		typ:     typ,

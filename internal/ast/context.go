@@ -23,18 +23,24 @@ type Context struct {
 	*errlogger.ErrLoggerWrapper
 
 	emitter *vm.Emitter
-	depMap  map[string]*vm.CompiledPackage
+	deps    []*vm.CompiledPackage
+	depsMap map[string]int // packageName => deps[value]
 }
 
 func NewContext(
 	l *errlogger.ErrLoggerWrapper,
-	depMap map[string]*vm.CompiledPackage,
+	deps []*vm.CompiledPackage,
 ) *Context {
-	return &Context{
+	c := &Context{
 		ErrLoggerWrapper: l,
 		emitter:          vm.NewEmitter(),
-		depMap:           depMap,
+		deps:             deps,
 	}
+	c.depsMap = make(map[string]int, len(deps))
+	for i, dep := range deps {
+		c.depsMap[dep.Name] = i
+	}
+	return c
 }
 
 func (c *Context) RunPassChild(parent AST, child AST, pass Pass) {
@@ -112,22 +118,22 @@ func (c *Context) Peek(n int) AST {
 	return c.stack[len(c.stack)-n-1]
 }
 
+func (c *Context) GetDep(packageName string) (pkg *vm.CompiledPackage, index int) {
+	index, ok := c.depsMap[packageName]
+	if !ok {
+		// This should never happen because all imports should have already been
+		// processed by the compiler.
+		panic("invalid dependency")
+	}
+	pkg = c.deps[index]
+	return pkg, index
+}
+
 func (c *Context) Package() *Package {
 	for i := len(c.stack) - 1; i >= 0; i-- {
 		ast := c.stack[i]
 		if packageAST, ok := ast.(*Package); ok {
 			return packageAST
-		}
-	}
-	return nil
-
-}
-
-func (c *Context) Main() *Root {
-	for i := len(c.stack) - 1; i >= 0; i-- {
-		ast := c.stack[i]
-		if mainAST, ok := ast.(*Root); ok {
-			return mainAST
 		}
 	}
 	return nil

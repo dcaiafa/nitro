@@ -88,6 +88,7 @@ func (c *Compiler) compilePackage(pkgPath string) (*vm.CompiledPackage, int, err
 		return nil, 0, err
 	}
 
+	pkg.Index = index
 	c.pkgs[index] = pkg
 
 	return pkg, index, nil

@@ -1,0 +1,4 @@
+Package Refactor Notes:
+- Add local package to deps[0]
+- Assign packageNdx 0 to new globals
+- Fix cmd/nitro

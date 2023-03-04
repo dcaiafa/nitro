@@ -27,7 +27,7 @@ type packageCompiler struct {
 	FS            fs.FS
 
 	packageAST *ast.Package
-	deps       map[string]*vm.CompiledPackage
+	deps       []*vm.CompiledPackage
 }
 
 func (c *packageCompiler) parse() error {
@@ -60,7 +60,7 @@ func (c *packageCompiler) parse() error {
 }
 
 func (c *packageCompiler) processImports() error {
-	c.deps = make(map[string]*vm.CompiledPackage)
+	deps := make(map[string]*vm.CompiledPackage)
 	for _, unit := range c.packageAST.Units {
 		unit := unit.(*ast.Unit)
 		for _, imp := range unit.Imports {
@@ -70,15 +70,19 @@ func (c *packageCompiler) processImports() error {
 			} else {
 				imp.ExpandedPackage = imp.Package
 			}
-			if _, ok := c.deps[imp.ExpandedPackage]; ok {
-				continue
+			if _, ok := deps[imp.ExpandedPackage]; !ok {
+				pkg, _, err := c.PackageGetter.getPackage(imp.ExpandedPackage)
+				if err != nil {
+					return err
+				}
+				deps[imp.ExpandedPackage] = pkg
 			}
-			pkg, _, err := c.PackageGetter.getPackage(imp.ExpandedPackage)
-			if err != nil {
-				return err
-			}
-			c.deps[imp.ExpandedPackage] = pkg
 		}
+	}
+
+	c.deps = make([]*vm.CompiledPackage, 0, len(deps))
+	for _, pkg := range deps {
+		c.deps = append(c.deps, pkg)
 	}
 
 	return nil
@@ -114,6 +118,7 @@ func (c *packageCompiler) Compile() (*vm.CompiledPackage, error) {
 	}
 
 	pkg := ctx.Emitter().ToCompiledPackage()
+	pkg.Name = c.PackageName
 	pkg.Metadata = c.packageAST.Metadata()
 
 	mainFunc := c.packageAST.Scope().GetSymbol("$main").(*symbol.GlobalVarSymbol)

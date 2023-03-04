@@ -11,7 +11,7 @@ type SimpleRef struct {
 
 	sym symbol.Symbol
 
-	Package *symbol.Package
+	Import *symbol.Import
 }
 
 func (r *SimpleRef) isExpr() {}
@@ -28,12 +28,12 @@ func (r *SimpleRef) RunPass(ctx *Context, pass Pass) {
 		}
 
 		var ok bool
-		r.Package, ok = r.sym.(*symbol.Package)
+		r.Import, ok = r.sym.(*symbol.Import)
 		if ok {
 			if _, ok := ctx.Parent().(*MemberAccess); !ok {
 				ctx.Failf(
 					r.Pos(),
-					"%v is a package, and cannot be used as a value",
+					"%v is an import, and cannot be used as a value",
 					r.ID.Str)
 				return
 			}
@@ -51,7 +51,7 @@ func (r *SimpleRef) RunPass(ctx *Context, pass Pass) {
 		}
 
 	case Emit:
-		if r.Package == nil {
+		if r.Import == nil {
 			emit := emitSymbolPush
 			_, isLValue := ctx.Parent().(*LValue)
 			if isLValue {

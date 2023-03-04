@@ -78,6 +78,7 @@ type frame struct {
 type VM struct {
 	userData     map[interface{}]interface{}
 	prog         *Program
+	pkgs         []*CompiledPackage
 	shuttingDown bool
 	sched        *fiber.Scheduler
 	co           *coroutine
@@ -93,6 +94,7 @@ type VM struct {
 func NewVM(prog *Program) *VM {
 	vm := &VM{
 		prog:      prog,
+		pkgs:      prog.Packages,
 		userData:  make(map[interface{}]interface{}),
 		sched:     fiber.NewScheduler(),
 		closers:   make(map[Closer]struct{}),
@@ -131,7 +133,7 @@ func (m *VM) Run(args []Value) error {
 	co.sp = len(args)
 
 	f := co.NewFrame()
-	f.fn = mainPkg.literals[mainPkg.MainFnNdx].(*Fn)
+	f.fn = mainPkg.Literals[mainPkg.MainFnNdx].(*Fn)
 	f.nArg = len(args)
 	f.bp = len(args)
 
@@ -689,15 +691,13 @@ func (m *VM) resumeWithoutRecovery() (err error) {
 			m.co.sp++
 
 		case OpLoadGlobal:
-			m.co.stack[m.co.sp] = m.co.globals[int(instr.op1)]
+			pkg := m.pkgs[int(instr.op2)]
+			m.co.stack[m.co.sp] = pkg.globals[int(instr.op1)]
 			m.co.sp++
 
 		case OpLoadGlobalRef:
-			m.co.stack[m.co.sp] = ValueRef{&m.co.globals[int(instr.op1)]}
-			m.co.sp++
-
-		case OpLoadGlobalDeref:
-			m.co.stack[m.co.sp] = *m.co.globals[int(instr.op1)].(ValueRef).Ref
+			pkg := m.pkgs[int(instr.op2)]
+			m.co.stack[m.co.sp] = ValueRef{&pkg.globals[int(instr.op1)]}
 			m.co.sp++
 
 		case OpLoadLocal:
@@ -1031,10 +1031,8 @@ func (m *VM) resumeWithoutRecovery() (err error) {
 			m.co.stack[m.co.frame.bp+int(instr.op1)] = ValueRef{new(Value)}
 
 		case OpInitGlobal:
-			m.co.globals[int(instr.op1)] = nil
-
-		case OpInitLiftedGlobal:
-			m.co.globals[int(instr.op1)] = ValueRef{new(Value)}
+			pkg := m.pkgs[int(instr.op2)]
+			pkg.globals[int(instr.op1)] = nil
 
 		default:
 			panic("invalid instruction")
@@ -1115,9 +1113,9 @@ func (m *VM) GetFrameInfo(crumb FrameCrumb) FrameInfo {
 		}
 		pkg := crumb.fn.pkg
 		return FrameInfo{
-			Filename: pkg.literals[loc.filename].(String).String(),
+			Filename: pkg.Literals[loc.filename].(String).String(),
 			Line:     loc.lineNum,
-			Func:     pkg.literals[loc.fn].(String).String(),
+			Func:     pkg.Literals[loc.fn].(String).String(),
 		}
 	}
 	if nativeFn, ok := crumb.extFn.(*NativeFn); ok {
