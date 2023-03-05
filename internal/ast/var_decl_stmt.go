@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"github.com/dcaiafa/nitro/internal/scope"
 	"github.com/dcaiafa/nitro/internal/symbol"
 	"github.com/dcaiafa/nitro/internal/token"
 	"github.com/dcaiafa/nitro/internal/vm"
@@ -29,10 +30,10 @@ func (s *VarDeclStmt) RunPass(ctx *Context, pass Pass) {
 
 	case CreateGlobals:
 		if parentFn == nil {
-			scope := ctx.CurrentScope()
+			scope := ctx.GetScope(scope.Package)
 			s.init.Syms = make([]symbol.Symbol, len(s.Vars))
 			for i, v := range s.Vars {
-				g := ctx.Main().NewGlobal()
+				g := ctx.Package().NewGlobal()
 				g.SetName(v.Str)
 				g.SetPos(v.Pos)
 				if !scope.PutSymbol(ctx, g) {
@@ -64,7 +65,7 @@ func (s *VarDeclStmt) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Check:
 		if parentFn != nil {
-			scope := ctx.CurrentScope()
+			scope := ctx.GetScope(scope.Block)
 			s.init.Syms = make([]symbol.Symbol, len(s.Vars))
 			for i, v := range s.Vars {
 				l := parentFn.NewLocal()

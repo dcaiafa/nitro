@@ -1,4 +1,7 @@
 Package Refactor Notes:
-- Add local package to deps[0]
-- Assign packageNdx 0 to new globals
+x Add local package to deps[0]
+x Assign packageNdx 0 to new globals
+- scope SetMissHandler: remove
 - Fix cmd/nitro
+- Simple script: synthesize imports for all built-ins.
+  - Figure out how to prevent collision with globals.

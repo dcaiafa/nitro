@@ -80,7 +80,10 @@ func (c *packageCompiler) processImports() error {
 		}
 	}
 
-	c.deps = make([]*vm.CompiledPackage, 0, len(deps))
+	c.deps = make([]*vm.CompiledPackage, 0, len(deps)+1)
+	// Reserve a spot for the root package.
+	// The root package must be on index 0.
+	c.deps = append(c.deps, nil)
 	for _, pkg := range deps {
 		c.deps = append(c.deps, pkg)
 	}
@@ -124,6 +127,7 @@ func (c *packageCompiler) Compile() (*vm.CompiledPackage, error) {
 	mainFunc := c.packageAST.Scope().GetSymbol("$main").(*symbol.GlobalVarSymbol)
 	pkg.MainFnNdx = mainFunc.GlobalNdx
 	pkg.Deps = c.deps
+	pkg.Deps[0] = pkg
 
 	// TODO: ugly
 	pkg.Symbols = make(map[string]int)

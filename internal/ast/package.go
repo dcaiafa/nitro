@@ -37,7 +37,6 @@ func (p *Package) RunPass(ctx *Context, pass Pass) {
 
 	case CreateGlobals:
 		p.scope = scope.NewScope(scope.Package)
-		p.scope.SetMissHandler(p.autoImport)
 
 		p.metadata = new(meta.Metadata)
 
@@ -109,6 +108,7 @@ func (p *Package) GetImports() []string {
 
 func (m *Package) NewGlobal() *symbol.GlobalVarSymbol {
 	g := &symbol.GlobalVarSymbol{}
+	g.PackageNdx = 0
 	g.GlobalNdx = m.globals
 	m.globals++
 	return g
@@ -132,7 +132,4 @@ func (m *Package) AddGlobalParam(ctx *Context, name string, param *meta.Param, p
 
 func (m *Package) Metadata() *meta.Metadata {
 	return m.metadata
-}
-
-func (p *Package) autoImport(name string) symbol.Symbol {
 }
