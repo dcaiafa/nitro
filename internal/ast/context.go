@@ -22,9 +22,10 @@ type Context struct {
 	Stack
 	*errlogger.ErrLoggerWrapper
 
-	emitter *vm.Emitter
-	deps    []*vm.CompiledPackage
-	depsMap map[string]int // packageName => deps[value]
+	emitter      *vm.Emitter
+	deps         []*vm.CompiledPackage
+	depsMap      map[string]int // packageName => deps[value]
+	globalImport *symbol.Import
 }
 
 func NewContext(
@@ -38,8 +39,19 @@ func NewContext(
 	}
 	c.depsMap = make(map[string]int, len(deps))
 	for i, dep := range deps {
-		c.depsMap[dep.Name] = i
+		// The first dep (index 0) is reserved for "self" (this package).
+		// TODO: I hate this. Reevaluate.
+		if i != 0 {
+			c.depsMap[dep.Name] = i
+		}
 	}
+	globalPackageIdx, ok := c.depsMap["$global"]
+	if !ok {
+		panic("where is $global?")
+	}
+	globalPackage := c.deps[globalPackageIdx]
+	c.globalImport = symbol.NewImport(globalPackage, globalPackageIdx)
+
 	return c
 }
 

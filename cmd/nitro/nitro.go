@@ -6,13 +6,13 @@ import (
 	"math/rand"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"runtime/pprof"
 	"sync"
 	"syscall"
 	"time"
 
 	"github.com/dcaiafa/nitro"
+	"github.com/dcaiafa/nitro/internal/compiler"
 	"github.com/dcaiafa/nitro/lib"
 	"github.com/fatih/color"
 )
@@ -81,7 +81,6 @@ func main() {
 
 	flagN := sysFlags.AddFlag(&Flag{Name: "n", Desc: "Inline program", Value: new(string)})
 	flagP := sysFlags.AddFlag(&Flag{Name: "p", Desc: "Create CPU profile", Value: new(string)})
-	flagD := sysFlags.AddFlag(&Flag{Name: "d", Desc: "Enable parser diagnostics", Value: new(bool)})
 
 	args := os.Args[1:]
 	if len(args) == 0 {
@@ -102,56 +101,34 @@ func main() {
 		printSysUsage(sysFlags)
 	}
 
-	compiler := nitro.NewCompiler()
-	compiler.SetDiag(*flagD.Value.(*bool))
-	compiler.AddFuncRegistry(lib.NewExportRegistry())
+	compiler := compiler.New()
+	lib.RegisterAll(compiler)
 
 	var progName string
 	var scriptPath string
-	var progData []byte
 	var compiled *nitro.Program
 
 	if *flagN.Value.(*string) != "" {
-		progName = "<inline>"
-		scriptPath = progName
-		progData = []byte(*flagN.Value.(*string))
+		/*
+			progName = "<inline>"
+			scriptPath = progName
+			progData = []byte(*flagN.Value.(*string))
 
-		compiled, err = compiler.CompileSimple(
-			scriptPath, progData, nitro.NewConsoleErrLogger())
-		if err != nil {
-			// Error was already logged by ConsoleErrLogger.
-			os.Exit(1)
-		}
-	} else {
-		scriptPath = args[0]
-		args = args[1:]
-
-		scriptFileInfo, err := os.Stat(scriptPath)
-		if err != nil {
-			fatal(fmt.Errorf("failed to read %q: %w", scriptPath, err))
-		}
-
-		progName = filepath.Base(scriptPath)
-
-		if scriptFileInfo.IsDir() {
-			compiled, err = compiler.Compile(
-				nitro.NewNativePackageReader(scriptPath),
-				nitro.NewConsoleErrLogger())
-			if err != nil {
-				// Error was already logged by ConsoleErrLogger.
-				os.Exit(1)
-			}
-		} else {
-			progData, err = os.ReadFile(scriptPath)
-			if err != nil {
-				fatal(fmt.Errorf("failed to read %q: %w", scriptPath, err))
-			}
 			compiled, err = compiler.CompileSimple(
 				scriptPath, progData, nitro.NewConsoleErrLogger())
 			if err != nil {
 				// Error was already logged by ConsoleErrLogger.
 				os.Exit(1)
 			}
+		*/
+		panic("not implemented")
+	} else {
+		scriptPath = args[0]
+		args = args[1:]
+
+		compiled, err = compiler.Compile(scriptPath)
+		if err != nil {
+			fatal(err)
 		}
 	}
 

@@ -24,14 +24,15 @@ type Compiler struct {
 	errLogger   *errlogger.ErrLoggerWrapper
 }
 
-func New() (*Compiler, error) {
+func New() *Compiler {
 	c := &Compiler{
-		pkgMap: make(map[string]int),
-		fs:     fs.NewNative(),
+		pkgMap:   make(map[string]int),
+		builtins: make(map[string]export.Exports),
+		fs:       fs.NewNative(),
 	}
 	c.errLogger = errlogger.NewErrLoggerBase(
 		&errlogger.ConsoleErrLogger{})
-	return c, nil
+	return c
 }
 
 func (c *Compiler) RegisterBuiltins(pkgName string, exports export.Exports) {
@@ -62,8 +63,13 @@ func (c *Compiler) compilePackage(pkgPath string) (*vm.CompiledPackage, int, err
 	if err != nil {
 		return nil, 0, err
 	}
-	packageName = filepath.ToSlash(packageName)
-	packageName = path.Join(modManifest.Module, packageName)
+	if packageName == "." {
+		// The root package's name is the module's name.
+		packageName = modManifest.Module
+	} else {
+		packageName = filepath.ToSlash(packageName)
+		packageName = path.Join(modManifest.Module, packageName)
+	}
 
 	if _, ok := c.pkgMap[packageName]; ok {
 		panic("package already compiled")
@@ -128,21 +134,3 @@ func (c *Compiler) getPackage(packageName string) (*vm.CompiledPackage, int, err
 
 	return c.compilePackage(pkgPath)
 }
-
-/*
-func Compile(pkgPath string, opts ...Option) (*vm.Program, error) {
-	compiler, err := newCompiler(opts...)
-	if err != nil {
-		return nil, err
-	}
-	return compiler.Compile(pkgPath)
-}
-
-func CompileSimple(filePath string) (*vm.Program, error) {
-	panic("notimpl")
-}
-
-func CompileInline(script []byte) (*vm.Program, error) {
-	panic("notimpl")
-}
-*/

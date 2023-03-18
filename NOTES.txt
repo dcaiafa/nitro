@@ -1,7 +1,10 @@
+Doing:
+- context.go: handling the $global context. Fallback to globalImport for symbol
+  lookups.
+
+
 Package Refactor Notes:
-x Add local package to deps[0]
-x Assign packageNdx 0 to new globals
+- Fix the rest of cmd/nitro
 - scope SetMissHandler: remove
-- Fix cmd/nitro
 - Simple script: synthesize imports for all built-ins.
   - Figure out how to prevent collision with globals.

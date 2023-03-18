@@ -61,6 +61,15 @@ func (c *packageCompiler) parse() error {
 
 func (c *packageCompiler) processImports() error {
 	deps := make(map[string]*vm.CompiledPackage)
+
+	// Every (non-builtin) package depends on the global builtin package.
+	// TODO: at least make a const for $global.
+	globalBuiltin, _, err := c.PackageGetter.getPackage("$global")
+	if err != nil {
+		return err
+	}
+	deps["$global"] = globalBuiltin
+
 	for _, unit := range c.packageAST.Units {
 		unit := unit.(*ast.Unit)
 		for _, imp := range unit.Imports {
