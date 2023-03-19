@@ -16,19 +16,20 @@ import (
 var ErrCircularDependency = errors.New("circular dependency")
 
 type Compiler struct {
-	pkgs        []*vm.CompiledPackage
-	pkgMap      map[string]int // package_name => pkgs index
-	builtins    map[string]export.Exports
-	fs          fs.FS
-	packageRoot string
-	errLogger   *errlogger.ErrLoggerWrapper
+	pkgs            []*vm.CompiledPackage
+	pkgMap          map[string]int // package_name => pkgs index
+	builtins        map[string]export.Exports
+	fs              fs.FS
+	packageResolver *mod.PackageResolver
+	errLogger       *errlogger.ErrLoggerWrapper
 }
 
 func New() *Compiler {
 	c := &Compiler{
-		pkgMap:   make(map[string]int),
-		builtins: make(map[string]export.Exports),
-		fs:       fs.NewNative(),
+		pkgMap:          make(map[string]int),
+		builtins:        make(map[string]export.Exports),
+		fs:              fs.NewNative(),
+		packageResolver: mod.NewPackageResolver(),
 	}
 	c.errLogger = errlogger.NewErrLoggerBase(
 		&errlogger.ConsoleErrLogger{})
@@ -42,8 +43,34 @@ func (c *Compiler) RegisterBuiltins(pkgName string, exports export.Exports) {
 	c.builtins[pkgName] = exports
 }
 
-func (c *Compiler) Compile(pkgPath string) (*vm.Program, error) {
-	_, _, err := c.compilePackage(pkgPath)
+func (c *Compiler) Compile(packagePath string) (*vm.Program, error) {
+	root, modManifest, err := mod.Root(c.fs, packagePath)
+	if err != nil {
+		return nil, err
+	}
+
+	err = c.packageResolver.AddModule(&mod.Module{
+		Name: modManifest.Module,
+		Path: root,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	packageName, err := filepath.Rel(root, packagePath)
+	if err != nil {
+		return nil, err
+	}
+
+	if packageName == "." {
+		// The root package's name is the module's name.
+		packageName = modManifest.Module
+	} else {
+		packageName = filepath.ToSlash(packageName)
+		packageName = path.Join(modManifest.Module, packageName)
+	}
+
+	_, _, err = c.compilePackage(packageName, true)
 	if err != nil {
 		return nil, err
 	}
@@ -53,26 +80,14 @@ func (c *Compiler) Compile(pkgPath string) (*vm.Program, error) {
 	return prog, nil
 }
 
-func (c *Compiler) compilePackage(pkgPath string) (*vm.CompiledPackage, int, error) {
-	root, modManifest, err := mod.Root(c.fs, pkgPath)
-	if err != nil {
-		return nil, 0, err
-	}
-
-	packageName, err := filepath.Rel(root, pkgPath)
-	if err != nil {
-		return nil, 0, err
-	}
-	if packageName == "." {
-		// The root package's name is the module's name.
-		packageName = modManifest.Module
-	} else {
-		packageName = filepath.ToSlash(packageName)
-		packageName = path.Join(modManifest.Module, packageName)
-	}
-
+func (c *Compiler) compilePackage(packageName string, isMain bool) (*vm.CompiledPackage, int, error) {
 	if _, ok := c.pkgMap[packageName]; ok {
 		panic("package already compiled")
+	}
+
+	packageInfo, err := c.packageResolver.ResolvePackage(packageName)
+	if err != nil {
+		return nil, 0, err
 	}
 
 	c.pkgs = append(c.pkgs, nil)
@@ -80,11 +95,12 @@ func (c *Compiler) compilePackage(pkgPath string) (*vm.CompiledPackage, int, err
 	c.pkgMap[packageName] = index
 
 	pkgCompiler := packageCompiler{
-		ModuleRoot:    root,
-		ModuleName:    modManifest.Module,
+		ModuleRoot:    packageInfo.Module.Path,
+		ModuleName:    packageInfo.Module.Name,
 		PackageName:   packageName,
 		PackageGetter: c,
-		PackagePath:   pkgPath,
+		PackagePath:   packageInfo.Path,
+		IsMain:        true,
 		ErrLogger:     c.errLogger,
 		FS:            c.fs,
 	}
@@ -128,10 +144,5 @@ func (c *Compiler) getPackage(packageName string) (*vm.CompiledPackage, int, err
 		return pkg, pkgIndex, nil
 	}
 
-	// Just a plain, run-of-the-mill Bagl package.
-	// Compile and cache it.
-	pkgPath := filepath.Join(
-		c.packageRoot, filepath.FromSlash(packageName))
-
-	return c.compilePackage(pkgPath)
+	return c.compilePackage(packageName, false)
 }

@@ -23,6 +23,7 @@ type packageCompiler struct {
 	PackageName   string
 	PackageGetter packageGetter
 	PackagePath   string
+	IsMain        bool
 	ErrLogger     *errlogger.ErrLoggerWrapper
 	FS            fs.FS
 
@@ -117,6 +118,8 @@ func (c *packageCompiler) Compile() (*vm.CompiledPackage, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	c.packageAST.IsMain = c.IsMain
 
 	ctx := ast.NewContext(c.ErrLogger, c.deps)
 

@@ -10,7 +10,8 @@ import (
 type Package struct {
 	PosImpl
 
-	Units ASTs
+	IsMain bool
+	Units  ASTs
 
 	scope    *scope.SimpleScope
 	init     *FuncStmt
@@ -33,7 +34,9 @@ func (p *Package) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Rewrite:
 		p.synthesizeInit()
-		p.synthesizeMain()
+		if p.IsMain {
+			p.synthesizeMain()
+		}
 
 	case CreateGlobals:
 		p.scope = scope.NewScope(scope.Package)
