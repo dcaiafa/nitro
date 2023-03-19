@@ -15,6 +15,11 @@ const ModuleManifestFilename = "bagl.mod"
 var ErrInvalidManifest = errors.New("invalid manifest")
 var ErrModuleRootNotFound = fmt.Errorf("not a in module: %v not in the current directory on in any parent directory", ModuleManifestFilename)
 
+type Module struct {
+	Name string
+	Path string
+}
+
 type VersionedModule struct {
 	ModuleID string
 	Version  Version
