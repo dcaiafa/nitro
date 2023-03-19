@@ -11,7 +11,7 @@ type coroutine struct {
 	callStack     []*frame
 	frame         *frame
 	stack         []Value
-	literals      []Value
+	globals       []Value
 	instrs        []Instr
 	sp            int
 	ip            int
@@ -33,7 +33,7 @@ func (co *coroutine) PushFrame(frame *frame) {
 	co.frame = frame
 	if co.frame.fn != nil {
 		pkg := co.frame.fn.pkg
-		co.literals = pkg.Literals
+		co.globals = pkg.globals
 		co.instrs = co.frame.fn.instrs
 		co.ip = co.frame.ip
 	} else {
@@ -53,7 +53,7 @@ func (co *coroutine) PopFrame() {
 		co.frame = co.callStack[len(co.callStack)-1]
 		if co.frame.fn != nil {
 			pkg := co.frame.fn.pkg
-			co.literals = pkg.Literals
+			co.globals = pkg.globals
 			co.instrs = co.frame.fn.instrs
 			co.ip = co.frame.ip
 		}

@@ -11,7 +11,7 @@ type Import struct {
 	Package *vm.CompiledPackage
 
 	index   int
-	symbols map[string]*GlobalVarSymbol
+	symbols map[string]*LiteralSymbol
 }
 
 var _ Symbol = (*Import)(nil)
@@ -20,7 +20,7 @@ func NewImport(pkg *vm.CompiledPackage, pkgIndex int) *Import {
 	return &Import{
 		Package: pkg,
 		index:   pkgIndex,
-		symbols: make(map[string]*GlobalVarSymbol, len(pkg.Symbols)),
+		symbols: make(map[string]*LiteralSymbol, len(pkg.Symbols)),
 	}
 }
 
@@ -35,11 +35,11 @@ func (i *Import) GetSymbol(name string) Symbol {
 		return nil
 	}
 
-	sym = new(GlobalVarSymbol)
+	sym = new(LiteralSymbol)
 	sym.SetName(name)
 	sym.SetReadOnly(true)
-	sym.PackageNdx = i.index
-	sym.GlobalNdx = ndx
+	sym.PackageIdx = i.index
+	sym.LiteralIdx = ndx
 
 	i.symbols[name] = sym
 

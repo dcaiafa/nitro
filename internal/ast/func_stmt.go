@@ -20,7 +20,7 @@ func (s *FuncStmt) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case CreateGlobals:
 		if parentFn == nil {
-			s.sym = &symbol.GlobalVarSymbol{}
+			s.sym = &symbol.LiteralSymbol{}
 			s.sym.SetReadOnly(true)
 			s.sym.SetName(s.Name)
 			s.sym.SetPos(s.Pos())
@@ -55,9 +55,9 @@ func (s *FuncStmt) RunPass(ctx *Context, pass Pass) {
 
 	switch pass {
 	case Check:
-		if fnSym, ok := s.sym.(*symbol.GlobalVarSymbol); ok {
-			fnSym.PackageNdx = 0 // Local package
-			fnSym.GlobalNdx = s.IdxFunc()
+		if fnSym, ok := s.sym.(*symbol.LiteralSymbol); ok {
+			fnSym.PackageIdx = 0 // Local package
+			fnSym.LiteralIdx = s.IdxFunc()
 		}
 
 	case Emit:

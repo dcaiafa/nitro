@@ -81,9 +81,15 @@ type GlobalVarSymbol struct {
 	baseSymbol
 	baseNonLiftable
 
-	PackageNdx int
-	GlobalNdx  int
-	Export     bool
+	GlobalNdx int
+}
+
+type LiteralSymbol struct {
+	baseSymbol
+	baseNonLiftable
+
+	PackageIdx int
+	LiteralIdx int
 }
 
 type CaptureSymbol struct {

@@ -19,7 +19,7 @@ func emitVariableInit(ctx *Context, pos token.Pos, sym symbol.Symbol) {
 		case *symbol.LocalVarSymbol:
 			ctx.Emitter().Emit(pos, vm.OpInitLocal, uint32(sym.LocalNdx), 0)
 		case *symbol.GlobalVarSymbol:
-			ctx.Emitter().Emit(pos, vm.OpInitGlobal, uint32(sym.GlobalNdx), uint16(sym.PackageNdx))
+			ctx.Emitter().Emit(pos, vm.OpInitGlobal, uint32(sym.GlobalNdx), 0)
 		default:
 			panic("unreachable")
 		}
@@ -28,8 +28,11 @@ func emitVariableInit(ctx *Context, pos token.Pos, sym symbol.Symbol) {
 
 func emitSymbolPush(pos token.Pos, emitter *vm.Emitter, sym symbol.Symbol) {
 	switch sym := sym.(type) {
+	case *symbol.LiteralSymbol:
+		emitter.Emit(pos, vm.OpLoadLiteral, uint32(sym.LiteralIdx), uint16(sym.PackageIdx))
+
 	case *symbol.GlobalVarSymbol:
-		emitter.Emit(pos, vm.OpLoadGlobal, uint32(sym.GlobalNdx), uint16(sym.PackageNdx))
+		emitter.Emit(pos, vm.OpLoadGlobal, uint32(sym.GlobalNdx), 0)
 
 	case *symbol.LocalVarSymbol:
 		if sym.Lifted() {
@@ -56,7 +59,7 @@ func emitSymbolPush(pos token.Pos, emitter *vm.Emitter, sym symbol.Symbol) {
 func emitSymbolRefPush(pos token.Pos, emitter *vm.Emitter, sym symbol.Symbol) {
 	switch sym := sym.(type) {
 	case *symbol.GlobalVarSymbol:
-		emitter.Emit(pos, vm.OpLoadGlobalRef, uint32(sym.GlobalNdx), uint16(sym.PackageNdx))
+		emitter.Emit(pos, vm.OpLoadGlobalRef, uint32(sym.GlobalNdx), 0)
 
 	case *symbol.LocalVarSymbol:
 		if sym.Lifted() {

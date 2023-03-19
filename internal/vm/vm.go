@@ -644,7 +644,7 @@ func (m *VM) resumeWithoutRecovery() (err error) {
 			}
 
 			closure := &Closure{
-				fn:   m.co.literals[fn].(*Fn),
+				fn:   m.co.frame.fn.pkg.Literals[fn].(*Fn),
 				caps: caps,
 			}
 			m.co.stack[m.co.sp] = closure
@@ -665,7 +665,7 @@ func (m *VM) resumeWithoutRecovery() (err error) {
 			}
 
 			iter := &ILIterator{
-				fn:       m.co.literals[fn].(*Fn),
+				fn:       m.co.frame.fn.pkg.Literals[fn].(*Fn),
 				captures: caps,
 				iterNRet: iterNRet,
 			}
@@ -771,7 +771,8 @@ func (m *VM) resumeWithoutRecovery() (err error) {
 			m.co.sp++
 
 		case OpLoadLiteral:
-			m.co.stack[m.co.sp] = m.co.literals[int(instr.op1)]
+			pkg := m.pkgs[int(instr.op2)]
+			m.co.stack[m.co.sp] = pkg.Literals[int(instr.op1)]
 			m.co.sp++
 
 		case OpEvalBinOp:

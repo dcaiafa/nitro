@@ -133,19 +133,19 @@ func (c *packageCompiler) Compile() (*vm.CompiledPackage, error) {
 	pkg.Name = c.PackageName
 	pkg.Metadata = c.packageAST.Metadata()
 
-	mainFunc := c.packageAST.Scope().GetSymbol("$main").(*symbol.GlobalVarSymbol)
-	pkg.MainFnNdx = mainFunc.GlobalNdx
+	mainFunc := c.packageAST.Scope().GetSymbol("$main").(*symbol.LiteralSymbol)
+	pkg.MainFnNdx = mainFunc.LiteralIdx
 	pkg.Deps = c.deps
 	pkg.Deps[0] = pkg
 
 	// TODO: ugly
 	pkg.Symbols = make(map[string]int)
 	c.packageAST.Scope().(*scope.SimpleScope).ForEachSymbol(func(sym symbol.Symbol) {
-		global, ok := sym.(*symbol.GlobalVarSymbol)
-		if !ok || !global.Export {
+		global, ok := sym.(*symbol.LiteralSymbol)
+		if !ok {
 			return
 		}
-		pkg.Symbols[global.Name()] = global.GlobalNdx
+		pkg.Symbols[global.Name()] = global.LiteralIdx
 	})
 
 	return pkg, nil

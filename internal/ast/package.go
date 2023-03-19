@@ -108,7 +108,6 @@ func (p *Package) GetImports() []string {
 
 func (m *Package) NewGlobal() *symbol.GlobalVarSymbol {
 	g := &symbol.GlobalVarSymbol{}
-	g.PackageNdx = 0
 	g.GlobalNdx = m.globals
 	m.globals++
 	return g
