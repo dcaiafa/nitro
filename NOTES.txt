@@ -1,7 +1,6 @@
 Doing:
-- context.go: handling the $global context. Fallback to globalImport for symbol
-  lookups.
-
+- compiler: c.pkgs must be in dependency order
+- update ast/package's main to call $init of all dependency packages
 
 Package Refactor Notes:
 - Fix the rest of cmd/nitro
