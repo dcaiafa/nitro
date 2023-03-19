@@ -84,9 +84,11 @@ func (c *Context) FindSymbol(symName string) symbol.Symbol {
 			fns = append(fns, fn)
 		}
 	}
+
 	if sym == nil {
-		return nil
+		return c.globalImport.GetSymbol(symName)
 	}
+
 	if len(fns) != 0 && sym.Liftable() {
 		sym.Lift()
 		for i := len(fns) - 1; i >= 0; i-- {

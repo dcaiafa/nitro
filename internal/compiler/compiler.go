@@ -114,6 +114,7 @@ func (c *Compiler) getPackage(packageName string) (*vm.CompiledPackage, int, err
 	// Is this a builtin package?
 	if exports, ok := c.builtins[packageName]; ok {
 		pkg := &vm.CompiledPackage{
+			Name:     packageName,
 			Literals: make([]vm.Value, len(exports)),
 			Symbols:  make(map[string]int, len(exports)),
 		}
