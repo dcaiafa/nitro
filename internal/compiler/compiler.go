@@ -103,7 +103,7 @@ func (c *Compiler) compilePackage(packageName string, isMain bool) (*vm.Compiled
 		PackageName:   packageName,
 		PackageGetter: c,
 		PackagePath:   packageInfo.Path,
-		IsMain:        true,
+		IsMain:        isMain,
 		ErrLogger:     c.errLogger,
 		FS:            c.fs,
 	}
