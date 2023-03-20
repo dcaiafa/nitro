@@ -148,8 +148,11 @@ func (c *packageCompiler) Compile() (*vm.CompiledPackage, error) {
 	pkg.Name = c.PackageName
 	pkg.Metadata = c.packageAST.Metadata()
 
-	mainFunc := c.packageAST.Scope().GetSymbol("$main").(*symbol.LiteralSymbol)
-	pkg.MainFnNdx = mainFunc.LiteralIdx
+	if c.IsMain {
+		mainFunc := c.packageAST.Scope().GetSymbol("$main").(*symbol.LiteralSymbol)
+		pkg.MainFnNdx = mainFunc.LiteralIdx
+	}
+
 	pkg.Deps = c.deps
 	pkg.Deps[0] = pkg
 

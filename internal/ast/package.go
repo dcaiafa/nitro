@@ -50,7 +50,10 @@ func (p *Package) RunPass(ctx *Context, pass Pass) {
 
 	ctx.RunPassChild(p, p.Units, pass)
 	ctx.RunPassChild(p, p.init, pass)
-	ctx.RunPassChild(p, p.main, pass)
+
+	if p.IsMain {
+		ctx.RunPassChild(p, p.main, pass)
+	}
 }
 
 func (p *Package) synthesizeInit(ctx *Context) {
