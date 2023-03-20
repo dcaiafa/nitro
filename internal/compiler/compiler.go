@@ -17,7 +17,8 @@ var ErrCircularDependency = errors.New("circular dependency")
 
 type Compiler struct {
 	pkgs            []*vm.CompiledPackage
-	pkgMap          map[string]int // package_name => pkgs index
+	pkgMap          map[string]int  // package_name => pkgs index
+	inflight        map[string]bool // package_name
 	builtins        map[string]export.Exports
 	fs              fs.FS
 	packageResolver *mod.PackageResolver
@@ -27,6 +28,7 @@ type Compiler struct {
 func New() *Compiler {
 	c := &Compiler{
 		pkgMap:          make(map[string]int),
+		inflight:        make(map[string]bool),
 		builtins:        make(map[string]export.Exports),
 		fs:              fs.NewNative(),
 		packageResolver: mod.NewPackageResolver(),
@@ -70,7 +72,7 @@ func (c *Compiler) Compile(packagePath string) (*vm.Program, error) {
 		packageName = path.Join(modManifest.Module, packageName)
 	}
 
-	_, _, err = c.compilePackage(packageName, true)
+	_, err = c.compilePackage(packageName, true)
 	if err != nil {
 		return nil, err
 	}
@@ -80,19 +82,20 @@ func (c *Compiler) Compile(packagePath string) (*vm.Program, error) {
 	return prog, nil
 }
 
-func (c *Compiler) compilePackage(packageName string, isMain bool) (*vm.CompiledPackage, int, error) {
+func (c *Compiler) compilePackage(packageName string, isMain bool) (*vm.CompiledPackage, error) {
 	if _, ok := c.pkgMap[packageName]; ok {
 		panic("package already compiled")
+	}
+	if c.inflight[packageName] {
+		return nil, fmt.Errorf("%w: %v", ErrCircularDependency, packageName)
 	}
 
 	packageInfo, err := c.packageResolver.ResolvePackage(packageName)
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 
-	c.pkgs = append(c.pkgs, nil)
-	index := len(c.pkgs) - 1
-	c.pkgMap[packageName] = index
+	c.inflight[packageName] = true
 
 	pkgCompiler := packageCompiler{
 		ModuleRoot:    packageInfo.Module.Path,
@@ -107,24 +110,22 @@ func (c *Compiler) compilePackage(packageName string, isMain bool) (*vm.Compiled
 
 	pkg, err := pkgCompiler.Compile()
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 
-	pkg.Index = index
-	c.pkgs[index] = pkg
+	delete(c.inflight, packageName)
+	c.pkgs = append(c.pkgs, pkg)
+	pkg.Index = len(c.pkgs) - 1
+	c.pkgMap[packageName] = pkg.Index
 
-	return pkg, index, nil
+	return pkg, nil
 }
 
-func (c *Compiler) getPackage(packageName string) (*vm.CompiledPackage, int, error) {
+func (c *Compiler) getPackage(packageName string) (*vm.CompiledPackage, error) {
 	// Have we compiled this package already?
 	pkgIndex, ok := c.pkgMap[packageName]
 	if ok {
-		pkg := c.pkgs[pkgIndex]
-		if pkg == nil {
-			return nil, 0, fmt.Errorf("%w: %v", ErrCircularDependency, packageName)
-		}
-		return pkg, pkgIndex, nil
+		return c.pkgs[pkgIndex], nil
 	}
 
 	// Is this a builtin package?
@@ -141,8 +142,12 @@ func (c *Compiler) getPackage(packageName string) (*vm.CompiledPackage, int, err
 		c.pkgs = append(c.pkgs, pkg)
 		pkgIndex := len(c.pkgs) - 1
 		c.pkgMap[packageName] = pkgIndex
-		return pkg, pkgIndex, nil
+		return pkg, nil
 	}
 
 	return c.compilePackage(packageName, false)
+}
+
+func (c *Compiler) getAllDeps() []*vm.CompiledPackage {
+	return c.pkgs
 }

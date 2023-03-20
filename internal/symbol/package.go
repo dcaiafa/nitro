@@ -4,6 +4,8 @@ import (
 	"github.com/dcaiafa/nitro/internal/vm"
 )
 
+// TODO: rename file: package.go => import.go
+
 type Import struct {
 	baseSymbol
 	baseNonLiftable

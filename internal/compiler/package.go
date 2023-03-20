@@ -14,7 +14,8 @@ import (
 )
 
 type packageGetter interface {
-	getPackage(pkgName string) (*vm.CompiledPackage, int, error)
+	getPackage(pkgName string) (*vm.CompiledPackage, error)
+	getAllDeps() []*vm.CompiledPackage
 }
 
 type packageCompiler struct {
@@ -64,8 +65,8 @@ func (c *packageCompiler) processImports() error {
 	deps := make(map[string]*vm.CompiledPackage)
 
 	// Every (non-builtin) package depends on the global builtin package.
-	// TODO: at least make a const for $global.
-	globalBuiltin, _, err := c.PackageGetter.getPackage("$global")
+	// TODO: at least make a const for "$global".
+	globalBuiltin, err := c.PackageGetter.getPackage("$global")
 	if err != nil {
 		return err
 	}
@@ -81,7 +82,7 @@ func (c *packageCompiler) processImports() error {
 				imp.ExpandedPackage = imp.Package
 			}
 			if _, ok := deps[imp.ExpandedPackage]; !ok {
-				pkg, _, err := c.PackageGetter.getPackage(imp.ExpandedPackage)
+				pkg, err := c.PackageGetter.getPackage(imp.ExpandedPackage)
 				if err != nil {
 					return err
 				}
@@ -90,12 +91,21 @@ func (c *packageCompiler) processImports() error {
 		}
 	}
 
-	c.deps = make([]*vm.CompiledPackage, 0, len(deps)+1)
-	// Reserve a spot for the root package.
-	// The root package must be on index 0.
-	c.deps = append(c.deps, nil)
-	for _, pkg := range deps {
-		c.deps = append(c.deps, pkg)
+	if c.IsMain {
+		allImports := c.PackageGetter.getAllDeps()
+		c.deps = make([]*vm.CompiledPackage, 0, len(allImports)+1)
+		// Reserve a spot for the root package.
+		// The root package must be on index 0.
+		c.deps = append(c.deps, nil)
+		c.deps = append(c.deps, allImports...)
+	} else {
+		c.deps = make([]*vm.CompiledPackage, 0, len(deps)+1)
+		// Reserve a spot for the root package.
+		// The root package must be on index 0.
+		c.deps = append(c.deps, nil)
+		for _, pkg := range deps {
+			c.deps = append(c.deps, pkg)
+		}
 	}
 
 	return nil
@@ -119,7 +129,9 @@ func (c *packageCompiler) Compile() (*vm.CompiledPackage, error) {
 		return nil, err
 	}
 
-	c.packageAST.IsMain = c.IsMain
+	if c.IsMain {
+		c.packageAST.IsMain = true
+	}
 
 	ctx := ast.NewContext(c.ErrLogger, c.deps)
 

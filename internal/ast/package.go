@@ -33,7 +33,7 @@ func (p *Package) Scope() scope.Scope {
 func (p *Package) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Rewrite:
-		p.synthesizeInit()
+		p.synthesizeInit(ctx)
 		if p.IsMain {
 			p.synthesizeMain()
 		}
@@ -53,13 +53,37 @@ func (p *Package) RunPass(ctx *Context, pass Pass) {
 	ctx.RunPassChild(p, p.main, pass)
 }
 
-func (p *Package) synthesizeInit() {
+func (p *Package) synthesizeInit(ctx *Context) {
+	initBlock := new(StmtBlock)
 	p.init = &FuncStmt{
 		Name: "$init",
 		Func: Func{
 			PosImpl: p.PosImpl,
-			Block:   &StmtBlock{},
+			Block:   initBlock,
 		},
+	}
+
+	if p.IsMain {
+		for idx, imp := range ctx.Imports() {
+			literalIdx, ok := imp.Symbols["$init"]
+			if !ok {
+				panic("missing $init")
+			}
+			sym := new(symbol.LiteralSymbol)
+			sym.SetName("$init")
+			sym.SetReadOnly(true)
+			sym.PackageIdx = idx
+			sym.LiteralIdx = literalIdx
+
+			initBlock.Stmts = append(initBlock.Stmts,
+				&FuncCallExpr{
+					PosImpl: p.PosImpl,
+					Target: &PreResolvedReference{
+						PosImpl: p.PosImpl,
+						Symbol:  sym,
+					},
+				})
+		}
 	}
 }
 
