@@ -10,6 +10,14 @@ type Program struct {
 	Packages []*CompiledPackage
 }
 
+func (p *Program) MainPackage() *CompiledPackage {
+	return p.Packages[len(p.Packages)-1]
+}
+
+func (p *Program) Metadata() *meta.Metadata {
+	return p.MainPackage().Metadata
+}
+
 type CompiledPackage struct {
 	Name string
 

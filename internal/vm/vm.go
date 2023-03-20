@@ -78,7 +78,6 @@ type frame struct {
 type VM struct {
 	userData     map[interface{}]interface{}
 	prog         *Program
-	pkgs         []*CompiledPackage
 	shuttingDown bool
 	sched        *fiber.Scheduler
 	co           *coroutine
@@ -94,7 +93,6 @@ type VM struct {
 func NewVM(prog *Program) *VM {
 	vm := &VM{
 		prog:      prog,
-		pkgs:      prog.Packages,
 		userData:  make(map[interface{}]interface{}),
 		sched:     fiber.NewScheduler(),
 		closers:   make(map[Closer]struct{}),
@@ -115,7 +113,7 @@ func (m *VM) GetUserData(key interface{}) interface{} {
 }
 
 func (m *VM) SetParam(n string, v Value) error {
-	mainPkg := m.prog.Packages[0]
+	mainPkg := m.prog.MainPackage()
 	param := mainPkg.params[n]
 	if param == nil {
 		return fmt.Errorf("invalid parameter: %s", n)
@@ -125,7 +123,7 @@ func (m *VM) SetParam(n string, v Value) error {
 }
 
 func (m *VM) Run(args []Value) error {
-	mainPkg := m.prog.Packages[0]
+	mainPkg := m.prog.MainPackage()
 
 	co := m.newCoroutine()
 	co.PushContext(context.Background())
@@ -691,13 +689,11 @@ func (m *VM) resumeWithoutRecovery() (err error) {
 			m.co.sp++
 
 		case OpLoadGlobal:
-			pkg := m.pkgs[int(instr.op2)]
-			m.co.stack[m.co.sp] = pkg.globals[int(instr.op1)]
+			m.co.stack[m.co.sp] = m.co.globals[int(instr.op1)]
 			m.co.sp++
 
 		case OpLoadGlobalRef:
-			pkg := m.pkgs[int(instr.op2)]
-			m.co.stack[m.co.sp] = ValueRef{&pkg.globals[int(instr.op1)]}
+			m.co.stack[m.co.sp] = ValueRef{&m.co.globals[int(instr.op1)]}
 			m.co.sp++
 
 		case OpLoadLocal:
@@ -771,7 +767,7 @@ func (m *VM) resumeWithoutRecovery() (err error) {
 			m.co.sp++
 
 		case OpLoadLiteral:
-			pkg := m.pkgs[int(instr.op2)]
+			pkg := m.co.pkg.Deps[int(instr.op2)]
 			m.co.stack[m.co.sp] = pkg.Literals[int(instr.op1)]
 			m.co.sp++
 
@@ -1032,8 +1028,7 @@ func (m *VM) resumeWithoutRecovery() (err error) {
 			m.co.stack[m.co.frame.bp+int(instr.op1)] = ValueRef{new(Value)}
 
 		case OpInitGlobal:
-			pkg := m.pkgs[int(instr.op2)]
-			pkg.globals[int(instr.op1)] = nil
+			m.co.globals[int(instr.op1)] = nil
 
 		default:
 			panic("invalid instruction")

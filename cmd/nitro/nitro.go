@@ -140,7 +140,7 @@ func main() {
 	*/
 
 	progFlags := NewFlags()
-	err = progFlags.AddFlagsFromMetadata(compiled.Packages[0].Metadata)
+	err = progFlags.AddFlagsFromMetadata(compiled.Metadata())
 	if err != nil {
 		fatal(err)
 	}

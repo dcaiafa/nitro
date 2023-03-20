@@ -10,6 +10,7 @@ type coroutine struct {
 	fiber         *fiber.Fiber
 	callStack     []*frame
 	frame         *frame
+	pkg           *CompiledPackage
 	stack         []Value
 	globals       []Value
 	instrs        []Instr
@@ -32,8 +33,8 @@ func (co *coroutine) PushFrame(frame *frame) {
 	co.callStack = append(co.callStack, frame)
 	co.frame = frame
 	if co.frame.fn != nil {
-		pkg := co.frame.fn.pkg
-		co.globals = pkg.globals
+		co.pkg = co.frame.fn.pkg
+		co.globals = co.pkg.globals
 		co.instrs = co.frame.fn.instrs
 		co.ip = co.frame.ip
 	} else {
@@ -52,8 +53,8 @@ func (co *coroutine) PopFrame() {
 	if len(co.callStack) > 0 {
 		co.frame = co.callStack[len(co.callStack)-1]
 		if co.frame.fn != nil {
-			pkg := co.frame.fn.pkg
-			co.globals = pkg.globals
+			co.pkg = co.frame.fn.pkg
+			co.globals = co.pkg.globals
 			co.instrs = co.frame.fn.instrs
 			co.ip = co.frame.ip
 		}

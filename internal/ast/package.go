@@ -65,9 +65,13 @@ func (p *Package) synthesizeInit(ctx *Context) {
 
 	if p.IsMain {
 		for idx, imp := range ctx.Imports() {
+			if idx == 0 {
+				// Index 0 is "self".
+				continue
+			}
 			literalIdx, ok := imp.Symbols["$init"]
 			if !ok {
-				panic("missing $init")
+				continue
 			}
 			sym := new(symbol.LiteralSymbol)
 			sym.SetName("$init")
