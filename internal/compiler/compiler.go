@@ -3,7 +3,6 @@ package compiler
 import (
 	"errors"
 	"fmt"
-	"path"
 	"path/filepath"
 
 	"github.com/dcaiafa/nitro/internal/errlogger"
@@ -45,44 +44,53 @@ func (c *Compiler) RegisterBuiltins(pkgName string, exports export.Exports) {
 	c.builtins[pkgName] = exports
 }
 
-func (c *Compiler) Compile(packagePath string) (*vm.Program, error) {
-	root, modManifest, err := mod.Root(c.fs, packagePath)
+func (c *Compiler) Compile(programFile string) (*vm.Program, error) {
+	root := filepath.Dir(programFile)
+
+	manifest, err := mod.ReadManifest(c.fs, root)
 	if err != nil {
 		return nil, err
 	}
 
 	err = c.packageResolver.AddModule(&mod.Module{
-		Name: modManifest.Module,
+		Name: manifest.Module,
 		Path: root,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	packageName, err := filepath.Rel(root, packagePath)
+	packageName := manifest.Module
+
+	c.inflight[packageName] = true
+
+	pkgCompiler := packageCompiler{
+		ModuleRoot:    root,
+		ModuleName:    manifest.Module,
+		PackageName:   manifest.Module,
+		PackageGetter: c,
+		ProgramPath:   programFile,
+		ErrLogger:     c.errLogger,
+		FS:            c.fs,
+	}
+
+	pkg, err := pkgCompiler.Compile()
 	if err != nil {
 		return nil, err
 	}
 
-	if packageName == "." {
-		// The root package's name is the module's name.
-		packageName = modManifest.Module
-	} else {
-		packageName = filepath.ToSlash(packageName)
-		packageName = path.Join(modManifest.Module, packageName)
-	}
+	c.pkgs = append(c.pkgs, pkg)
+	pkg.Index = len(c.pkgs) - 1
+	c.pkgMap[packageName] = pkg.Index
 
-	_, err = c.compilePackage(packageName, true)
-	if err != nil {
-		return nil, err
-	}
 	prog := &vm.Program{
 		Packages: c.pkgs,
 	}
+
 	return prog, nil
 }
 
-func (c *Compiler) compilePackage(packageName string, isMain bool) (*vm.CompiledPackage, error) {
+func (c *Compiler) compilePackage(packageName string) (*vm.CompiledPackage, error) {
 	if _, ok := c.pkgMap[packageName]; ok {
 		panic("package already compiled")
 	}
@@ -103,7 +111,6 @@ func (c *Compiler) compilePackage(packageName string, isMain bool) (*vm.Compiled
 		PackageName:   packageName,
 		PackageGetter: c,
 		PackagePath:   packageInfo.Path,
-		IsMain:        isMain,
 		ErrLogger:     c.errLogger,
 		FS:            c.fs,
 	}
@@ -145,7 +152,7 @@ func (c *Compiler) getPackage(packageName string) (*vm.CompiledPackage, error) {
 		return pkg, nil
 	}
 
-	return c.compilePackage(packageName, false)
+	return c.compilePackage(packageName)
 }
 
 func (c *Compiler) getAllDeps() []*vm.CompiledPackage {

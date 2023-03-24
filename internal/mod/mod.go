@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"os"
 	"path/filepath"
 
 	"github.com/dcaiafa/nitro/internal/fs"
@@ -13,7 +14,6 @@ import (
 const ModuleManifestFilename = "bagl.mod"
 
 var ErrInvalidManifest = errors.New("invalid manifest")
-var ErrModuleRootNotFound = fmt.Errorf("not a in module: %v not in the current directory on in any parent directory", ModuleManifestFilename)
 
 type Module struct {
 	Name string
@@ -34,42 +34,24 @@ type Manifest struct {
 	Module string `yaml:"module"`
 }
 
-func Root(f fs.FS, path string) (root string, manifest *Manifest, err error) {
-	fileExists := func(p string) bool {
-		fi, err := f.Stat(p)
-		return err == nil && !fi.IsDir
-	}
+func ReadManifest(f fs.FS, rootDir string) (*Manifest, error) {
+	manifestPath := filepath.Join(rootDir, ModuleManifestFilename)
 
-	root = filepath.Clean(path)
-
-	var manPath string
-
-	for {
-		manPath = filepath.Join(root, ModuleManifestFilename)
-		if fileExists(manPath) {
-			break
-		}
-
-		newRoot := filepath.Dir(root)
-		if newRoot == root {
-			err = ErrModuleRootNotFound
-			return
-		}
-
-		root = newRoot
-	}
-
-	manifestData, err := f.Read(manPath)
+	manifestData, err := f.Read(manifestPath)
 	if err != nil {
-		return
+		if errors.Is(err, os.ErrNotExist) {
+			return &Manifest{
+				Module: "main",
+			}, nil
+		}
 	}
 
-	manifest, err = ParseManifest(manifestData)
+	manifest, err := ParseManifest(manifestData)
 	if err != nil {
-		return
+		return nil, err
 	}
 
-	return root, manifest, nil
+	return manifest, nil
 }
 
 func ParseManifest(buf []byte) (*Manifest, error) {

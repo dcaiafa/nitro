@@ -24,22 +24,31 @@ type packageCompiler struct {
 	PackageName   string
 	PackageGetter packageGetter
 	PackagePath   string
-	IsMain        bool
-	ErrLogger     *errlogger.ErrLoggerWrapper
-	FS            fs.FS
+	ProgramPath   string
+
+	ErrLogger *errlogger.ErrLoggerWrapper
+	FS        fs.FS
 
 	packageAST *ast.Package
 	deps       []*vm.CompiledPackage
 }
 
 func (c *packageCompiler) parse() error {
-	c.packageAST = new(ast.Package)
+	var err error
+	var unitFIs []fs.DirEntry
 
-	unitFIs, err := c.FS.List(c.PackagePath)
-	if err != nil {
-		return err
+	if c.ProgramPath != "" {
+		unitFIs = []fs.DirEntry{
+			{Name: c.ProgramPath},
+		}
+	} else {
+		unitFIs, err = c.FS.List(c.PackagePath)
+		if err != nil {
+			return err
+		}
 	}
 
+	c.packageAST = new(ast.Package)
 	for _, unitFI := range unitFIs {
 		ext := filepath.Ext(unitFI.Name)
 		if unitFI.IsDir || (ext != ".n" && ext != ".bg") {
@@ -91,7 +100,7 @@ func (c *packageCompiler) processImports() error {
 		}
 	}
 
-	if c.IsMain {
+	if c.ProgramPath != "" {
 		allImports := c.PackageGetter.getAllDeps()
 		c.deps = make([]*vm.CompiledPackage, 0, len(allImports)+1)
 		// Reserve a spot for the root package.
@@ -129,7 +138,7 @@ func (c *packageCompiler) Compile() (*vm.CompiledPackage, error) {
 		return nil, err
 	}
 
-	if c.IsMain {
+	if c.ProgramPath != "" {
 		c.packageAST.IsMain = true
 	}
 
@@ -148,7 +157,7 @@ func (c *packageCompiler) Compile() (*vm.CompiledPackage, error) {
 	pkg.Name = c.PackageName
 	pkg.Metadata = c.packageAST.Metadata()
 
-	if c.IsMain {
+	if c.ProgramPath != "" {
 		mainFunc := c.packageAST.Scope().GetSymbol("$main").(*symbol.LiteralSymbol)
 		pkg.MainFnNdx = mainFunc.LiteralIdx
 	}
