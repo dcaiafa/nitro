@@ -2,7 +2,6 @@ package tests
 
 import (
 	"errors"
-	"os"
 	"strings"
 	"testing"
 
@@ -13,50 +12,6 @@ import (
 	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/lib"
 )
-
-type MemoryFileLoader map[string]string
-
-func (fs MemoryFileLoader) LoadFile(name string) ([]byte, error) {
-	data, ok := fs[name]
-	if !ok {
-		return nil, os.ErrNotExist
-	}
-	return []byte(data), nil
-}
-
-type simpleFuncRegistry map[string]func(vm *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error)
-
-func (r simpleFuncRegistry) IsValidPackage(pkg string) bool {
-	return false
-}
-
-func (r simpleFuncRegistry) GetExport(pkg, name string) nitro.Value {
-	if pkg != "" {
-		return nil
-	}
-	f := r[name]
-	if f == nil {
-		return nil
-	}
-	return vm.NewNativeFn(f)
-}
-
-func valuesToInterface(values []nitro.Value) []interface{} {
-	ivalues := make([]interface{}, len(values))
-	for i, v := range values {
-		switch v := v.(type) {
-		case nitro.Int:
-			ivalues[i] = v.Int64()
-		case nitro.Float:
-			ivalues[i] = v.Float64()
-		case nitro.String:
-			ivalues[i] = v.String()
-		default:
-			ivalues[i] = v
-		}
-	}
-	return ivalues
-}
 
 func harnessCall(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	callable := args[0].(nitro.Callable)

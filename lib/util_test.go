@@ -2,79 +2,60 @@ package lib
 
 import (
 	"errors"
-	"os"
 	"strings"
 	"testing"
 
 	"github.com/dcaiafa/nitro"
+	"github.com/dcaiafa/nitro/internal/compiler"
+	"github.com/dcaiafa/nitro/internal/export"
+	"github.com/dcaiafa/nitro/internal/fs"
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
-type RunOption struct {
-	beforeCompile func(c *nitro.Compiler)
-	beforeRun     func(vm *nitro.VM)
+func harnessCall(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	callable := args[0].(nitro.Callable)
+	return m.Call(callable, args, nRet)
 }
 
-func WithParams(params map[string]nitro.Value) RunOption {
-	return RunOption{
-		beforeRun: func(vm *nitro.VM) {
-			for n, v := range params {
-				err := vm.SetParam(n, v)
-				if err != nil {
-					panic(err)
-				}
-			}
-		},
+func compile(prog string) (*vm.Program, error) {
+	compiler := compiler.New()
+
+	RegisterAll(compiler)
+
+	var harnessPackage = export.Exports{
+		{N: "call", T: export.Func, F: harnessCall},
 	}
+	compiler.RegisterBuiltins("harness", harnessPackage)
+
+	fs := fs.NewMem()
+	fs.Put("main.n", []byte(prog))
+	compiler.SetFS(fs)
+
+	program, err := compiler.Compile("main.n")
+	if err != nil {
+		return nil, err
+	}
+
+	return program, nil
 }
 
-func WithFn(name string, f func(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error)) RunOption {
-	return RunOption{
-		beforeCompile: func(c *nitro.Compiler) {
-		},
-	}
-}
-
-type MemoryFileLoader map[string]string
-
-func (fs MemoryFileLoader) LoadFile(name string) ([]byte, error) {
-	data, ok := fs[name]
-	if !ok {
-		return nil, os.ErrNotExist
-	}
-	return []byte(data), nil
-}
-
-func run(prog string, opts ...RunOption) (output string, err error) {
-	outBuilder := &strings.Builder{}
-
-	compiler := nitro.NewCompiler()
-	compiler.SetDiag(true)
-
-	for _, opt := range opts {
-		if opt.beforeCompile != nil {
-			opt.beforeCompile(compiler)
-		}
-	}
-
-	compiler.AddFuncRegistry(NewExportRegistry())
-
-	compiled, err := compiler.CompileSimple(
-		"main.n",
-		[]byte(prog),
-		nitro.NewConsoleErrLogger())
+func run(prog string, params map[string]nitro.Value) (output string, err error) {
+	compiled, err := compile(prog)
 	if err != nil {
 		return "", err
 	}
 
-	vm := nitro.NewVM(compiled)
+	outBuilder := &strings.Builder{}
 
-	for _, opt := range opts {
-		if opt.beforeRun != nil {
-			opt.beforeRun(vm)
+	vm := nitro.NewVM(compiled)
+	SetStdout(vm, outBuilder)
+
+	for n, v := range params {
+		err = vm.SetParam(n, v)
+		if err != nil {
+			return "", err
 		}
 	}
-
-	SetStdout(vm, outBuilder)
 
 	err = vm.Run(nil)
 	if err != nil {
@@ -85,12 +66,12 @@ func run(prog string, opts ...RunOption) (output string, err error) {
 	return output, nil
 }
 
-func RunO(t *testing.T, prog string, expectedOutput string, opts ...RunOption) {
+func RunO(t *testing.T, prog string, expectedOutput string) {
 	t.Helper()
 
 	expectedOutput = strings.Trim(expectedOutput, "\r\n\t ")
 
-	output, err := run(prog, opts...)
+	output, err := run(prog, nil)
 	if err != nil {
 		t.Fatalf("Unexpected error: %v", err)
 	}
@@ -100,17 +81,17 @@ func RunO(t *testing.T, prog string, expectedOutput string, opts ...RunOption) {
 	}
 }
 
-func RunSubO(t *testing.T, name string, prog string, expectedOutput string, opts ...RunOption) {
+func RunSubO(t *testing.T, name string, prog string, expectedOutput string) {
 	t.Run(name, func(t *testing.T) {
 		t.Helper()
-		RunO(t, prog, expectedOutput, opts...)
+		RunO(t, prog, expectedOutput)
 	})
 }
 
-func RunErr(t *testing.T, prog string, expectedErr error, opts ...RunOption) {
+func RunErr(t *testing.T, prog string, expectedErr error) {
 	t.Helper()
 
-	_, err := run(prog, opts...)
+	_, err := run(prog, nil)
 	if err == nil {
 		t.Fatalf("Error expected but operation succeeded")
 	}
@@ -120,9 +101,9 @@ func RunErr(t *testing.T, prog string, expectedErr error, opts ...RunOption) {
 	}
 }
 
-func RunSubErr(t *testing.T, name string, prog string, expectedErr error, opts ...RunOption) {
+func RunSubErr(t *testing.T, name string, prog string, expectedErr error) {
 	t.Run(name, func(t *testing.T) {
 		t.Helper()
-		RunErr(t, prog, expectedErr, opts...)
+		RunErr(t, prog, expectedErr)
 	})
 }
