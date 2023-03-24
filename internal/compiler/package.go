@@ -34,27 +34,31 @@ type packageCompiler struct {
 }
 
 func (c *packageCompiler) parse() error {
-	var err error
-	var unitFIs []fs.DirEntry
+	var unitPaths []string
 
 	if c.ProgramPath != "" {
-		unitFIs = []fs.DirEntry{
-			{Name: c.ProgramPath},
-		}
+		unitPaths = append(unitPaths, c.ProgramPath)
 	} else {
-		unitFIs, err = c.FS.List(c.PackagePath)
+		allFIs, err := c.FS.List(c.PackagePath)
 		if err != nil {
 			return err
+		}
+		unitPaths = make([]string, 0, len(allFIs))
+		for _, unitFI := range allFIs {
+			if unitFI.IsDir {
+				continue
+			}
+			ext := filepath.Ext(unitFI.Name)
+			if unitFI.IsDir || (ext != ".n" && ext != ".bg") {
+				continue
+			}
+			unitPath := filepath.Join(c.PackagePath, unitFI.Name)
+			unitPaths = append(unitPaths, unitPath)
 		}
 	}
 
 	c.packageAST = new(ast.Package)
-	for _, unitFI := range unitFIs {
-		ext := filepath.Ext(unitFI.Name)
-		if unitFI.IsDir || (ext != ".n" && ext != ".bg") {
-			continue
-		}
-		unitPath := filepath.Join(c.PackagePath, unitFI.Name)
+	for _, unitPath := range unitPaths {
 		unitData, err := c.FS.Read(unitPath)
 		if err != nil {
 			return err

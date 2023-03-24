@@ -13,6 +13,7 @@ import (
 
 	"github.com/dcaiafa/nitro"
 	"github.com/dcaiafa/nitro/internal/compiler"
+	"github.com/dcaiafa/nitro/internal/fs"
 	"github.com/dcaiafa/nitro/lib"
 	"github.com/fatih/color"
 )
@@ -24,8 +25,8 @@ func printSysUsage(flags *Flags) {
 	}
 
 	bold.Fprintln(os.Stderr, "USAGE")
-	p("  nitro <sys-flags> program.n <prog-flags>")
-	p("  nitro <sys-flags> -n <inline-program>")
+	p("  nitro program.n <prog-flags>")
+	p("  nitro -c <command>")
 	p("")
 
 	bold.Fprintln(os.Stderr, "FLAGS")
@@ -79,7 +80,7 @@ func main() {
 
 	sysFlags := NewFlags()
 
-	flagN := sysFlags.AddFlag(&Flag{Name: "n", Desc: "Inline program", Value: new(string)})
+	flagC := sysFlags.AddFlag(&Flag{Name: "c", Desc: "Specify command to execute", Value: new(string)})
 	flagP := sysFlags.AddFlag(&Flag{Name: "p", Desc: "Create CPU profile", Value: new(string)})
 
 	args := os.Args[1:]
@@ -97,7 +98,7 @@ func main() {
 		fatal(err)
 	}
 
-	if *flagN.Value.(*string) == "" && len(args) == 0 {
+	if *flagC.Value.(*string) == "" && len(args) == 0 {
 		printSysUsage(sysFlags)
 	}
 
@@ -108,36 +109,20 @@ func main() {
 	var scriptPath string
 	var compiled *nitro.Program
 
-	if *flagN.Value.(*string) != "" {
-		/*
-			progName = "<inline>"
-			scriptPath = progName
-			progData = []byte(*flagN.Value.(*string))
-
-			compiled, err = compiler.CompileSimple(
-				scriptPath, progData, nitro.NewConsoleErrLogger())
-			if err != nil {
-				// Error was already logged by ConsoleErrLogger.
-				os.Exit(1)
-			}
-		*/
-		panic("not implemented")
+	if *flagC.Value.(*string) != "" {
+		scriptPath = "<inline>"
+		memFS := fs.NewMem()
+		memFS.Put(scriptPath, []byte(*flagC.Value.(*string)))
+		compiler.SetFS(memFS)
 	} else {
 		scriptPath = args[0]
 		args = args[1:]
-
-		compiled, err = compiler.Compile(scriptPath)
-		if err != nil {
-			fatal(err)
-		}
 	}
 
-	/*
-		fmt.Println("Symbols:")
-		for symName, sym := range compiled.Symbols {
-			fmt.Printf(" %v: %+v\n", symName, sym)
-		}
-	*/
+	compiled, err = compiler.Compile(scriptPath)
+	if err != nil {
+		fatal(err)
+	}
 
 	progFlags := NewFlags()
 	err = progFlags.AddFlagsFromMetadata(compiled.Metadata())
