@@ -9,7 +9,7 @@ import (
 
 var GlobalPackage = export.Exports{
 	{N: "$exec", T: export.Func, F: execExec},
-	{N: "$home", T: export.Func, F: osUserHomeDir},
+	{N: "$home", T: export.Func, F: osHome},
 	{N: "args", T: export.Func, F: args},
 	{N: "avg", T: export.Func, F: avg},
 	{N: "batch", T: export.Func, F: batch},
@@ -161,7 +161,7 @@ var MathPackage = export.Exports{
 }
 
 var OSPackage = export.Exports{
-	{N: "user_home_dir", T: export.Func, F: osUserHomeDir},
+	{N: "home", T: export.Func, F: osHome},
 	{N: "wd", T: export.Func, F: osWD},
 }
 

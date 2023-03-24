@@ -6,7 +6,7 @@ import (
 	"github.com/dcaiafa/nitro"
 )
 
-func osUserHomeDir(vm *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func osHome(vm *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if err := expectArgCount(args, 0, 0); err != nil {
 		return nil, err
 	}
