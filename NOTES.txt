@@ -1,11 +1,5 @@
-Doing:
-- Left at ast/package.go, synthesizeInit:
-  - Calling all dependency $inits.
-  - Ready for testing?
-
-Package Refactor Notes:
-- Rename literal => static
-- Fix the rest of cmd/nitro
-- scope SetMissHandler: remove
-- Simple script: synthesize imports for all built-ins.
-  - Figure out how to prevent collision with globals.
+Backlog:
+- Fix tests.
+- Fix the rest of cmd/nitro.
+- Rename literal => static.
+- scope SetMissHandler: remove.

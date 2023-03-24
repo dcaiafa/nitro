@@ -18,7 +18,6 @@ type Compiler struct {
 	pkgs            []*vm.CompiledPackage
 	pkgMap          map[string]int  // package_name => pkgs index
 	inflight        map[string]bool // package_name
-	builtins        map[string]export.Exports
 	fs              fs.FS
 	packageResolver *mod.PackageResolver
 	errLogger       *errlogger.ErrLoggerWrapper
@@ -28,7 +27,6 @@ func New() *Compiler {
 	c := &Compiler{
 		pkgMap:          make(map[string]int),
 		inflight:        make(map[string]bool),
-		builtins:        make(map[string]export.Exports),
 		fs:              fs.NewNative(),
 		packageResolver: mod.NewPackageResolver(),
 	}
@@ -38,10 +36,22 @@ func New() *Compiler {
 }
 
 func (c *Compiler) RegisterBuiltins(pkgName string, exports export.Exports) {
-	if _, ok := c.builtins[pkgName]; ok {
-		panic("package already registered")
+	if _, ok := c.pkgMap[pkgName]; ok {
+		panic("built-in package already registered")
 	}
-	c.builtins[pkgName] = exports
+	pkg := &vm.CompiledPackage{
+		Name:     pkgName,
+		Builtin:  true,
+		Literals: make([]vm.Value, len(exports)),
+		Symbols:  make(map[string]int, len(exports)),
+	}
+	for i, export := range exports {
+		pkg.Literals[i] = export.Value()
+		pkg.Symbols[export.N] = i
+	}
+	c.pkgs = append(c.pkgs, pkg)
+	pkgIndex := len(c.pkgs) - 1
+	c.pkgMap[pkgName] = pkgIndex
 }
 
 func (c *Compiler) Compile(programFile string) (*vm.Program, error) {
@@ -133,24 +143,6 @@ func (c *Compiler) getPackage(packageName string) (*vm.CompiledPackage, error) {
 	pkgIndex, ok := c.pkgMap[packageName]
 	if ok {
 		return c.pkgs[pkgIndex], nil
-	}
-
-	// Is this a builtin package?
-	if exports, ok := c.builtins[packageName]; ok {
-		pkg := &vm.CompiledPackage{
-			Name:     packageName,
-			Builtin:  true,
-			Literals: make([]vm.Value, len(exports)),
-			Symbols:  make(map[string]int, len(exports)),
-		}
-		for i, export := range exports {
-			pkg.Literals[i] = export.Value()
-			pkg.Symbols[export.N] = i
-		}
-		c.pkgs = append(c.pkgs, pkg)
-		pkgIndex := len(c.pkgs) - 1
-		c.pkgMap[packageName] = pkgIndex
-		return pkg, nil
 	}
 
 	return c.compilePackage(packageName)
