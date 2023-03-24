@@ -186,9 +186,12 @@ var StrPackage = export.Exports{
 }
 
 var TimePackage = export.Exports{
+	{N: "fixed_zone", T: export.Func, F: timeFixedZone},
 	{N: "format", T: export.Func, F: timeFormat},
 	{N: "from_unix", T: export.Func, F: timeFromUnix},
 	{N: "hour", T: export.Custom, I: int64(time.Hour), C: exportDurationConst},
+	{N: "in", T: export.Func, F: timeIn},
+	{N: "load_location", T: export.Func, F: timeLoadLocation},
 	{N: "local", T: export.Func, F: timeLocal},
 	{N: "microsecond", T: export.Custom, I: int64(time.Microsecond), C: exportDurationConst},
 	{N: "millisecond", T: export.Custom, I: int64(time.Millisecond), C: exportDurationConst},

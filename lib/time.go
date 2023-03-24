@@ -102,6 +102,37 @@ func timeLocal(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error)
 	return []nitro.Value{t}, nil
 }
 
+func timeIn(m *vm.VM, args []vm.Value, nret int) ([]vm.Value, error) {
+	var err error
+
+	if err = expectArgCount(args, 2, 2); err != nil {
+		return nil, err
+	}
+
+	var location *Location
+	t, err := getTimeArg(args, 0)
+	if err != nil {
+		return nil, err
+	}
+
+	var ok bool
+	if location, ok = args[1].(*Location); !ok {
+		var locationName vm.String
+		if locationName, ok = args[1].(vm.String); !ok {
+			return nil, errExpectedArg(1, args[1], "location", "str")
+		}
+		cache := getLocationCache(m)
+		location, err = cache.GetLocation(locationName.String())
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	t = NewTime(t.Time().In(location.Location))
+
+	return []vm.Value{t}, nil
+}
+
 func timeFormat(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) > 2 {
 		return nil, errTooManyArgs
@@ -333,4 +364,91 @@ func timeTruncate(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, err
 
 	truncDur := dur.dur.Truncate(mult.dur)
 	return []nitro.Value{NewDuration(truncDur)}, nil
+}
+
+type Location struct {
+	Location *time.Location
+}
+
+func (l *Location) String() string    { return l.Location.String() }
+func (l *Location) Type() string      { return "location" }
+func (l *Location) Traits() vm.Traits { return vm.TraitNone }
+
+func timeFixedZone(m *vm.VM, args []vm.Value, nret int) ([]vm.Value, error) {
+	if err := expectArgCount(args, 2, 2); err != nil {
+		return nil, err
+	}
+
+	name, err := getStringArg(args, 0)
+	if err != nil {
+		return nil, err
+	}
+
+	offset, err := getIntArg(args, 1)
+	if err != nil {
+		return nil, err
+	}
+
+	loc := &Location{
+		Location: time.FixedZone(name, int(offset)),
+	}
+
+	return []vm.Value{loc}, nil
+}
+
+type locationCache struct {
+	locations map[string]*Location
+}
+
+const locationCacheUserDataKey = "locationCache"
+
+func getLocationCache(m *vm.VM) *locationCache {
+	cache, ok := m.GetUserData(locationCacheUserDataKey).(*locationCache)
+	if !ok {
+		cache = &locationCache{
+			locations: make(map[string]*Location),
+		}
+		m.SetUserData(locationCacheUserDataKey, cache)
+	}
+	return cache
+}
+
+func (c *locationCache) GetLocation(name string) (*Location, error) {
+	loc := c.locations[name]
+	if loc != nil {
+		return loc, nil
+	}
+
+	timeLocation, err := time.LoadLocation(name)
+	if err != nil {
+		return nil, err
+	}
+
+	location := &Location{
+		Location: timeLocation,
+	}
+
+	c.locations[name] = location
+
+	return location, nil
+}
+
+func timeLoadLocation(m *vm.VM, args []vm.Value, nret int) ([]vm.Value, error) {
+	if err := expectArgCount(args, 1, 1); err != nil {
+		return nil, err
+	}
+
+	name, err := getStringArg(args, 0)
+	if err != nil {
+		return nil, err
+	}
+
+	cache := getLocationCache(m)
+
+	location, err := cache.GetLocation(name)
+	if err != nil {
+		return nil, err
+	}
+
+	return []vm.Value{location}, nil
 }

@@ -10,6 +10,7 @@ import (
 	"sync"
 	"syscall"
 	"time"
+	_ "time/tzdata"
 
 	"github.com/dcaiafa/nitro"
 	"github.com/dcaiafa/nitro/internal/compiler"
