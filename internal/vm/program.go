@@ -19,7 +19,8 @@ func (p *Program) Metadata() *meta.Metadata {
 }
 
 type CompiledPackage struct {
-	Name string
+	Name    string
+	Builtin bool
 
 	// Index is the index of the CompiledPackage in the list of program packages.
 	Index int

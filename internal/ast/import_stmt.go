@@ -28,7 +28,7 @@ func (i *Import) RunPass(ctx *Context, pass Pass) {
 		imp.SetPos(i.Pos())
 		imp.SetReadOnly(true)
 
-		unitScope := ctx.GetScope(scope.Unit)
+		unitScope := ctx.GetScope(scope.Unit | scope.Package)
 		unitScope.PutSymbol(ctx, imp)
 	}
 }

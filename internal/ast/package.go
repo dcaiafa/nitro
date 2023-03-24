@@ -10,8 +10,9 @@ import (
 type Package struct {
 	PosImpl
 
-	IsMain bool
-	Units  ASTs
+	IsMain      bool
+	AutoImports ASTs
+	Units       ASTs
 
 	scope    *scope.SimpleScope
 	init     *FuncStmt
@@ -33,6 +34,11 @@ func (p *Package) Scope() scope.Scope {
 func (p *Package) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Rewrite:
+		if p.IsMain {
+			p.Units[0].(*Unit).ConvertSimple()
+			p.generateAutoImports(ctx)
+		}
+
 		p.synthesizeInit(ctx)
 		if p.IsMain {
 			p.synthesizeMain()
@@ -40,7 +46,6 @@ func (p *Package) RunPass(ctx *Context, pass Pass) {
 
 	case CreateGlobals:
 		p.scope = scope.NewScope(scope.Package)
-
 		p.metadata = new(meta.Metadata)
 
 	case Emit:
@@ -48,9 +53,9 @@ func (p *Package) RunPass(ctx *Context, pass Pass) {
 		emitter.SetGlobalCount(p.globals)
 	}
 
+	ctx.RunPassChild(p, p.AutoImports, pass)
 	ctx.RunPassChild(p, p.Units, pass)
 	ctx.RunPassChild(p, p.init, pass)
-
 	if p.IsMain {
 		ctx.RunPassChild(p, p.main, pass)
 	}
@@ -127,6 +132,18 @@ func (p *Package) synthesizeMain() {
 				Stmts: ASTs{callInit, callMain},
 			},
 		},
+	}
+}
+
+func (p *Package) generateAutoImports(ctx *Context) {
+	for _, imp := range ctx.Imports() {
+		if imp != nil && imp.Builtin {
+			impAST := &Import{
+				Package:         imp.Name,
+				ExpandedPackage: imp.Name,
+			}
+			p.AutoImports = append(p.AutoImports, impAST)
+		}
 	}
 }
 

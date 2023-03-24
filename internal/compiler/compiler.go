@@ -139,6 +139,7 @@ func (c *Compiler) getPackage(packageName string) (*vm.CompiledPackage, error) {
 	if exports, ok := c.builtins[packageName]; ok {
 		pkg := &vm.CompiledPackage{
 			Name:     packageName,
+			Builtin:  true,
 			Literals: make([]vm.Value, len(exports)),
 			Symbols:  make(map[string]int, len(exports)),
 		}

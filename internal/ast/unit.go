@@ -41,10 +41,9 @@ func (u *Unit) RunPass(ctx *Context, pass Pass) {
 	ctx.RunPassChild(u, u.Block, pass)
 }
 
-// SimpleScriptToPackage converts a simple script to the package format, if
-// applicable.
-func SimpleScriptToPackage(u *Unit) {
-	// If the script has a "main" function, then it is already in package format.
+func (u *Unit) ConvertSimple() {
+	// If the script has a "main" function, then it is already assumed to be in
+	// the strict format.
 	for _, s := range u.Block {
 		if funcStmt, ok := s.(*FuncStmt); ok {
 			if funcStmt.Name == "main" {
@@ -53,7 +52,7 @@ func SimpleScriptToPackage(u *Unit) {
 		}
 	}
 
-	// Script is in simple form. Wrap all statements in a synthesized "main"
+	// Script is in simple format. Wrap all statements in a synthesized "main"
 	// function.
 	main := &FuncStmt{
 		Name: "main",
