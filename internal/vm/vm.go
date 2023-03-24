@@ -113,7 +113,7 @@ func (m *VM) GetUserData(key interface{}) interface{} {
 }
 
 func (m *VM) SetParam(n string, v Value) error {
-	mainPkg := m.prog.Packages[0]
+	mainPkg := m.prog.MainPackage()
 	param := mainPkg.params[n]
 	if param == nil {
 		return fmt.Errorf("invalid parameter: %s", n)
@@ -123,7 +123,7 @@ func (m *VM) SetParam(n string, v Value) error {
 }
 
 func (m *VM) Run(args []Value) error {
-	mainPkg := m.prog.Packages[0]
+	mainPkg := m.prog.MainPackage()
 
 	co := m.newCoroutine()
 	co.PushContext(context.Background())
@@ -131,7 +131,7 @@ func (m *VM) Run(args []Value) error {
 	co.sp = len(args)
 
 	f := co.NewFrame()
-	f.fn = mainPkg.literals[mainPkg.MainFnNdx].(*Fn)
+	f.fn = mainPkg.Literals[mainPkg.MainFnNdx].(*Fn)
 	f.nArg = len(args)
 	f.bp = len(args)
 
@@ -642,7 +642,7 @@ func (m *VM) resumeWithoutRecovery() (err error) {
 			}
 
 			closure := &Closure{
-				fn:   m.co.literals[fn].(*Fn),
+				fn:   m.co.frame.fn.pkg.Literals[fn].(*Fn),
 				caps: caps,
 			}
 			m.co.stack[m.co.sp] = closure
@@ -663,7 +663,7 @@ func (m *VM) resumeWithoutRecovery() (err error) {
 			}
 
 			iter := &ILIterator{
-				fn:       m.co.literals[fn].(*Fn),
+				fn:       m.co.frame.fn.pkg.Literals[fn].(*Fn),
 				captures: caps,
 				iterNRet: iterNRet,
 			}
@@ -694,10 +694,6 @@ func (m *VM) resumeWithoutRecovery() (err error) {
 
 		case OpLoadGlobalRef:
 			m.co.stack[m.co.sp] = ValueRef{&m.co.globals[int(instr.op1)]}
-			m.co.sp++
-
-		case OpLoadGlobalDeref:
-			m.co.stack[m.co.sp] = *m.co.globals[int(instr.op1)].(ValueRef).Ref
 			m.co.sp++
 
 		case OpLoadLocal:
@@ -771,7 +767,8 @@ func (m *VM) resumeWithoutRecovery() (err error) {
 			m.co.sp++
 
 		case OpLoadLiteral:
-			m.co.stack[m.co.sp] = m.co.literals[int(instr.op1)]
+			pkg := m.co.pkg.Deps[int(instr.op2)]
+			m.co.stack[m.co.sp] = pkg.Literals[int(instr.op1)]
 			m.co.sp++
 
 		case OpEvalBinOp:
@@ -1033,9 +1030,6 @@ func (m *VM) resumeWithoutRecovery() (err error) {
 		case OpInitGlobal:
 			m.co.globals[int(instr.op1)] = nil
 
-		case OpInitLiftedGlobal:
-			m.co.globals[int(instr.op1)] = ValueRef{new(Value)}
-
 		default:
 			panic("invalid instruction")
 		}
@@ -1115,9 +1109,9 @@ func (m *VM) GetFrameInfo(crumb FrameCrumb) FrameInfo {
 		}
 		pkg := crumb.fn.pkg
 		return FrameInfo{
-			Filename: pkg.literals[loc.filename].(String).String(),
+			Filename: pkg.Literals[loc.filename].(String).String(),
 			Line:     loc.lineNum,
-			Func:     pkg.literals[loc.fn].(String).String(),
+			Func:     pkg.Literals[loc.fn].(String).String(),
 		}
 	}
 	if nativeFn, ok := crumb.extFn.(*NativeFn); ok {

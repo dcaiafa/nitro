@@ -6,7 +6,6 @@ import (
 	"github.com/dcaiafa/nitro/internal/compiler"
 	"github.com/dcaiafa/nitro/internal/errlogger"
 	"github.com/dcaiafa/nitro/internal/meta"
-	"github.com/dcaiafa/nitro/internal/mod"
 	"github.com/dcaiafa/nitro/internal/token"
 	"github.com/dcaiafa/nitro/internal/vm"
 )
@@ -42,9 +41,6 @@ type (
 
 	Compiler = compiler.Compiler
 
-	PackagerReader      = mod.PackageReader
-	NativePackageReader = mod.NativePackageReader
-
 	ErrLogger = errlogger.ErrLogger
 	Pos       = token.Pos
 )
@@ -72,14 +68,6 @@ var (
 )
 
 var ErrCannotCallNil = vm.ErrCannotCallNil
-
-func NewCompiler() *Compiler {
-	return compiler.NewCompiler()
-}
-
-func NewNativePackageReader(path string) *NativePackageReader {
-	return mod.NewNativePackageReader(path)
-}
 
 func NewVM(p *Program) *VM {
 	return vm.NewVM(p)

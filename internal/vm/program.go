@@ -6,41 +6,34 @@ import (
 
 type PackageSymbolType uint8
 
-const (
-	PackageSymbolInvalid PackageSymbolType = iota
-	PackageSymbolFunc
-	PackageSymbolConst
-)
-
 type Program struct {
 	Packages []*CompiledPackage
 }
 
-type DepPackage struct {
-	Name        string
-	ResolvedNdx int
+func (p *Program) MainPackage() *CompiledPackage {
+	return p.Packages[len(p.Packages)-1]
 }
 
-type PackageSymbol struct {
-	Type  PackageSymbolType
-	Index uint32
+func (p *Program) Metadata() *meta.Metadata {
+	return p.MainPackage().Metadata
 }
 
 type CompiledPackage struct {
+	Name    string
+	Builtin bool
+
+	// Index is the index of the CompiledPackage in the list of program packages.
+	Index int
+
 	Metadata  *meta.Metadata
 	MainFnNdx int
 
 	numGlobals int
 	globals    []Value
-	literals   []Value
+	Literals   []Value
 	params     map[string]*Param
 	reqParamN  int
 
-	Symbols     map[string]PackageSymbol
-	DepPackages []DepPackage
-}
-
-type ExportRegistry interface {
-	IsValidPackage(pkg string) bool
-	GetExport(pkg, name string) Value
+	Deps    []*CompiledPackage
+	Symbols map[string]int // symbolName => LiteralsIndex
 }

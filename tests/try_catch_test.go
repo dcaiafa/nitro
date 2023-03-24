@@ -58,7 +58,7 @@ f5
 		try {
 			print("f2")
 			x = "f4"
-			print("from g:" + call(g))
+			print("from g:" + harness.call(g))
 			print("f3")
 		} catch e {
 			print(x)
@@ -84,7 +84,7 @@ g1
 f4
 boom
  main.n:4  g
- <builtin>  tests.run.func3
+ <builtin>  tests.harnessCall
  main.n:13  f
  main.n:25  x
  main.n:31  main

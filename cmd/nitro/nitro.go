@@ -6,13 +6,14 @@ import (
 	"math/rand"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"runtime/pprof"
 	"sync"
 	"syscall"
 	"time"
 
 	"github.com/dcaiafa/nitro"
+	"github.com/dcaiafa/nitro/internal/compiler"
+	"github.com/dcaiafa/nitro/internal/fs"
 	"github.com/dcaiafa/nitro/lib"
 	"github.com/fatih/color"
 )
@@ -24,8 +25,8 @@ func printSysUsage(flags *Flags) {
 	}
 
 	bold.Fprintln(os.Stderr, "USAGE")
-	p("  nitro <sys-flags> program.n <prog-flags>")
-	p("  nitro <sys-flags> -n <inline-program>")
+	p("  nitro program.n <prog-flags>")
+	p("  nitro -c <command>")
 	p("")
 
 	bold.Fprintln(os.Stderr, "FLAGS")
@@ -79,9 +80,8 @@ func main() {
 
 	sysFlags := NewFlags()
 
-	flagN := sysFlags.AddFlag(&Flag{Name: "n", Desc: "Inline program", Value: new(string)})
+	flagC := sysFlags.AddFlag(&Flag{Name: "c", Desc: "Specify command to execute", Value: new(string)})
 	flagP := sysFlags.AddFlag(&Flag{Name: "p", Desc: "Create CPU profile", Value: new(string)})
-	flagD := sysFlags.AddFlag(&Flag{Name: "d", Desc: "Enable parser diagnostics", Value: new(bool)})
 
 	args := os.Args[1:]
 	if len(args) == 0 {
@@ -98,72 +98,34 @@ func main() {
 		fatal(err)
 	}
 
-	if *flagN.Value.(*string) == "" && len(args) == 0 {
+	if *flagC.Value.(*string) == "" && len(args) == 0 {
 		printSysUsage(sysFlags)
 	}
 
-	compiler := nitro.NewCompiler()
-	compiler.SetDiag(*flagD.Value.(*bool))
-	compiler.AddFuncRegistry(lib.NewExportRegistry())
+	compiler := compiler.New()
+	lib.RegisterAll(compiler)
 
 	var progName string
 	var scriptPath string
-	var progData []byte
 	var compiled *nitro.Program
 
-	if *flagN.Value.(*string) != "" {
-		progName = "<inline>"
-		scriptPath = progName
-		progData = []byte(*flagN.Value.(*string))
-
-		compiled, err = compiler.CompileSimple(
-			scriptPath, progData, nitro.NewConsoleErrLogger())
-		if err != nil {
-			// Error was already logged by ConsoleErrLogger.
-			os.Exit(1)
-		}
+	if *flagC.Value.(*string) != "" {
+		scriptPath = "<inline>"
+		memFS := fs.NewMem()
+		memFS.Put(scriptPath, []byte(*flagC.Value.(*string)))
+		compiler.SetFS(memFS)
 	} else {
 		scriptPath = args[0]
 		args = args[1:]
-
-		scriptFileInfo, err := os.Stat(scriptPath)
-		if err != nil {
-			fatal(fmt.Errorf("failed to read %q: %w", scriptPath, err))
-		}
-
-		progName = filepath.Base(scriptPath)
-
-		if scriptFileInfo.IsDir() {
-			compiled, err = compiler.Compile(
-				nitro.NewNativePackageReader(scriptPath),
-				nitro.NewConsoleErrLogger())
-			if err != nil {
-				// Error was already logged by ConsoleErrLogger.
-				os.Exit(1)
-			}
-		} else {
-			progData, err = os.ReadFile(scriptPath)
-			if err != nil {
-				fatal(fmt.Errorf("failed to read %q: %w", scriptPath, err))
-			}
-			compiled, err = compiler.CompileSimple(
-				scriptPath, progData, nitro.NewConsoleErrLogger())
-			if err != nil {
-				// Error was already logged by ConsoleErrLogger.
-				os.Exit(1)
-			}
-		}
 	}
 
-	/*
-		fmt.Println("Symbols:")
-		for symName, sym := range compiled.Symbols {
-			fmt.Printf(" %v: %+v\n", symName, sym)
-		}
-	*/
+	compiled, err = compiler.Compile(scriptPath)
+	if err != nil {
+		fatal(err)
+	}
 
 	progFlags := NewFlags()
-	err = progFlags.AddFlagsFromMetadata(compiled.Packages[0].Metadata)
+	err = progFlags.AddFlagsFromMetadata(compiled.Metadata())
 	if err != nil {
 		fatal(err)
 	}

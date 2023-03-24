@@ -2,6 +2,7 @@ package ast
 
 import (
 	"github.com/dcaiafa/nitro/internal/errlogger"
+	"github.com/dcaiafa/nitro/internal/scope"
 	"github.com/dcaiafa/nitro/internal/symbol"
 	"github.com/dcaiafa/nitro/internal/vm"
 )
@@ -21,16 +22,46 @@ type Context struct {
 	Stack
 	*errlogger.ErrLoggerWrapper
 
-	emitter *vm.Emitter
+	emitter      *vm.Emitter
+	deps         []*vm.CompiledPackage
+	depsMap      map[string]int // packageName => deps[value]
+	globalImport *symbol.Import
 }
 
 func NewContext(
 	l *errlogger.ErrLoggerWrapper,
+	deps []*vm.CompiledPackage,
 ) *Context {
-	return &Context{
+	c := &Context{
 		ErrLoggerWrapper: l,
 		emitter:          vm.NewEmitter(),
+		deps:             deps,
 	}
+	c.depsMap = make(map[string]int, len(deps))
+	for i, dep := range deps {
+		// The first dep (index 0) is reserved for "self" (this package).
+		// TODO: I hate this. Reevaluate.
+		if i != 0 {
+			c.depsMap[dep.Name] = i
+		}
+	}
+	globalPackageIdx, ok := c.depsMap["$global"]
+	if !ok {
+		panic("where is $global?")
+	}
+	globalPackage := c.deps[globalPackageIdx]
+	c.globalImport = symbol.NewImport(globalPackage, globalPackageIdx)
+
+	return c
+}
+
+func (c *Context) Imports() []*vm.CompiledPackage {
+	return c.deps
+}
+
+func (c *Context) IsLValue() bool {
+	_, isLValue := c.Parent().(*LValue)
+	return isLValue
 }
 
 func (c *Context) RunPassChild(parent AST, child AST, pass Pass) {
@@ -62,9 +93,11 @@ func (c *Context) FindSymbol(symName string) symbol.Symbol {
 			fns = append(fns, fn)
 		}
 	}
+
 	if sym == nil {
-		return nil
+		return c.globalImport.GetSymbol(symName)
 	}
+
 	if len(fns) != 0 && sym.Liftable() {
 		sym.Lift()
 		for i := len(fns) - 1; i >= 0; i-- {
@@ -108,6 +141,17 @@ func (c *Context) Peek(n int) AST {
 	return c.stack[len(c.stack)-n-1]
 }
 
+func (c *Context) GetDep(packageName string) (pkg *vm.CompiledPackage, index int) {
+	index, ok := c.depsMap[packageName]
+	if !ok {
+		// This should never happen because all imports should have already been
+		// processed by the compiler.
+		panic("invalid dependency")
+	}
+	pkg = c.deps[index]
+	return pkg, index
+}
+
 func (c *Context) Package() *Package {
 	for i := len(c.stack) - 1; i >= 0; i-- {
 		ast := c.stack[i]
@@ -116,24 +160,16 @@ func (c *Context) Package() *Package {
 		}
 	}
 	return nil
-
 }
 
-func (c *Context) Main() *Root {
-	for i := len(c.stack) - 1; i >= 0; i-- {
-		ast := c.stack[i]
-		if mainAST, ok := ast.(*Root); ok {
-			return mainAST
-		}
-	}
-	return nil
-}
-
-func (c *Context) CurrentScope() symbol.Scope {
+func (c *Context) GetScope(typeMask scope.Type) scope.Scope {
 	for i := len(c.stack) - 1; i >= 0; i-- {
 		ast := c.stack[i]
 		if scopeAST, ok := ast.(Scope); ok {
-			return scopeAST.Scope()
+			scope := scopeAST.Scope()
+			if (scope.Type() & typeMask) != 0 {
+				return scope
+			}
 		}
 	}
 	return nil

@@ -1,170 +1,157 @@
 package compiler
 
 import (
-	"github.com/dcaiafa/nitro/internal/ast"
+	"errors"
+	"fmt"
+	"path/filepath"
+
 	"github.com/dcaiafa/nitro/internal/errlogger"
+	"github.com/dcaiafa/nitro/internal/export"
+	"github.com/dcaiafa/nitro/internal/fs"
 	"github.com/dcaiafa/nitro/internal/mod"
-	"github.com/dcaiafa/nitro/internal/parser2"
-	"github.com/dcaiafa/nitro/internal/symbol"
-	"github.com/dcaiafa/nitro/internal/token"
 	"github.com/dcaiafa/nitro/internal/vm"
 )
 
+var ErrCircularDependency = errors.New("circular dependency")
+
 type Compiler struct {
-	diag           bool
-	funcRegistries []vm.ExportRegistry
+	pkgs            []*vm.CompiledPackage
+	pkgMap          map[string]int  // package_name => pkgs index
+	inflight        map[string]bool // package_name
+	fs              fs.FS
+	packageResolver *mod.PackageResolver
+	errLogger       *errlogger.ErrLoggerWrapper
 }
 
-func NewCompiler() *Compiler {
-	return &Compiler{}
+func New() *Compiler {
+	c := &Compiler{
+		pkgMap:          make(map[string]int),
+		inflight:        make(map[string]bool),
+		fs:              fs.NewNative(),
+		packageResolver: mod.NewPackageResolver(),
+	}
+	c.errLogger = errlogger.NewErrLoggerBase(
+		&errlogger.ConsoleErrLogger{})
+	return c
 }
 
-func (c *Compiler) SetDiag(diag bool) {
-	c.diag = diag
+func (c *Compiler) SetFS(fs fs.FS) {
+	c.fs = fs
 }
 
-func (c *Compiler) AddFuncRegistry(reg vm.ExportRegistry) {
-	c.funcRegistries = append(c.funcRegistries, reg)
+func (c *Compiler) RegisterBuiltins(pkgName string, exports export.Exports) {
+	if _, ok := c.pkgMap[pkgName]; ok {
+		panic("built-in package already registered")
+	}
+	pkg := &vm.CompiledPackage{
+		Name:     pkgName,
+		Builtin:  true,
+		Literals: make([]vm.Value, len(exports)),
+		Symbols:  make(map[string]int, len(exports)),
+	}
+	for i, export := range exports {
+		pkg.Literals[i] = export.Value()
+		pkg.Symbols[export.N] = i
+	}
+	c.pkgs = append(c.pkgs, pkg)
+	pkgIndex := len(c.pkgs) - 1
+	c.pkgMap[pkgName] = pkgIndex
 }
 
-func (c *Compiler) CompileSimple(
-	filename string,
-	scriptData []byte,
-	errLogger errlogger.ErrLogger,
-) (*vm.Program, error) {
-	errLoggerWrapper := errlogger.NewErrLoggerBase(errLogger)
-	unit, err := parser2.ParseUnit(
-		filename, string(scriptData), c.diag, errLoggerWrapper)
+func (c *Compiler) Compile(programFile string) (*vm.Program, error) {
+	root := filepath.Dir(programFile)
+
+	manifest, err := mod.ReadManifest(c.fs, root)
 	if err != nil {
 		return nil, err
 	}
-	ast.SimpleScriptToPackage(unit)
-	root := &ast.Root{
-		FuncRegistries: c.funcRegistries,
-	}
-	root.AddUnit(unit)
-	pkg, err := c.compile(root, errLoggerWrapper)
-	if err != nil {
-		return nil, err
-	}
-	prog := &vm.Program{
-		Packages: []*vm.CompiledPackage{pkg},
-	}
-	return prog, nil
-}
 
-func (c *Compiler) Compile(
-	packageReader mod.PackageReader,
-	errLogger errlogger.ErrLogger,
-) (*vm.Program, error) {
-	errLoggerWrapper := errlogger.NewErrLoggerBase(errLogger)
-	unitPaths, err := packageReader.ListUnits()
-	if err != nil {
-		errLoggerWrapper.Failf(
-			token.Pos{}, "Failed to load package at %q: %v",
-			packageReader.Path(), err)
-		return nil, errLoggerWrapper.Error()
-	}
-	root := &ast.Root{
-		FuncRegistries: c.funcRegistries,
-	}
-	for _, unitPath := range unitPaths {
-		unitData, err := packageReader.ReadUnit(unitPath)
-		if err != nil {
-			errLoggerWrapper.Failf(
-				token.Pos{}, "Failed to load unit %q: %v",
-				unitPath, err)
-			return nil, err
-		}
-		unit, err := parser2.ParseUnit(
-			unitPath, string(unitData), c.diag, errLoggerWrapper)
-		if err != nil {
-			return nil, err
-		}
-		root.AddUnit(unit)
-	}
-	pkg, err := c.compile(root, errLoggerWrapper)
-	if err != nil {
-		return nil, err
-	}
-	prog := &vm.Program{
-		Packages: []*vm.CompiledPackage{pkg},
-	}
-	return prog, nil
-}
-
-func (c *Compiler) compile(
-	root *ast.Root,
-	errLoggerWrapper *errlogger.ErrLoggerWrapper,
-) (*vm.CompiledPackage, error) {
-	ctx := ast.NewContext(errLoggerWrapper)
-
-	root.RunPass(ctx, ast.Rewrite)
-	if errLoggerWrapper.Error() != nil {
-		return nil, errLoggerWrapper.Error()
-	}
-	root.RunPass(ctx, ast.CreateGlobals)
-	if errLoggerWrapper.Error() != nil {
-		return nil, errLoggerWrapper.Error()
-	}
-	root.RunPass(ctx, ast.Check)
-	if errLoggerWrapper.Error() != nil {
-		return nil, errLoggerWrapper.Error()
-	}
-	root.RunPass(ctx, ast.Emit)
-	if errLoggerWrapper.Error() != nil {
-		return nil, errLoggerWrapper.Error()
-	}
-
-	pkg := ctx.Emitter().ToCompiledPackage()
-	pkg.Metadata = root.Metadata()
-
-	mainFunc := root.Package.Scope().GetSymbol("$main").(*symbol.FuncSymbol)
-	pkg.MainFnNdx = mainFunc.IdxFunc
-	pkg.Symbols = make(map[string]vm.PackageSymbol)
-
-	root.Package.Scope().(*symbol.SimpleScope).ForEachSymbol(func(sym symbol.Symbol) {
-		switch sym := sym.(type) {
-		case *symbol.FuncSymbol:
-			pkg.Symbols[sym.Name()] = vm.PackageSymbol{
-				Type:  vm.PackageSymbolFunc,
-				Index: uint32(sym.IdxFunc),
-			}
-		}
+	err = c.packageResolver.AddModule(&mod.Module{
+		Name: manifest.Module,
+		Path: root,
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	packageName := manifest.Module
+
+	c.inflight[packageName] = true
+
+	pkgCompiler := packageCompiler{
+		ModuleRoot:    root,
+		ModuleName:    manifest.Module,
+		PackageName:   manifest.Module,
+		PackageGetter: c,
+		ProgramPath:   programFile,
+		ErrLogger:     c.errLogger,
+		FS:            c.fs,
+	}
+
+	pkg, err := pkgCompiler.Compile()
+	if err != nil {
+		return nil, err
+	}
+
+	c.pkgs = append(c.pkgs, pkg)
+	pkg.Index = len(c.pkgs) - 1
+	c.pkgMap[packageName] = pkg.Index
+
+	prog := &vm.Program{
+		Packages: c.pkgs,
+	}
+
+	return prog, nil
+}
+
+func (c *Compiler) compilePackage(packageName string) (*vm.CompiledPackage, error) {
+	if _, ok := c.pkgMap[packageName]; ok {
+		panic("package already compiled")
+	}
+	if c.inflight[packageName] {
+		return nil, fmt.Errorf("%w: %v", ErrCircularDependency, packageName)
+	}
+
+	packageInfo, err := c.packageResolver.ResolvePackage(packageName)
+	if err != nil {
+		return nil, err
+	}
+
+	c.inflight[packageName] = true
+
+	pkgCompiler := packageCompiler{
+		ModuleRoot:    packageInfo.Module.Path,
+		ModuleName:    packageInfo.Module.Name,
+		PackageName:   packageName,
+		PackageGetter: c,
+		PackagePath:   packageInfo.Path,
+		ErrLogger:     c.errLogger,
+		FS:            c.fs,
+	}
+
+	pkg, err := pkgCompiler.Compile()
+	if err != nil {
+		return nil, err
+	}
+
+	delete(c.inflight, packageName)
+	c.pkgs = append(c.pkgs, pkg)
+	pkg.Index = len(c.pkgs) - 1
+	c.pkgMap[packageName] = pkg.Index
 
 	return pkg, nil
 }
 
-func (c *Compiler) parseImportsPackage(
-	packageReader mod.PackageReader,
-	errLogger errlogger.ErrLogger,
-) (map[string]bool, error) {
-	imports := make(map[string]bool)
-	errLoggerWrapper := errlogger.NewErrLoggerBase(errLogger)
-	unitPaths, err := packageReader.ListUnits()
-	if err != nil {
-		errLoggerWrapper.Failf(
-			token.Pos{}, "Failed to load package at %q: %v",
-			packageReader.Path(), err)
-		return nil, errLoggerWrapper.Error()
+func (c *Compiler) getPackage(packageName string) (*vm.CompiledPackage, error) {
+	// Have we compiled this package already?
+	pkgIndex, ok := c.pkgMap[packageName]
+	if ok {
+		return c.pkgs[pkgIndex], nil
 	}
-	for _, unitPath := range unitPaths {
-		unitData, err := packageReader.ReadUnit(unitPath)
-		if err != nil {
-			errLoggerWrapper.Failf(
-				token.Pos{}, "Failed to load unit %q: %v",
-				unitPath, err)
-			return nil, err
-		}
-		prologue, err := parser2.ParsePrologue(
-			unitPath, string(unitData), c.diag, errLoggerWrapper)
-		if err != nil {
-			return nil, err
-		}
-		for _, imp := range prologue.Imports {
-			imports[imp.(*ast.Import).Package] = true
-		}
-	}
-	return imports, nil
+
+	return c.compilePackage(packageName)
+}
+
+func (c *Compiler) getAllDeps() []*vm.CompiledPackage {
+	return c.pkgs
 }

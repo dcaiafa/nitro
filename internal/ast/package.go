@@ -1,6 +1,8 @@
 package ast
 
 import (
+	"github.com/dcaiafa/nitro/internal/meta"
+	"github.com/dcaiafa/nitro/internal/scope"
 	"github.com/dcaiafa/nitro/internal/symbol"
 	"github.com/dcaiafa/nitro/internal/token"
 )
@@ -8,12 +10,15 @@ import (
 type Package struct {
 	PosImpl
 
-	Units ASTs
+	IsMain      bool
+	AutoImports ASTs
+	Units       ASTs
 
-	scope symbol.Scope
-
-	init *FuncStmt
-	main *FuncStmt
+	scope    *scope.SimpleScope
+	init     *FuncStmt
+	main     *FuncStmt
+	globals  int
+	metadata *meta.Metadata
 }
 
 var _ Scope = (*Package)(nil)
@@ -22,32 +27,75 @@ func (p *Package) AddInitStmt(initStmt AST) {
 	p.init.Block.Stmts = append(p.init.Block.Stmts, initStmt)
 }
 
-func (p *Package) Scope() symbol.Scope {
+func (p *Package) Scope() scope.Scope {
 	return p.scope
 }
 
 func (p *Package) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Rewrite:
-		p.synthesizeInit()
-		p.synthesizeMain()
+		if p.IsMain {
+			p.Units[0].(*Unit).ConvertSimple()
+			p.generateAutoImports(ctx)
+		}
+
+		p.synthesizeInit(ctx)
+		if p.IsMain {
+			p.synthesizeMain()
+		}
 
 	case CreateGlobals:
-		p.scope = symbol.NewScope()
+		p.scope = scope.NewScope(scope.Package)
+		p.metadata = new(meta.Metadata)
+
+	case Emit:
+		emitter := ctx.Emitter()
+		emitter.SetGlobalCount(p.globals)
 	}
 
+	ctx.RunPassChild(p, p.AutoImports, pass)
 	ctx.RunPassChild(p, p.Units, pass)
 	ctx.RunPassChild(p, p.init, pass)
-	ctx.RunPassChild(p, p.main, pass)
+	if p.IsMain {
+		ctx.RunPassChild(p, p.main, pass)
+	}
 }
 
-func (p *Package) synthesizeInit() {
+func (p *Package) synthesizeInit(ctx *Context) {
+	initBlock := new(StmtBlock)
 	p.init = &FuncStmt{
 		Name: "$init",
 		Func: Func{
 			PosImpl: p.PosImpl,
-			Block:   &StmtBlock{},
+			Block:   initBlock,
 		},
+	}
+
+	if p.IsMain {
+		for idx, imp := range ctx.Imports() {
+			if idx == 0 {
+				// Index 0 is "self".
+				continue
+			}
+			literalIdx, ok := imp.Symbols["$init"]
+			if !ok {
+				continue
+			}
+			sym := new(symbol.LiteralSymbol)
+			sym.SetName("$init")
+			sym.SetReadOnly(true)
+			sym.PackageIdx = idx
+			sym.LiteralIdx = literalIdx
+
+			initBlock.Stmts = append(initBlock.Stmts,
+				&FuncCallExpr{
+					PosImpl: p.PosImpl,
+					Target: &PreResolvedReference{
+						PosImpl: p.PosImpl,
+						Symbol:  sym,
+					},
+				})
+		}
 	}
 }
 
@@ -87,6 +135,18 @@ func (p *Package) synthesizeMain() {
 	}
 }
 
+func (p *Package) generateAutoImports(ctx *Context) {
+	for _, imp := range ctx.Imports() {
+		if imp != nil && imp.Builtin {
+			impAST := &Import{
+				Package:         imp.Name,
+				ExpandedPackage: imp.Name,
+			}
+			p.AutoImports = append(p.AutoImports, impAST)
+		}
+	}
+}
+
 func (p *Package) GetImports() []string {
 	var imports []string
 	for _, unit := range p.Units {
@@ -95,4 +155,31 @@ func (p *Package) GetImports() []string {
 		}
 	}
 	return imports
+}
+
+func (m *Package) NewGlobal() *symbol.GlobalVarSymbol {
+	g := &symbol.GlobalVarSymbol{}
+	g.GlobalNdx = m.globals
+	m.globals++
+	return g
+}
+
+func (m *Package) AddGlobalParam(ctx *Context, name string, param *meta.Param, pos token.Pos) *symbol.GlobalVarSymbol {
+	g := m.NewGlobal()
+	g.SetName(name)
+	g.SetPos(pos)
+
+	if !ctx.GetScope(scope.Package).PutSymbol(ctx, g) {
+		return nil
+	}
+	if !ctx.Emitter().AddGlobalParam(param.Name, g.GlobalNdx) {
+		ctx.Failf(pos, "there is already a parameter named %q", name)
+		return nil
+	}
+	m.metadata.Params = append(m.metadata.Params, param)
+	return g
+}
+
+func (m *Package) Metadata() *meta.Metadata {
+	return m.metadata
 }

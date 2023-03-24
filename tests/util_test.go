@@ -2,103 +2,55 @@ package tests
 
 import (
 	"errors"
-	"fmt"
-	"os"
 	"strings"
 	"testing"
 
 	"github.com/dcaiafa/nitro"
-	"github.com/dcaiafa/nitro/internal/errlogger"
+	"github.com/dcaiafa/nitro/internal/compiler"
+	"github.com/dcaiafa/nitro/internal/export"
+	"github.com/dcaiafa/nitro/internal/fs"
 	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/lib"
 )
 
-type MemoryFileLoader map[string]string
-
-func (fs MemoryFileLoader) LoadFile(name string) ([]byte, error) {
-	data, ok := fs[name]
-	if !ok {
-		return nil, os.ErrNotExist
-	}
-	return []byte(data), nil
+func harnessCall(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	callable := args[0].(nitro.Callable)
+	return m.Call(callable, args, nRet)
 }
 
-type simpleFuncRegistry map[string]func(vm *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error)
+func compile(prog string) (*vm.Program, error) {
+	compiler := compiler.New()
 
-func (r simpleFuncRegistry) IsValidPackage(pkg string) bool {
-	return false
-}
+	lib.RegisterAll(compiler)
 
-func (r simpleFuncRegistry) GetExport(pkg, name string) nitro.Value {
-	if pkg != "" {
-		return nil
+	var harnessPackage = export.Exports{
+		{N: "call", T: export.Func, F: harnessCall},
 	}
-	f := r[name]
-	if f == nil {
-		return nil
-	}
-	return vm.NewNativeFn(f)
-}
+	compiler.RegisterBuiltins("harness", harnessPackage)
 
-func valuesToInterface(values []nitro.Value) []interface{} {
-	ivalues := make([]interface{}, len(values))
-	for i, v := range values {
-		switch v := v.(type) {
-		case nitro.Int:
-			ivalues[i] = v.Int64()
-		case nitro.Float:
-			ivalues[i] = v.Float64()
-		case nitro.String:
-			ivalues[i] = v.String()
-		default:
-			ivalues[i] = v
-		}
+	fs := fs.NewMem()
+	fs.Put("main.n", []byte(prog))
+	compiler.SetFS(fs)
+
+	program, err := compiler.Compile("main.n")
+	if err != nil {
+		return nil, err
 	}
-	return ivalues
+
+	return program, nil
 }
 
 func run(prog string, params map[string]nitro.Value) (output string, err error) {
-	fs := make(MemoryFileLoader)
-	fs["main.n"] = prog
-
-	outBuilder := &strings.Builder{}
-
-	funcReg := make(simpleFuncRegistry)
-	funcReg["print"] =
-		func(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-			iargs := valuesToInterface(args)
-			fmt.Fprintln(outBuilder, iargs...)
-			return nil, nil
-		}
-
-	funcReg["printf"] =
-		func(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-			msg := args[0].(nitro.String)
-			iargs := valuesToInterface(args[1:])
-			fmt.Fprintf(outBuilder, msg.String()+"\n", iargs...)
-			return nil, nil
-		}
-
-	funcReg["call"] =
-		func(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-			callable := args[0].(nitro.Callable)
-			return m.Call(callable, args, nRet)
-		}
-
-	compiler := nitro.NewCompiler()
-	compiler.SetDiag(true)
-	compiler.AddFuncRegistry(funcReg)
-	compiler.AddFuncRegistry(lib.NewExportRegistry())
-
-	compiled, err := compiler.CompileSimple(
-		"main.n",
-		[]byte(prog),
-		&errlogger.ConsoleErrLogger{})
+	compiled, err := compile(prog)
 	if err != nil {
 		return "", err
 	}
 
+	outBuilder := &strings.Builder{}
+
 	vm := nitro.NewVM(compiled)
+	lib.SetStdout(vm, outBuilder)
+
 	for n, v := range params {
 		err = vm.SetParam(n, v)
 		if err != nil {

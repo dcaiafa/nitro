@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"github.com/dcaiafa/nitro/internal/scope"
 	"github.com/dcaiafa/nitro/internal/symbol"
 	"github.com/dcaiafa/nitro/internal/token"
 	"github.com/dcaiafa/nitro/internal/vm"
@@ -60,20 +61,20 @@ type catchBlock struct {
 	catchVar *token.Token
 	stmts    AST
 
-	scope    symbol.Scope
+	scope    scope.Scope
 	catchSym symbol.Symbol
 }
 
 var _ Scope = (*catchBlock)(nil)
 
-func (b *catchBlock) Scope() symbol.Scope {
+func (b *catchBlock) Scope() scope.Scope {
 	return b.scope
 }
 
 func (b *catchBlock) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Check:
-		b.scope = symbol.NewScope()
+		b.scope = scope.NewScope(scope.Block)
 
 		if b.catchVar != nil {
 			l := ctx.CurrentFunc().NewLocal()

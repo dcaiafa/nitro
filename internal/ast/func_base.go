@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"github.com/dcaiafa/nitro/internal/scope"
 	"github.com/dcaiafa/nitro/internal/symbol"
 	"github.com/dcaiafa/nitro/internal/vm"
 )
@@ -14,7 +15,7 @@ type Func struct {
 	DebugName string
 
 	idxFunc    int
-	scope      symbol.Scope
+	scope      scope.Scope
 	paramCount int
 	localCount int
 	captures   []*symbol.CaptureSymbol
@@ -23,14 +24,14 @@ type Func struct {
 
 var _ Scope = (*Func)(nil)
 
-func (f *Func) Scope() symbol.Scope {
+func (f *Func) Scope() scope.Scope {
 	return f.scope
 }
 
 func (f *Func) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case Check:
-		f.scope = symbol.NewScope()
+		f.scope = scope.NewScope(scope.Block)
 		f.idxFunc = ctx.Emitter().NewFn(f.DebugName)
 
 	case Emit:

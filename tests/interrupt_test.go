@@ -2,19 +2,18 @@ package tests
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/dcaiafa/nitro"
-	"github.com/dcaiafa/nitro/internal/errlogger"
+	"github.com/dcaiafa/nitro/lib"
 	"github.com/stretchr/testify/require"
 )
 
 func TestInterrupt(t *testing.T) {
-	prog := `
+	code := `
 		func stuff() {
 			try {
 				while true {
@@ -28,25 +27,13 @@ func TestInterrupt(t *testing.T) {
 		while true {
 		}
 `
-	outBuilder := &strings.Builder{}
-
-	funcReg := make(simpleFuncRegistry)
-	funcReg["print"] =
-		func(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-			iargs := valuesToInterface(args)
-			fmt.Fprintln(outBuilder, iargs...)
-			return nil, nil
-		}
-
-	compiler := nitro.NewCompiler()
-	compiler.AddFuncRegistry(funcReg)
-	compiled, err := compiler.CompileSimple(
-		"main.n",
-		[]byte(prog),
-		&errlogger.ConsoleErrLogger{})
+	prog, err := compile(code)
 	require.NoError(t, err)
 
-	vm := nitro.NewVM(compiled)
+	outBuilder := &strings.Builder{}
+
+	vm := nitro.NewVM(prog)
+	lib.SetStdout(vm, outBuilder)
 
 	go func() {
 		time.Sleep(100 * time.Millisecond)

@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"github.com/dcaiafa/nitro/internal/scope"
 	"github.com/dcaiafa/nitro/internal/symbol"
 	"github.com/dcaiafa/nitro/internal/vm"
 )
@@ -19,12 +20,12 @@ func (s *FuncStmt) RunPass(ctx *Context, pass Pass) {
 	switch pass {
 	case CreateGlobals:
 		if parentFn == nil {
-			s.sym = &symbol.FuncSymbol{}
+			s.sym = &symbol.LiteralSymbol{}
 			s.sym.SetReadOnly(true)
 			s.sym.SetName(s.Name)
 			s.sym.SetPos(s.Pos())
 
-			if !ctx.CurrentScope().PutSymbol(ctx, s.sym) {
+			if !ctx.GetScope(scope.Package).PutSymbol(ctx, s.sym) {
 				return
 			}
 		}
@@ -38,7 +39,7 @@ func (s *FuncStmt) RunPass(ctx *Context, pass Pass) {
 			s.sym.SetPos(s.Pos())
 			s.IsClosure = true
 
-			if !ctx.CurrentScope().PutSymbol(ctx, s.sym) {
+			if !ctx.GetScope(scope.Block).PutSymbol(ctx, s.sym) {
 				return
 			}
 		}
@@ -54,8 +55,9 @@ func (s *FuncStmt) RunPass(ctx *Context, pass Pass) {
 
 	switch pass {
 	case Check:
-		if fnSym, ok := s.sym.(*symbol.FuncSymbol); ok {
-			fnSym.IdxFunc = s.IdxFunc()
+		if fnSym, ok := s.sym.(*symbol.LiteralSymbol); ok {
+			fnSym.PackageIdx = 0 // Local package
+			fnSym.LiteralIdx = s.IdxFunc()
 		}
 
 	case Emit:

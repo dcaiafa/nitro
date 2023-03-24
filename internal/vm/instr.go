@@ -24,7 +24,6 @@ const (
 	OpNewArray
 	OpLoadGlobal
 	OpLoadGlobalRef
-	OpLoadGlobalDeref
 	OpLoadLocal
 	OpLoadLocalRef
 	OpLoadLocalDeref
@@ -62,7 +61,6 @@ const (
 	OpInitLocal
 	OpInitLiftedLocal
 	OpInitGlobal
-	OpInitLiftedGlobal
 )
 
 const (
