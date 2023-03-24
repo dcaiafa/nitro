@@ -81,15 +81,15 @@ func (m *MemFS) PutCombined(all string) {
 	for scanner.Scan() {
 		l := scanner.Bytes()
 		match := regexCombinedSep.FindSubmatch(l)
-		if match == nil {
-			data = append(data, l...)
-			data = append(data, '\n')
-		} else {
+		if match != nil {
 			if name != "" {
 				m.Put(name, data)
 			}
 			name = filepath.FromSlash(string(match[1]))
 			data = nil
+		} else {
+			data = append(data, l...)
+			data = append(data, '\n')
 		}
 	}
 	m.Put(name, data)
