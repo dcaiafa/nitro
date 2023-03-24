@@ -35,6 +35,10 @@ func New() *Compiler {
 	return c
 }
 
+func (c *Compiler) SetFS(fs fs.FS) {
+	c.fs = fs
+}
+
 func (c *Compiler) RegisterBuiltins(pkgName string, exports export.Exports) {
 	if _, ok := c.pkgMap[pkgName]; ok {
 		panic("built-in package already registered")
