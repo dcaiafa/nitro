@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/dcaiafa/nitro"
+	btime "github.com/dcaiafa/nitro/lib/time"
 )
 
 var errSleepUsage = errors.New(
@@ -18,8 +19,8 @@ func sleep(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 
 	var dur time.Duration
 
-	if durArg, ok := args[0].(Duration); ok {
-		dur = durArg.dur
+	if durArg, ok := args[0].(btime.Duration); ok {
+		dur = durArg.Duration()
 	} else if intArg, ok := args[0].(nitro.Int); ok {
 		dur = time.Duration(intArg.Int64()) * time.Second
 	} else {

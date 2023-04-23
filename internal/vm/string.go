@@ -13,7 +13,6 @@ type String struct {
 var (
 	_ Readable  = String{}
 	_ Indexable = String{}
-	_ Iterable  = String{}
 )
 
 func NewString(v string) String { return String{v} }
@@ -103,32 +102,6 @@ func (s String) EvalOp(op Op, operand Value) (Value, error) {
 	default:
 		return nil, ErrOperationNotSupported
 	}
-}
-
-func (s String) MakeIterator() Iterator {
-	i := &stringIter{
-		str:  s.v,
-		next: 0,
-	}
-	return NewIterator(i.Next, nil, 2)
-}
-
-type stringIter struct {
-	str  string
-	next int
-}
-
-func (i *stringIter) Next(m *VM, args []Value, nret int) ([]Value, error) {
-	if i.next >= len(i.str) {
-		return nil, nil
-	}
-
-	idx := i.next
-	i.next++
-
-	v := NewInt(int64(i.str[idx]))
-
-	return []Value{v, NewInt(int64(idx))}, nil
 }
 
 func (s String) MakeReader() Reader {

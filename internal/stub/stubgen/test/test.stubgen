@@ -1,0 +1,16 @@
+package "yay/foobar"
+
+func now()
+
+func replace(s Str, old Str, new Str, n Int = -1) Str
+func replace(s Str, old Regex, new Str) Str
+func replace(s Str, old Regex, new Callable) Str
+
+func decode(input Reader) Any
+
+struct EncodeOptions {
+  indent Str;
+  prefix Str;
+}
+
+func encode(opt EncodeOptions = nil) Str

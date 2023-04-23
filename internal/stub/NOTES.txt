@@ -1,0 +1,68 @@
+func replace(s Str, old Str, new Str, n Int = -1) Str
+func replace(s Str, old Regex, new Str) Str
+func replace(s Str, old Regex, new Callable) Str
+
+
+NFA
+===
+        e          Str         Str         Str           Int       
+      +----> n10 ------> n11 -------> n12 ------> n13* ------> n14*
+      |                                                            
+      | e          Str        Regex        Str                     
+    S +----> n20 ------> n21 -------> n22 ------> n23*             
+      |                                                            
+      | e          Str        Regex        Call                    
+      +----> n30 ------> n31 -------> n32 ------> n33*             
+
+
+DFA
+
+
+      Str           Str          Str            Int
+  S --------> d1  -+------> d2  --------> d4* --------> d5*
+  n10         n11  |        n12           n13
+  n20         n21  |
+  n30         n31  |
+                   | Regex          Str
+                   +------> d3 ---+-----> d6*
+                            n22   |       n23
+                            n32   |
+                                  | Call
+                                  +-----> d7*
+                                          n33
+
+if len(args) < 3 {
+  return stub.UsageError(replaceDesc)
+}
+
+switch a0 := args[0].(type) {
+case *vm.String:
+  switch a1 := args[1].(type) {
+  case *vm.String:
+    switch a2 := args[2].(type) {
+    case *vm.String:
+    default:
+      return nil, stub.InvalidArg(2, a2, replace__desc)
+    }
+
+  case *vm.Regex:
+
+  default:
+    return nil, stub.InvalidArg(1, a1, replace__desc)
+  }
+
+default:
+  return nil, stub.InvalidArg(0, a0, replace__desc)
+}
+
+a0, ok := args[0] 
+if !ok {
+  return stub.UsageError(replaceDesc)
+}
+
+
+
+
+
+
+

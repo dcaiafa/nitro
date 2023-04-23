@@ -10,6 +10,7 @@ import (
 	"github.com/dcaiafa/nitro"
 	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/lib/core"
+	"github.com/dcaiafa/nitro/lib/time"
 )
 
 type File struct {
@@ -180,7 +181,7 @@ func fileStat(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) 
 	res := nitro.NewObject()
 	res.Put(nitro.NewString("name"), nitro.NewString(fi.Name()))
 	res.Put(nitro.NewString("size"), nitro.NewInt(fi.Size()))
-	res.Put(nitro.NewString("mod_time"), NewTime(fi.ModTime()))
+	res.Put(nitro.NewString("mod_time"), time.NewTime(fi.ModTime()))
 	res.Put(nitro.NewString("is_dir"), nitro.NewBool(fi.IsDir()))
 
 	return []nitro.Value{res}, nil

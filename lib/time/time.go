@@ -1,18 +1,36 @@
-package lib
+package time
 
 import (
 	"fmt"
 	"time"
 
 	"github.com/dcaiafa/nitro"
+	"github.com/dcaiafa/nitro/internal/export"
 	"github.com/dcaiafa/nitro/internal/vm"
 )
+
+//go:generate stubgen time.stubgen
+
+func init() {
+	Exports = append(Exports,
+		export.Export{N: "HOUR", T: export.Custom, I: int64(time.Hour), C: exportDurationConst},
+		export.Export{N: "MICROSECOND", T: export.Custom, I: int64(time.Microsecond), C: exportDurationConst},
+		export.Export{N: "MILLISECOND", T: export.Custom, I: int64(time.Millisecond), C: exportDurationConst},
+		export.Export{N: "MINUTE", T: export.Custom, I: int64(time.Minute), C: exportDurationConst},
+		export.Export{N: "NANOSECOND", T: export.Custom, I: int64(time.Nanosecond), C: exportDurationConst},
+		export.Export{N: "SECOND", T: export.Custom, I: int64(time.Second), C: exportDurationConst},
+	)
+}
+
+func exportDurationConst(e *export.Export) nitro.Value {
+	return NewDuration(time.Duration(e.I))
+}
 
 type Time struct {
 	time time.Time
 }
 
-var _ /* implements */ nitro.Indexable = Time{}
+var _ /* implements */ nitro.Value = Time{}
 
 func NewTime(t time.Time) Time {
 	return Time{time: t}
@@ -70,173 +88,60 @@ func (t Time) EvalOp(op nitro.Op, operand nitro.Value) (nitro.Value, error) {
 	}
 }
 
-func (t Time) Index(key nitro.Value) (nitro.Value, error) {
-	return nil, vm.ErrOperationNotSupported
-}
-
-func (t Time) IndexRef(key nitro.Value) (nitro.ValueRef, error) {
-	return nitro.ValueRef{}, fmt.Errorf("time is read-only")
-}
-
-func timeUTC(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) > 1 {
-		return nil, errTooManyArgs
-	}
-	t, err := getTimeArg(args, 0)
-	if err != nil {
-		return nil, err
-	}
+func utc0(m *vm.VM, t Time) (Time, error) {
 	t.time = t.time.UTC()
-	return []nitro.Value{t}, nil
+	return t, nil
 }
 
-func timeLocal(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) > 1 {
-		return nil, errTooManyArgs
-	}
-	t, err := getTimeArg(args, 0)
-	if err != nil {
-		return nil, err
-	}
+func local0(m *vm.VM, t Time) (Time, error) {
 	t.time = t.time.Local()
-	return []nitro.Value{t}, nil
+	return t, nil
 }
 
-func timeIn(m *vm.VM, args []vm.Value, nret int) ([]vm.Value, error) {
-	var err error
-
-	if err = expectArgCount(args, 2, 2); err != nil {
-		return nil, err
-	}
-
-	var location *Location
-	t, err := getTimeArg(args, 0)
-	if err != nil {
-		return nil, err
-	}
-
-	var ok bool
-	if location, ok = args[1].(*Location); !ok {
-		var locationName vm.String
-		if locationName, ok = args[1].(vm.String); !ok {
-			return nil, errExpectedArg(1, args[1], "location", "str")
-		}
-		cache := getLocationCache(m)
-		location, err = cache.GetLocation(locationName.String())
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	t = NewTime(t.Time().In(location.Location))
-
-	return []vm.Value{t}, nil
+func in0(m *vm.VM, t Time, loc *Location) (Time, error) {
+	return NewTime(t.Time().In(loc.Location)), nil
 }
 
-func timeFormat(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) > 2 {
-		return nil, errTooManyArgs
-	}
-	t, err := getTimeArg(args, 0)
+func in1(m *vm.VM, t Time, loc string) (Time, error) {
+	cache := getLocationCache(m)
+	locObj, err := cache.GetLocation(loc)
 	if err != nil {
-		return nil, err
+		return Time{}, err
 	}
-	layout := time.RFC3339
-	if len(args) == 2 {
-		layout, err = getStringArg(args, 1)
-		if err != nil {
-			return nil, err
-		}
-	}
-	res := t.time.Format(layout)
-	return []nitro.Value{nitro.NewString(res)}, nil
+	return in0(m, t, locObj)
 }
 
-func timeUnix(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) != 1 {
-		return nil, errInvalidNumberOfArgs
-	}
-	t, err := getTimeArg(args, 0)
-	if err != nil {
-		return nil, err
-	}
-	return []nitro.Value{nitro.NewInt(t.time.Unix())}, nil
+func format0(m *vm.VM, t Time, layout string) (string, error) {
+	return t.time.Format(layout), nil
 }
 
-func timeUnixNano(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) != 1 {
-		return nil, errInvalidNumberOfArgs
-	}
-	t, err := getTimeArg(args, 0)
-	if err != nil {
-		return nil, err
-	}
-	return []nitro.Value{nitro.NewInt(t.time.UnixNano())}, nil
+func unix0(m *vm.VM, t Time) (int64, error) {
+	return t.time.Unix(), nil
 }
 
-func timeNow(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) > 0 {
-		return nil, errTooManyArgs
-	}
-	return []nitro.Value{Time{time.Now()}}, nil
+func unix_nano0(m *vm.VM, t Time) (int64, error) {
+	return t.time.UnixNano(), nil
 }
 
-func timeParse(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) > 2 {
-		return nil, errTooManyArgs
-	}
-	timeStr, err := getStringArg(args, 0)
-	if err != nil {
-		return nil, err
-	}
-	var layout string
-	if len(args) == 2 {
-		layout, err = getStringArg(args, 1)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		layout = time.RFC3339
-	}
-	t, err := time.Parse(layout, timeStr)
-	if err != nil {
-		return nil, err
-	}
-	return []nitro.Value{Time{time: t}}, nil
+func now0(m *vm.VM) (Time, error) {
+	return NewTime(time.Now()), nil
 }
 
-func timeFromUnix(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) > 2 {
-		return nil, errTooManyArgs
-	}
-	var err error
-	var sec, nano int64
-	sec, err = getIntArg(args, 0)
+func parse0(m *vm.VM, v string, layout string) (Time, error) {
+	t, err := time.Parse(layout, v)
 	if err != nil {
-		return nil, err
+		return Time{}, err
 	}
-	if len(args) == 2 {
-		nano, err = getIntArg(args, 1)
-		if err != nil {
-			return nil, err
-		}
-	}
+	return NewTime(t), nil
+}
+
+func from_unix0(m *vm.VM, sec, nano int64) (Time, error) {
 	t := time.Unix(sec, nano)
-	return []nitro.Value{Time{time: t}}, nil
+	return NewTime(t), nil
 }
 
-func timeToMap(vm *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) > 1 {
-		return nil, errTooManyArgs
-	}
-
-	t, err := getTimeArg(args, 0)
-	if err != nil {
-		return nil, err
-	}
-
+func to_map0(vm *vm.VM, t Time) (*vm.Object, error) {
 	m := nitro.NewObject()
-
 	m.Put(nitro.NewString("year"), nitro.NewInt(int64(t.time.Year())))
 	m.Put(nitro.NewString("month"), nitro.NewInt(int64(t.time.Month())))
 	m.Put(nitro.NewString("day"), nitro.NewInt(int64(t.time.Day())))
@@ -244,8 +149,7 @@ func timeToMap(vm *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error
 	m.Put(nitro.NewString("minute"), nitro.NewInt(int64(t.time.Minute())))
 	m.Put(nitro.NewString("second"), nitro.NewInt(int64(t.time.Second())))
 	m.Put(nitro.NewString("nanosecond"), nitro.NewInt(int64(t.time.Nanosecond())))
-
-	return []nitro.Value{m}, nil
+	return m, nil
 }
 
 type Duration struct {
@@ -347,23 +251,9 @@ func (d Duration) Duration() time.Duration {
 	return d.dur
 }
 
-func timeTruncate(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) > 2 {
-		return nil, errTooManyArgs
-	}
-
-	dur, err := getDurationArg(args, 0)
-	if err != nil {
-		return nil, err
-	}
-
-	mult, err := getDurationArg(args, 1)
-	if err != nil {
-		return nil, err
-	}
-
-	truncDur := dur.dur.Truncate(mult.dur)
-	return []nitro.Value{NewDuration(truncDur)}, nil
+func truncate0(vm *nitro.VM, d Duration, m Duration) (Duration, error) {
+	v := d.dur.Truncate(m.dur)
+	return NewDuration(v), nil
 }
 
 type Location struct {
@@ -374,26 +264,10 @@ func (l *Location) String() string    { return l.Location.String() }
 func (l *Location) Type() string      { return "location" }
 func (l *Location) Traits() vm.Traits { return vm.TraitNone }
 
-func timeFixedZone(m *vm.VM, args []vm.Value, nret int) ([]vm.Value, error) {
-	if err := expectArgCount(args, 2, 2); err != nil {
-		return nil, err
-	}
-
-	name, err := getStringArg(args, 0)
-	if err != nil {
-		return nil, err
-	}
-
-	offset, err := getIntArg(args, 1)
-	if err != nil {
-		return nil, err
-	}
-
-	loc := &Location{
+func fixed_zone0(vm *vm.VM, name string, offset int64) (*Location, error) {
+	return &Location{
 		Location: time.FixedZone(name, int(offset)),
-	}
-
-	return []vm.Value{loc}, nil
+	}, nil
 }
 
 type locationCache struct {
@@ -433,22 +307,10 @@ func (c *locationCache) GetLocation(name string) (*Location, error) {
 	return location, nil
 }
 
-func timeLoadLocation(m *vm.VM, args []vm.Value, nret int) ([]vm.Value, error) {
-	if err := expectArgCount(args, 1, 1); err != nil {
-		return nil, err
-	}
-
-	name, err := getStringArg(args, 0)
+func load_location0(vm *vm.VM, name string) (*Location, error) {
+	loc, err := getLocationCache(vm).GetLocation(name)
 	if err != nil {
 		return nil, err
 	}
-
-	cache := getLocationCache(m)
-
-	location, err := cache.GetLocation(name)
-	if err != nil {
-		return nil, err
-	}
-
-	return []vm.Value{location}, nil
+	return loc, nil
 }

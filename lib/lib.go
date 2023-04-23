@@ -1,10 +1,10 @@
 package lib
 
 import (
-	"time"
-
-	"github.com/dcaiafa/nitro"
 	"github.com/dcaiafa/nitro/internal/export"
+	"github.com/dcaiafa/nitro/lib/encoding/json"
+	"github.com/dcaiafa/nitro/lib/str"
+	libtime "github.com/dcaiafa/nitro/lib/time"
 )
 
 var GlobalPackage = export.Exports{
@@ -44,7 +44,6 @@ var GlobalPackage = export.Exports{
 	{N: "parse_csv", T: export.Func, F: parseCSV},
 	{N: "parse_float", T: export.Func, F: parseFloat},
 	{N: "parse_int", T: export.Func, F: parseInt},
-	{N: "parse_json", T: export.Func, F: parseJSON},
 	{N: "pop_stdout", T: export.Func, F: popStdout},
 	{N: "print", T: export.Func, F: print},
 	{N: "print_table", T: export.Func, F: printTable},
@@ -67,14 +66,12 @@ var GlobalPackage = export.Exports{
 	{N: "stdout", T: export.Func, F: stdout},
 	{N: "sum", T: export.Func, F: sum},
 	{N: "take", T: export.Func, F: take},
-	{N: "time_from_unix", T: export.Func, F: timeFromUnix},
 	{N: "to_array", T: export.Func, F: toArray},
 	{N: "to_base64", T: export.Func, F: toBase64},
 	{N: "to_bool", T: export.Func, F: toBool},
 	{N: "to_crlf", T: export.Func, F: toCRLF},
 	{N: "to_hex", T: export.Func, F: toHex},
 	{N: "to_int", T: export.Func, F: toInt},
-	{N: "to_json", T: export.Func, F: toJSON},
 	{N: "to_string", T: export.Func, F: toString},
 	{N: "type", T: export.Func, F: typep},
 	{N: "unique", T: export.Func, F: unique},
@@ -185,28 +182,6 @@ var StrPackage = export.Exports{
 	{N: "trim_suffix", T: export.Func, F: strTrimSuffix},
 }
 
-var TimePackage = export.Exports{
-	{N: "HOUR", T: export.Custom, I: int64(time.Hour), C: exportDurationConst},
-	{N: "MICROSECOND", T: export.Custom, I: int64(time.Microsecond), C: exportDurationConst},
-	{N: "MILLISECOND", T: export.Custom, I: int64(time.Millisecond), C: exportDurationConst},
-	{N: "MINUTE", T: export.Custom, I: int64(time.Minute), C: exportDurationConst},
-	{N: "NANOSECOND", T: export.Custom, I: int64(time.Nanosecond), C: exportDurationConst},
-	{N: "SECOND", T: export.Custom, I: int64(time.Second), C: exportDurationConst},
-	{N: "fixed_zone", T: export.Func, F: timeFixedZone},
-	{N: "format", T: export.Func, F: timeFormat},
-	{N: "from_unix", T: export.Func, F: timeFromUnix},
-	{N: "in", T: export.Func, F: timeIn},
-	{N: "load_location", T: export.Func, F: timeLoadLocation},
-	{N: "local", T: export.Func, F: timeLocal},
-	{N: "now", T: export.Func, F: timeNow},
-	{N: "parse", T: export.Func, F: timeParse},
-	{N: "to_map", T: export.Func, F: timeToMap},
-	{N: "truncate", T: export.Func, F: timeTruncate},
-	{N: "unix", T: export.Func, F: timeUnix},
-	{N: "unix_nano", T: export.Func, F: timeUnixNano},
-	{N: "utc", T: export.Func, F: timeUTC},
-}
-
 type BuiltinRegistry interface {
 	RegisterBuiltins(pkgName string, exports export.Exports)
 }
@@ -223,10 +198,7 @@ func RegisterAll(registry BuiltinRegistry) {
 	registry.RegisterBuiltins("maps", MapsPackage)
 	registry.RegisterBuiltins("math", MathPackage)
 	registry.RegisterBuiltins("os", OSPackage)
-	registry.RegisterBuiltins("str", StrPackage)
-	registry.RegisterBuiltins("time", TimePackage)
-}
-
-func exportDurationConst(e *export.Export) nitro.Value {
-	return NewDuration(time.Duration(e.I))
+	registry.RegisterBuiltins("str", str.Exports)
+	registry.RegisterBuiltins("time", libtime.Exports)
+	registry.RegisterBuiltins("encoding/json", json.Exports)
 }

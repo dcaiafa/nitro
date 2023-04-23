@@ -1,33 +1,34 @@
-package lib
+package json
 
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/dcaiafa/nitro"
+	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/lib/core"
 )
 
-func parseJSON(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) < 0 {
-		return nil, errNotEnoughArgs
-	}
-	input, err := nitro.MakeReader(m, args[0])
-	if err != nil {
-		return nil, err
-	}
+//go:generate stubgen json.stubgen
 
+func decode0(vm *vm.VM, input vm.Reader) (nitro.Value, error) {
 	defer core.CloseReader(input)
-
 	v, err := ParseJSON(input)
 	if err != nil {
 		return nil, err
 	}
+	return v, nil
+}
 
-	return []nitro.Value{v}, nil
+func decode1(vm *vm.VM, input string) (nitro.Value, error) {
+	v, err := ParseJSON(strings.NewReader(input))
+	if err != nil {
+		return nil, err
+	}
+	return v, nil
 }
 
 func ParseJSON(r io.Reader) (nitro.Value, error) {
@@ -113,78 +114,21 @@ func (p *jsonParser) parseValue() (nitro.Value, error) {
 	}
 }
 
-type toJSONOptions struct {
-	Indent nitro.Value `nitro:"indent"`
-	Prefix nitro.Value `nitro:"prefix"`
-}
-
-var toJSONOptionConv core.Value2Structer
-
-var errToJSONUsage = errors.New(
-	`invalid usage. Expected to_json(bool|int|float|string|array|map, map?)`)
-
-func toJSON(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) != 1 && len(args) != 2 {
-		return nil, errToJSONUsage
-	}
-
+func encode0(vm *nitro.VM, v vm.Value, opts *EncodeOptions) (string, error) {
 	indent := ""
 	prefix := ""
-	if len(args) == 2 {
-		var opt toJSONOptions
-		err := toJSONOptionConv.Convert(args[1], &opt)
-		if err != nil {
-			return nil, err
-		}
-		indent, err = getStringOrSpaceSize(opt.Indent)
-		if err != nil {
-			return nil, fmt.Errorf("invalid indent option: %w", err)
-		}
-		prefix, err = getStringOrSpaceSize(opt.Prefix)
-		if err != nil {
-			return nil, fmt.Errorf("invalid prefix option: %w", err)
-		}
+
+	if opts != nil {
+		indent = opts.Indent
+		prefix = opts.Prefix
 	}
 
-	jsonBytes, err := ToJSON(args[0], prefix, indent)
+	jsonBytes, err := ToJSON(v, prefix, indent)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return []nitro.Value{nitro.NewString(string(jsonBytes))}, nil
-}
-
-func getStringOrSpaceSize(v nitro.Value) (string, error) {
-	if v == nil {
-		return "", nil
-	}
-
-	indent := ""
-	switch v := v.(type) {
-	case nitro.Int:
-		indentN := int(v.Int64())
-		if indentN < 0 || indentN >= 20 {
-			return "", fmt.Errorf("invalid length %v", v.Int64())
-		}
-		indentB := make([]byte, indentN)
-		for i := range indentB {
-			indentB[i] = ' '
-		}
-		indent = string(indentB)
-
-	case nitro.String:
-		indent = v.String()
-		if len(indent) > 20 {
-			return "", fmt.Errorf("invalid length %v", len(indent))
-		}
-
-	default:
-		return "", fmt.Errorf(
-			"must be an int or string. It was %v",
-			nitro.TypeName(v))
-	}
-
-	return indent, nil
+	return string(jsonBytes), nil
 }
 
 func ToJSON(v nitro.Value, prefix, indent string) ([]byte, error) {

@@ -1,0 +1,615 @@
+
+state 0
+	$accept: .S $end 
+
+	kPACKAGE  shift 4
+	.  error
+
+	package  goto 3
+	unit  goto 2
+	S  goto 1
+
+state 1
+	$accept:  S.$end 
+
+	$end  accept
+	.  error
+
+
+state 2
+	S:  unit.    (1)
+
+	.  reduce 1 (src line 71)
+
+
+state 3
+	unit:  package.decls_opt 
+	decls_opt: .    (5)
+	doc_opt: .    (13)
+
+	$end  reduce 5 (src line 88)
+	kSTRUCT  shift 13
+	DOC  shift 14
+	.  reduce 13 (src line 102)
+
+	const_decl  goto 8
+	decl  goto 7
+	decls  goto 6
+	decls_opt  goto 5
+	doc_opt  goto 12
+	func_decl  goto 11
+	struct_decl  goto 10
+	type_decl  goto 9
+
+state 4
+	package:  kPACKAGE.STRING 
+
+	STRING  shift 15
+	.  error
+
+
+state 5
+	unit:  package decls_opt.    (2)
+
+	.  reduce 2 (src line 74)
+
+
+state 6
+	decls_opt:  decls.    (4)
+	decls:  decls.decl 
+	doc_opt: .    (13)
+
+	$end  reduce 4 (src line 87)
+	kSTRUCT  shift 13
+	DOC  shift 14
+	.  reduce 13 (src line 102)
+
+	const_decl  goto 8
+	decl  goto 16
+	doc_opt  goto 12
+	func_decl  goto 11
+	struct_decl  goto 10
+	type_decl  goto 9
+
+state 7
+	decls:  decl.    (7)
+
+	.  reduce 7 (src line 92)
+
+
+state 8
+	decl:  const_decl.    (8)
+
+	.  reduce 8 (src line 95)
+
+
+state 9
+	decl:  type_decl.    (9)
+
+	.  reduce 9 (src line 96)
+
+
+state 10
+	decl:  struct_decl.    (10)
+
+	.  reduce 10 (src line 97)
+
+
+state 11
+	decl:  func_decl.    (11)
+
+	.  reduce 11 (src line 98)
+
+
+state 12
+	const_decl:  doc_opt.kCONST ID type_ref '=' const_value 
+	type_decl:  doc_opt.kTYPE ID go_type 
+	func_decl:  doc_opt.kFUNC ID '(' func_params_opt ')' func_rets_opt 
+
+	kCONST  shift 17
+	kFUNC  shift 19
+	kTYPE  shift 18
+	.  error
+
+
+state 13
+	struct_decl:  kSTRUCT.ID '{' struct_fields_opt '}' 
+
+	ID  shift 20
+	.  error
+
+
+state 14
+	doc_opt:  DOC.    (12)
+
+	.  reduce 12 (src line 101)
+
+
+state 15
+	package:  kPACKAGE STRING.    (3)
+
+	.  reduce 3 (src line 81)
+
+
+state 16
+	decls:  decls decl.    (6)
+
+	.  reduce 6 (src line 91)
+
+
+state 17
+	const_decl:  doc_opt kCONST.ID type_ref '=' const_value 
+
+	ID  shift 21
+	.  error
+
+
+state 18
+	type_decl:  doc_opt kTYPE.ID go_type 
+
+	ID  shift 22
+	.  error
+
+
+state 19
+	func_decl:  doc_opt kFUNC.ID '(' func_params_opt ')' func_rets_opt 
+
+	ID  shift 23
+	.  error
+
+
+state 20
+	struct_decl:  kSTRUCT ID.'{' struct_fields_opt '}' 
+
+	'{'  shift 24
+	.  error
+
+
+state 21
+	const_decl:  doc_opt kCONST ID.type_ref '=' const_value 
+
+	kITER  shift 28
+	ID  shift 27
+	.  error
+
+	type_ref  goto 25
+	type_ref_simple  goto 26
+
+state 22
+	type_decl:  doc_opt kTYPE ID.go_type 
+
+	STRING  shift 32
+	ID  shift 33
+	'*'  shift 30
+	.  error
+
+	go_type  goto 29
+	simple_go_type  goto 31
+
+state 23
+	func_decl:  doc_opt kFUNC ID.'(' func_params_opt ')' func_rets_opt 
+
+	'('  shift 34
+	.  error
+
+
+state 24
+	struct_decl:  kSTRUCT ID '{'.struct_fields_opt '}' 
+	struct_fields_opt: .    (23)
+
+	ID  shift 38
+	.  reduce 23 (src line 134)
+
+	struct_field  goto 37
+	struct_fields  goto 36
+	struct_fields_opt  goto 35
+
+state 25
+	const_decl:  doc_opt kCONST ID type_ref.'=' const_value 
+
+	'='  shift 39
+	.  error
+
+
+state 26
+	type_ref:  type_ref_simple.    (45)
+	type_ref:  type_ref_simple.'?' 
+
+	'?'  shift 40
+	.  reduce 45 (src line 238)
+
+
+state 27
+	type_ref_simple:  ID.    (47)
+
+	.  reduce 47 (src line 245)
+
+
+state 28
+	type_ref_simple:  kITER.'[' ID ']' 
+
+	'['  shift 41
+	.  error
+
+
+state 29
+	type_decl:  doc_opt kTYPE ID go_type.    (27)
+
+	.  reduce 27 (src line 159)
+
+
+state 30
+	go_type:  '*'.simple_go_type 
+
+	STRING  shift 32
+	ID  shift 33
+	.  error
+
+	simple_go_type  goto 42
+
+state 31
+	go_type:  simple_go_type.    (29)
+
+	.  reduce 29 (src line 174)
+
+
+state 32
+	simple_go_type:  STRING.'.' ID 
+
+	'.'  shift 43
+	.  error
+
+
+state 33
+	simple_go_type:  ID.    (31)
+
+	.  reduce 31 (src line 181)
+
+
+state 34
+	func_decl:  doc_opt kFUNC ID '('.func_params_opt ')' func_rets_opt 
+	func_params_opt: .    (34)
+
+	ID  shift 48
+	.  reduce 34 (src line 199)
+
+	func_param  goto 47
+	func_param_d  goto 46
+	func_params  goto 45
+	func_params_opt  goto 44
+
+state 35
+	struct_decl:  kSTRUCT ID '{' struct_fields_opt.'}' 
+
+	'}'  shift 49
+	.  error
+
+
+state 36
+	struct_fields_opt:  struct_fields.    (22)
+	struct_fields:  struct_fields.struct_field ';' 
+
+	ID  shift 38
+	.  reduce 22 (src line 133)
+
+	struct_field  goto 50
+
+state 37
+	struct_fields:  struct_field.';' 
+
+	';'  shift 51
+	.  error
+
+
+state 38
+	struct_field:  ID.type_ref 
+
+	kITER  shift 28
+	ID  shift 27
+	.  error
+
+	type_ref  goto 52
+	type_ref_simple  goto 26
+
+state 39
+	const_decl:  doc_opt kCONST ID type_ref '='.const_value 
+
+	kNIL  shift 58
+	INT  shift 55
+	FLOAT  shift 56
+	STRING  shift 57
+	'-'  shift 54
+	.  error
+
+	const_value  goto 53
+
+state 40
+	type_ref:  type_ref_simple '?'.    (46)
+
+	.  reduce 46 (src line 239)
+
+
+state 41
+	type_ref_simple:  kITER '['.ID ']' 
+
+	ID  shift 59
+	.  error
+
+
+state 42
+	go_type:  '*' simple_go_type.    (28)
+
+	.  reduce 28 (src line 169)
+
+
+state 43
+	simple_go_type:  STRING '.'.ID 
+
+	ID  shift 60
+	.  error
+
+
+state 44
+	func_decl:  doc_opt kFUNC ID '(' func_params_opt.')' func_rets_opt 
+
+	')'  shift 61
+	.  error
+
+
+state 45
+	func_params_opt:  func_params.    (33)
+	func_params:  func_params.',' func_param_d 
+
+	','  shift 62
+	.  reduce 33 (src line 198)
+
+
+state 46
+	func_params:  func_param_d.    (36)
+
+	.  reduce 36 (src line 204)
+
+
+state 47
+	func_param_d:  func_param.    (37)
+	func_param_d:  func_param.'=' const_value 
+
+	'='  shift 63
+	.  reduce 37 (src line 207)
+
+
+state 48
+	func_param:  ID.type_ref 
+
+	kITER  shift 28
+	ID  shift 27
+	.  error
+
+	type_ref  goto 64
+	type_ref_simple  goto 26
+
+state 49
+	struct_decl:  kSTRUCT ID '{' struct_fields_opt '}'.    (21)
+
+	.  reduce 21 (src line 124)
+
+
+state 50
+	struct_fields:  struct_fields struct_field.';' 
+
+	';'  shift 65
+	.  error
+
+
+state 51
+	struct_fields:  struct_field ';'.    (25)
+
+	.  reduce 25 (src line 144)
+
+
+state 52
+	struct_field:  ID type_ref.    (26)
+
+	.  reduce 26 (src line 150)
+
+
+state 53
+	const_decl:  doc_opt kCONST ID type_ref '=' const_value.    (14)
+
+	.  reduce 14 (src line 105)
+
+
+state 54
+	const_value:  '-'.INT 
+	const_value:  '-'.FLOAT 
+
+	INT  shift 66
+	FLOAT  shift 67
+	.  error
+
+
+state 55
+	const_value:  INT.    (16)
+
+	.  reduce 16 (src line 117)
+
+
+state 56
+	const_value:  FLOAT.    (18)
+
+	.  reduce 18 (src line 119)
+
+
+state 57
+	const_value:  STRING.    (19)
+
+	.  reduce 19 (src line 120)
+
+
+state 58
+	const_value:  kNIL.    (20)
+
+	.  reduce 20 (src line 121)
+
+
+state 59
+	type_ref_simple:  kITER '[' ID.']' 
+
+	']'  shift 68
+	.  error
+
+
+state 60
+	simple_go_type:  STRING '.' ID.    (30)
+
+	.  reduce 30 (src line 177)
+
+
+state 61
+	func_decl:  doc_opt kFUNC ID '(' func_params_opt ')'.func_rets_opt 
+	func_rets_opt: .    (42)
+
+	kITER  shift 28
+	ID  shift 27
+	'('  shift 70
+	.  reduce 42 (src line 231)
+
+	func_rets_opt  goto 69
+	type_ref  goto 71
+	type_ref_simple  goto 26
+
+state 62
+	func_params:  func_params ','.func_param_d 
+
+	ID  shift 48
+	.  error
+
+	func_param  goto 47
+	func_param_d  goto 72
+
+state 63
+	func_param_d:  func_param '='.const_value 
+
+	kNIL  shift 58
+	INT  shift 55
+	FLOAT  shift 56
+	STRING  shift 57
+	'-'  shift 54
+	.  error
+
+	const_value  goto 73
+
+state 64
+	func_param:  ID type_ref.    (39)
+
+	.  reduce 39 (src line 214)
+
+
+state 65
+	struct_fields:  struct_fields struct_field ';'.    (24)
+
+	.  reduce 24 (src line 140)
+
+
+state 66
+	const_value:  '-' INT.    (15)
+
+	.  reduce 15 (src line 116)
+
+
+state 67
+	const_value:  '-' FLOAT.    (17)
+
+	.  reduce 17 (src line 118)
+
+
+state 68
+	type_ref_simple:  kITER '[' ID ']'.    (48)
+
+	.  reduce 48 (src line 249)
+
+
+state 69
+	func_decl:  doc_opt kFUNC ID '(' func_params_opt ')' func_rets_opt.    (32)
+
+	.  reduce 32 (src line 187)
+
+
+state 70
+	func_rets_opt:  '('.func_rets ')' 
+
+	kITER  shift 28
+	ID  shift 27
+	.  error
+
+	func_rets  goto 74
+	type_ref  goto 75
+	type_ref_simple  goto 26
+
+state 71
+	func_rets_opt:  type_ref.    (41)
+
+	.  reduce 41 (src line 227)
+
+
+state 72
+	func_params:  func_params ',' func_param_d.    (35)
+
+	.  reduce 35 (src line 203)
+
+
+state 73
+	func_param_d:  func_param '=' const_value.    (38)
+
+	.  reduce 38 (src line 208)
+
+
+state 74
+	func_rets_opt:  '(' func_rets.')' 
+	func_rets:  func_rets.',' type_ref 
+
+	')'  shift 76
+	','  shift 77
+	.  error
+
+
+state 75
+	func_rets:  type_ref.    (44)
+
+	.  reduce 44 (src line 235)
+
+
+state 76
+	func_rets_opt:  '(' func_rets ')'.    (40)
+
+	.  reduce 40 (src line 223)
+
+
+state 77
+	func_rets:  func_rets ','.type_ref 
+
+	kITER  shift 28
+	ID  shift 27
+	.  error
+
+	type_ref  goto 78
+	type_ref_simple  goto 26
+
+state 78
+	func_rets:  func_rets ',' type_ref.    (43)
+
+	.  reduce 43 (src line 234)
+
+
+30 terminals, 26 nonterminals
+49 grammar rules, 79/16000 states
+0 shift/reduce, 0 reduce/reduce conflicts reported
+75 working sets used
+memory: parser 50/240000
+14 extra closures
+64 shift entries, 3 exceptions
+35 goto entries
+11 entries saved by goto default
+Optimizer space used: output 82/240000
+82 table entries, 0 zero
+maximum spread: 30, maximum offset: 77

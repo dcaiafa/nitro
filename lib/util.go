@@ -8,6 +8,7 @@ import (
 
 	"github.com/dcaiafa/nitro"
 	"github.com/dcaiafa/nitro/internal/vm"
+	"github.com/dcaiafa/nitro/lib/time"
 )
 
 var (
@@ -102,13 +103,13 @@ func getObjectArg(args []vm.Value, ndx int) (*nitro.Object, error) {
 	return v, nil
 }
 
-func getTimeArg(args []vm.Value, ndx int) (Time, error) {
+func getTimeArg(args []vm.Value, ndx int) (time.Time, error) {
 	if ndx >= len(args) {
-		return Time{}, errNotEnoughArgs
+		return time.Time{}, errNotEnoughArgs
 	}
-	v, ok := args[ndx].(Time)
+	v, ok := args[ndx].(time.Time)
 	if !ok {
-		return Time{}, errExpectedArg(ndx, args[ndx], "time")
+		return time.Time{}, errExpectedArg(ndx, args[ndx], "time")
 	}
 	return v, nil
 }
@@ -124,13 +125,13 @@ func getRegexArg(args []vm.Value, ndx int) (*nitro.Regex, error) {
 	return v, nil
 }
 
-func getDurationArg(args []vm.Value, ndx int) (Duration, error) {
+func getDurationArg(args []vm.Value, ndx int) (time.Duration, error) {
 	if ndx >= len(args) {
-		return Duration{}, errNotEnoughArgs
+		return time.Duration{}, errNotEnoughArgs
 	}
-	v, ok := args[ndx].(Duration)
+	v, ok := args[ndx].(time.Duration)
 	if !ok {
-		return Duration{}, errExpectedArg(ndx, args[ndx], "duration")
+		return time.Duration{}, errExpectedArg(ndx, args[ndx], "duration")
 	}
 	return v, nil
 }

@@ -52,22 +52,3 @@ func TestStringSlice(t *testing.T) {
 		print("hello"[-1:])
 	`, nil)
 }
-
-func TestStringIter(t *testing.T) {
-	RunSubO(t, "simple", `
-		for c, i in "hello" {
-    	print(c, i)
-		}
-	`, `
-104 0
-101 1
-108 2
-108 3
-111 4
-`)
-	RunSubO(t, "empty", `
-		for c, i in "" {
-    	print(c, i)
-		}
-	`, ``)
-}
