@@ -14,7 +14,15 @@ import (
 
 //go:generate stubgen json.stubgen
 
-func decode0(vm *vm.VM, input vm.Reader) (nitro.Value, error) {
+func decode0(vm *vm.VM, input string) (nitro.Value, error) {
+	v, err := ParseJSON(strings.NewReader(input))
+	if err != nil {
+		return nil, err
+	}
+	return v, nil
+}
+
+func decode1(vm *vm.VM, input vm.Reader) (nitro.Value, error) {
 	defer core.CloseReader(input)
 	v, err := ParseJSON(input)
 	if err != nil {
@@ -23,12 +31,29 @@ func decode0(vm *vm.VM, input vm.Reader) (nitro.Value, error) {
 	return v, nil
 }
 
-func decode1(vm *vm.VM, input string) (nitro.Value, error) {
-	v, err := ParseJSON(strings.NewReader(input))
-	if err != nil {
-		return nil, err
+func encode0(vm *nitro.VM, v vm.Value, opts *EncodeOptions) (string, error) {
+	indent := ""
+	prefix := ""
+
+	if opts != nil {
+		indent = opts.Indent
+		prefix = opts.Prefix
 	}
-	return v, nil
+
+	jsonBytes, err := ToJSON(v, prefix, indent)
+	if err != nil {
+		return "", err
+	}
+
+	return string(jsonBytes), nil
+}
+
+func pretty0(vm *nitro.VM, v vm.Value) (string, error) {
+	jsonBytes, err := ToJSON(v, "", "  ")
+	if err != nil {
+		return "", err
+	}
+	return string(jsonBytes), nil
 }
 
 func ParseJSON(r io.Reader) (nitro.Value, error) {
@@ -112,23 +137,6 @@ func (p *jsonParser) parseValue() (nitro.Value, error) {
 	default:
 		return nil, fmt.Errorf("unexpected token %q", t)
 	}
-}
-
-func encode0(vm *nitro.VM, v vm.Value, opts *EncodeOptions) (string, error) {
-	indent := ""
-	prefix := ""
-
-	if opts != nil {
-		indent = opts.Indent
-		prefix = opts.Prefix
-	}
-
-	jsonBytes, err := ToJSON(v, prefix, indent)
-	if err != nil {
-		return "", err
-	}
-
-	return string(jsonBytes), nil
 }
 
 func ToJSON(v nitro.Value, prefix, indent string) ([]byte, error) {

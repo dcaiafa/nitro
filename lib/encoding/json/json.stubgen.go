@@ -59,7 +59,7 @@ func _decode(vm *_p2.VM, args []_p2.Value, nret int) ([]_p2.Value, error) {
 		}
 		{
 			_ta0 := _p1.MustMakeReader(vm, _a0)
-			_r0, err := decode0(vm, _ta0)
+			_r0, err := decode1(vm, _ta0)
 			if err != nil {
 				return nil, err
 			}
@@ -71,7 +71,7 @@ func _decode(vm *_p2.VM, args []_p2.Value, nret int) ([]_p2.Value, error) {
 		}
 		{
 			_ta0 := (_a0).String()
-			_r0, err := decode1(vm, _ta0)
+			_r0, err := decode0(vm, _ta0)
 			if err != nil {
 				return nil, err
 			}
@@ -136,8 +136,32 @@ func _encode(vm *_p2.VM, args []_p2.Value, nret int) ([]_p2.Value, error) {
 		return nil, _p1.InvalidArg(args, 0)
 	}
 }
+func _pretty(vm *_p2.VM, args []_p2.Value, nret int) ([]_p2.Value, error) {
+	var err error
+	_ = err
+	if len(args) < 1 {
+		return nil, _p1.ErrInsufficientArgs
+	}
+	switch _a0 := args[0].(type) {
+	case _p2.Value:
+		if len(args) > 1 {
+			return nil, _p1.ErrTooManyArgs
+		}
+		{
+			_ta0 := _a0
+			_r0, err := pretty0(vm, _ta0)
+			if err != nil {
+				return nil, err
+			}
+			return []_p2.Value{_p2.NewString(_r0)}, nil
+		}
+	default:
+		return nil, _p1.InvalidArg(args, 0)
+	}
+}
 
 var Exports = _p0.Exports{
 	{N: "decode", T: _p0.Func, F: _decode},
 	{N: "encode", T: _p0.Func, F: _encode},
+	{N: "pretty", T: _p0.Func, F: _pretty},
 }

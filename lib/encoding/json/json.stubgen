@@ -1,7 +1,7 @@
 package "encoding/json"
 
-func decode(input Reader) Any
 func decode(input Str) Any
+func decode(input Reader) Any
 
 struct EncodeOptions {
   indent Str;
@@ -9,3 +9,4 @@ struct EncodeOptions {
 }
 
 func encode(v Any, opts EncodeOptions = nil) Str
+func pretty(v Any) Str
