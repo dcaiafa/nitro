@@ -1,0 +1,15 @@
+package "file"
+
+type File *File
+
+struct OpenOptions {
+  read Bool;
+  write Bool;
+  append Bool;
+  create Bool;
+  excl Bool;
+  trunc Bool;
+}
+
+func open(name Str) File
+func open(name Str, opt OpenOptions) File

@@ -1,7 +1,6 @@
-package lib
+package file
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -12,6 +11,8 @@ import (
 	"github.com/dcaiafa/nitro/lib/core"
 	"github.com/dcaiafa/nitro/lib/time"
 )
+
+//go:generate stubgen file.stubgen
 
 type File struct {
 	*os.File
@@ -75,173 +76,117 @@ func (f *File) IndexRef(key nitro.Value) (nitro.ValueRef, error) {
 	return nitro.ValueRef{}, fmt.Errorf("file is not assignable")
 }
 
-type openOptions struct {
-	Read   bool   `nitro:"read"`
-	Write  bool   `nitro:"write"`
-	Append bool   `nitro:"append"`
-	Create bool   `nitro:"create"`
-	Excl   bool   `nitro:"excl"`
-	Trunc  bool   `nitro:"trunc"`
-	Perm   *int64 `nitro:"perm"`
-}
-
-var openOptionsConv core.Value2Structer
-
-func fileOpen(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	var err error
-
-	if len(args) > 2 {
-		return nil, errTooManyArgs
-	}
-
-	filename, err := getStringArg(args, 0)
+func create0(vm *vm.VM, name string) (*File, error) {
+	f, err := os.Create(name)
 	if err != nil {
 		return nil, err
 	}
+	file := &File{f}
+	vm.RegisterCloser(file)
+	return file, nil
+}
 
-	var opts *openOptions
-	if len(args) == 2 {
-		opts = new(openOptions)
-		optsMap, err := getObjectArg(args, 1)
-		if err != nil {
-			return nil, err
-		}
-		err = openOptionsConv.Convert(optsMap, opts)
-		if err != nil {
-			return nil, err
-		}
+func open0(vm *vm.VM, name string) (*File, error) {
+	f, err := os.Open(name)
+	if err != nil {
+		return nil, err
 	}
+	file := &File{f}
+	vm.RegisterCloser(file)
+	return file, nil
+}
 
-	var f *os.File
-	if opts == nil {
-		f, err = os.Open(filename)
-		if err != nil {
-			return nil, err
-		}
+func open1(vm *vm.VM, name string, opts *OpenOptions) (*File, error) {
+	// TODO: permissions from Options.
+	var perm os.FileMode = 0666
+	flags := 0
+	if opts.Read && !opts.Write {
+		flags = flags | os.O_RDONLY
+	} else if !opts.Read && opts.Write {
+		flags = flags | os.O_WRONLY
+	} else if opts.Read && opts.Write {
+		flags = flags | os.O_RDWR
 	} else {
-		flags := 0
-		var perm os.FileMode = 0666
-		if opts.Read && !opts.Write {
-			flags = flags | os.O_RDONLY
-		} else if !opts.Read && opts.Write {
-			flags = flags | os.O_WRONLY
-		} else if opts.Read && opts.Write {
-			flags = flags | os.O_RDWR
-		} else {
+		return nil, fmt.Errorf(
+			`invalid options: "read" and/or "write" must be true`)
+	}
+
+	if opts.Append {
+		flags = flags | os.O_APPEND
+	}
+	if opts.Create {
+		flags = flags | os.O_CREATE
+	}
+	if opts.Excl {
+		if !opts.Create {
 			return nil, fmt.Errorf(
-				`invalid options: "read" and/or "write" must be true`)
+				`invalid options: "excl" also required "create" to be true`)
 		}
-
-		if opts.Append {
-			flags = flags | os.O_APPEND
-		}
-		if opts.Create {
-			flags = flags | os.O_CREATE
-		}
-		if opts.Excl {
-			if !opts.Create {
-				return nil, fmt.Errorf(
-					`invalid options: "excl" also required "create" to be true`)
-			}
-			flags = flags | os.O_EXCL
-		}
-		if opts.Trunc {
-			flags = flags | os.O_TRUNC
-		}
-		if opts.Perm != nil {
-			perm = os.FileMode(*opts.Perm)
-		}
-		f, err = os.OpenFile(filename, flags, perm)
-		if err != nil {
-			return nil, err
-		}
+		flags = flags | os.O_EXCL
+	}
+	if opts.Trunc {
+		flags = flags | os.O_TRUNC
 	}
 
-	return []nitro.Value{&File{f}}, nil
+	f, err := os.OpenFile(name, flags, perm)
+	if err != nil {
+		return nil, err
+	}
+	file := &File{f}
+	vm.RegisterCloser(file)
+	return file, nil
 }
 
-func fileStat(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) > 1 {
-		return nil, errTooManyArgs
-	}
-
-	filename, err := getStringArg(args, 0)
+func stat0(vm *vm.VM, f *File) (*vm.Object, error) {
+	fi, err := f.Stat()
 	if err != nil {
 		return nil, err
 	}
-
-	fi, err := os.Stat(filename)
-	if err != nil {
-		if errors.Is(err, os.ErrNotExist) {
-			return []nitro.Value{nil}, nil
-		}
-		return nil, err
-	}
-
-	res := nitro.NewObject()
-	res.Put(nitro.NewString("name"), nitro.NewString(fi.Name()))
-	res.Put(nitro.NewString("size"), nitro.NewInt(fi.Size()))
-	res.Put(nitro.NewString("mod_time"), time.NewTime(fi.ModTime()))
-	res.Put(nitro.NewString("is_dir"), nitro.NewBool(fi.IsDir()))
-
-	return []nitro.Value{res}, nil
+	return fileInfoToMap(fi), nil
 }
 
-func fileSeek(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) > 3 {
-		return nil, errTooManyArgs
-	}
-
-	file, err := getFileArg(args, 0)
+func stat1(vm *vm.VM, name string) (*vm.Object, error) {
+	fi, err := os.Stat(name)
 	if err != nil {
 		return nil, err
 	}
-
-	offset, err := getIntArg(args, 1)
-	if err != nil {
-		return nil, err
-	}
-
-	whence := os.SEEK_SET
-	if len(args) == 3 {
-		whenceArg, err := getStringArg(args, 2)
-		if err != nil {
-			return nil, err
-		}
-
-		switch whenceArg {
-		case "set":
-			whence = os.SEEK_SET
-		case "cur":
-			whence = os.SEEK_CUR
-		case "end":
-			whence = os.SEEK_END
-		default:
-			return nil, fmt.Errorf(
-				`%q is not a valid whence value. Valid values include: "set", "cur", "end"`,
-				whenceArg)
-		}
-	}
-
-	newOffset, err := file.Seek(offset, whence)
-	if err != nil {
-		return nil, err
-	}
-
-	return []nitro.Value{nitro.NewInt(newOffset)}, nil
+	return fileInfoToMap(fi), nil
 }
 
-func fileCreate(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	filename, err := getStringArg(args, 0)
-	if err != nil {
-		return nil, err
-	}
-	f, err := os.Create(filename)
-	if err != nil {
-		return nil, err
-	}
-	return []nitro.Value{&File{f}}, nil
+func fileInfoToMap(fi os.FileInfo) *vm.Object {
+	res := vm.NewObject()
+	res.Put(vm.NewString("name"), vm.NewString(fi.Name()))
+	res.Put(vm.NewString("size"), vm.NewInt(fi.Size()))
+	res.Put(vm.NewString("mod_time"), time.NewTime(fi.ModTime()))
+	res.Put(vm.NewString("is_dir"), vm.NewBool(fi.IsDir()))
+	return res
 }
+
+func seek0(vm *vm.VM, f *File, offset int64, whenceStr string) (int64, error) {
+	var whence int
+
+	switch whenceStr {
+	case "set":
+		whence = os.SEEK_SET
+	case "cur":
+		whence = os.SEEK_CUR
+	case "end":
+		whence = os.SEEK_END
+	default:
+		return 0, fmt.Errorf(
+			`%q is not a valid whence value. Valid values include: "set", "cur", "end"`,
+			whenceStr)
+	}
+
+	newOffset, err := f.Seek(offset, whence)
+	if err != nil {
+		return 0, err
+	}
+
+	return newOffset, nil
+}
+
+func read0(vm *vm.VM, f *File, 
 
 func fileRead(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if len(args) > 1 {
