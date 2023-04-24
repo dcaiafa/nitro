@@ -58,7 +58,7 @@ func NewAnalysis() *Analysis {
 		{"Callable", "Callable", false},
 		{"Float", "Float", false},
 		{"Int", "Int", false},
-		{"Iterable", "Iterable", false},
+		{"Iter", "Iterator", false},
 		{"List", "Array", true},
 		{"Map", "Object", true},
 		{"Reader", "Reader", false},
@@ -392,6 +392,11 @@ func (a *Analysis) emitFunc(w *bytes.Buffer, fn *Func) {
 						a.goType(GoType{Package: vmPackage, Name: "Reader"}),
 						a.goType(GoType{Package: vmPackage, Name: "Readable"}),
 					)
+				case "Iter":
+					fmt.Fprintf(w, "case %s,%s:\n",
+						a.goType(GoType{Package: vmPackage, Name: "Iterable"}),
+						a.goType(GoType{Package: vmPackage, Name: "Iterator"}),
+					)
 				default:
 					fmt.Fprintf(w, "case %s:\n", a.goTypeVM(t.Type.GoType))
 				}
@@ -435,6 +440,8 @@ func (a *Analysis) toConvenienceType(v string, typ Type) string {
 		return fmt.Sprintf("(%v).Bool()", v)
 	case "Reader":
 		return fmt.Sprintf("%s.MustMakeReader(vm, %v)", a.importMap[stubPackage], v)
+	case "Iter":
+		return fmt.Sprintf("%s.MustMakeIter(vm, %v)", a.importMap[stubPackage], v)
 	default:
 		return v
 	}

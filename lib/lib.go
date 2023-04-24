@@ -3,6 +3,7 @@ package lib
 import (
 	"github.com/dcaiafa/nitro/internal/export"
 	"github.com/dcaiafa/nitro/lib/encoding/json"
+	"github.com/dcaiafa/nitro/lib/maps"
 	"github.com/dcaiafa/nitro/lib/str"
 	libtime "github.com/dcaiafa/nitro/lib/time"
 )
@@ -146,13 +147,6 @@ var ListPackage = export.Exports{
 	{N: "find", T: export.Func, F: listFind},
 }
 
-var MapsPackage = export.Exports{
-	{N: "clone", T: export.Func, F: mapsClone},
-	{N: "delete", T: export.Func, F: mapsDelete},
-	{N: "make", T: export.Func, F: mapsMake},
-	{N: "update", T: export.Func, F: mapsUpdate},
-}
-
 var MathPackage = export.Exports{
 	{N: "trunc", T: export.Func, F: mathTrunc},
 }
@@ -160,26 +154,6 @@ var MathPackage = export.Exports{
 var OSPackage = export.Exports{
 	{N: "home", T: export.Func, F: osHome},
 	{N: "wd", T: export.Func, F: osWD},
-}
-
-var StrPackage = export.Exports{
-	{N: "fields", T: export.Func, F: strFields},
-	{N: "find", T: export.Func, F: strFind},
-	{N: "find_last", T: export.Func, F: strFindLast},
-	{N: "has_prefix", T: export.Func, F: strHasPrefix},
-	{N: "has_suffix", T: export.Func, F: strHasSuffix},
-	{N: "match", T: export.Func, F: strMatch},
-	{N: "match_all", T: export.Func, F: strMatchAll},
-	{N: "repeat", T: export.Func, F: strRepeat},
-	{N: "replace", T: export.Func, F: strReplace},
-	{N: "split", T: export.Func, F: strSplit},
-	{N: "to_lower", T: export.Func, F: strToLower},
-	{N: "to_upper", T: export.Func, F: strToUpper},
-	{N: "trim", T: export.Func, F: strTrim},
-	{N: "trim_left", T: export.Func, F: strTrimLeft},
-	{N: "trim_prefix", T: export.Func, F: strTrimPrefix},
-	{N: "trim_right", T: export.Func, F: strTrimRight},
-	{N: "trim_suffix", T: export.Func, F: strTrimSuffix},
 }
 
 type BuiltinRegistry interface {
@@ -195,7 +169,7 @@ func RegisterAll(registry BuiltinRegistry) {
 	registry.RegisterBuiltins("filepath", FilepathPackage)
 	registry.RegisterBuiltins("iter", IterPackage)
 	registry.RegisterBuiltins("list", ListPackage)
-	registry.RegisterBuiltins("maps", MapsPackage)
+	registry.RegisterBuiltins("maps", maps.Exports)
 	registry.RegisterBuiltins("math", MathPackage)
 	registry.RegisterBuiltins("os", OSPackage)
 	registry.RegisterBuiltins("str", str.Exports)

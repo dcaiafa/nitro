@@ -24,7 +24,6 @@ func cast[T ast.AST](v ast.AST) T {
 
 %token <tok> kCONST
 %token <tok> kFUNC
-%token <tok> kITER
 %token <tok> kPACKAGE
 %token <tok> kTYPE
 %token <tok> kSTRUCT
@@ -245,9 +244,5 @@ type_ref: type_ref_simple
 type_ref_simple: ID
                  {
                    $$ = &ast.TypeRef{ID: $1}
-                 }
-               | kITER '[' ID ']'
-                 {
-                    $$ = &ast.TypeRef{Iter: true, ID: $3}
                  }
                ;

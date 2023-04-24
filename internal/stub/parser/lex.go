@@ -12,7 +12,6 @@ import (
 var keywords = map[string]int{
 	"const":   kCONST,
 	"func":    kFUNC,
-	"iter":    kITER,
 	"package": kPACKAGE,
 	"type":    kTYPE,
 	"struct":  kSTRUCT,

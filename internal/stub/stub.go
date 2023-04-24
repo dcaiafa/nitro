@@ -34,3 +34,11 @@ func MustMakeReader(m *vm.VM, readable vm.Value) vm.Reader {
 	}
 	return reader
 }
+
+func MustMakeIter(m *vm.VM, iterable vm.Value) vm.Iterator {
+	iter, err := vm.MakeIterator(m, iterable)
+	if err != nil {
+		panic(err)
+	}
+	return iter
+}

@@ -1,0 +1,7 @@
+package "maps"
+
+func clone(m Map) Map
+func update(m Map, other Map) Map
+func update(m Map, f Callable) Map
+func delete(m Map, k Any) Map
+func make(iter Iter, f Callable = nil) Map
