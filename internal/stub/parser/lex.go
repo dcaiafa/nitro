@@ -59,15 +59,26 @@ func (l *lex) scan(lval *yySymType) int {
 			continue
 		}
 		if r == '\n' {
-			l.line++
-			l.col = 0
 			continue
 		}
 		switch r {
 		case '"':
 			l.unread()
 			return l.scanQuotedString(lval)
-		case '=', ':', ';', '(', ')', '[', ']', '*', '.', ',', '?', '-', '{', '}':
+
+		// Parse '.' and '...'
+		case '.':
+			r = l.read()
+			if r != '.' {
+				l.unread()
+				return int('.')
+			}
+			r = l.read()
+			if r != '.' {
+				return LEXERR
+			}
+			return ELLIPSIS
+		case '=', ':', ';', '(', ')', '[', ']', '*', ',', '?', '-', '{', '}':
 			return int(r)
 		default:
 			if isNumber(r) {
@@ -204,7 +215,12 @@ func (l *lex) read() rune {
 	if err != nil {
 		return 0
 	}
-	l.col++
+	if r == '\n' {
+		l.col = 0
+		l.line++
+	} else {
+		l.col++
+	}
 	return r
 }
 

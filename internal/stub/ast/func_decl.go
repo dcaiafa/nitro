@@ -18,7 +18,7 @@ func (d *FuncDecl) RunPass(ctx *Context, pass Pass) {
 
 	if pass == Check {
 		sig := new(analysis.Signature)
-		for _, paramAST := range d.Params {
+		for i, paramAST := range d.Params {
 			paramAST := paramAST.(*FuncParam)
 			param := analysis.Param{
 				Name: paramAST.ID.Str,
@@ -30,6 +30,13 @@ func (d *FuncDecl) RunPass(ctx *Context, pass Pass) {
 			} else if len(sig.Params) > 0 && sig.Params[len(sig.Params)-1].HasDefault {
 				ctx.Failf(token.Pos{}, "Only the last parameters are allowed to have default values")
 				return
+			}
+			if paramAST.VarArg {
+				if i != len(d.Params)-1 {
+					ctx.Failf(token.Pos{}, "Only the last parameter can be vararg")
+					return
+				}
+				param.VarArg = true
 			}
 			sig.Params = append(sig.Params, param)
 		}

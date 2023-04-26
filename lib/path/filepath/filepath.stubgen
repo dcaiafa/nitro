@@ -1,0 +1,11 @@
+package "path/filepath"
+
+func abs(p Str) Str
+func base(p Str) Str
+func clean(p Str) Str
+func dir(p Str) Str
+func eval_symlinks(p Str) Str
+func ext(p Str) Str
+func from_slash(p Str) Str
+func is_abs(p Str) bool
+

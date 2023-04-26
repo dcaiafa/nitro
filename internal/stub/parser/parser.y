@@ -34,6 +34,7 @@ func cast[T ast.AST](v ast.AST) T {
 %token <tok> STRING
 %token <tok> ID
 %token <tok> DOC
+%token <tok> ELLIPSIS
 
 %token <tok> '=' ':' ';' '(' ')' '[' ']' '*' '.' '?' '-' '{' '}'
 
@@ -204,6 +205,10 @@ func_params: func_params ',' func_param_d  { $$ = append($1, $3) }
            ;
 
 func_param_d: func_param
+            | func_param ELLIPSIS
+              {
+                $$.(*ast.FuncParam).VarArg = true
+              }
             | func_param '=' const_value
               {
                 $$.(*ast.FuncParam).DefaultValue = $3.(*ast.ConstValue)

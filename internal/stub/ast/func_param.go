@@ -6,6 +6,7 @@ type FuncParam struct {
 	ID           token.Token
 	Type         *TypeRef
 	DefaultValue *ConstValue
+	VarArg       bool
 }
 
 func (p *FuncParam) RunPass(ctx *Context, pass Pass) {
