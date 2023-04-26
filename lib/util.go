@@ -8,6 +8,7 @@ import (
 
 	"github.com/dcaiafa/nitro"
 	"github.com/dcaiafa/nitro/internal/vm"
+	"github.com/dcaiafa/nitro/lib/file"
 	"github.com/dcaiafa/nitro/lib/time"
 )
 
@@ -147,11 +148,11 @@ func getProcessArg(args []vm.Value, ndx int) (*process, error) {
 	return v, nil
 }
 
-func getFileArg(args []vm.Value, ndx int) (*File, error) {
+func getFileArg(args []vm.Value, ndx int) (*file.File, error) {
 	if ndx >= len(args) {
 		return nil, errNotEnoughArgs
 	}
-	v, ok := args[ndx].(*File)
+	v, ok := args[ndx].(*file.File)
 	if !ok {
 		return nil, errExpectedArg(ndx, args[ndx], "file")
 	}

@@ -3,6 +3,7 @@ package lib
 import (
 	"github.com/dcaiafa/nitro/internal/export"
 	"github.com/dcaiafa/nitro/lib/encoding/json"
+	"github.com/dcaiafa/nitro/lib/file"
 	"github.com/dcaiafa/nitro/lib/maps"
 	"github.com/dcaiafa/nitro/lib/str"
 	libtime "github.com/dcaiafa/nitro/lib/time"
@@ -40,7 +41,6 @@ var GlobalPackage = export.Exports{
 	{N: "min", T: export.Func, F: min},
 	{N: "narg", T: export.Func, F: narg},
 	{N: "nonl", T: export.Func, F: nonl},
-	{N: "open", T: export.Func, F: fileOpen},
 	{N: "parse_base64", T: export.Func, F: parseBase64},
 	{N: "parse_csv", T: export.Func, F: parseCSV},
 	{N: "parse_float", T: export.Func, F: parseFloat},
@@ -99,17 +99,6 @@ var ExecPackage = export.Exports{
 	{N: "with_stderr", T: export.Func, F: execWithStderr},
 }
 
-var FilePackage = export.Exports{
-	{N: "close", T: export.Func, F: closep},
-	{N: "create", T: export.Func, F: fileCreate},
-	{N: "create_temp", T: export.Func, F: fileCreateTemp},
-	{N: "open", T: export.Func, F: fileOpen},
-	{N: "read", T: export.Func, F: fileRead},
-	{N: "seek", T: export.Func, F: fileSeek},
-	{N: "stat", T: export.Func, F: fileStat},
-	{N: "write_to", T: export.Func, F: fileWriteTo},
-}
-
 var FilepathPackage = export.Exports{
 	{N: "abs", T: export.Func, F: filepathAbs},
 	{N: "base", T: export.Func, F: filepathBase},
@@ -165,7 +154,7 @@ func RegisterAll(registry BuiltinRegistry) {
 	registry.RegisterBuiltins("buf", BufPackage)
 	registry.RegisterBuiltins("co", CoPackage)
 	registry.RegisterBuiltins("exec", ExecPackage)
-	registry.RegisterBuiltins("file", FilePackage)
+	registry.RegisterBuiltins("file", file.Exports)
 	registry.RegisterBuiltins("filepath", FilepathPackage)
 	registry.RegisterBuiltins("iter", IterPackage)
 	registry.RegisterBuiltins("list", ListPackage)

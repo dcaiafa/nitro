@@ -11,6 +11,7 @@ import (
 	"github.com/bmatcuk/doublestar/v4"
 	"github.com/dcaiafa/nitro"
 	"github.com/dcaiafa/nitro/lib/core"
+	"github.com/dcaiafa/nitro/lib/file"
 )
 
 func filepathAbs(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
@@ -391,7 +392,7 @@ func filepathRemove(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, e
 	case nitro.String:
 		err = os.Remove(arg.String())
 
-	case *File:
+	case *file.File:
 		arg.Close()
 		err = os.Remove(arg.Name())
 

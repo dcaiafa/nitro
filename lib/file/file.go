@@ -186,94 +186,50 @@ func seek0(vm *vm.VM, f *File, offset int64, whenceStr string) (int64, error) {
 	return newOffset, nil
 }
 
-func read0(vm *vm.VM, f *File, 
-
-func fileRead(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) > 1 {
-		return nil, errTooManyArgs
-	} else if len(args) < 1 {
-		return nil, errNotEnoughArgs
+func read_all0(vm *vm.VM, f *File) (string, error) {
+	// TODO: this should be an alias to io.read_all.
+	defer core.CloseReader(f)
+	data, err := ioutil.ReadAll(f)
+	if err != nil {
+		return "", err
 	}
-
-	var err error
-	var data []byte
-	switch arg := args[0].(type) {
-	case nitro.String:
-		data, err = ioutil.ReadFile(arg.String())
-		if err != nil {
-			return nil, err
-		}
-	case io.Reader:
-		defer core.CloseReader(arg)
-		data, err = ioutil.ReadAll(arg)
-		if err != nil {
-			return nil, err
-		}
-	default:
-		return nil, errExpectedArg(0, args[0], "str", "reader")
-	}
-
-	return []nitro.Value{nitro.NewString(string(data))}, nil
+	return string(data), nil
 }
 
-func fileWriteTo(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) > 2 {
-		return nil, errTooManyArgs
-	}
-
-	src, err := getReaderArg(m, args, 0)
+func read_all1(vm *vm.VM, name string) (string, error) {
+	data, err := ioutil.ReadFile(name)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-
-	filename, err := getStringArg(args, 1)
-	if err != nil {
-		return nil, err
-	}
-
-	dst, err := os.Create(filename)
-	if err != nil {
-		return nil, err
-	}
-	defer dst.Close()
-
-	_, err = io.Copy(dst, src)
-	if err != nil {
-		return nil, err
-	}
-
-	err = dst.Close()
-	if err != nil {
-		return nil, err
-	}
-
-	return nil, nil
+	return string(data), nil
 }
 
-type createTempOptions struct {
-	Dir     string `nitro:"dir"`
-	Pattern string `nitro:"pattern"`
+func write_to0(vm *vm.VM, r vm.Reader, filename string) error {
+	defer core.CloseReader(r)
+
+	w, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer w.Close()
+
+	_, err = io.Copy(w, r)
+	if err != nil {
+		return err
+	}
+
+	err = w.Close()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-var createTempOptConv core.Value2Structer
-
-func fileCreateTemp(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	if len(args) > 1 {
-		return nil, errTooManyArgs
-	}
-
-	var opt createTempOptions
-	if len(args) == 1 {
-		err := createTempOptConv.Convert(args[0], &opt)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	f, err := ioutil.TempFile(opt.Dir, opt.Pattern)
+func create_temp0(vm *vm.VM, pattern string, dir string) (*File, error) {
+	f, err := ioutil.TempFile(dir, pattern)
 	if err != nil {
 		return nil, err
 	}
-
-	return []nitro.Value{&File{f}}, nil
+	return &File{f}, nil
 }
