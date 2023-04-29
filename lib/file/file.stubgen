@@ -1,0 +1,23 @@
+package "file"
+
+type File *File
+
+struct OpenOptions {
+  read Bool;
+  write Bool;
+  append Bool;
+  create Bool;
+  excl Bool;
+  trunc Bool;
+}
+
+func create(name Str) File
+func open(name Str) File
+func open(name Str, opt OpenOptions) File
+func stat(f File) Map
+func stat(name Str) Map
+func seek(f File, offset Int, whence Str = "set") Int
+func read_all(f File) Str
+func read_all(name Str) Str
+func write_to(r Reader, filename Str)
+func create_temp(pattern Str = "", dir Str = "") File

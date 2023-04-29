@@ -51,6 +51,6 @@ func TestLex(t *testing.T) {
 	run("string0", `"abcd*&fooo"`, STRING, "abcd*&fooo")
 	run("stringEscape", `"\"\\\""`, STRING, `"\"`)
 	run("id", `foobar1._barFoo`, ID, "foobar1", int('.'), 0, ID, "_barFoo")
-	run("mix", `123[foobar`, INT, int64(123), int('['), 0, ID, "foobar")
+	run("mix", `123[foobar....`, INT, int64(123), int('['), 0, ID, "foobar", ELLIPSIS, 0, int('.'), 0)
 	run("keywords", "const func type", kCONST, 0, kFUNC, 0, kTYPE, 0)
 }

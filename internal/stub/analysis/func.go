@@ -125,4 +125,5 @@ type Param struct {
 	Type       Type
 	HasDefault bool
 	Default    any
+	VarArg     bool
 }

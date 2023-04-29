@@ -34,6 +34,7 @@ func cast[T ast.AST](v ast.AST) T {
 %token <tok> STRING
 %token <tok> ID
 %token <tok> DOC
+%token <tok> ELLIPSIS
 
 %token <tok> '=' ':' ';' '(' ')' '[' ']' '*' '.' '?' '-' '{' '}'
 
@@ -215,6 +216,14 @@ func_param: ID type_ref
               $$ = &ast.FuncParam{
                 ID: $1,
                 Type: cast[*ast.TypeRef]($2),
+              }
+            }
+          | ID ELLIPSIS type_ref
+            {
+              $$ = &ast.FuncParam{
+                ID: $1,
+                Type: cast[*ast.TypeRef]($3),
+                VarArg: true,
               }
             }
           ;

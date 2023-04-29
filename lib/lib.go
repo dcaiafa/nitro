@@ -3,7 +3,9 @@ package lib
 import (
 	"github.com/dcaiafa/nitro/internal/export"
 	"github.com/dcaiafa/nitro/lib/encoding/json"
+	"github.com/dcaiafa/nitro/lib/file"
 	"github.com/dcaiafa/nitro/lib/maps"
+	"github.com/dcaiafa/nitro/lib/path/filepath"
 	"github.com/dcaiafa/nitro/lib/str"
 	libtime "github.com/dcaiafa/nitro/lib/time"
 )
@@ -33,14 +35,12 @@ var GlobalPackage = export.Exports{
 	{N: "lines", T: export.Func, F: lines},
 	{N: "log", T: export.Func, F: log},
 	{N: "logf", T: export.Func, F: logf},
-	{N: "ls", T: export.Func, F: filepathLs},
 	{N: "map", T: export.Func, F: imap},
 	{N: "mapreduce", T: export.Func, F: mapreduce},
 	{N: "max", T: export.Func, F: max},
 	{N: "min", T: export.Func, F: min},
 	{N: "narg", T: export.Func, F: narg},
 	{N: "nonl", T: export.Func, F: nonl},
-	{N: "open", T: export.Func, F: fileOpen},
 	{N: "parse_base64", T: export.Func, F: parseBase64},
 	{N: "parse_csv", T: export.Func, F: parseCSV},
 	{N: "parse_float", T: export.Func, F: parseFloat},
@@ -99,43 +99,6 @@ var ExecPackage = export.Exports{
 	{N: "with_stderr", T: export.Func, F: execWithStderr},
 }
 
-var FilePackage = export.Exports{
-	{N: "close", T: export.Func, F: closep},
-	{N: "create", T: export.Func, F: fileCreate},
-	{N: "create_temp", T: export.Func, F: fileCreateTemp},
-	{N: "open", T: export.Func, F: fileOpen},
-	{N: "read", T: export.Func, F: fileRead},
-	{N: "seek", T: export.Func, F: fileSeek},
-	{N: "stat", T: export.Func, F: fileStat},
-	{N: "write_to", T: export.Func, F: fileWriteTo},
-}
-
-var FilepathPackage = export.Exports{
-	{N: "abs", T: export.Func, F: filepathAbs},
-	{N: "base", T: export.Func, F: filepathBase},
-	{N: "clean", T: export.Func, F: filepathClean},
-	{N: "dir", T: export.Func, F: filepathDir},
-	{N: "eval_symlinks", T: export.Func, F: filepathEvalSymlinks},
-	{N: "exists", T: export.Func, F: filepathExists},
-	{N: "ext", T: export.Func, F: filepathExt},
-	{N: "from_slash", T: export.Func, F: filepathFromSlash},
-	{N: "is_abs", T: export.Func, F: filepathIsAbs},
-	{N: "is_dir", T: export.Func, F: filepathIsDir},
-	{N: "join", T: export.Func, F: filepathJoin},
-	{N: "ls", T: export.Func, F: filepathLs},
-	{N: "match", T: export.Func, F: filepathMatch},
-	{N: "mkdir", T: export.Func, F: filepathMkdir},
-	{N: "mkdir_all", T: export.Func, F: filepathMkdirAll},
-	{N: "mkdir_temp", T: export.Func, F: filepathMkdirTemp},
-	{N: "rel", T: export.Func, F: filepathRel},
-	{N: "remove", T: export.Func, F: filepathRemove},
-	{N: "remove_all", T: export.Func, F: filepathRemoveAll},
-	{N: "rename", T: export.Func, F: filepathRename},
-	{N: "split", T: export.Func, F: filepathSplit},
-	{N: "to_slash", T: export.Func, F: filepathToSlash},
-	{N: "volume_name", T: export.Func, F: filepathVolumeName},
-}
-
 var IterPackage = export.Exports{
 	{N: "into", T: export.Func, F: iter_into},
 	{N: "next", T: export.Func, F: iter_next},
@@ -165,8 +128,8 @@ func RegisterAll(registry BuiltinRegistry) {
 	registry.RegisterBuiltins("buf", BufPackage)
 	registry.RegisterBuiltins("co", CoPackage)
 	registry.RegisterBuiltins("exec", ExecPackage)
-	registry.RegisterBuiltins("file", FilePackage)
-	registry.RegisterBuiltins("filepath", FilepathPackage)
+	registry.RegisterBuiltins("file", file.Exports)
+	registry.RegisterBuiltins("filepath", filepath.Exports)
 	registry.RegisterBuiltins("iter", IterPackage)
 	registry.RegisterBuiltins("list", ListPackage)
 	registry.RegisterBuiltins("maps", maps.Exports)

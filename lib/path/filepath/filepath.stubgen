@@ -1,0 +1,29 @@
+package "path/filepath"
+
+type File *"github.com/dcaiafa/nitro/lib/file".File
+
+func abs(p Str) Str
+func base(p Str) Str
+func clean(p Str) Str
+func dir(p Str) Str
+func eval_symlinks(p Str) Str
+func ext(p Str) Str
+func from_slash(p Str) Str
+func is_abs(p Str) Bool
+func join(elem ...Str) Str
+func match(pattern Str, path Str) Bool
+func rel(base_path Str, targ_path Str) Str
+func split_list(path Str) List
+func to_slash(path Str) Str
+func from_slash(path Str) Str
+func volume_name(path Str) Str
+func is_dir(path Str) Bool
+func rename(old_path Str, new_path Str) 
+func exists(path Str) Bool
+func ls(path Str) Iter
+func remove(path Str) Bool
+func remove(file File) Bool
+func remove_all(path Str)
+func mkdir(path Str)
+func mkdir_all(path Str)
+func mkdir_temp(pattern Str = "", dir Str = "") Str

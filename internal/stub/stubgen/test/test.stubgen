@@ -14,3 +14,5 @@ struct EncodeOptions {
 }
 
 func encode(opt EncodeOptions = nil) Str
+
+func join(elem ...Str) Str

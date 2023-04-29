@@ -17,19 +17,13 @@ const vmPackage = "github.com/dcaiafa/nitro/internal/vm"
 const stubPackage = "github.com/dcaiafa/nitro/internal/stub"
 const exportPackage = "github.com/dcaiafa/nitro/internal/export"
 
-var valueGoType = GoType{
-	Package: vmPackage,
-	Name:    "Value",
-}
-var strGoType = GoType{
-	Package: vmPackage,
-	Name:    "String",
-}
-var mapGoType = GoType{
-	Package: vmPackage,
-	Name:    "Object",
-	Ref:     true,
-}
+var valueGoType = GoType{Package: vmPackage, Name: "Value"}
+var readerGoType = GoType{Package: vmPackage, Name: "Reader"}
+var readableGoType = GoType{Package: vmPackage, Name: "Readable"}
+var iterableGoType = GoType{Package: vmPackage, Name: "Iterable"}
+var iteratorGoType = GoType{Package: vmPackage, Name: "Iterator"}
+var strGoType = GoType{Package: vmPackage, Name: "String"}
+var mapGoType = GoType{Package: vmPackage, Name: "Object", Ref: true}
 
 type Analysis struct {
 	pkg       string
@@ -275,9 +269,10 @@ func (a *Analysis) emitFunc(w *bytes.Buffer, fn *Func) {
 	emitDFA = func(argIdx int, fromState *nfadfa.DFAState) {
 		if fromState.Accept {
 			isCond := len(fromState.Transitions) > 0
+			isVarArg := fromState.NFAStates[0].Data != nil && fromState.NFAStates[0].Data.(*FuncNFAData).Param.VarArg
 			if isCond {
 				fmt.Fprintf(w, "if len(args) == %d {\n", argIdx)
-			} else {
+			} else if !isVarArg {
 				fmt.Fprintf(w, "if len(args) > %d {\n", argIdx)
 				fmt.Fprintf(w, "  return nil, %s.ErrTooManyArgs\n", stubAlias)
 				fmt.Fprintf(w, "}\n")
@@ -329,6 +324,16 @@ func (a *Analysis) emitFunc(w *bytes.Buffer, fn *Func) {
 						stubAlias, argIdx)
 					fmt.Fprintf(w, "}\n")
 					fmt.Fprintf(w, "}\n")
+				} else if param.VarArg && param.Type.Name != "Any" {
+					fmt.Fprintf(w, "_ta%d := make([]%s, len(_a%d))\n", i, a.goType(a.getConvenienceType(param.Type)), i)
+					fmt.Fprintf(w, "for i := range _a%d {\n", i)
+					fmt.Fprintf(w, "  switch _a := _a%d[i].(type) {\n", i)
+					a.emitTypeCase(w, param.Type)
+					fmt.Fprintf(w, "  _ta%d[i] = %s\n", i, a.toConvenienceType("_a", param.Type))
+					fmt.Fprintf(w, "default:\n")
+					fmt.Fprintf(w, "  return nil, %s.InvalidArg(args, %d)\n", stubAlias, i)
+					fmt.Fprintf(w, "}\n")
+					fmt.Fprintf(w, "}\n")
 				} else {
 					fmt.Fprintf(w, "_ta%d := %v\n",
 						i, a.toConvenienceType(fmt.Sprintf("_a%d", i), param.Type))
@@ -370,47 +375,63 @@ func (a *Analysis) emitFunc(w *bytes.Buffer, fn *Func) {
 			}
 		}
 		if len(fromState.Transitions) != 0 {
-			fmt.Fprintf(w, "switch _a%d := args[%d].(type) {\n", argIdx, argIdx)
 			type transition struct {
 				Type    Type
 				ToState *nfadfa.DFAState
 			}
 			transitions := make([]transition, 0, len(fromState.Transitions))
 			for typ, toState := range fromState.Transitions {
-				transitions = append(transitions, transition{
+				t := transition{
 					Type:    typ.(Type),
 					ToState: toState,
-				})
+				}
+				transitions = append(transitions, t)
 			}
 			sort.Slice(transitions, func(i, j int) bool {
 				return transitions[i].Type.Name < transitions[j].Type.Name
 			})
-			for _, t := range transitions {
-				switch t.Type.Name {
-				case "Reader":
-					fmt.Fprintf(w, "case %s,%s:\n",
-						a.goType(GoType{Package: vmPackage, Name: "Reader"}),
-						a.goType(GoType{Package: vmPackage, Name: "Readable"}),
-					)
-				case "Iter":
-					fmt.Fprintf(w, "case %s,%s:\n",
-						a.goType(GoType{Package: vmPackage, Name: "Iterable"}),
-						a.goType(GoType{Package: vmPackage, Name: "Iterator"}),
-					)
-				default:
-					fmt.Fprintf(w, "case %s:\n", a.goTypeVM(t.Type.GoType))
+
+			varArgParam := transitions[0].ToState.NFAStates[0].Data.(*FuncNFAData).Param
+			isVarArg := varArgParam.VarArg
+			if isVarArg {
+				if len(transitions) != 1 {
+					panic("there should be only one transition for vararg param")
 				}
-				emitDFA(argIdx+1, t.ToState)
+				fmt.Fprintf(w, "var _a%d []%s.Value = args[%d:]\n", argIdx, vmAlias, argIdx)
+				emitDFA(argIdx+1, transitions[0].ToState)
+			} else {
+				fmt.Fprintf(w, "switch _a%d := args[%d].(type) {\n", argIdx, argIdx)
+				for _, t := range transitions {
+					a.emitTypeCase(w, t.Type)
+					emitDFA(argIdx+1, t.ToState)
+				}
+				fmt.Fprintf(w, "default:\n")
+				fmt.Fprintf(w, "  return nil, %s.InvalidArg(args, %d)\n",
+					stubAlias, argIdx)
+				fmt.Fprintf(w, "}\n")
 			}
-			fmt.Fprintf(w, "default:\n")
-			fmt.Fprintf(w, "  return nil, %s.InvalidArg(args, %d)\n",
-				stubAlias, argIdx)
-			fmt.Fprintf(w, "}\n")
 		}
 	}
 
 	emitDFA(0, dfa.Start)
 	fmt.Fprintf(w, "}\n")
+}
+
+func (a *Analysis) emitTypeCase(w *bytes.Buffer, typ Type) {
+	switch typ.Name {
+	case "Reader":
+		fmt.Fprintf(w, "case %s,%s:\n",
+			a.goType(readerGoType),
+			a.goType(readableGoType),
+		)
+	case "Iter":
+		fmt.Fprintf(w, "case %s,%s:\n",
+			a.goType(iterableGoType),
+			a.goType(iteratorGoType),
+		)
+	default:
+		fmt.Fprintf(w, "case %s:\n", a.goTypeVM(typ.GoType))
+	}
 }
 
 func (a *Analysis) getConvenienceType(typ Type) GoType {
