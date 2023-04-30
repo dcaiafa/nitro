@@ -21,3 +21,4 @@ func read_all(f File) Str
 func read_all(name Str) Str
 func write_to(r Reader, filename Str)
 func create_temp(pattern Str = "", dir Str = "") File
+func remove(f File) Bool

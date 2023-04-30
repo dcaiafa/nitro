@@ -156,7 +156,7 @@ exit status 128
 
 	RunSubO(t, `stdin_is_file`, `
 		var tmp = file.create_temp()
-		defer filepath.remove(tmp)
+		defer file.remove(tmp)
 		range(100000) | 
 			map(to_string) |
 			tmp
@@ -171,7 +171,7 @@ exit status 128
 
 	RunSubO(t, `stderr_is_file`, `
       var tmp = file.create_temp()
-      defer filepath.remove(tmp)
+      defer file.remove(tmp)
       range(100000) |
         map(to_string) |
         exec.exec(["go", "run", "./testexec/testexec.go", "-echo-to-stderr"]) |

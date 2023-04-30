@@ -11,7 +11,6 @@ import (
 	"github.com/bmatcuk/doublestar/v4"
 	"github.com/dcaiafa/nitro"
 	"github.com/dcaiafa/nitro/internal/vm"
-	"github.com/dcaiafa/nitro/lib/file"
 )
 
 //go:generate go run ../../../internal/stub/stubgen filepath.stubgen
@@ -225,18 +224,6 @@ func ls0(vm *vm.VM, path string) (vm.Iterator, error) {
 
 func remove0(vm *vm.VM, path string) (bool, error) {
 	err := os.Remove(path)
-	if err != nil {
-		if errors.Is(err, os.ErrNotExist) {
-			return false, nil
-		}
-		return false, err
-	}
-	return true, nil
-}
-
-func remove1(vm *vm.VM, f *file.File) (bool, error) {
-	f.Close()
-	err := os.Remove(f.Name())
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			return false, nil

@@ -1,6 +1,7 @@
 package file
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -232,4 +233,16 @@ func create_temp0(vm *vm.VM, pattern string, dir string) (*File, error) {
 		return nil, err
 	}
 	return &File{f}, nil
+}
+
+func remove0(vm *vm.VM, f *File) (bool, error) {
+	f.Close()
+	err := os.Remove(f.Name())
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
 }

@@ -1,7 +1,5 @@
 package "path/filepath"
 
-type File *"github.com/dcaiafa/nitro/lib/file".File
-
 func abs(p Str) Str
 func base(p Str) Str
 func clean(p Str) Str
@@ -22,7 +20,6 @@ func rename(old_path Str, new_path Str)
 func exists(path Str) Bool
 func ls(path Str) Iter
 func remove(path Str) Bool
-func remove(file File) Bool
 func remove_all(path Str)
 func mkdir(path Str)
 func mkdir_all(path Str)
