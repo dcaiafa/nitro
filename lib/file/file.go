@@ -87,17 +87,17 @@ func create0(vm *vm.VM, name string) (*File, error) {
 	return file, nil
 }
 
-func open0(vm *vm.VM, name string) (*File, error) {
-	f, err := os.Open(name)
-	if err != nil {
-		return nil, err
+func open0(vm *vm.VM, name string, opts *OpenOptions) (*File, error) {
+	if opts == nil {
+		f, err := os.Open(name)
+		if err != nil {
+			return nil, err
+		}
+		file := &File{f}
+		vm.RegisterCloser(file)
+		return file, nil
 	}
-	file := &File{f}
-	vm.RegisterCloser(file)
-	return file, nil
-}
 
-func open1(vm *vm.VM, name string, opts *OpenOptions) (*File, error) {
 	// TODO: permissions from Options.
 	var perm os.FileMode = 0666
 	flags := 0

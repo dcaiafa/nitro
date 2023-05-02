@@ -159,15 +159,24 @@ func _create_temp(vm *_p2.VM, args []_p2.Value, nret int) ([]_p2.Value, error) {
 func _open(vm *_p2.VM, args []_p2.Value, nret int) ([]_p2.Value, error) {
 	var err error
 	_ = err
-	if len(args) < 2 {
+	if len(args) < 1 {
 		return nil, _p1.ErrInsufficientArgs
 	}
 	switch _a0 := args[0].(type) {
 	case _p2.String:
 		if len(args) == 1 {
+			var _a1 *_p2.Object = nil
 			{
 				_ta0 := (_a0).String()
-				_r0, err := open0(vm, _ta0)
+				var _ta1 *OpenOptions
+				if _a1 != nil {
+					_ta1 = new(OpenOptions)
+					err = _ta1.FromMap(_a1)
+					if err != nil {
+						return nil, _p1.InvalidArgErr(args, 1, err)
+					}
+				}
+				_r0, err := open0(vm, _ta0, _ta1)
 				if err != nil {
 					return nil, err
 				}
@@ -189,7 +198,7 @@ func _open(vm *_p2.VM, args []_p2.Value, nret int) ([]_p2.Value, error) {
 						return nil, _p1.InvalidArgErr(args, 2, err)
 					}
 				}
-				_r0, err := open1(vm, _ta0, _ta1)
+				_r0, err := open0(vm, _ta0, _ta1)
 				if err != nil {
 					return nil, err
 				}
