@@ -58,6 +58,7 @@ func NewAnalysis() *Analysis {
 		{"Reader", "Reader", false},
 		{"Regex", "Regex", true},
 		{"Str", "String", false},
+		{"Writer", "Writer", false},
 	}
 
 	for _, typ := range types {

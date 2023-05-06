@@ -13,17 +13,13 @@ import (
 
 func init() {
 	Exports = append(Exports,
-		export.Export{N: "HOUR", T: export.Custom, I: int64(time.Hour), C: exportDurationConst},
-		export.Export{N: "MICROSECOND", T: export.Custom, I: int64(time.Microsecond), C: exportDurationConst},
-		export.Export{N: "MILLISECOND", T: export.Custom, I: int64(time.Millisecond), C: exportDurationConst},
-		export.Export{N: "MINUTE", T: export.Custom, I: int64(time.Minute), C: exportDurationConst},
-		export.Export{N: "NANOSECOND", T: export.Custom, I: int64(time.Nanosecond), C: exportDurationConst},
-		export.Export{N: "SECOND", T: export.Custom, I: int64(time.Second), C: exportDurationConst},
+		export.Export{N: "HOUR", T: export.Value, V: NewDuration(time.Hour)},
+		export.Export{N: "MICROSECOND", T: export.Value, V: NewDuration(time.Microsecond)},
+		export.Export{N: "MILLISECOND", T: export.Value, V: NewDuration(time.Millisecond)},
+		export.Export{N: "MINUTE", T: export.Value, V: NewDuration(time.Minute)},
+		export.Export{N: "NANOSECOND", T: export.Value, V: NewDuration(time.Nanosecond)},
+		export.Export{N: "SECOND", T: export.Value, V: NewDuration(time.Second)},
 	)
-}
-
-func exportDurationConst(e *export.Export) nitro.Value {
-	return NewDuration(time.Duration(e.I))
 }
 
 type Time struct {
