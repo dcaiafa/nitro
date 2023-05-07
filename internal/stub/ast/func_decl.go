@@ -26,7 +26,7 @@ func (d *FuncDecl) RunPass(ctx *Context, pass Pass) {
 			}
 			if paramAST.DefaultValue != nil {
 				param.HasDefault = true
-				param.Default = paramAST.DefaultValue.Value
+				param.DefaultExpr = paramAST.DefaultValue.Expr
 			} else if len(sig.Params) > 0 && sig.Params[len(sig.Params)-1].HasDefault {
 				ctx.Failf(token.Pos{}, "Only the last parameters are allowed to have default values")
 				return

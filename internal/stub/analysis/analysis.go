@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path"
-	"reflect"
+	"regexp"
 	"sort"
 	"strings"
 
@@ -26,20 +26,22 @@ var strGoType = GoType{Package: vmPackage, Name: "String"}
 var mapGoType = GoType{Package: vmPackage, Name: "Object", Ref: true}
 
 type Analysis struct {
-	pkg       string
-	goPkg     string
-	types     map[string]Type
-	funcs     map[string]*Func
-	structs   map[string]*Struct
-	imports   []string
-	importMap map[ /*package*/ string] /*alias*/ string
+	pkg          string
+	goPkg        string
+	types        map[string]Type
+	funcs        map[string]*Func
+	structs      map[string]*Struct
+	addedImports map[ /*alias*/ string] /*import*/ string
+	imports      []string
+	importMap    map[ /*package*/ string] /*alias*/ string
 }
 
 func NewAnalysis() *Analysis {
 	a := &Analysis{
-		types:   make(map[string]Type),
-		funcs:   make(map[string]*Func),
-		structs: make(map[string]*Struct),
+		types:        make(map[string]Type),
+		funcs:        make(map[string]*Func),
+		structs:      make(map[string]*Struct),
+		addedImports: make(map[string]string),
 	}
 
 	types := []struct {
@@ -81,6 +83,14 @@ func NewAnalysis() *Analysis {
 func (a *Analysis) SetPackage(name string) {
 	a.pkg = name
 	a.goPkg = path.Base(a.pkg)
+}
+
+func (a *Analysis) AddImport(alias string, imp string) error {
+	if _, ok := a.addedImports[alias]; ok {
+		return fmt.Errorf("there is already an import with alias %q", alias)
+	}
+	a.addedImports[alias] = imp
+	return nil
 }
 
 func (a *Analysis) AddGoType(typ Type) error {
@@ -137,6 +147,10 @@ func (a *Analysis) Emit(w *bytes.Buffer) {
 			importSet.Add(typ.GoType.Package)
 		}
 	}
+	for _, imp := range a.addedImports {
+		importSet.Add(imp)
+	}
+
 	a.imports = importSet.ToSlice()
 	sort.Strings(a.imports)
 	a.importMap = make(map[ /*package*/ string] /*alias*/ string, len(a.imports))
@@ -293,18 +307,10 @@ func (a *Analysis) emitFunc(w *bytes.Buffer, fn *Func) {
 				if !param.HasDefault {
 					panic("remaining parameters must have defaults")
 				}
-				var def string
-				switch v := param.Default.(type) {
-				case int64, float64, bool:
-					def = fmt.Sprintf("%v", v)
-				case string:
-					def = fmt.Sprintf("%q", v)
-				default:
-					if v == nil {
-						def = "nil"
-					} else {
-						panic(fmt.Errorf("invalid default const value type %q", reflect.ValueOf(v)))
-					}
+				def, err := a.expr(param.DefaultExpr)
+				if err != nil {
+					// We should check expressions before emit.
+					panic(err)
 				}
 				fmt.Fprintf(w, "var _a%d %s = %v\n",
 					i, a.goTypeVM(param.Type.GoType),
@@ -512,4 +518,27 @@ func (a *Analysis) vmAlias() string {
 func (a *Analysis) fieldGoName(n string) string {
 	// TODO: handle snake.
 	return strings.Title(n)
+}
+
+var aliasRegex = regexp.MustCompile(`#([a-z]\w*)\.`)
+
+func (a *Analysis) expr(expr string) (string, error) {
+	var err error
+	expr = aliasRegex.ReplaceAllStringFunc(expr, func(s string) string {
+		alias := s[1 : len(s)-1]
+		imp, ok := a.addedImports[alias]
+		if !ok {
+			err = fmt.Errorf("there is no import with alias %q", alias)
+			return s
+		}
+		actualAlias := a.importMap[imp]
+		if actualAlias == "" {
+			panic("added import not in importMap")
+		}
+		return actualAlias + "."
+	})
+	if err != nil {
+		return "", err
+	}
+	return expr, nil
 }

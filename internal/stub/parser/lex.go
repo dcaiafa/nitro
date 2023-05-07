@@ -12,10 +12,11 @@ import (
 var keywords = map[string]int{
 	"const":   kCONST,
 	"func":    kFUNC,
-	"package": kPACKAGE,
-	"type":    kTYPE,
-	"struct":  kSTRUCT,
+	"import":  kIMPORT,
 	"nil":     kNIL,
+	"package": kPACKAGE,
+	"struct":  kSTRUCT,
+	"type":    kTYPE,
 }
 
 type lex struct {
@@ -65,6 +66,10 @@ func (l *lex) scan(lval *yySymType) int {
 		case '"':
 			l.unread()
 			return l.scanQuotedString(lval)
+
+		case '`':
+			l.unread()
+			return l.scanBackQuotedString(lval)
 
 		// Parse '.' and '...'
 		case '.':
@@ -149,6 +154,26 @@ func (l *lex) scanQuotedString(lval *yySymType) int {
 		} else {
 			l.buf.WriteRune(r)
 		}
+	}
+
+	lval.tok.Type = token.String
+	lval.tok.Str = l.buf.String()
+	return STRING
+}
+
+func (l *lex) scanBackQuotedString(lval *yySymType) int {
+	l.buf.Reset()
+
+	if l.read() != '`' {
+		return LEXERR
+	}
+
+	for {
+		r := l.read()
+		if r == '`' {
+			break
+		}
+		l.buf.WriteRune(r)
 	}
 
 	lval.tok.Type = token.String

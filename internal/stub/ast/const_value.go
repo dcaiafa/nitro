@@ -1,8 +1,7 @@
 package ast
 
 type ConstValue struct {
-	Value any
+	Expr string
 }
 
-func (v *ConstValue) RunPass(ctx *Context, pass Pass) {
-}
+func (v *ConstValue) RunPass(ctx *Context, pass Pass) {}

@@ -8,5 +8,5 @@ struct EncodeOptions {
   prefix Str;
 }
 
-func encode(v Any, opts EncodeOptions = nil) Str
+func encode(v Any, opts EncodeOptions = "nil") Str
 func pretty(v Any) Str

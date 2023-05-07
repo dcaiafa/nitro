@@ -28,6 +28,7 @@ func cast[T ast.AST](v ast.AST) T {
 %token <tok> kTYPE
 %token <tok> kSTRUCT
 %token <tok> kNIL
+%token <tok> kIMPORT
 
 %token <tok> INT
 %token <tok> FLOAT
@@ -38,7 +39,7 @@ func cast[T ast.AST](v ast.AST) T {
 
 %token <tok> '=' ':' ';' '(' ')' '[' ']' '*' '.' '?' '-' '{' '}'
 
-/* :sort /\S\+$/ r */
+/*   :sort /\S\+$/ r   */
 %type <ast> const_decl
 %type <ast> const_value
 %type <ast> decl
@@ -53,6 +54,7 @@ func cast[T ast.AST](v ast.AST) T {
 %type <asts> func_rets
 %type <asts> func_rets_opt
 %type <ast> go_type
+%type <ast> import_decl
 %type <ast> package
 %type <ast> simple_go_type
 %type <ast> struct_decl
@@ -93,6 +95,7 @@ decls: decls decl                   { $$ = append($1, $2) }
      ;
 
 decl: const_decl
+    | import_decl
     | type_decl
     | struct_decl
     | func_decl
@@ -101,6 +104,7 @@ decl: const_decl
 doc_opt: DOC                        { $$ = &ast.Doc{} }
        | /* empty */                { $$ = nil }
        ;
+
 
 const_decl: doc_opt kCONST ID type_ref '=' const_value
             { 
@@ -113,12 +117,19 @@ const_decl: doc_opt kCONST ID type_ref '=' const_value
             }
           ;
 
-const_value: '-' INT { $$ = &ast.ConstValue{ Value: -$2.Int } }
-           | INT { $$ = &ast.ConstValue{ Value: $1.Int } } 
-           | '-' FLOAT   { $$ = &ast.ConstValue{ Value: -$2.Float } } 
-           | FLOAT   { $$ = &ast.ConstValue{ Value: $1.Float } } 
-           | STRING  { $$ = &ast.ConstValue{ Value: $1.Str } } 
-           | kNIL { $$ = &ast.ConstValue{ Value: nil } }
+const_value: STRING
+             {
+               $$ = &ast.ConstValue{ Expr: $1.Str }
+             }
+           ;
+
+import_decl: kIMPORT ID STRING
+             {
+               $$ = &ast.ImportDecl{
+                 Alias: $2.Str,
+                 Import: $3.Str,
+               }
+             }
            ;
 
 struct_decl: kSTRUCT ID '{' struct_fields_opt '}'

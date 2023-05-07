@@ -5,12 +5,12 @@ func find_last(s Str, substr Str) Any
 func match(s Str, regex Regex) Any
 func match_all(s Str, regex Regex) Any
 
-func replace(s Str, old Str, rep Str, n Int = -1) Str
+func replace(s Str, old Str, rep Str, n Int = "-1") Str
 func replace(s Str, old Regex, rep Str) Str
 func replace(s Str, old Regex, rep Callable) Str
 
-func split(s Str, sep Str, n Int = -1) Any
-func split(s Str, sep Regex, n Int = -1) Any
+func split(s Str, sep Str, n Int = "-1") Any
+func split(s Str, sep Regex, n Int = "-1") Any
 
 func trim_space(s Str) Str
 func trim_prefix(s Str, prefix Str) Str

@@ -9,12 +9,12 @@ func in(t Time, loc Str) Time
 
 func utc(t Time) Time
 func local(t Time) Time
-func format(t Time, layout Str = "2006-01-02T15:04:05Z07:00") Str
+func format(t Time, layout Str = `"2006-01-02T15:04:05Z07:00"`) Str
 func unix(t Time) Int
 func unix_nano(t Time) Int
-func parse(v Str, layout Str = "2006-01-02T15:04:05Z07:00") Time
+func parse(v Str, layout Str = `"2006-01-02T15:04:05Z07:00"`) Time
 func now() Time
-func from_unix(sec Int, nano Int = 0) Time
+func from_unix(sec Int, nano Int = `0`) Time
 func to_map(t Time) Map
 
 func truncate(d Duration, m Duration) Duration

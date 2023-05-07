@@ -121,9 +121,9 @@ func (s *Signature) String() string {
 }
 
 type Param struct {
-	Name       string
-	Type       Type
-	HasDefault bool
-	Default    any
-	VarArg     bool
+	Name        string
+	Type        Type
+	HasDefault  bool
+	DefaultExpr string
+	VarArg      bool
 }
