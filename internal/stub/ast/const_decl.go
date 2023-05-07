@@ -10,4 +10,7 @@ type ConstDecl struct {
 }
 
 func (d *ConstDecl) RunPass(ctx *Context, pass Pass) {
+	if pass == Check {
+		ctx.Analysis.AddConst(d.ID.Str, d.Value.Expr)
+	}
 }

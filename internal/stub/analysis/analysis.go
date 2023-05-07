@@ -31,6 +31,7 @@ type Analysis struct {
 	types        map[string]Type
 	funcs        map[string]*Func
 	structs      map[string]*Struct
+	consts       map[string]string
 	addedImports map[ /*alias*/ string] /*import*/ string
 	imports      []string
 	importMap    map[ /*package*/ string] /*alias*/ string
@@ -41,6 +42,7 @@ func NewAnalysis() *Analysis {
 		types:        make(map[string]Type),
 		funcs:        make(map[string]*Func),
 		structs:      make(map[string]*Struct),
+		consts:       make(map[string]string),
 		addedImports: make(map[string]string),
 	}
 
@@ -91,6 +93,10 @@ func (a *Analysis) AddImport(alias string, imp string) error {
 	}
 	a.addedImports[alias] = imp
 	return nil
+}
+
+func (a *Analysis) AddConst(name string, expr string) {
+	a.consts[name] = expr
 }
 
 func (a *Analysis) AddGoType(typ Type) error {
@@ -182,11 +188,24 @@ func (a *Analysis) Emit(w *bytes.Buffer) {
 		a.emitFunc(w, fn)
 	}
 
+	constNames := make([]string, 0, len(a.consts))
+	for constName := range a.consts {
+		constNames = append(constNames, constName)
+	}
+	sort.Strings(constNames)
+
 	exportAlias := a.importMap[exportPackage]
 	fmt.Fprintf(w, "\n")
 	fmt.Fprintf(w, "var Exports = %s.Exports{\n", exportAlias)
 	for _, funcName := range funcNames {
 		fmt.Fprintf(w, "  {N: %q, T: %s.Func, F: _%s},\n", funcName, exportAlias, funcName)
+	}
+	for _, constName := range constNames {
+		constExpr, err := a.expr(a.consts[constName])
+		if err != nil {
+			panic(err)
+		}
+		fmt.Fprintf(w, "  {N: %q, T: %s.Value, V: %s},\n", constName, exportAlias, constExpr)
 	}
 	fmt.Fprintf(w, "}\n")
 }

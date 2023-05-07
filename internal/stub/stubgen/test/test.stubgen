@@ -1,18 +1,8 @@
 package "yay/foobar"
 
-func now()
+import libtime "github.com/dcaiafa/nitro/lib/time"
+import gotime "time"
 
-func replace(s Str, old Str, new Str, n Int = -1) Str
-func replace(s Str, old Regex, new Str) Str
-func replace(s Str, old Regex, new Callable) Str
+type Time "github.com/dcaiafa/nitro/lib/time".Time
 
-func decode(input Reader) Any
-
-struct EncodeOptions {
-  indent Str;
-  prefix Str;
-}
-
-func encode(opt EncodeOptions = nil) Str
-
-func join(elem ...Str) Str
+const MINUTE Time = `#libtime.NewTime(#gotime.Minute)`

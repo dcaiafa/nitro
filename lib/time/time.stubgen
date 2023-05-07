@@ -1,8 +1,17 @@
 package "time"
 
+import gotime "time"
+
 type Time Time
 type Location *Location
 type Duration Duration
+
+const HOUR Duration = `NewDuration(#gotime.Hour)`
+const MICROSECOND Duration = `NewDuration(#gotime.Microsecond)`
+const MILLISECOND Duration = `NewDuration(#gotime.Millisecond)`
+const MINUTE Duration = `NewDuration(#gotime.Minute)`
+const NANOSECOND Duration = `NewDuration(#gotime.Nanosecond)`
+const SECOND Duration = `NewDuration(#gotime.Second)`
 
 func in(t Time, loc Location) Time
 func in(t Time, loc Str) Time

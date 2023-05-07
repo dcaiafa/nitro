@@ -5,12 +5,12 @@ import (
 	"time"
 
 	"github.com/dcaiafa/nitro"
-	"github.com/dcaiafa/nitro/internal/export"
 	"github.com/dcaiafa/nitro/internal/vm"
 )
 
 //go:generate stubgen time.stubgen
 
+/*
 func init() {
 	Exports = append(Exports,
 		export.Export{N: "HOUR", T: export.Value, V: NewDuration(time.Hour)},
@@ -21,6 +21,7 @@ func init() {
 		export.Export{N: "SECOND", T: export.Value, V: NewDuration(time.Second)},
 	)
 }
+*/
 
 type Time struct {
 	time time.Time

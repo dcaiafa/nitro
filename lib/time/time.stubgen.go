@@ -3,6 +3,7 @@ package time
 import _p0 "github.com/dcaiafa/nitro/internal/export"
 import _p1 "github.com/dcaiafa/nitro/internal/stub"
 import _p2 "github.com/dcaiafa/nitro/internal/vm"
+import _p3 "time"
 
 func _fixed_zone(vm *_p2.VM, args []_p2.Value, nret int) ([]_p2.Value, error) {
 	var err error
@@ -394,4 +395,10 @@ var Exports = _p0.Exports{
 	{N: "unix", T: _p0.Func, F: _unix},
 	{N: "unix_nano", T: _p0.Func, F: _unix_nano},
 	{N: "utc", T: _p0.Func, F: _utc},
+	{N: "HOUR", T: _p0.Value, V: NewDuration(_p3.Hour)},
+	{N: "MICROSECOND", T: _p0.Value, V: NewDuration(_p3.Microsecond)},
+	{N: "MILLISECOND", T: _p0.Value, V: NewDuration(_p3.Millisecond)},
+	{N: "MINUTE", T: _p0.Value, V: NewDuration(_p3.Minute)},
+	{N: "NANOSECOND", T: _p0.Value, V: NewDuration(_p3.Nanosecond)},
+	{N: "SECOND", T: _p0.Value, V: NewDuration(_p3.Second)},
 }
