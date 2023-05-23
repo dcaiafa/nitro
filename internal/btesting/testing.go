@@ -11,6 +11,7 @@ import (
 	"github.com/dcaiafa/nitro/internal/fs"
 	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/lib"
+	libio "github.com/dcaiafa/nitro/lib/io"
 )
 
 func harnessCall(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
@@ -49,7 +50,7 @@ func run(prog string, params map[string]nitro.Value) (output string, err error) 
 	outBuilder := &strings.Builder{}
 
 	vm := nitro.NewVM(compiled)
-	lib.SetStdout(vm, outBuilder)
+	libio.SetStdout(vm, outBuilder)
 
 	for n, v := range params {
 		err = vm.SetParam(n, v)

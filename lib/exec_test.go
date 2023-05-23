@@ -9,7 +9,7 @@ import (
 func TestExec(t *testing.T) {
 	RunSubO(t, `complex-arg`,
 		"e`go run ./testexec/testexec.go -print-args single-{\"arg\"}-yeah last` |"+`
-			stdout
+			io.out
 	`, `
 [single-arg-yeah]
 [last]
@@ -17,12 +17,12 @@ func TestExec(t *testing.T) {
 
 	RunSubErr(t, `complex-arg-expand-err`,
 		"e`go run ./testexec/testexec.go -print-args single-{[1,2]...}-yeah last` |"+`
-			stdout
+			io.out
 	`, nil)
 
 	RunSubO(t, `literals`,
 		"e`go run ./testexec/testexec.go -print-args ./some/path   \\other\\path 123 !@#$%^&*()[]| ` |\n"+`
-			stdout
+			io.out
 	`, `
 [./some/path]
 [\other\path]
@@ -37,7 +37,7 @@ func TestExec(t *testing.T) {
     { name: "Ollie", alive: true },
   ]
 `+"e`go run ./testexec/testexec.go -print-args {1} {[\"hello\", \"world\"] | join(\" \")} {pets | filter(&p->not p.alive) | map(&p->p.name)...}` |\n"+`
-			stdout
+			io.out
 	`, `
 [1]
 [hello world]
@@ -50,12 +50,12 @@ func TestExec(t *testing.T) {
 		t.Fatal(err)
 	}
 	RunSubO(t, `expr_home`,
-		"e`go run ./testexec/testexec.go -print-args ~ a=~ b=~/foo` | stdout",
+		"e`go run ./testexec/testexec.go -print-args ~ a=~ b=~/foo` | io.out",
 		fmt.Sprintf("[%v]\n[a=%v]\n[b=%v/foo]", homeDir, homeDir, homeDir))
 
 	RunSubO(t, `expr_nil`, `
 `+"e`go run ./testexec/testexec.go -print-args a {nil} b` |\n"+`
-			stdout
+			io.out
 	`, `
 [a]
 [b]
@@ -63,7 +63,7 @@ func TestExec(t *testing.T) {
 
 	RunSubO(t, `expr_iterator`, `
 `+"e`go run ./testexec/testexec.go -print-args a {range(5) | filter(&n->n%2==0)...} b` |\n"+`
-			stdout
+			io.out
 	`, `
 [a]
 [0]
@@ -75,7 +75,7 @@ func TestExec(t *testing.T) {
 	RunSubO(t, `expr_iterable`, `
   var l = ["hi", 123, nil, 3.1415]
 `+"e`go run ./testexec/testexec.go -print-args a {l...} b` |\n"+`
-			stdout
+			io.out
 	`, `
 [a]
 [hi]

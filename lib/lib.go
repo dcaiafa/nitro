@@ -4,6 +4,7 @@ import (
 	"github.com/dcaiafa/nitro/internal/export"
 	"github.com/dcaiafa/nitro/lib/encoding/json"
 	"github.com/dcaiafa/nitro/lib/file"
+	"github.com/dcaiafa/nitro/lib/io"
 	"github.com/dcaiafa/nitro/lib/maps"
 	"github.com/dcaiafa/nitro/lib/path/filepath"
 	"github.com/dcaiafa/nitro/lib/str"
@@ -45,13 +46,11 @@ var GlobalPackage = export.Exports{
 	{N: "parse_csv", T: export.Func, F: parseCSV},
 	{N: "parse_float", T: export.Func, F: parseFloat},
 	{N: "parse_int", T: export.Func, F: parseInt},
-	{N: "pop_stdout", T: export.Func, F: popStdout},
 	{N: "print", T: export.Func, F: print},
 	{N: "print_table", T: export.Func, F: printTable},
 	{N: "printf", T: export.Func, F: printf},
 	{N: "probe", T: export.Func, F: probe},
 	{N: "prompt", T: export.Func, F: prompt},
-	{N: "push_stdout", T: export.Func, F: pushStdout},
 	{N: "range", T: export.Func, F: range_},
 	{N: "read", T: export.Func, F: read},
 	{N: "reduce", T: export.Func, F: reduce},
@@ -62,9 +61,6 @@ var GlobalPackage = export.Exports{
 	{N: "sleep", T: export.Func, F: sleep},
 	{N: "sort", T: export.Func, F: sort},
 	{N: "sprintf", T: export.Func, F: sprintf},
-	{N: "stderr", T: export.Func, F: stderr},
-	{N: "stdin", T: export.Func, F: stdin},
-	{N: "stdout", T: export.Func, F: stdout},
 	{N: "sum", T: export.Func, F: sum},
 	{N: "take", T: export.Func, F: take},
 	{N: "to_array", T: export.Func, F: toArray},
@@ -127,9 +123,11 @@ func RegisterAll(registry BuiltinRegistry) {
 	registry.RegisterBuiltins("$global", GlobalPackage)
 	registry.RegisterBuiltins("buf", BufPackage)
 	registry.RegisterBuiltins("co", CoPackage)
+	registry.RegisterBuiltins("encoding/json", json.Exports)
 	registry.RegisterBuiltins("exec", ExecPackage)
 	registry.RegisterBuiltins("file", file.Exports)
 	registry.RegisterBuiltins("filepath", filepath.Exports)
+	registry.RegisterBuiltins("io", io.Exports)
 	registry.RegisterBuiltins("iter", IterPackage)
 	registry.RegisterBuiltins("list", ListPackage)
 	registry.RegisterBuiltins("maps", maps.Exports)
@@ -137,5 +135,4 @@ func RegisterAll(registry BuiltinRegistry) {
 	registry.RegisterBuiltins("os", OSPackage)
 	registry.RegisterBuiltins("str", str.Exports)
 	registry.RegisterBuiltins("time", libtime.Exports)
-	registry.RegisterBuiltins("encoding/json", json.Exports)
 }

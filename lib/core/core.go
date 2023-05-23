@@ -22,12 +22,12 @@ type WriterBase struct {
 	typ string
 }
 
-func NewWriterBase(typ string, w io.Writer) WriterBase {
-	return WriterBase{Writer: w, typ: typ}
+func NewWriterBase(w io.Writer) WriterBase {
+	return WriterBase{Writer: w}
 }
 
-func (b *WriterBase) String() string    { return "<" + b.Type() + ">" }
-func (b *WriterBase) Type() string      { return b.typ }
+func (b *WriterBase) String() string    { return "<Writer>" }
+func (b *WriterBase) Type() string      { return "Writer" }
 func (b *WriterBase) Traits() vm.Traits { return vm.TraitNone }
 
 var ErrWriterCallUsage = errors.New(

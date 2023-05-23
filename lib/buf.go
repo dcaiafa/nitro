@@ -32,7 +32,7 @@ func newBuffer(data string) *Buffer {
 	} else {
 		b.buf = new(bytes.Buffer)
 	}
-	b.WriterBase = core.NewWriterBase("buffer", b.buf)
+	b.WriterBase = core.NewWriterBase(b.buf)
 	return b
 }
 

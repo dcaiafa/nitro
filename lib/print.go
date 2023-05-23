@@ -10,6 +10,7 @@ import (
 	"github.com/dcaiafa/nitro"
 	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/lib/core"
+	libio "github.com/dcaiafa/nitro/lib/io"
 	fatihcolor "github.com/fatih/color"
 )
 
@@ -200,7 +201,7 @@ func colorAttribute(v string) (attrib fatihcolor.Attribute, err error) {
 }
 
 func print(vm *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	return basePrint(Stdout(vm), vm, args, nRet)
+	return basePrint(libio.Stdout(vm), vm, args, nRet)
 }
 
 func basePrint(out io.Writer, m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
@@ -266,7 +267,7 @@ func basePrint(out io.Writer, m *nitro.VM, args []nitro.Value, nRet int) ([]nitr
 }
 
 func printf(vm *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	return basePrintf(Stdout(vm), vm, args, nRet)
+	return basePrintf(libio.Stdout(vm), vm, args, nRet)
 }
 
 func basePrintf(out io.Writer, m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
@@ -297,11 +298,11 @@ func basePrintf(out io.Writer, m *nitro.VM, args []nitro.Value, nRet int) ([]nit
 }
 
 func log(vm *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	return basePrint(Stderr(vm), vm, args, nRet)
+	return basePrint(libio.Stderr(vm), vm, args, nRet)
 }
 
 func logf(vm *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
-	return basePrintf(Stderr(vm), vm, args, nRet)
+	return basePrintf(libio.Stderr(vm), vm, args, nRet)
 }
 
 func sprintf(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
@@ -367,7 +368,7 @@ func printTable(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error
 	}
 
 	tabw := tabwriter.NewWriter(
-		Stdout(m),
+		libio.Stdout(m),
 		int(opts.MinWidth),
 		0, /*tabwidth*/
 		int(opts.Padding),

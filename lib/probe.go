@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/dcaiafa/nitro"
+	libio "github.com/dcaiafa/nitro/lib/io"
 )
 
 func probe(vm *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
@@ -26,7 +27,7 @@ func probe(vm *nitro.VM, args []nitro.Value, nret int) ([]nitro.Value, error) {
 	}
 
 	otherArgs = append(otherArgs, probeValue)
-	_, err := basePrint(Stderr(vm), vm, otherArgs, 0)
+	_, err := basePrint(libio.Stderr(vm), vm, otherArgs, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +51,7 @@ func (i *probeIter) Next(vm *nitro.VM, args []nitro.Value, nret int) ([]nitro.Va
 		return nil, nil
 	}
 	printArgs := append(i.otherArgs, v...)
-	basePrint(Stderr(vm), vm, printArgs, 0)
+	basePrint(libio.Stderr(vm), vm, printArgs, 0)
 
 	return v, nil
 }

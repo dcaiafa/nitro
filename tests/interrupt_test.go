@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/dcaiafa/nitro"
-	"github.com/dcaiafa/nitro/lib"
+	libio "github.com/dcaiafa/nitro/lib/io"
 	"github.com/stretchr/testify/require"
 )
 
@@ -33,7 +33,7 @@ func TestInterrupt(t *testing.T) {
 	outBuilder := &strings.Builder{}
 
 	vm := nitro.NewVM(prog)
-	lib.SetStdout(vm, outBuilder)
+	libio.SetStdout(vm, outBuilder)
 
 	go func() {
 		time.Sleep(100 * time.Millisecond)

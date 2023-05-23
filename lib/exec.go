@@ -13,6 +13,7 @@ import (
 	"github.com/dcaiafa/nitro/internal/ioqueue"
 	"github.com/dcaiafa/nitro/internal/vm"
 	"github.com/dcaiafa/nitro/lib/core"
+	libio "github.com/dcaiafa/nitro/lib/io"
 )
 
 var ErrAborted = errors.New("aborted")
@@ -232,7 +233,7 @@ func (p *process) Close() error {
 
 	if p.vm.ShuttingDown() {
 		fmt.Fprintf(
-			Stderr(p.vm),
+			libio.Stderr(p.vm),
 			"WARNING: open process %v created at %v. "+
 				"Did you forget to pipe the output?\n",
 			p.cmd.Path,
