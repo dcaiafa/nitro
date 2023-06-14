@@ -57,3 +57,7 @@ func (f Float) EvalOp(op Op, operand Value) (Value, error) {
 		return nil, ErrOperationNotSupported
 	}
 }
+
+func (f Float) ToInt() (Int, error) {
+	return NewInt(int64(f.v)), nil
+}

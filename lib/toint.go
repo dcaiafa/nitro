@@ -1,9 +1,10 @@
 package lib
 
 import (
-	"strconv"
+	"fmt"
 
 	"github.com/dcaiafa/nitro"
+	"github.com/dcaiafa/nitro/internal/vm"
 )
 
 func toInt(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
@@ -11,23 +12,22 @@ func toInt(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 		return nil, err
 	}
 
-	var res nitro.Int
-	switch arg := args[0].(type) {
-	case nitro.String:
-		i, err := strconv.ParseInt(arg.String(), 0, 64)
-		if err != nil {
-			return nil, err
-		}
-		res = nitro.NewInt(i)
+	if intArg, ok := args[0].(vm.Int); ok {
+		return []nitro.Value{intArg}, nil
+	}
 
-	case nitro.Float:
-		res = nitro.NewInt(int64(arg.Float64()))
+	inter, ok := args[0].(interface {
+		ToInt() (vm.Int, error)
+	})
+	if !ok {
+		return nil, vm.MakeNonRecoverableError(
+			fmt.Errorf("%v is not convertible to Int",
+				vm.TypeName(args[0])))
+	}
 
-	case nitro.Int:
-		res = arg
-
-	default:
-		return nil, errExpectedArg(0, args[0], "str", "float", "int")
+	res, err := inter.ToInt()
+	if err != nil {
+		return nil, err
 	}
 
 	return []nitro.Value{res}, nil

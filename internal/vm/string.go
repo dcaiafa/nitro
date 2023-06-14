@@ -3,6 +3,7 @@ package vm
 import (
 	"fmt"
 	"io"
+	"strconv"
 	"strings"
 )
 
@@ -102,6 +103,14 @@ func (s String) EvalOp(op Op, operand Value) (Value, error) {
 	default:
 		return nil, ErrOperationNotSupported
 	}
+}
+
+func (s String) ToInt() (Int, error) {
+	res, err := strconv.ParseInt(s.v, 0, 64)
+	if err != nil {
+		return NewInt(0), err
+	}
+	return NewInt(res), nil
 }
 
 func (s String) MakeReader() Reader {
