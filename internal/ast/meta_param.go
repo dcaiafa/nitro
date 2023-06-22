@@ -121,6 +121,12 @@ func (p *MetaParamInit) RunPass(ctx *Context, pass Pass) {
 	if pass == Emit {
 		emitter := ctx.Emitter()
 		skip = emitter.NewLabel()
+
+		// TODO: this doesn't work if the parameter value is `false`.
+		// E.g.:
+		//   !flag foo=true
+		//   print(flag)
+		// This will print `true` even when running `nitro test.n --foo=false`
 		emitSymbolPush(p.Pos(), emitter, p.GlobalSym)
 		emitter.EmitJump(p.Pos(), vm.OpJumpIfTrue, skip, 0)
 		emitSymbolRefPush(p.Pos(), emitter, p.GlobalSym)
