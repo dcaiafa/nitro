@@ -1,0 +1,84 @@
+@token 
+  INFO            '!info'
+  PARAM           '!param'
+  FLAG            '!flag'
+
+  AND             'and'
+  BREAK           'break'
+  CATCH           'catch'
+  CONTINUE        'continue'
+  DEFER           'defer'
+  ELSE            'else'
+  FALSE           'false'
+  FOR             'for'
+  FUNC            'func'
+  IF              'if'
+  IMPORT          'import'
+  NIL             'nil'
+  NOT             'not'
+  OR              'or'
+  RETURN          'return'
+  THROW           'throw'
+  TRUE            'true'
+  TRY             'try'
+  VAR             'var'
+  WHILE           'while'
+  YIELD           'yield'
+
+  ASSIGN          '='
+  ASSIGN_ADD      '+='
+  ASSIGN_SUB      '-='
+  ASSIGN_MUL      '*='
+  ASSIGN_DIV      '/='
+  ASSIGN_MOD      '%='
+
+  EQ              '=='
+  NE              '!='
+  LT              '<'
+  LE              '<='
+  GT              '>'
+  GE              '>='
+  ADD             '+'
+  SUB             '-'
+  MUL             '*'
+  DIV             '/'
+  MOD             '%'
+
+  INC             '++'
+  DEC             '--'
+
+  QUESTION_MARK   '?'
+  SEMICOLON       ';'
+  COMMA           ','
+  COLON           ':'
+  PERIOD          '.'
+  OPAREN          '('
+  CPAREN          ')'
+  OBRACKET        '['
+  CBRACKET        ']'
+  OCURLY          '{'
+  CCURLY          '}'
+  ARROW           '->'
+  LAMBDA          '&'
+  PIPE            '|'
+  EXPAND          '...'
+  BACKTICK        '`'
+
+  NUMBER          'number'
+  STRING          'string'
+  ID              'identifier'
+  REGEX           'regex-literal'
+  NEWLINE         'new-line'
+  CHAR            'character'
+
+  EXEC_PREFIX     'e`'
+  EXEC_LITERAL
+  EXEC_DQUOTE_LITERAL
+  EXEC_SQUOTE_LITERAL
+  EXEC_WS
+  EXEC_HOME
+  ;
+  
+
+
+

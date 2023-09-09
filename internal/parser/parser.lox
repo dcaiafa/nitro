@@ -1,0 +1,144 @@
+start = unit ;
+
+unit = prologue stmts ;
+
+prologue = meta_directive* import_stmt* ;
+
+meta_directive = meta_info
+               | meta_param
+               | meta_flag ;
+meta_info         = INFO meta_attribs? ';' ;
+meta_param        = PARAM ID meta_value? meta_attribs ';' ;
+meta_flag         = FLAG ID meta_value? meta_attribs ';' ;
+meta_value        = '=' expr ;
+meta_attribs      = '{' meta_attrib_list? '}' ;
+meta_attrib_list  = @list(meta_attrib, comma_semicolon) comma_semicolon? ;
+meta_attrib       = id_or_keyword meta_attrib_value? ;
+meta_attrib_value = ':' meta_literal ;
+meta_literal      = STRING | NUMBER | CHAR | TRUE | FALSE | NIL ;
+
+import_stmt = 'import' ID? STRING ';' ;
+
+stmts      = stmt_list? ;
+stmt_list  = @list(stmt, ';') ';'? ;
+
+stmt = assignment_stmt
+     | assignment_op_stmt
+     | var_decl_stmt
+     | for_stmt
+     | while_stmt
+     ;
+
+assignment_stmt = @list(lvalue_expr, ',') '=' rvalues ;
+rvalues = @list(expr, ',') ;
+
+assignment_op_stmt = lvalue_expr assign_op expr;
+assign_op = '+=' | '-=' | '*=' | '/=' | '%=' ;
+
+var_decl_stmt = 'var' @list(ID, ',') var_decl_init? ;
+var_decl_init = '=' rvalues ;
+
+for_stmt = 'for' @list(ID, ',') ID expr '{' stmts '}' ;
+
+while_stmt = 'while' expr '{' stmts '}' ;
+
+
+param_list = @list(ID, ',') ;
+
+// Expressions
+
+expr  = short_lambda_expr
+      | expr3 ;
+
+expr3 = expr3 '?' expr3 ':' expr3  @right(1)
+      | binary_expr ;
+
+binary_expr = unary_expr
+            | binary_expr '*' binary_expr      @left(10)
+            | binary_expr '/' binary_expr      @left(10) 
+            | binary_expr '%' binary_expr      @left(10) 
+            | binary_expr '+' binary_expr      @left(9) 
+            | binary_expr '-' binary_expr      @left(9) 
+            | binary_expr '|' binary_expr      @left(8)
+            | binary_expr '<' binary_expr      @left(7)
+            | binary_expr '<=' binary_expr     @left(7) 
+            | binary_expr '>' binary_expr      @left(7) 
+            | binary_expr '>=' binary_expr     @left(7) 
+            | binary_expr '==' binary_expr     @left(7) 
+            | binary_expr '!=' binary_expr     @left(7) 
+            | binary_expr 'and' binary_expr    @left(6) 
+            | binary_expr 'or' binary_expr     @left(5) ;
+
+unary_expr = 'not' primary_expr
+           | '+' primary_expr
+           | '-' primary_expr
+           | primary_expr ;
+
+primary_expr = ID
+             | primary_expr '.' ID
+             | primary_expr '[' expr ']' 
+             | primary_expr '[' expr? ':' expr? ']'
+             | primary_expr '(' arg_list? ')'
+             | lambda_expr
+             | exec_expr
+             | object_literal
+             | array_literal
+             | simple_literal
+             | REGEX
+             | '(' expr ')'
+             ;
+
+simple_literal = STRING | NUMBER | CHAR | 'true' | 'false' | 'nil' ;
+
+arg_list = @list(expr, ',') comma_semicolon? '...'? ;
+
+lvalue_expr = ID
+            | ID '.' ID
+            | ID '[' expr ']' ;
+
+lambda_expr = 'func' '(' param_list? ')' '{' stmts '}' ;
+
+short_lambda_expr = LAMBDA param_list? '->' expr3 ;
+
+exec_expr = 'e`' exec_expr_arg* '`' ;
+
+exec_expr_arg = EXEC_LITERAL
+              | EXEC_DQUOTE_LITERAL
+              | EXEC_SQUOTE_LITERAL
+              | EXEC_WS
+              | EXEC_HOME
+              | '{' expr '...'? '}' ;
+
+object_literal = '{' object_fields? '}' ;
+object_fields  = @list(object_field, comma_semicolon) comma_semicolon? ;
+object_field   = id_or_keyword ':' expr
+               | '[' expr ']' ':' expr ;
+
+array_literal = '[' array_elems? ']' ;
+array_elems   = @list(array_elem, comma_semicolon) comma_semicolon? ;
+array_elem    = expr '...'? ;
+
+comma_semicolon = ',' | ';' ;
+
+id_or_keyword = ID 
+              | AND
+              | BREAK
+              | CATCH
+              | CONTINUE
+              | DEFER
+              | ELSE
+              | FALSE
+              | FOR
+              | FUNC
+              | IF
+              | IMPORT
+              | NIL
+              | NOT
+              | OR
+              | RETURN
+              | THROW
+              | TRUE
+              | TRY
+              | VAR
+              | WHILE
+              | YIELD ;
