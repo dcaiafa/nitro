@@ -27,6 +27,16 @@ stmt = assignment_stmt
      | var_decl_stmt
      | for_stmt
      | while_stmt
+     | if_stmt
+     | func_stmt
+     | return_stmt
+     | try_catch_stmt
+     | throw_stmt
+     | defer_stmt
+     | yield_stmt
+     | break_stmt
+     | continue_stmt
+     | inc_dec_stmt
      ;
 
 assignment_stmt = @list(lvalue_expr, ',') '=' rvalues ;
@@ -42,8 +52,32 @@ for_stmt = 'for' @list(ID, ',') ID expr '{' stmts '}' ;
 
 while_stmt = 'while' expr '{' stmts '}' ;
 
+if_stmt       = 'if' expr '{' stmts '}' if_elifs_else? ;
+if_elifs_else = if_elifs_else if_elif
+              | if_elif
+              | if_else ;
+if_elif       = 'else' 'if' expr '{' stmts '}' ;
+if_else       = 'else' '{' stmts '}' ;
 
+func_stmt = 'func' ID '(' param_list? ')' '{' stmts '}' ;
 param_list = @list(ID, ',') ;
+
+return_stmt = 'return' rvalues? ;
+
+try_catch_stmt = 'try' '{' stmts '}' 'catch' ID? '{' stmts '}' ;
+
+throw_stmt = 'throw' expr ;
+
+defer_stmt = 'defer' expr ;
+
+yield_stmt = 'yield' rvalues ;
+
+break_stmt = 'break' ;
+
+continue_stmt = 'continue' ;
+
+inc_dec_stmt = lvalue_expr '++'
+             | lvalue_expr '--' ;
 
 // Expressions
 
