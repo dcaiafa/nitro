@@ -126,7 +126,7 @@ func RegisterAll(registry BuiltinRegistry) {
 	registry.RegisterBuiltins("encoding/json", json.Exports)
 	registry.RegisterBuiltins("exec", ExecPackage)
 	registry.RegisterBuiltins("file", file.Exports)
-	registry.RegisterBuiltins("filepath", filepath.Exports)
+	registry.RegisterBuiltins("path/filepath", filepath.Exports)
 	registry.RegisterBuiltins("io", io.Exports)
 	registry.RegisterBuiltins("iter", IterPackage)
 	registry.RegisterBuiltins("list", ListPackage)
