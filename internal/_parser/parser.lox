@@ -1,4 +1,6 @@
-start = unit ;
+@parser
+
+@start start = unit ;
 
 unit = prologue stmts ;
 

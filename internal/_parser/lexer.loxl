@@ -1,0 +1,13 @@
+
+@fragment HEX_DIGIT = [a-fA-F0-9] ;
+
+'#' ~[\n]* -> @skip;
+[ \t]+     -> @skip;
+
+'"' -> @more, @push_mode(QSTR) ;
+
+@mode QSTR;
+
+~["\r\n\]  -> @more ;
+'\\' ([nrt"\\] | ('x' HEX_DIGIT HEX_DIGIT)) -> more ;
+STRING = '"' -> @pop_mode ;
