@@ -31,6 +31,7 @@ var GlobalPackage = export.Exports{
 	{N: "group", T: export.Func, F: group},
 	{N: "has", T: export.Func, F: has},
 	{N: "hist", T: export.Func, F: hist},
+	{N: "in", T: export.Func, F: in},
 	{N: "join", T: export.Func, F: join},
 	{N: "len", T: export.Func, F: Len},
 	{N: "lines", T: export.Func, F: lines},
