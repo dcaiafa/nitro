@@ -1,0 +1,7 @@
+package "crypto"
+
+import nitro "github.com/dcaiafa/nitro"
+
+const ALPHANUM Str = `#nitro.NewString("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")` 
+
+func generate_secret(size Int, charset Str = `""`) Str

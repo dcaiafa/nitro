@@ -2,6 +2,7 @@ package lib
 
 import (
 	"github.com/dcaiafa/nitro/internal/export"
+	"github.com/dcaiafa/nitro/lib/crypto"
 	"github.com/dcaiafa/nitro/lib/encoding/json"
 	"github.com/dcaiafa/nitro/lib/file"
 	"github.com/dcaiafa/nitro/lib/io"
@@ -124,16 +125,17 @@ func RegisterAll(registry BuiltinRegistry) {
 	registry.RegisterBuiltins("$global", GlobalPackage)
 	registry.RegisterBuiltins("buf", BufPackage)
 	registry.RegisterBuiltins("co", CoPackage)
+	registry.RegisterBuiltins("crypto", crypto.Exports)
 	registry.RegisterBuiltins("encoding/json", json.Exports)
 	registry.RegisterBuiltins("exec", ExecPackage)
 	registry.RegisterBuiltins("file", file.Exports)
-	registry.RegisterBuiltins("path/filepath", filepath.Exports)
 	registry.RegisterBuiltins("io", io.Exports)
 	registry.RegisterBuiltins("iter", IterPackage)
 	registry.RegisterBuiltins("list", ListPackage)
 	registry.RegisterBuiltins("maps", maps.Exports)
 	registry.RegisterBuiltins("math", MathPackage)
 	registry.RegisterBuiltins("os", OSPackage)
+	registry.RegisterBuiltins("path/filepath", filepath.Exports)
 	registry.RegisterBuiltins("str", str.Exports)
 	registry.RegisterBuiltins("time", libtime.Exports)
 }
