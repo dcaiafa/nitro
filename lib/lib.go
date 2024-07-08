@@ -74,6 +74,7 @@ var GlobalPackage = export.Exports{
 	{N: "to_string", T: export.Func, F: toString},
 	{N: "type", T: export.Func, F: typep},
 	{N: "unique", T: export.Func, F: unique},
+	{N: "write_csv", T: export.Func, F: writeCSV},
 }
 
 var BufPackage = export.Exports{
