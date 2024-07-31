@@ -1,10 +1,24 @@
 package lib
 
 import (
+	"io"
+
 	"github.com/dcaiafa/nitro"
 )
 
 func skip(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	if err := expectArgCount(args, 2, 2); err != nil {
+		return nil, err
+	}
+
+	if nitro.IsIterable(args[0]) {
+		return skipIter(m, args, nRet)
+	} else {
+		return skipReader(m, args, nRet)
+	}
+}
+
+func skipIter(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	if err := expectArgCount(args, 2, 2); err != nil {
 		return nil, err
 	}
@@ -19,17 +33,40 @@ func skip(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 		return nil, err
 	}
 
-	skipIter := &skipIter{inIter: inIter, skip: int(skip)}
+	skipIter := &skipIterator{inIter: inIter, skip: int(skip)}
 
 	return []nitro.Value{nitro.NewIterator(skipIter.Next, skipIter.Close, inIter.IterNRet())}, nil
 }
 
-type skipIter struct {
+func skipReader(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+	if err := expectArgCount(args, 2, 2); err != nil {
+		return nil, err
+	}
+
+	inReader, err := getReaderArg(m, args, 0)
+	if err != nil {
+		return nil, err
+	}
+
+	skip, err := getIntArg(args, 1)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = io.Copy(io.Discard, io.LimitReader(inReader, skip))
+	if err != nil {
+		return nil, err
+	}
+
+	return []nitro.Value{inReader}, nil
+}
+
+type skipIterator struct {
 	inIter nitro.Iterator
 	skip   int
 }
 
-func (i *skipIter) Next(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
+func (i *skipIterator) Next(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Value, error) {
 	for {
 		v, err := m.IterNext(i.inIter, i.inIter.IterNRet())
 		if err != nil {
@@ -46,7 +83,7 @@ func (i *skipIter) Next(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Valu
 	}
 }
 
-func (i *skipIter) Close(vm *nitro.VM) error {
+func (i *skipIterator) Close(vm *nitro.VM) error {
 	vm.IterClose(i.inIter)
 	return nil
 }

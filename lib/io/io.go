@@ -99,6 +99,7 @@ func out0(vm *nitro.VM, r vm.Reader) (vm.Writer, error) {
 	if err != nil {
 		return nil, err
 	}
+	core.CloseReader(r)
 	return out, nil
 }
 
@@ -111,6 +112,7 @@ func err0(vm *nitro.VM, r vm.Reader) (vm.Writer, error) {
 	if err != nil {
 		return nil, err
 	}
+	core.CloseReader(r)
 	return out, nil
 }
 

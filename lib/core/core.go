@@ -48,6 +48,8 @@ func (b *WriterBase) Call(m *nitro.VM, args []nitro.Value, nRet int) ([]nitro.Va
 		return nil, err
 	}
 
+	CloseReader(reader)
+
 	return []nitro.Value{nitro.NewInt(n)}, nil
 }
 
