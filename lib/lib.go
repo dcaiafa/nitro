@@ -21,6 +21,7 @@ var GlobalPackage = export.Exports{
 	{N: "close", T: export.Func, F: closep},
 	{N: "color", T: export.Func, F: color},
 	{N: "count", T: export.Func, F: count},
+	{N: "deep_equal", T: export.Func, F: deepEqual},
 	{N: "discard", T: export.Func, F: discard},
 	{N: "do", T: export.Func, F: dop},
 	{N: "env", T: export.Func, F: env},
